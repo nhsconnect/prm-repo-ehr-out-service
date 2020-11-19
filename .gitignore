@@ -1,0 +1,16 @@
+# IntelliJ
+.idea
+*.iml
+
+# Compiled code
+build
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Dojo
+*.dojo

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -Eeo pipefail
+
+###########
+## TASKS ##
+###########
+
+command="$1"
+case "${command}" in
+  _build)
+      rm -rf build
+      npm install
+      npm run build
+      ;;
+  build)
+      dojo "./tasks _build"
+      ;;
+  _test_unit)
+      npm install
+      npm run test:unit
+      ;;
+  test_unit)
+      dojo "./tasks _test_unit"
+      ;;
+  *)
+      echo "Invalid command: '${command}'"
+      exit 1
+      ;;
+esac
+set +e
