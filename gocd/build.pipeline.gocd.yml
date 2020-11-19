@@ -33,3 +33,19 @@ pipelines:
                     arguments:
                       - -c
                       - ./tasks build
+      - docker:
+          clean_workspace: true
+          jobs:
+            build:
+              resources:
+                - docker
+              tasks:
+                - fetch:
+                    stage: build
+                    job: build_artifacts
+                    source: build
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks build_docker
