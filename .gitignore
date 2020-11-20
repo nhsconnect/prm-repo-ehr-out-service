@@ -14,3 +14,8 @@ jspm_packages/
 
 # Dojo
 *.dojo
+
+# Local .terraform directories
+**/.terraform/*
+/terraform/nhs_deployment.tfplan
+/terraform/tf-out.json
