@@ -21,6 +21,15 @@ pipelines:
                     arguments:
                       - -c
                       - ./tasks test_unit
+            test_integration:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks test_integration
             build_artifacts:
               resources:
                 - docker

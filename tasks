@@ -80,6 +80,13 @@ case "${command}" in
   test_unit)
       dojo "./tasks _test_unit"
       ;;
+  _test_integration)
+      npm install
+      npm run test:integration
+      ;;
+  test_integration)
+      dojo "./tasks _test_integration"
+      ;;
   _build)
       rm -rf build
       npm install
