@@ -176,7 +176,7 @@
           "type": "string",
           "description": "Tells you if the service is running"
         },
-        "node_env": {
+        "nodeEnv": {
           "type": "string",
           "description": "Environment - local, dev etc."
         }

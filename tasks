@@ -183,6 +183,13 @@ case "${command}" in
       configure_hangout_webhook
       dojo "node scripts/send-canary-error.js"
       ;;
+  _test_lint)
+      npm install
+      npm run lint
+      ;;
+  test_lint)
+      dojo "./tasks _test_lint"
+      ;;
   _test_unit)
       npm install
       npm run test:unit
@@ -212,13 +219,6 @@ case "${command}" in
       ;;
   build)
       dojo "./tasks _build"
-      ;;
-  _test_lint)
-      npm install
-      npm run lint
-      ;;
-  test_lint)
-      dojo "./tasks _test_lint"
       ;;
   build_docker_local)
       configure_local_envs

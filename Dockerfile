@@ -8,7 +8,7 @@ RUN apk update && \
     apk add --no-cache bash tini && \
     rm -rf /var/cache/apk/*
 
-ENV NODE_ENV="prod" \
+ENV NODE_ENV="" \
   NHS_ENVIRONMENT="" \
   SERVICE_URL=""
 
