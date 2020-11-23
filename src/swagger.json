@@ -137,7 +137,7 @@
           "format": "uuid"
         },
         "nhsNumber": {
-          "type": "integer"
+          "type": "string"
         },
         "odsCode": {
           "type": "string"

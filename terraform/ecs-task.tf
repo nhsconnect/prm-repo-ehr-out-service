@@ -4,7 +4,7 @@ locals {
   task_log_group      = "/nhs/deductions/${var.environment}-${data.aws_caller_identity.current.account_id}/${var.component_name}"
   environment_variables = [
     { name = "NODE_ENV", value = var.environment },
-    { name = "SERVICE_URL", value = aws_ssm_parameter.service_url.value}
+    { name = "SERVICE_URL", value = aws_ssm_parameter.repo_to_gp_service_url.value}
   ]
   secret_environment_variables = [
     { name = "AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.authorization_keys.arn },

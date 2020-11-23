@@ -60,6 +60,14 @@ function get_aws_ssm_secret {
    echo $json | jq -r ".Parameter.Value"
 }
 
+function configure_aws_service_auth_keys {
+    check_env
+    get_aws_account_id
+    parameter_name="/repo/${NHS_ENVIRONMENT}/user-input/${NHS_SERVICE}-authorization-keys"
+    echo "${parameter_name}"
+    export AUTHORIZATION_KEYS=$(dojo -c Dojofile-infra "aws ssm get-parameter --with-decryption --region ${AWS_DEFAULT_REGION} --name  ${parameter_name} | jq -r .Parameter.Value")
+}
+
 ############################
 # Docker Related Functions #
 ############################
@@ -133,6 +141,20 @@ function configure_hangout_webhook {
 }
 
 ###########
+# Testing #
+###########
+
+function test_functional {
+  check_env
+  npm install
+  if [[ $NHS_ENVIRONMENT == "dev" ]]; then
+    npm run test:health
+  else
+    npm run test:functional
+  fi
+}
+
+###########
 ## TASKS ##
 ###########
 
@@ -174,6 +196,14 @@ case "${command}" in
       ;;
   test_integration)
       dojo "./tasks _test_integration"
+      ;;
+  _test_functional)
+      test_functional
+      ;;
+  test_functional)
+      configure_aws_service_auth_keys
+      configure_service_url
+      dojo "./tasks _test_functional"
       ;;
   _build)
       rm -rf build

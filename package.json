@@ -10,7 +10,9 @@
     "start": "node build/server.js",
     "test": "npm run lint:fix && npm run test:unit",
     "test:unit": "jest \"src/(?!(.*\\integration.test\\.js))\" --setupFiles",
-    "test:integration": "jest \"src/.*\\integration.test\\.js\" --detectOpenHandles --forceExit --setupFiles"
+    "test:integration": "jest \"src/.*\\integration.test\\.js\" --detectOpenHandles --forceExit --setupFiles",
+    "test:health": "jest test/functional/health.test.js",
+    "test:functional": "jest test/functional/*"
   },
   "dependencies": {
     "axios": "^0.21.0",

@@ -8,6 +8,10 @@ RUN apk update && \
     apk add --no-cache bash tini && \
     rm -rf /var/cache/apk/*
 
+ENV NODE_ENV="prod" \
+  NHS_ENVIRONMENT="" \
+  SERVICE_URL=""
+
 EXPOSE 3000
 
 COPY scripts/run-server.sh /usr/bin/run-repo-to-gp-server
