@@ -126,6 +126,13 @@ case "${command}" in
   build)
       dojo "./tasks _build"
       ;;
+  _test_lint)
+      npm install
+      npm run lint
+      ;;
+  test_lint)
+      dojo "./tasks _test_lint"
+      ;;
   build_docker_local)
       configure_local_envs
       build_docker_image

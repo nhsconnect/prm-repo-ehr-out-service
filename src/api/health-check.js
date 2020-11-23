@@ -3,7 +3,7 @@ import { getHealthCheck } from '../services/get-health-check';
 
 const router = express.Router();
 
-router.get('/', (req, res, next) => {
+router.get('/', (req, res) => {
   const status = getHealthCheck();
 
   res.status(200).json(status);

@@ -2,14 +2,14 @@ import request from 'supertest';
 import app from '../app';
 import { initializeConfig } from '../config';
 
-jest.mock('../config')
+jest.mock('../config');
 
 describe('GET /health', () => {
   it('should return 200 and the response from getHealthCheck', done => {
     const expectedHealthCheckResponse = {
       version: '1',
       description: 'Health of Repo To GP service',
-      nodeEnv: 'local',
+      nodeEnv: 'local'
     };
 
     initializeConfig.mockReturnValue({ nodeEnv: 'local' });

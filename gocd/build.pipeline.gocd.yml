@@ -12,6 +12,15 @@ pipelines:
       - build:
           clean_workspace: true
           jobs:
+            test_lint:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks test_lint
             test_unit:
               resources:
                 - docker

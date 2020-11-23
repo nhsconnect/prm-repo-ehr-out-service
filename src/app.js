@@ -10,8 +10,8 @@ app.use(express.json());
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/health', healthCheck);
 
-app.use((err, req, res, next) => {
-    res.status(500).json({ error: err.message });
+app.use((err, req, res) => {
+  res.status(500).json({ error: err.message });
 });
 
 export default app;

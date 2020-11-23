@@ -8,7 +8,7 @@ describe('getHealthCheck', () => {
     const expected = {
       version: '1',
       description: 'Health of Repo To GP service',
-      nodeEnv: 'local',
+      nodeEnv: 'local'
     };
 
     initializeConfig.mockReturnValue({ nodeEnv: 'local' });

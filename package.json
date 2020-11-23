@@ -4,8 +4,11 @@
   "main": "src/server.js",
   "scripts": {
     "build": "babel src -d build --ignore '**/*.test.js' && cp src/*.json build",
+    "lint": "eslint src/",
+    "lint:fix": "npm run lint -- --fix",
     "start:local": "babel-node src/server.js",
     "start": "node build/server.js",
+    "test": "npm run lint:fix && npm run test:unit ",
     "test:unit": "jest \"src/(?!(.*\\integration.test\\.js))\" --setupFiles",
     "test:integration": "jest \"src/.*\\integration.test\\.js\" --detectOpenHandles --forceExit --setupFiles"
   },
@@ -19,7 +22,12 @@
     "@babel/node": "^7.12.6",
     "@babel/plugin-transform-runtime": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
+    "eslint": "^7.14.0",
+    "eslint-config-prettier": "^6.13.0",
+    "eslint-plugin-jest": "^24.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
     "jest": "^26.6.3",
+    "prettier": "2.2.0",
     "supertest": "^6.0.1"
   },
   "repository": {
