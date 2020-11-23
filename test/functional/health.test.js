@@ -1,6 +1,6 @@
 import axios from 'axios';
 import adapter from 'axios/lib/adapters/http';
-import { initializeConfig } from "../../src/config";
+import { initializeConfig } from '../../src/config';
 
 describe('/health', () => {
   const config = initializeConfig();

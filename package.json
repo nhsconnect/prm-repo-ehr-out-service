@@ -4,7 +4,7 @@
   "main": "src/server.js",
   "scripts": {
     "build": "babel src -d build --ignore '**/*.test.js' && cp src/*.json build",
-    "lint": "eslint src/",
+    "lint": "eslint src/ test/ scripts/",
     "lint:fix": "npm run lint -- --fix",
     "start": "node build/server.js",
     "start:local": "babel-node src/server.js",
