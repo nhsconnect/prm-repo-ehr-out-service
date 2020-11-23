@@ -24,3 +24,21 @@ describe('GET /health', () => {
       .end(done);
   });
 });
+
+describe('Swagger Documentation', () => {
+  it('GET /swagger - should return a redirect 301 status code and text/html content type response', done => {
+    request(app)
+      .get('/swagger')
+      .expect(301)
+      .expect('Content-Type', 'text/html; charset=UTF-8')
+      .end(done);
+  });
+
+  it('GET /swagger/index.html - should return a 200 status code and text/html content type response', done => {
+    request(app)
+      .get('/swagger/index.html')
+      .expect(200)
+      .expect('Content-Type', 'text/html; charset=UTF-8')
+      .end(done);
+  });
+});
