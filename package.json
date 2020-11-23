@@ -8,20 +8,21 @@
     "lint:fix": "npm run lint -- --fix",
     "start:local": "babel-node src/server.js",
     "start": "node build/server.js",
-    "test": "npm run lint:fix && npm run test:unit ",
+    "test": "npm run lint:fix && npm run test:unit",
     "test:unit": "jest \"src/(?!(.*\\integration.test\\.js))\" --setupFiles",
     "test:integration": "jest \"src/.*\\integration.test\\.js\" --detectOpenHandles --forceExit --setupFiles"
   },
   "dependencies": {
+    "axios": "^0.21.0",
     "express": "^4.17.1",
-    "swagger-ui-express": "^4.1.4"
+    "swagger-ui-express": "^4.1.5"
   },
   "devDependencies": {
-    "@babel/cli": "^7.12.1",
-    "@babel/core": "^7.12.3",
+    "@babel/cli": "^7.12.7",
+    "@babel/core": "^7.12.7",
     "@babel/node": "^7.12.6",
     "@babel/plugin-transform-runtime": "^7.12.1",
-    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-env": "^7.12.7",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^6.13.0",
     "eslint-plugin-jest": "^24.1.0",
