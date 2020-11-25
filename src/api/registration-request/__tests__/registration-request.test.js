@@ -8,12 +8,17 @@ describe('POST /registration-requests/', () => {
   initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
 
   const mockBody = {
-    nhsNumber: '1111111111',
-    odsCode: 'A12345',
-    conversationId: '5BB36755-279F-43D5-86AB-DEFEA717D93F'
+    data: {
+      type: 'registration-requests',
+      id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
+      attributes: {
+        nhsNumber: '1111111111',
+        odsCode: 'A12345'
+      }
+    }
   };
 
-  it('should return a 201 if nhsNumber, odsCode and conversationId are provided', async () => {
+  it('should return a 201 if nhsNumber, odsCode, type, conversationId are provided', async () => {
     const res = await request(app)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
@@ -40,36 +45,86 @@ describe('POST /registration-requests/', () => {
 
   describe('validations', () => {
     it('should return an error if :nhsNumber is less than 10 digits', async () => {
-      const errorMessage = [{ nhsNumber: "'nhsNumber' provided is not 10 characters" }];
-
+      const errorMessage = [
+        { 'data.attributes.nhsNumber': "'nhsNumber' provided is not 10 characters" }
+      ];
+      const mockBody = {
+        data: {
+          type: 'registration-requests',
+          id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
+          attributes: {
+            nhsNumber: '111111',
+            odsCode: 'A12345'
+          }
+        }
+      };
       const res = await request(app)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')
-        .send({ ...mockBody, nhsNumber: '111111' });
+        .send(mockBody);
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toEqual({ errors: errorMessage });
     });
 
     it('should return an error if :nhsNumber is not numeric', async () => {
-      const errorMessage = [{ nhsNumber: "'nhsNumber' provided is not numeric" }];
-
+      const errorMessage = [{ 'data.attributes.nhsNumber': "'nhsNumber' provided is not numeric" }];
+      const mockBody = {
+        data: {
+          type: 'registration-requests',
+          id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
+          attributes: {
+            nhsNumber: 'xxxxxxxxxx',
+            odsCode: 'A12345'
+          }
+        }
+      };
       const res = await request(app)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')
-        .send({ ...mockBody, nhsNumber: 'xxxxxxxxxx' });
+        .send(mockBody);
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toEqual({ errors: errorMessage });
     });
 
     it('should return an error if :conversationId is not uuid', async () => {
-      const errorMessage = [{ conversationId: "'conversationId' provided is not of type UUIDv4" }];
-
+      const errorMessage = [{ 'data.id': "'conversationId' provided is not of type UUIDv4" }];
+      const mockBody = {
+        data: {
+          type: 'registration-requests',
+          id: 'not-a-uuid',
+          attributes: {
+            nhsNumber: '1111111111',
+            odsCode: 'A12345'
+          }
+        }
+      };
       const res = await request(app)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')
-        .send({ ...mockBody, conversationId: 'not-a-uuid' });
+        .send(mockBody);
+
+      expect(res.statusCode).toBe(422);
+      expect(res.body).toEqual({ errors: errorMessage });
+    });
+
+    it('should return an error if type is not valid', async () => {
+      const errorMessage = [{ 'data.type': 'Invalid value' }];
+      const mockBody = {
+        data: {
+          type: 'registration',
+          id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
+          attributes: {
+            nhsNumber: '1111111111',
+            odsCode: 'A12345'
+          }
+        }
+      };
+      const res = await request(app)
+        .post('/registration-requests/')
+        .set('Authorization', 'correct-key')
+        .send(mockBody);
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toEqual({ errors: errorMessage });

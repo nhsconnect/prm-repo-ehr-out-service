@@ -7,15 +7,20 @@ jest.mock('../../config');
 describe('auth', () => {
   it('should return HTTP 201 when correctly authenticated', async () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
-
+    const body = {
+      data: {
+        type: 'registration-requests',
+        id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
+        attributes: {
+          nhsNumber: '1111111111',
+          odsCode: 'A12345'
+        }
+      }
+    };
     const res = await request(app)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
-      .send({
-        nhsNumber: '0000000000',
-        odsCode: 'ABC1234',
-        conversationId: '0F76E284-31EB-4370-8BAE-07DBD92C3C9B'
-      });
+      .send(body);
 
     expect(res.statusCode).toBe(201);
   });

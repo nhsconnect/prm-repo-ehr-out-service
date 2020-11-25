@@ -132,20 +132,35 @@
     "registrationRequest": {
       "type": "object",
       "properties": {
-        "conversationId": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "nhsNumber": {
-          "type": "string"
-        },
-        "odsCode": {
-          "type": "string"
+        "data": {
+          "type": "object",
+          "properties": {
+             "type": {
+               "type": "string",
+               "enum": ["registration-requests"]
+             },
+            "id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "attributes": {
+              "type": "object",
+              "properties": {
+                "nhsNumber": {
+                  "type": "string"
+                },
+                "odsCode": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       },
       "required": [
+        "type",
+        "id",
         "nhsNumber",
-        "conversationId",
         "odsCode"
       ]
     },
