@@ -48,17 +48,14 @@
           }
         ],
         "responses": {
-          "202": {
-            "description": "Accepted and started registration request"
+          "204": {
+            "description": "Registration request created successfully"
           },
           "401": {
             "description": "Authorization header missing"
           },
           "403": {
             "description": "Authorization key invalid"
-          },
-          "422": {
-            "description": "Registration rejected due to wrong status of patient on PDS, inexisting patient on PDS or no EHR found in the repo"
           },
           "503": {
             "description": "Error",

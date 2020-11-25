@@ -18,16 +18,16 @@ describe('POST /registration-requests/', () => {
     }
   };
 
-  it('should return a 201 if nhsNumber, odsCode, type, conversationId are provided', async () => {
+  it('should return a 204 if nhsNumber, odsCode, type, conversationId are provided', async () => {
     const res = await request(app)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
       .send(mockBody);
 
-    expect(res.statusCode).toBe(201);
+    expect(res.statusCode).toBe(204);
   });
 
-  it('should return a 201 if Authorization Header is provided', async () => {
+  it('should return a 204 if Authorization Header is provided', async () => {
     const res = await request(app)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
@@ -90,20 +90,10 @@ describe('POST /registration-requests/', () => {
 
     it('should return an error if :conversationId is not uuid', async () => {
       const errorMessage = [{ 'data.id': "'conversationId' provided is not of type UUIDv4" }];
-      const mockBody = {
-        data: {
-          type: 'registration-requests',
-          id: 'not-a-uuid',
-          attributes: {
-            nhsNumber: '1111111111',
-            odsCode: 'A12345'
-          }
-        }
-      };
       const res = await request(app)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')
-        .send(mockBody);
+        .send({ data: { ...mockBody.data, id: 'not-a-uuid' } });
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toEqual({ errors: errorMessage });
@@ -111,20 +101,10 @@ describe('POST /registration-requests/', () => {
 
     it('should return an error if type is not valid', async () => {
       const errorMessage = [{ 'data.type': 'Invalid value' }];
-      const mockBody = {
-        data: {
-          type: 'registration',
-          id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
-          attributes: {
-            nhsNumber: '1111111111',
-            odsCode: 'A12345'
-          }
-        }
-      };
       const res = await request(app)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')
-        .send(mockBody);
+        .send({ data: { ...mockBody.data, type: 'invalid-type' } });
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toEqual({ errors: errorMessage });
