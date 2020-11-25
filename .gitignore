@@ -18,6 +18,10 @@ jspm_packages/
 # Optional eslint cache
 .eslintcache
 
+# Coverage directory used by tools like istanbul
+coverage
+*.lcov
+
 # Dojo
 *.dojo
 

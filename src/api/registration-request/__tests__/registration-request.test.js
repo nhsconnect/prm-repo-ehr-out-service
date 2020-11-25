@@ -1,7 +1,12 @@
 import request from 'supertest';
 import app from '../../../app';
+import { initializeConfig } from '../../../config';
+
+jest.mock('../../../config');
 
 describe('POST /registration-requests/', () => {
+  initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
+
   const mockBody = {
     nhsNumber: '1111111111',
     odsCode: 'A12345',
@@ -9,7 +14,10 @@ describe('POST /registration-requests/', () => {
   };
 
   it('should return a 201 if nhsNumber, odsCode and conversationId are provided', async () => {
-    const res = await request(app).post('/registration-requests/').send(mockBody);
+    const res = await request(app)
+      .post('/registration-requests/')
+      .set('Authorization', 'correct-key')
+      .send(mockBody);
 
     expect(res.statusCode).toBe(201);
   });
@@ -17,10 +25,17 @@ describe('POST /registration-requests/', () => {
   it('should return a 201 if Authorization Header is provided', async () => {
     const res = await request(app)
       .post('/registration-requests/')
-      .set('Authorization', 'mock-auth-key')
+      .set('Authorization', 'correct-key')
       .send(mockBody);
 
-    expect(res.request.header['Authorization']).toBe('mock-auth-key');
+    expect(res.request.header['Authorization']).toBe('correct-key');
+  });
+
+  it('should return a 401 if Authorization Header is not provided', async () => {
+    const res = await request(app).post('/registration-requests/').send(mockBody);
+
+    expect(res.request.header['Authorization']).toBeUndefined();
+    expect(res.statusCode).toBe(401);
   });
 
   describe('validations', () => {
@@ -29,6 +44,7 @@ describe('POST /registration-requests/', () => {
 
       const res = await request(app)
         .post('/registration-requests/')
+        .set('Authorization', 'correct-key')
         .send({ ...mockBody, nhsNumber: '111111' });
 
       expect(res.statusCode).toBe(422);
@@ -40,6 +56,7 @@ describe('POST /registration-requests/', () => {
 
       const res = await request(app)
         .post('/registration-requests/')
+        .set('Authorization', 'correct-key')
         .send({ ...mockBody, nhsNumber: 'xxxxxxxxxx' });
 
       expect(res.statusCode).toBe(422);
@@ -51,6 +68,7 @@ describe('POST /registration-requests/', () => {
 
       const res = await request(app)
         .post('/registration-requests/')
+        .set('Authorization', 'correct-key')
         .send({ ...mockBody, conversationId: 'not-a-uuid' });
 
       expect(res.statusCode).toBe(422);
