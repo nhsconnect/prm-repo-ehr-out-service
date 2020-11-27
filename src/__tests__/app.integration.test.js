@@ -2,17 +2,22 @@ import request from 'supertest';
 import app from '../app';
 import { initializeConfig } from '../config';
 
-jest.mock('../config');
-
 describe('GET /health', () => {
+  const config = initializeConfig();
+
   it('should return 200 and the response from getHealthCheck', done => {
     const expectedHealthCheckResponse = {
       version: '1',
       description: 'Health of Repo To GP service',
-      nhsEnvironment: 'dev'
+      nhsEnvironment: config.nhsEnvironment,
+      details: {
+        database: {
+          type: 'postgresql',
+          connection: true,
+          writable: true
+        }
+      }
     };
-
-    initializeConfig.mockReturnValue({ nhsEnvironment: 'dev' });
 
     request(app)
       .get('/health')

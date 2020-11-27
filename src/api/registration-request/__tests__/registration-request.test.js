@@ -2,7 +2,9 @@ import request from 'supertest';
 import app from '../../../app';
 import { initializeConfig } from '../../../config';
 
-jest.mock('../../../config');
+jest.mock('../../../config', () => ({
+  initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
+}));
 
 describe('POST /registration-requests/', () => {
   initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });

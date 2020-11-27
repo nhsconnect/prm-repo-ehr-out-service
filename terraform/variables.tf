@@ -8,15 +8,16 @@ variable "repo_name" {
   default = "prm-deductions-repo-to-gp"
 }
 
-variable "environment" {}
+variable "database_name" {
+  type = string
+}
 
+variable "environment" {}
 variable "component_name" {}
 variable "dns_name" {}
 variable "task_image_tag" {}
 variable "task_cpu" {}
 variable "task_memory" {}
 variable "port" {}
-
 variable "service_desired_count" {}
-
 variable "alb_deregistration_delay" {}

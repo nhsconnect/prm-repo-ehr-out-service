@@ -2,11 +2,14 @@ import request from 'supertest';
 import app from '../../app';
 import { initializeConfig } from '../../config';
 
-jest.mock('../../config');
+jest.mock('../../config', () => ({
+  initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
+}));
 
 describe('auth', () => {
   it('should return HTTP 204 when correctly authenticated', async () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
+
     const body = {
       data: {
         type: 'registration-requests',
@@ -53,7 +56,6 @@ describe('auth', () => {
 
   it('should return HTTP 403 when authorization key is incorrect', async () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
-
     const errorMessage = { error: 'Authorization header is provided but not valid' };
 
     const res = await request(app)

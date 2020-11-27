@@ -1,11 +1,16 @@
 import { initializeConfig } from '../config';
+import { checkDbHealth } from './database/check-db-health';
 
-export const getHealthCheck = () => {
+export const getHealthCheck = async () => {
   const config = initializeConfig();
+  const dbHealthCheck = await checkDbHealth();
 
   return {
     version: '1',
     description: 'Health of Repo To GP service',
-    nhsEnvironment: config.nhsEnvironment
+    nhsEnvironment: config.nhsEnvironment,
+    details: {
+      database: dbHealthCheck
+    }
   };
 };

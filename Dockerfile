@@ -9,11 +9,17 @@ RUN apk update && \
     rm -rf /var/cache/apk/*
 
 ENV NHS_ENVIRONMENT="" \
-  SERVICE_URL=""
+  SERVICE_URL="" \
+  DATABASE_NAME="" \
+  DATABASE_USER="" \
+  DATABASE_PASSWORD="" \
+  DATABASE_HOST="" \
+  REPO_TO_GP_SKIP_MIGRATION="" \
+  AUTHORIZATION_KEYS=""
 
 EXPOSE 3000
 
-COPY scripts/run-server.sh /usr/bin/run-repo-to-gp-server
+COPY scripts/run-server-with-db.sh /usr/bin/run-repo-to-gp-server
 
 RUN npm install
 

@@ -40,7 +40,24 @@ function get_latest_commit_hash {
   export COMMIT_HASH=$(git rev-parse HEAD | cut -c 1-7)
 }
 
+function prepare_local_envs_for_ide {
+  export DATABASE_HOST=localhost
+  envs=$( printenv | grep "DATABASE" && \
+          printenv | grep "AUTHORIZATION_KEYS" && \
+          printenv | grep "REPOSITORY_URI" && \
+          printenv | grep "SERVICE_URL"
+  )
+  echo "Paste these env vars to your Intelij run template:"
+  echo $envs | tr ' ' ';'
+}
+
 function configure_local_envs {
+  export DATABASE_USER=deductions_user
+  export DATABASE_PASSWORD=secret
+  export DATABASE_NAME=deductions_test
+  export DATABASE_HOST=db
+  export AUTHORIZATION_KEYS=not-real
+  export REPO_TO_GP_SKIP_MIGRATION=false
   export REPOSITORY_URI=$IMAGE_REPO_NAME
   configure_service_url
 }
@@ -196,12 +213,20 @@ case "${command}" in
   test_unit)
       dojo "./tasks _test_unit"
       ;;
+  _setup_test_integration_local)
+      configure_local_envs
+      npm run db:migrate
+      prepare_local_envs_for_ide
+      ;;
   _test_integration)
       npm install
+      npm run db:migrate
       npm run test:integration
+      npm run db:teardown
       ;;
   test_integration)
-      dojo "./tasks _test_integration"
+      configure_local_envs
+      dojo -c Dojofile-itest "./tasks _test_integration"
       ;;
   _test_functional)
       test_functional

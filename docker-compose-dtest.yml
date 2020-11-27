@@ -1,0 +1,18 @@
+version: '2'
+services:
+  default:
+    links:
+      - repo-to-gp:repo-to-gp
+  gp-to-repo:
+    image: ${REPOSITORY_URI}:${COMMIT_HASH}
+    ports:
+      - 3000:3000
+    links:
+      - db:db
+  db:
+    image: postgres:12.1
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_USER: deductions_user
+      POSTGRES_DB: deductions_test
+      LC_ALL: C

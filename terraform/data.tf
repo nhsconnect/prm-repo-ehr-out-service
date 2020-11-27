@@ -39,3 +39,15 @@ data "aws_ssm_parameter" "root_zone_id" {
 data "aws_ssm_parameter" "private_zone_id" {
   name = "/repo/${var.environment}/output/prm-deductions-infra/private-root-zone-id"
 }
+
+data "aws_ssm_parameter" "db-username" {
+  name = "/repo/${var.environment}/user-input/repo-to-gp-db-username"
+}
+
+data "aws_ssm_parameter" "db-password" {
+  name = "/repo/${var.environment}/user-input/repo-to-gp-db-password"
+}
+
+data "aws_ssm_parameter" "rds_endpoint" {
+  name = "/repo/${var.environment}/output/prm-deductions-infra/repo-to-gp-rds-endpoint"
+}
