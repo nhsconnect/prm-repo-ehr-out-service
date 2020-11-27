@@ -188,9 +188,9 @@
           "type": "string",
           "description": "Tells you if the service is running"
         },
-        "nodeEnv": {
+        "nhsEnvironment": {
           "type": "string",
-          "description": "Environment - local, dev etc."
+          "description": "Environment - test, dev etc."
         }
       }
     }

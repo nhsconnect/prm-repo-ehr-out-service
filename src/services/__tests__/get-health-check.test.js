@@ -8,10 +8,10 @@ describe('getHealthCheck', () => {
     const expected = {
       version: '1',
       description: 'Health of Repo To GP service',
-      nodeEnv: 'local'
+      nhsEnvironment: 'dev'
     };
 
-    initializeConfig.mockReturnValue({ nodeEnv: 'local' });
+    initializeConfig.mockReturnValue({ nhsEnvironment: 'dev' });
 
     expect(getHealthCheck()).toStrictEqual(expected);
   });

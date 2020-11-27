@@ -9,10 +9,10 @@ describe('GET /health', () => {
     const expectedHealthCheckResponse = {
       version: '1',
       description: 'Health of Repo To GP service',
-      nodeEnv: 'local'
+      nhsEnvironment: 'dev'
     };
 
-    initializeConfig.mockReturnValue({ nodeEnv: 'local' });
+    initializeConfig.mockReturnValue({ nhsEnvironment: 'dev' });
 
     request(app)
       .get('/health')

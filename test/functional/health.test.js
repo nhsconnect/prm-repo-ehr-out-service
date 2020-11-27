@@ -15,7 +15,8 @@ describe('/health', () => {
     expect(res.data).toEqual(
       expect.objectContaining({
         version: '1',
-        description: 'Health of Repo To GP service'
+        description: 'Health of Repo To GP service',
+        nhsEnvironment: 'dev'
       })
     );
   });
