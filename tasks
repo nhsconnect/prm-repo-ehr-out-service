@@ -41,7 +41,6 @@ function get_latest_commit_hash {
 }
 
 function configure_local_envs {
-  export NODE_ENV=local
   export REPOSITORY_URI=$IMAGE_REPO_NAME
   configure_service_url
 }
