@@ -13,6 +13,7 @@
     "test:unit": "jest \"src/(?!(.*\\integration.test\\.js))\" --setupFiles",
     "test:integration": "jest \"src/.*\\integration.test\\.js\" --detectOpenHandles --forceExit --setupFiles",
     "test:health": "jest test/functional/health.test.js",
+    "test:docker": "npm run test:health",
     "test:functional": "jest test/functional/*",
     "test:coverage": "jest src/ --maxWorkers=1 --coverage --detectOpenHandles --forceExit --setupFiles dotenv/config",
     "db:wait": "babel-node scripts/wait-for-postgres.js",

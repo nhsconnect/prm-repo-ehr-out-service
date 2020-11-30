@@ -30,7 +30,7 @@ pipelines:
           - docs/**/*.*
       app:
         pipeline: prm-deductions-repo-to-gp
-        stage: docker
+        stage: test_docker
       base_infra:
         pipeline: prm-deductions-infra
         stage: deploy_dev

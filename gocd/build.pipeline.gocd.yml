@@ -67,3 +67,15 @@ pipelines:
                     arguments:
                       - -c
                       - ./tasks build_docker
+      - test_docker:
+          clean_workspace: true
+          jobs:
+            test:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks test_docker

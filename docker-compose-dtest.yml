@@ -3,7 +3,7 @@ services:
   default:
     links:
       - repo-to-gp:repo-to-gp
-  gp-to-repo:
+  repo-to-gp:
     image: ${REPOSITORY_URI}:${COMMIT_HASH}
     ports:
       - 3000:3000
