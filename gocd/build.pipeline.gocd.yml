@@ -39,6 +39,20 @@ pipelines:
                     arguments:
                       - -c
                       - ./tasks test_integration
+            coverage:
+              artifacts:
+                - build:
+                    source: coverage/lcov-report
+              tabs:
+                coverage: lcov-report/index.html
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks test_coverage
             build_artifacts:
               resources:
                 - docker
