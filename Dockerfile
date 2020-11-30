@@ -1,7 +1,7 @@
 FROM node:12.14.0-alpine
 
 RUN apk update && \
-    apk add --no-cache bash tini && \
+    apk add --no-cache bash tini postgresql-client && \
     rm -rf /var/cache/apk/*
 
 # Migration script
@@ -17,6 +17,7 @@ ENV NHS_ENVIRONMENT="" \
   AUTHORIZATION_KEYS=""
 
 WORKDIR /app
+
 COPY package*.json /app/
 COPY build/ /app/build
 COPY database/      /app/database
