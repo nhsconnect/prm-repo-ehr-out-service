@@ -11,5 +11,5 @@ export const registrationRequestValidationRules = [
 ];
 
 export const registrationRequest = async (req, res) => {
-  res.sendStatus(204);
+  res.sendStatus(202);
 };

@@ -48,8 +48,8 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "Registration request created successfully"
+          "202": {
+            "description": "Accepted and started registration request"
           },
           "401": {
             "description": "Authorization header missing"

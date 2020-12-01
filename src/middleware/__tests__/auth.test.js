@@ -7,7 +7,7 @@ jest.mock('../../config', () => ({
 }));
 
 describe('auth', () => {
-  it('should return HTTP 204 when correctly authenticated', async () => {
+  it('should return HTTP 202 when correctly authenticated', async () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
 
     const body = {
@@ -25,7 +25,7 @@ describe('auth', () => {
       .set('Authorization', 'correct-key')
       .send(body);
 
-    expect(res.statusCode).toBe(204);
+    expect(res.statusCode).toBe(202);
   });
 
   it('should return 412 if repoToGpAuthKeys have not been set', async () => {
