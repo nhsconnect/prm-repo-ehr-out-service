@@ -20,16 +20,16 @@ describe('POST /registration-requests/', () => {
     }
   };
 
-  it('should return a 202 if nhsNumber, odsCode, type, conversationId are provided', async () => {
+  it('should return a 204 if nhsNumber, odsCode, type, conversationId are provided', async () => {
     const res = await request(app)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
       .send(mockBody);
 
-    expect(res.statusCode).toBe(202);
+    expect(res.statusCode).toBe(204);
   });
 
-  it('should return a 202 if Authorization Header is provided', async () => {
+  it('should return a 204 if Authorization Header is provided', async () => {
     const res = await request(app)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')

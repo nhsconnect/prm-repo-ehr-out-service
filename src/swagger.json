@@ -48,7 +48,7 @@
           }
         ],
         "responses": {
-          "202": {
+          "204": {
             "description": "Accepted and started registration request"
           },
           "401": {
