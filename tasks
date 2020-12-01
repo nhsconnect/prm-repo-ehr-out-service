@@ -57,6 +57,8 @@ function configure_local_envs {
   export DATABASE_NAME=deductions_test
   export DATABASE_HOST=db
   export AUTHORIZATION_KEYS=not-real
+  export GP2GP_ADAPTOR_AUTHORIZATION_KEYS=auth-key-1
+  export GP2GP_ADAPTOR_SERVICE_URL="www.notreal.com"
   export REPO_TO_GP_SKIP_MIGRATION=false
   export REPOSITORY_URI=$IMAGE_REPO_NAME
   configure_service_url

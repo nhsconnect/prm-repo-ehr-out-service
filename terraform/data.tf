@@ -28,6 +28,14 @@ data "aws_ssm_parameter" "authorization_keys" {
   name = "/repo/${var.environment}/user-input/${var.component_name}-authorization-keys"
 }
 
+data "aws_ssm_parameter" "gp2gp_adaptor_authorization_keys" {
+  name = "/repo/${var.environment}/user-input/gp2gp-adaptor-authorization-keys"
+}
+
+data "aws_ssm_parameter" "gp2gp_adaptor_service_url" {
+  name = "/repo/${var.environment}/output/prm-deductions-gp2gp-adaptor/service-url"
+}
+
 data "aws_ssm_parameter" "deductions_private_alb_internal_dns" {
   name = "/repo/${var.environment}/output/prm-deductions-infra/deductions-private-alb-internal-dns"
 }
