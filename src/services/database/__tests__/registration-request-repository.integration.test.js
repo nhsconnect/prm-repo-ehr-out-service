@@ -1,6 +1,6 @@
-import ModelFactory from '../../models';
-import { modelName, Status } from '../../models/registration-request';
-import { getRegistrationRequestStatusByConversationId } from '../database/registration-request-repository';
+import ModelFactory from '../../../models';
+import { modelName, Status } from '../../../models/registration-request';
+import { getRegistrationRequestStatusByConversationId } from '../../database/registration-request-repository';
 
 describe('Registration request repository', () => {
   const RegistrationRequest = ModelFactory.getByName(modelName);
@@ -10,7 +10,7 @@ describe('Registration request repository', () => {
     await ModelFactory.sequelize.close();
   });
 
-  it('should retrieve registrationRequest via conversation id', async () => {
+  it('should retrieve the registration request by conversation id', async () => {
     const conversationId = '22a748b2-fef6-412d-b93a-4f6c68f0f8dd';
     const odsCode = 'B12345';
     const nhsNumber = '1234567891';
@@ -30,7 +30,7 @@ describe('Registration request repository', () => {
     expect(registrationRequest.conversationId).toBe(conversationId);
   });
 
-  it('should return null when it cannot find a registration request', async () => {
+  it('should return null when it cannot find the registration request', async () => {
     const nonExistentConversationId = '4be94216-b00d-4355-8929-b22c8512b074';
     const registrationRequest = await getRegistrationRequestStatusByConversationId(
       nonExistentConversationId
