@@ -1,8 +1,8 @@
-import { createRegistrationRequest } from '../create-registration-request';
-import { runWithinTransaction } from '../helper';
 import { logEvent, logError } from '../../../middleware/logging';
 import ModelFactory from '../../../models';
 import { modelName } from '../../../models/registration-request';
+import { createRegistrationRequest } from '../create-registration-request';
+import { runWithinTransaction } from '../helper';
 
 jest.mock('../../../middleware/logging');
 
@@ -32,32 +32,34 @@ describe('createRegistrationRequest', () => {
     expect(registrationRequest.get().nhsNumber).toBe(nhsNumber);
   });
 
-  it('should log event if data persisted correctly', () => {
+  it('should log event if data persisted correctly', async () => {
     const conversationId = '36e9c17f-943c-4efc-9afd-a6f8d58bc884';
-    return createRegistrationRequest(conversationId, nhsNumber, odsCode).then(() => {
-      expect(logEvent).toHaveBeenCalled();
-      return expect(logEvent).toHaveBeenCalledWith({
-        status: 'Registration request has been stored'
-      });
-    });
+    await createRegistrationRequest(conversationId, nhsNumber, odsCode);
+
+    expect(logEvent).toHaveBeenCalled();
+    expect(logEvent).toHaveBeenCalledWith('Registration request has been stored');
   });
 
-  it('should log errors when nhs number is invalid', () => {
+  it('should log errors when nhs number is invalid', async () => {
     const conversationId = '8fa34b56-7c52-461b-9d52-682bd2eb9c9a';
-    return createRegistrationRequest(conversationId, '123', odsCode).catch(error => {
+    try {
+      await createRegistrationRequest(conversationId, '123', odsCode);
+    } catch (err) {
       expect(logError).toHaveBeenCalled();
-      expect(logError).toHaveBeenCalledWith(error);
-      return expect(error.message).toContain('Validation len on nhsNumber failed');
-    });
+      expect(logError).toHaveBeenCalledWith(err);
+      expect(err.message).toContain('Validation len on nhsNumber failed');
+    }
   });
 
-  it('should log errors when conversationId is invalid', () => {
-    return createRegistrationRequest('invalid-conversation-id', nhsNumber, odsCode).catch(error => {
+  it('should log errors when conversationId is invalid', async () => {
+    try {
+      await createRegistrationRequest('invalid-conversation-id', nhsNumber, odsCode);
+    } catch (err) {
       expect(logError).toHaveBeenCalledTimes(1);
-      expect(logError).toHaveBeenCalledWith(error);
-      return expect(error.message).toContain(
+      expect(logError).toHaveBeenCalledWith(err);
+      expect(err.message).toContain(
         'invalid input syntax for type uuid: "invalid-conversation-id"'
       );
-    });
+    }
   });
 });

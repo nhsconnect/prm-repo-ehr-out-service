@@ -1,4 +1,7 @@
 import { body } from 'express-validator';
+import { createRegistrationRequest } from '../../services/database/create-registration-request';
+import { logError } from '../../middleware/logging';
+import { initializeConfig } from '../../config';
 
 export const registrationRequestValidationRules = [
   body('data.type').equals('registration-requests'),
@@ -11,5 +14,19 @@ export const registrationRequestValidationRules = [
 ];
 
 export const registrationRequest = async (req, res) => {
-  res.sendStatus(204);
+  const config = initializeConfig();
+  const { id: conversationId, attributes } = req.body.data;
+  const { nhsNumber, odsCode } = attributes;
+
+  try {
+    await createRegistrationRequest(conversationId, nhsNumber, odsCode);
+    const statusEndpoint = `${config.url}/deduction-requests/${conversationId}`;
+
+    res.set('Location', statusEndpoint).sendStatus(204);
+  } catch (err) {
+    logError('Registration request failed', err);
+    res.status(503).json({
+      errors: err.message
+    });
+  }
 };

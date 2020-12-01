@@ -1,21 +1,26 @@
 import request from 'supertest';
 import app from '../../../app';
 import { initializeConfig } from '../../../config';
+import { createRegistrationRequest } from '../../../services/database/create-registration-request';
 
 jest.mock('../../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
 }));
+jest.mock('../../../services/database/create-registration-request');
 
 describe('POST /registration-requests/', () => {
-  initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
+  initializeConfig.mockReturnValue({ url: 'test-url', repoToGpAuthKeys: 'correct-key' });
 
+  const conversationId = '5BB36755-279F-43D5-86AB-DEFEA717D93F';
+  const odsCode = 'A12345';
+  const nhsNumber = '1111111111';
   const mockBody = {
     data: {
       type: 'registration-requests',
-      id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
+      id: conversationId,
       attributes: {
-        nhsNumber: '1111111111',
-        odsCode: 'A12345'
+        nhsNumber: nhsNumber,
+        odsCode: odsCode
       }
     }
   };
@@ -36,6 +41,40 @@ describe('POST /registration-requests/', () => {
       .send(mockBody);
 
     expect(res.request.header['Authorization']).toBe('correct-key');
+    expect(res.statusCode).toBe(204);
+  });
+
+  it('should call createRegistrationRequest and return 204 if the request is correct', async () => {
+    createRegistrationRequest.mockResolvedValue();
+    const res = await request(app)
+      .post('/registration-requests/')
+      .set('Authorization', 'correct-key')
+      .send(mockBody);
+
+    expect(res.statusCode).toBe(204);
+    expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
+  });
+
+  it('should return location header for the created resource', async () => {
+    createRegistrationRequest.mockResolvedValue();
+    const res = await request(app)
+      .post('/registration-requests/')
+      .set('Authorization', 'correct-key')
+      .send(mockBody);
+
+    expect(res.header['location']).toEqual(`test-url/deduction-requests/${conversationId}`);
+    expect(res.statusCode).toBe(204);
+  });
+
+  it('should return a 503 if createRegistrationRequest promise is rejected', async () => {
+    createRegistrationRequest.mockRejectedValue({});
+    const res = await request(app)
+      .post('/registration-requests/')
+      .set('Authorization', 'correct-key')
+      .send(mockBody);
+
+    expect(res.statusCode).toBe(503);
+    expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
   });
 
   it('should return a 401 if Authorization Header is not provided', async () => {

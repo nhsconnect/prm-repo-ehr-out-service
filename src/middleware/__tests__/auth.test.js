@@ -1,14 +1,17 @@
 import request from 'supertest';
 import app from '../../app';
 import { initializeConfig } from '../../config';
+import { createRegistrationRequest } from '../../services/database/create-registration-request';
 
 jest.mock('../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
 }));
+jest.mock('../../services/database/create-registration-request');
 
 describe('auth', () => {
   it('should return HTTP 204 when correctly authenticated', async () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
+    createRegistrationRequest.mockResolvedValue();
 
     const body = {
       data: {

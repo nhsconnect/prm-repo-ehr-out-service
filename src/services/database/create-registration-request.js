@@ -16,5 +16,5 @@ export const createRegistrationRequest = (conversationId, nhsNumber, odsCode) =>
       transaction
     )
       .then(requests => requests[0])
-      .then(() => logEvent({ status: 'Registration request has been stored' }))
+      .then(() => logEvent('Registration request has been stored'))
   );
