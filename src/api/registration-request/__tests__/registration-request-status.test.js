@@ -12,7 +12,6 @@ jest.mock('../../../config', () => ({
     .mockReturnValue({ sequelize: { dialect: 'postgres' }, repoToGpAuthKeys: 'valid-key' })
 }));
 
-
 describe('GET /registration-requests/', () => {
   const nhsNumber = '1234567890';
   const conversationId = '3a3ee007-1188-4978-8122-c1e2596f29c6';

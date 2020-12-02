@@ -21,8 +21,7 @@ describe('GET /health', () => {
       }
     };
 
-    const res = await request(app)
-      .get('/health')
+    const res = await request(app).get(`/health`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual(expectedHealthCheckResponse);
@@ -31,15 +30,13 @@ describe('GET /health', () => {
 
 describe('Swagger Documentation', () => {
   it('GET /swagger - should return a redirect 301 status code and text/html content type response', async () => {
-    const res = await request(app)
-      .get('/swagger')
+    const res = await request(app).get(`/swagger`);
 
     expect(res.statusCode).toBe(301);
   });
 
   it('GET /swagger/index.html - should return a 200 status code and text/html content type response', async () => {
-    const res = await request(app)
-      .get('/swagger/index.html')
+    const res = await request(app).get(`/swagger/index.html`);
 
     expect(res.statusCode).toBe(200);
   });
@@ -75,7 +72,7 @@ describe('GET /registration-requests/:conversationId', () => {
 
     const res = await request(app)
       .get(`/registration-requests/${conversationId}`)
-      .set('Authorization', config.repoToGpAuthKeys)
+      .set('Authorization', config.repoToGpAuthKeys);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual(retrievalResponse);
@@ -85,7 +82,7 @@ describe('GET /registration-requests/:conversationId', () => {
     const nonExistentConversationId = '941ca257-f88f-499b-8e13-f8a62e7fea7a';
     const res = await request(app)
       .get(`/registration-requests/${nonExistentConversationId}`)
-      .set('Authorization', config.repoToGpAuthKeys)
+      .set('Authorization', config.repoToGpAuthKeys);
 
     expect(res.statusCode).toBe(404);
   });
@@ -112,9 +109,11 @@ describe('POST /registration-requests/', () => {
     const res = await request(app)
       .post(`/registration-requests/`)
       .set('Authorization', config.repoToGpAuthKeys)
-      .send(body)
+      .send(body);
 
-    expect(res.header['location']).toEqual(`${config.repoToGpServiceUrl}/deduction-requests/${conversationId}`);
+    expect(res.header[`location`]).toEqual(
+      `${config.repoToGpServiceUrl}/deduction-requests/${conversationId}`
+    );
     expect(res.statusCode).toBe(204);
   });
 });
