@@ -6,12 +6,14 @@ locals {
     { name = "NHS_ENVIRONMENT", value = var.environment },
     { name = "SERVICE_URL", value = aws_ssm_parameter.repo_to_gp_service_url.value },
     { name = "GP2GP_ADAPTOR_SERVICE_URL", value = data.aws_ssm_parameter.gp2gp_adaptor_service_url.value },
+    { name = "EHR_REPO_SERVICE_URL", value = "http://${var.environment}.ehr-repo.patient-deductions.nhs.uk" },
     { name = "DATABASE_NAME", value = var.database_name },
     { name = "DATABASE_HOST", value = data.aws_ssm_parameter.rds_endpoint.value },
   ]
   secret_environment_variables = [
     { name = "AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.authorization_keys.arn },
     { name = "GP2GP_ADAPTOR_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.gp2gp_adaptor_authorization_keys.arn },
+    { name = "EHR_REPO_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.ehr_repo_authorization_keys.arn },
     { name = "DATABASE_USER", valueFrom = data.aws_ssm_parameter.db-username.arn },
     { name = "DATABASE_PASSWORD", valueFrom = data.aws_ssm_parameter.db-password.arn }
   ]

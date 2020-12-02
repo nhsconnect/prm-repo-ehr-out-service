@@ -32,6 +32,10 @@ data "aws_ssm_parameter" "gp2gp_adaptor_authorization_keys" {
   name = "/repo/${var.environment}/user-input/gp2gp-adaptor-authorization-keys"
 }
 
+data "aws_ssm_parameter" "ehr_repo_authorization_keys" {
+  name = "/repo/${var.environment}/user-input/ehr-repo-authorization-keys"
+}
+
 data "aws_ssm_parameter" "gp2gp_adaptor_service_url" {
   name = "/repo/${var.environment}/output/prm-deductions-gp2gp-adaptor/service-url"
 }
