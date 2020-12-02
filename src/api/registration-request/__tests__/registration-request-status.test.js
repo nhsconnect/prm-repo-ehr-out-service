@@ -1,5 +1,6 @@
 import request from 'supertest';
 import app from '../../../app';
+import { Status } from '../../../models/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../../services/database/registration-request-repository';
 
 jest.mock('../../../services/database/registration-request-repository');
@@ -14,12 +15,14 @@ describe('GET /registration-requests/', () => {
   const conversationId = '3a3ee007-1188-4978-8122-c1e2596f29c6';
   const odsCode = 'A12345';
   const invalidConversationId = 'de78578799';
+  const status = Status.REGISTRATION_REQUEST_RECEIVED;
 
   it('should return 200 and registration request information if :conversationId is uuid and Authorization Header provided', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValue({
       conversationId,
       nhsNumber,
-      odsCode
+      odsCode,
+      status
     });
 
     const res = await request(app)
@@ -31,8 +34,9 @@ describe('GET /registration-requests/', () => {
         type: 'registration-requests',
         id: conversationId,
         attributes: {
-          nhsNumber: nhsNumber,
-          odsCode: odsCode
+          nhsNumber,
+          odsCode,
+          status
         }
       }
     };

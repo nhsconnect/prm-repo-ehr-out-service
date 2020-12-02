@@ -1,5 +1,5 @@
-import { initializeConfig } from '../config';
-import { checkDbHealth } from './database/check-db-health';
+import { initializeConfig } from '../../config';
+import { checkDbHealth } from '../database/check-db-health';
 
 export const getHealthCheck = async () => {
   const config = initializeConfig();

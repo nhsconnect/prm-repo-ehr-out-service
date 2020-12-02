@@ -29,7 +29,6 @@ const model = dataType => ({
     field: 'status',
     type: dataType.STRING,
     isIn: [Object.values(Status)],
-    defaultValue: Status.REGISTRATION_REQUEST_RECEIVED,
     allowNull: false
   },
   odsCode: {

@@ -9,7 +9,10 @@ jest.mock('../../../config', () => ({
 jest.mock('../../../services/database/create-registration-request');
 
 describe('POST /registration-requests/', () => {
-  initializeConfig.mockReturnValue({ url: 'test-url', repoToGpAuthKeys: 'correct-key' });
+  initializeConfig.mockReturnValue({
+    repoToGpServiceUrl: 'test-url',
+    repoToGpAuthKeys: 'correct-key'
+  });
 
   const conversationId = '5BB36755-279F-43D5-86AB-DEFEA717D93F';
   const odsCode = 'A12345';

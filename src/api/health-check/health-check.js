@@ -1,6 +1,6 @@
 import express from 'express';
-import { getHealthCheck } from '../services/get-health-check';
-import { logEvent, logError } from '../middleware/logging';
+import { getHealthCheck } from '../../services/health-check/get-health-check';
+import { logEvent, logError } from '../../middleware/logging';
 
 export const healthCheck = express.Router();
 

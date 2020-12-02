@@ -3,7 +3,7 @@ import swaggerUi from 'swagger-ui-express';
 
 import { middleware } from './middleware/logging';
 import { registrationRequests } from './api/registration-request';
-import { healthCheck } from './api/health-check';
+import { healthCheck } from './api/health-check/health-check';
 import swaggerDocument from './swagger.json';
 
 const app = express();

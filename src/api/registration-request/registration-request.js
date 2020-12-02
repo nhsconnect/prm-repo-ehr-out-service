@@ -20,7 +20,7 @@ export const registrationRequest = async (req, res) => {
 
   try {
     await createRegistrationRequest(conversationId, nhsNumber, odsCode);
-    const statusEndpoint = `${config.url}/deduction-requests/${conversationId}`;
+    const statusEndpoint = `${config.repoToGpServiceUrl}/deduction-requests/${conversationId}`;
 
     res.set('Location', statusEndpoint).sendStatus(204);
   } catch (err) {

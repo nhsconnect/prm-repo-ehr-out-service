@@ -17,13 +17,16 @@ export const registrationRequestStatus = async (req, res) => {
 
     if (registrationRequestStatus === null) return res.sendStatus(404);
 
+    const { conversationId, nhsNumber, odsCode, status } = registrationRequestStatus;
+
     const data = {
       data: {
         type: 'registration-requests',
-        id: req.params.conversationId,
+        id: conversationId,
         attributes: {
-          nhsNumber: registrationRequestStatus.nhsNumber,
-          odsCode: registrationRequestStatus.odsCode
+          nhsNumber,
+          odsCode,
+          status
         }
       }
     };

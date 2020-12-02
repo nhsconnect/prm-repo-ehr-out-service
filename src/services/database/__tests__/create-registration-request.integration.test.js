@@ -1,6 +1,6 @@
 import { logEvent, logError } from '../../../middleware/logging';
 import ModelFactory from '../../../models';
-import { modelName } from '../../../models/registration-request';
+import { modelName, Status } from '../../../models/registration-request';
 import { createRegistrationRequest } from '../create-registration-request';
 import { runWithinTransaction } from '../helper';
 
@@ -30,6 +30,8 @@ describe('createRegistrationRequest', () => {
     expect(registrationRequest).not.toBeNull();
     expect(registrationRequest.get().conversationId).toBe(conversationId);
     expect(registrationRequest.get().nhsNumber).toBe(nhsNumber);
+    expect(registrationRequest.get().odsCode).toBe(odsCode);
+    expect(registrationRequest.get().status).toBe(Status.REGISTRATION_REQUEST_RECEIVED);
   });
 
   it('should log event if data persisted correctly', async () => {

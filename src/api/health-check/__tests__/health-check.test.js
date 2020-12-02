@@ -1,14 +1,14 @@
-import app from '../../app';
+import app from '../../../app';
 import request from 'supertest';
-import { getHealthCheck } from '../../services/get-health-check';
-import { logEvent, logError } from '../../middleware/logging';
+import { getHealthCheck } from '../../../services/health-check/get-health-check';
+import { logEvent, logError } from '../../../middleware/logging';
 
-jest.mock('../../middleware/logging', () => ({
+jest.mock('../../../middleware/logging', () => ({
   logEvent: jest.fn(),
   logError: jest.fn(),
   middleware: (req, res, next) => next()
 }));
-jest.mock('../../services/get-health-check');
+jest.mock('../../../services/health-check/get-health-check');
 
 describe('GET /health', () => {
   it('should return HTTP status code 200', async () => {

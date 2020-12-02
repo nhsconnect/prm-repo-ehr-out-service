@@ -1,7 +1,7 @@
 import { runWithinTransaction } from './helper';
 import { logEvent } from '../../middleware/logging';
 import ModelFactory from '../../models';
-import { modelName } from '../../models/registration-request';
+import { modelName, Status } from '../../models/registration-request';
 
 const RegistrationRequest = ModelFactory.getByName(modelName);
 
@@ -11,7 +11,8 @@ export const createRegistrationRequest = (conversationId, nhsNumber, odsCode) =>
       {
         conversationId,
         nhsNumber,
-        odsCode
+        odsCode,
+        status: Status.REGISTRATION_REQUEST_RECEIVED
       },
       transaction
     )
