@@ -14,7 +14,7 @@ export const sendPdsRetrievalRequest = async nhsNumber => {
     return res;
   } catch (err) {
     const errorMessage = 'Unable to retrieve patient from PDS';
-    logError(errorMessage, err.message);
+    logError(errorMessage, err);
     throw errorMessage;
   }
 };

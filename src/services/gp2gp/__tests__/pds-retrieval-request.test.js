@@ -34,6 +34,7 @@ describe('sendPdsRetrievalRequest', () => {
 
   it('should log and throw error when pds retrieval returns 500', async () => {
     let error = null;
+    const expectedError = new Error('Request failed with status code 500');
     nock(mockGp2gpAdaptorServiceUrl, headers).get(`/patient-demographics/${nhsNumber}`).reply(500);
 
     try {
@@ -43,9 +44,6 @@ describe('sendPdsRetrievalRequest', () => {
     }
 
     expect(error).not.toBeNull();
-    expect(logError).toHaveBeenCalledWith(
-      'Unable to retrieve patient from PDS',
-      'Request failed with status code 500'
-    );
+    expect(logError).toHaveBeenCalledWith('Unable to retrieve patient from PDS', expectedError);
   });
 });
