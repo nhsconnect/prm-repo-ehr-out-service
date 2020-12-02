@@ -2,13 +2,16 @@ import request from 'supertest';
 import app from '../../../app';
 import { Status } from '../../../models/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../../services/database/registration-request-repository';
+import { logError } from '../../../middleware/logging';
 
+jest.mock('../../../middleware/logging');
 jest.mock('../../../services/database/registration-request-repository');
 jest.mock('../../../config', () => ({
   initializeConfig: jest
     .fn()
     .mockReturnValue({ sequelize: { dialect: 'postgres' }, repoToGpAuthKeys: 'valid-key' })
 }));
+
 
 describe('GET /registration-requests/', () => {
   const nhsNumber = '1234567890';
@@ -76,6 +79,7 @@ describe('GET /registration-requests/', () => {
       .get(`/registration-requests/${conversationId}`)
       .set('Authorization', 'valid-key');
 
+    expect(logError).toHaveBeenCalledWith('Registration request status call failed', {});
     expect(res.statusCode).toBe(503);
   });
 });

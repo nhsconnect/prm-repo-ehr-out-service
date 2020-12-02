@@ -4,8 +4,6 @@ import { logger } from '../../config/logging';
 jest.mock('../../config/logging');
 
 describe('logging', () => {
-  afterEach(() => jest.clearAllMocks());
-
   describe('logEvent', () => {
     it('should log with level info', () => {
       logEvent('info');

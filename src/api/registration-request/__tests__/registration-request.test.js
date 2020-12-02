@@ -1,12 +1,14 @@
 import request from 'supertest';
 import app from '../../../app';
 import { initializeConfig } from '../../../config';
+import { logError } from '../../../middleware/logging';
 import { createRegistrationRequest } from '../../../services/database/create-registration-request';
 
+jest.mock('../../../services/database/create-registration-request');
+jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
 }));
-jest.mock('../../../services/database/create-registration-request');
 
 describe('POST /registration-requests/', () => {
   initializeConfig.mockReturnValue({
@@ -77,6 +79,7 @@ describe('POST /registration-requests/', () => {
       .send(mockBody);
 
     expect(res.statusCode).toBe(503);
+    expect(logError).toHaveBeenCalledWith('Registration request failed', {});
     expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
   });
 
