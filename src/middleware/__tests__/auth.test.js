@@ -1,7 +1,8 @@
 import request from 'supertest';
-import app from '../../app';
 import { initializeConfig } from '../../config';
 import { createRegistrationRequest } from '../../services/database/create-registration-request';
+import { buildTestApp } from '../../__builders__/testApp';
+import { registrationRequests } from '../../api/registration-request';
 
 jest.mock('../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
@@ -9,6 +10,8 @@ jest.mock('../../config', () => ({
 jest.mock('../../services/database/create-registration-request');
 
 describe('auth', () => {
+  const testApp = buildTestApp('/registration-requests', registrationRequests);
+
   it('should return HTTP 204 when correctly authenticated', async () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
     createRegistrationRequest.mockResolvedValue();
@@ -23,7 +26,7 @@ describe('auth', () => {
         }
       }
     };
-    const res = await request(app)
+    const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
       .send(body);
@@ -37,7 +40,7 @@ describe('auth', () => {
       error: 'Server-side Authorization keys have not been set, cannot authenticate'
     };
 
-    const res = await request(app)
+    const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key');
 
@@ -51,7 +54,7 @@ describe('auth', () => {
       error: 'The request (/registration-requests) requires a valid Authorization header to be set'
     };
 
-    const res = await request(app).post('/registration-requests/');
+    const res = await request(testApp).post('/registration-requests/');
 
     expect(res.statusCode).toBe(401);
     expect(res.body).toEqual(errorMessage);
@@ -61,7 +64,7 @@ describe('auth', () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
     const errorMessage = { error: 'Authorization header is provided but not valid' };
 
-    const res = await request(app)
+    const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'incorrect-key');
 

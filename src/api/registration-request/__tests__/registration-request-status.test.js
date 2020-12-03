@@ -1,8 +1,9 @@
 import request from 'supertest';
-import app from '../../../app';
 import { Status } from '../../../models/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../../services/database/registration-request-repository';
 import { logError } from '../../../middleware/logging';
+import { buildTestApp } from '../../../__builders__/testApp';
+import { registrationRequests } from '../index';
 
 jest.mock('../../../middleware/logging');
 jest.mock('../../../services/database/registration-request-repository');
@@ -18,6 +19,7 @@ describe('GET /registration-requests/', () => {
   const odsCode = 'A12345';
   const invalidConversationId = 'de78578799';
   const status = Status.REGISTRATION_REQUEST_RECEIVED;
+  const testApp = buildTestApp('/registration-requests', registrationRequests);
 
   it('should return 200 and registration request information if :conversationId is uuid and Authorization Header provided', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValue({
@@ -27,7 +29,7 @@ describe('GET /registration-requests/', () => {
       status
     });
 
-    const res = await request(app)
+    const res = await request(testApp)
       .get(`/registration-requests/${conversationId}`)
       .set('Authorization', 'valid-key');
 
@@ -50,7 +52,7 @@ describe('GET /registration-requests/', () => {
 
   it('should return an error if :conversationId is not valid', async () => {
     const errorMessage = [{ conversationId: "'conversationId' provided is not of type UUIDv4" }];
-    const res = await request(app)
+    const res = await request(testApp)
       .get(`/registration-requests/${invalidConversationId}`)
       .set('Authorization', 'valid-key');
 
@@ -64,7 +66,7 @@ describe('GET /registration-requests/', () => {
     const nonExistentConversationId = conversationId;
     getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
 
-    const res = await request(app)
+    const res = await request(testApp)
       .get(`/registration-requests/${nonExistentConversationId}`)
       .set('Authorization', 'valid-key');
 
@@ -74,7 +76,7 @@ describe('GET /registration-requests/', () => {
   it('should return 503 when getRegistrationRequestStatusByConversationId returns rejected Promise', async () => {
     getRegistrationRequestStatusByConversationId.mockRejectedValue({});
 
-    const res = await request(app)
+    const res = await request(testApp)
       .get(`/registration-requests/${conversationId}`)
       .set('Authorization', 'valid-key');
 

@@ -1,8 +1,9 @@
 import request from 'supertest';
-import app from '../../../app';
-import { initializeConfig } from '../../../config';
+import { buildTestApp } from '../../../__builders__/testApp';
 import { logError } from '../../../middleware/logging';
 import { createRegistrationRequest } from '../../../services/database/create-registration-request';
+import { initializeConfig } from '../../../config';
+import { registrationRequests } from '../index';
 
 jest.mock('../../../services/database/create-registration-request');
 jest.mock('../../../middleware/logging');
@@ -11,6 +12,8 @@ jest.mock('../../../config', () => ({
 }));
 
 describe('POST /registration-requests/', () => {
+  const testApp = buildTestApp('/registration-requests', registrationRequests);
+
   initializeConfig.mockReturnValue({
     repoToGpServiceUrl: 'test-url',
     repoToGpAuthKeys: 'correct-key'
@@ -31,7 +34,7 @@ describe('POST /registration-requests/', () => {
   };
 
   it('should return a 204 if nhsNumber, odsCode, type, conversationId are provided', async () => {
-    const res = await request(app)
+    const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
       .send(mockBody);
@@ -40,7 +43,7 @@ describe('POST /registration-requests/', () => {
   });
 
   it('should return a 204 if Authorization Header is provided', async () => {
-    const res = await request(app)
+    const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
       .send(mockBody);
@@ -51,7 +54,7 @@ describe('POST /registration-requests/', () => {
 
   it('should call createRegistrationRequest and return 204 if the request is correct', async () => {
     createRegistrationRequest.mockResolvedValue();
-    const res = await request(app)
+    const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
       .send(mockBody);
@@ -62,7 +65,7 @@ describe('POST /registration-requests/', () => {
 
   it('should return location header for the created resource', async () => {
     createRegistrationRequest.mockResolvedValue();
-    const res = await request(app)
+    const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
       .send(mockBody);
@@ -73,7 +76,7 @@ describe('POST /registration-requests/', () => {
 
   it('should return a 503 if createRegistrationRequest promise is rejected', async () => {
     createRegistrationRequest.mockRejectedValue({});
-    const res = await request(app)
+    const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
       .send(mockBody);
@@ -84,7 +87,7 @@ describe('POST /registration-requests/', () => {
   });
 
   it('should return a 401 if Authorization Header is not provided', async () => {
-    const res = await request(app).post('/registration-requests/').send(mockBody);
+    const res = await request(testApp).post('/registration-requests/').send(mockBody);
 
     expect(res.request.header['Authorization']).toBeUndefined();
     expect(res.statusCode).toBe(401);
@@ -105,7 +108,7 @@ describe('POST /registration-requests/', () => {
           }
         }
       };
-      const res = await request(app)
+      const res = await request(testApp)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')
         .send(mockBody);
@@ -126,7 +129,7 @@ describe('POST /registration-requests/', () => {
           }
         }
       };
-      const res = await request(app)
+      const res = await request(testApp)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')
         .send(mockBody);
@@ -137,7 +140,7 @@ describe('POST /registration-requests/', () => {
 
     it('should return an error if :conversationId is not uuid', async () => {
       const errorMessage = [{ 'data.id': "'conversationId' provided is not of type UUIDv4" }];
-      const res = await request(app)
+      const res = await request(testApp)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')
         .send({ data: { ...mockBody.data, id: 'not-a-uuid' } });
@@ -148,7 +151,7 @@ describe('POST /registration-requests/', () => {
 
     it('should return an error if type is not valid', async () => {
       const errorMessage = [{ 'data.type': 'Invalid value' }];
-      const res = await request(app)
+      const res = await request(testApp)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')
         .send({ data: { ...mockBody.data, type: 'invalid-type' } });

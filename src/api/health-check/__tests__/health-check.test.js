@@ -1,15 +1,18 @@
-import app from '../../../app';
 import request from 'supertest';
 import { getHealthCheck } from '../../../services/health-check/get-health-check';
 import { logEvent, logError } from '../../../middleware/logging';
+import { buildTestApp } from '../../../__builders__/testApp';
+import { healthCheck } from '../health-check';
 
 jest.mock('../../../middleware/logging');
 jest.mock('../../../services/health-check/get-health-check');
 
 describe('GET /health', () => {
+  const testApp = buildTestApp('/health', healthCheck);
+
   it('should return HTTP status code 200', async () => {
     getHealthCheck.mockResolvedValue(expectedHealthCheckBase());
-    const res = await request(app).get('/health');
+    const res = await request(testApp).get('/health');
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual(expectedHealthCheckBase());
@@ -18,7 +21,7 @@ describe('GET /health', () => {
 
   it('should return 503 status if db writable is false', async () => {
     getHealthCheck.mockResolvedValue(expectedHealthCheckBase(false, true));
-    const res = await request(app).get('/health');
+    const res = await request(testApp).get('/health');
 
     expect(res.statusCode).toBe(503);
     expect(res.body).toEqual(expectedHealthCheckBase(false, true));
@@ -30,7 +33,7 @@ describe('GET /health', () => {
 
   it('should return 500 if getHealthCheck if it cannot provide a health check', async () => {
     getHealthCheck.mockRejectedValue('some-error');
-    const res = await request(app).get('/health');
+    const res = await request(testApp).get('/health');
 
     expect(res.statusCode).toBe(500);
     expect(logEvent).not.toHaveBeenCalled();
