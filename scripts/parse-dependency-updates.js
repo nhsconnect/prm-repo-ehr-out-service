@@ -2,12 +2,12 @@
 
 const updateRegexPattern = '^.*:(.*)@(.*):.*@(.*):.*@(.*)$';
 
-export const extractDependencyUpdatesFromList = listOfUpdates =>
+const extractDependencyUpdatesFromList = listOfUpdates =>
   listOfUpdates.filter(item => isUpdate(item));
 
-export const isUpdate = updateString => updateString.split(':').length > 1;
+const isUpdate = updateString => updateString.split(':').length > 1;
 
-export const fromString = updateString => {
+const fromString = updateString => {
   const matcher = updateString.match(updateRegexPattern);
 
   return {
@@ -18,10 +18,10 @@ export const fromString = updateString => {
   };
 };
 
-export const getAllUpdates = listOfUpdates =>
+const getAllUpdates = listOfUpdates =>
   extractDependencyUpdatesFromList(listOfUpdates).map(update => fromString(update));
 
-export const getAllUpdatesText = listOfUpdates => {
+const getAllUpdatesText = listOfUpdates => {
   const allUpdates = getAllUpdates(listOfUpdates);
   return allUpdates.reduce(
     (acc, item) =>
@@ -29,6 +29,14 @@ export const getAllUpdatesText = listOfUpdates => {
       `<b><a href=https://www.npmjs.com/package/${item.package}>${item.package}</a></b>: ${item.currentVersion} &rarr; ${item.latestVersion}<br>`,
     ''
   );
+};
+
+module.exports = {
+  extractDependencyUpdatesFromList,
+  isUpdate,
+  fromString,
+  getAllUpdates,
+  getAllUpdatesText
 };
 
 console.log(getAllUpdates(process.argv));
