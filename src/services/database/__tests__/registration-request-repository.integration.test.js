@@ -1,6 +1,9 @@
 import ModelFactory from '../../../models';
 import { modelName, Status } from '../../../models/registration-request';
-import { getRegistrationRequestStatusByConversationId } from '../../database/registration-request-repository';
+import {
+  getRegistrationRequestStatusByConversationId,
+  updateRegistrationRequestStatus
+} from '../../database/registration-request-repository';
 
 describe('Registration request repository', () => {
   const RegistrationRequest = ModelFactory.getByName(modelName);
@@ -36,5 +39,25 @@ describe('Registration request repository', () => {
       nonExistentConversationId
     );
     expect(registrationRequest).toBe(null);
+  });
+
+  it('should change registration request status to invalid_ods_code', async () => {
+    const conversationId = 'e30d008e-0134-479c-bf59-6d4978227617';
+    const nhsNumber = '1234567890';
+    const status = Status.INVALID_ODS_CODE;
+    const odsCode = 'B1234';
+
+    await RegistrationRequest.create({
+      conversationId,
+      nhsNumber,
+      status,
+      odsCode
+    });
+
+    await updateRegistrationRequestStatus(conversationId, status);
+
+    const registrationRequest = await RegistrationRequest.findByPk(conversationId);
+
+    expect(registrationRequest.status).toBe(status);
   });
 });

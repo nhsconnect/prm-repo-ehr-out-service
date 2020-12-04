@@ -4,7 +4,8 @@ export const modelName = 'RegistrationRequest';
 const tableName = 'registration_requests';
 
 export const Status = {
-  REGISTRATION_REQUEST_RECEIVED: 'registration_request_received'
+  REGISTRATION_REQUEST_RECEIVED: 'registration_request_received',
+  INVALID_ODS_CODE: 'invalid_ods_code'
 };
 
 Object.freeze(Status);

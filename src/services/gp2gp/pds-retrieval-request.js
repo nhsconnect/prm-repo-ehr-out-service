@@ -2,7 +2,7 @@ import axios from 'axios';
 import { initializeConfig } from '../../config';
 import { logError, logEvent } from '../../middleware/logging';
 
-export const sendPdsRetrievalRequest = async nhsNumber => {
+export const getPdsPatientDetails = async nhsNumber => {
   const config = initializeConfig();
   const url = `${config.gp2gpAdaptorServiceUrl}/patient-demographics/${nhsNumber}`;
   try {

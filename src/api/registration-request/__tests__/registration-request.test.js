@@ -2,13 +2,15 @@ import request from 'supertest';
 import { buildTestApp } from '../../../__builders__/testApp';
 import { logError } from '../../../middleware/logging';
 import { createRegistrationRequest } from '../../../services/database/create-registration-request';
-import { getRegistrationRequestStatusByConversationId } from '../../../services/database/registration-request-repository';
+import { getRegistrationRequestStatusByConversationId, updateRegistrationRequestStatus } from '../../../services/database/registration-request-repository';
+import { getPdsPatientDetails } from '../../../services/gp2gp/pds-retrieval-request';
 import { Status } from '../../../models/registration-request';
 import { initializeConfig } from '../../../config';
 import { registrationRequests } from '../index';
 
 jest.mock('../../../services/database/registration-request-repository');
 jest.mock('../../../services/database/create-registration-request');
+jest.mock('../../../services/gp2gp/pds-retrieval-request');
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
@@ -107,6 +109,27 @@ describe('POST /registration-requests/', () => {
       .send(mockBody);
 
     expect(res.statusCode).toBe(409);
+  });
+
+  it('should return a 406 when patients ODS Code in PDS does not match requester', async () => {
+    getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode: 'B1234' }}})
+    const res = await request(testApp)
+      .post('/registration-requests/')
+      .set('Authorization', 'correct-key')
+      .send(mockBody);
+
+    expect(res.statusCode).toBe(406);
+  });
+
+  it('should call updateRegistrationRequestStatus when patients ODS Code in PDS does not match requester', async () => {
+    getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode: 'B1234' }}})
+    const invalidOdsCodeStatus = Status.INVALID_ODS_CODE;
+    await request(testApp)
+      .post('/registration-requests/')
+      .set('Authorization', 'correct-key')
+      .send(mockBody);
+
+    expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, invalidOdsCodeStatus);
   });
 
   describe('validations', () => {
