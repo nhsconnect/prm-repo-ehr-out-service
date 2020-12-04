@@ -2,6 +2,7 @@ import { body } from 'express-validator';
 import { createRegistrationRequest } from '../../services/database/create-registration-request';
 import { logError } from '../../middleware/logging';
 import { initializeConfig } from '../../config';
+import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
 
 export const registrationRequestValidationRules = [
   body('data.type').equals('registration-requests'),
@@ -19,6 +20,12 @@ export const registrationRequest = async (req, res) => {
   const { nhsNumber, odsCode } = attributes;
 
   try {
+    const previousRegistration = await getRegistrationRequestStatusByConversationId(conversationId);
+
+    if (previousRegistration !== null) {
+      res.sendStatus(409);
+      return;
+    }
     await createRegistrationRequest(conversationId, nhsNumber, odsCode);
     const statusEndpoint = `${config.repoToGpServiceUrl}/deduction-requests/${conversationId}`;
 

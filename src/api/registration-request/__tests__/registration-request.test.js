@@ -2,9 +2,12 @@ import request from 'supertest';
 import { buildTestApp } from '../../../__builders__/testApp';
 import { logError } from '../../../middleware/logging';
 import { createRegistrationRequest } from '../../../services/database/create-registration-request';
+import { getRegistrationRequestStatusByConversationId } from '../../../services/database/registration-request-repository';
+import { Status } from '../../../models/registration-request';
 import { initializeConfig } from '../../../config';
 import { registrationRequests } from '../index';
 
+jest.mock('../../../services/database/registration-request-repository');
 jest.mock('../../../services/database/create-registration-request');
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
@@ -13,7 +16,7 @@ jest.mock('../../../config', () => ({
 
 describe('POST /registration-requests/', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
-
+  getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
   initializeConfig.mockReturnValue({
     repoToGpServiceUrl: 'test-url',
     repoToGpAuthKeys: 'correct-key'
@@ -91,6 +94,19 @@ describe('POST /registration-requests/', () => {
 
     expect(res.request.header['Authorization']).toBeUndefined();
     expect(res.statusCode).toBe(401);
+  });
+
+  it('should return a 409 if registration is already in progress', async () => {
+    getRegistrationRequestStatusByConversationId.mockResolvedValue({
+      conversationId,
+      status: Status.REGISTRATION_REQUEST_RECEIVED
+    });
+    const res = await request(testApp)
+      .post('/registration-requests/')
+      .set('Authorization', 'correct-key')
+      .send(mockBody);
+
+    expect(res.statusCode).toBe(409);
   });
 
   describe('validations', () => {

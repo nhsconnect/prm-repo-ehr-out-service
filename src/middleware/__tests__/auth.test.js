@@ -3,17 +3,20 @@ import { initializeConfig } from '../../config';
 import { createRegistrationRequest } from '../../services/database/create-registration-request';
 import { buildTestApp } from '../../__builders__/testApp';
 import { registrationRequests } from '../../api/registration-request';
+import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
 
 jest.mock('../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
 }));
 jest.mock('../../services/database/create-registration-request');
+jest.mock('../../services/database/registration-request-repository');
 
 describe('auth', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
 
   it('should return HTTP 204 when correctly authenticated', async () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
+    getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
     createRegistrationRequest.mockResolvedValue();
 
     const body = {
