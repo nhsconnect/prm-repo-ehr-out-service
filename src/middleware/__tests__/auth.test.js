@@ -4,19 +4,24 @@ import { createRegistrationRequest } from '../../services/database/create-regist
 import { buildTestApp } from '../../__builders__/testApp';
 import { registrationRequests } from '../../api/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
+import { getPdsPatientDetails } from '../../services/gp2gp/pds-retrieval-request';
 
 jest.mock('../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
 }));
 jest.mock('../../services/database/create-registration-request');
 jest.mock('../../services/database/registration-request-repository');
+jest.mock('../../services/gp2gp/pds-retrieval-request');
+jest.mock('../../middleware/logging');
 
 describe('auth', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
+  const odsCode = 'A12345';
 
   it('should return HTTP 204 when correctly authenticated', async () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
     getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
+    getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode } } });
     createRegistrationRequest.mockResolvedValue();
 
     const body = {
@@ -25,7 +30,7 @@ describe('auth', () => {
         id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
         attributes: {
           nhsNumber: '1111111111',
-          odsCode: 'A12345'
+          odsCode
         }
       }
     };

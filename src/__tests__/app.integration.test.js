@@ -3,6 +3,9 @@ import app from '../app';
 import { initializeConfig } from '../config';
 import ModelFactory from '../models';
 import { modelName, Status } from '../models/registration-request';
+import { getPdsPatientDetails } from '../services/gp2gp/pds-retrieval-request';
+
+jest.mock('../services/gp2gp/pds-retrieval-request');
 
 describe('GET /health', () => {
   const config = initializeConfig();
@@ -95,6 +98,7 @@ describe('POST /registration-requests/', () => {
   const odsCode = 'A12345';
 
   it('should return a 204 status code for correct request', async () => {
+    getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode } } });
     const body = {
       data: {
         type: 'registration-requests',

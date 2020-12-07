@@ -2,7 +2,10 @@ import request from 'supertest';
 import { buildTestApp } from '../../../__builders__/testApp';
 import { logError } from '../../../middleware/logging';
 import { createRegistrationRequest } from '../../../services/database/create-registration-request';
-import { getRegistrationRequestStatusByConversationId, updateRegistrationRequestStatus } from '../../../services/database/registration-request-repository';
+import {
+  getRegistrationRequestStatusByConversationId,
+  updateRegistrationRequestStatus
+} from '../../../services/database/registration-request-repository';
 import { getPdsPatientDetails } from '../../../services/gp2gp/pds-retrieval-request';
 import { Status } from '../../../models/registration-request';
 import { initializeConfig } from '../../../config';
@@ -18,7 +21,6 @@ jest.mock('../../../config', () => ({
 
 describe('POST /registration-requests/', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
-  getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
   initializeConfig.mockReturnValue({
     repoToGpServiceUrl: 'test-url',
     repoToGpAuthKeys: 'correct-key'
@@ -38,49 +40,54 @@ describe('POST /registration-requests/', () => {
     }
   };
 
-  it('should return a 204 if nhsNumber, odsCode, type, conversationId are provided', async () => {
-    const res = await request(testApp)
-      .post('/registration-requests/')
-      .set('Authorization', 'correct-key')
-      .send(mockBody);
+  describe('success', () => {
+    getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
+    getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode } } });
 
-    expect(res.statusCode).toBe(204);
-  });
+    it('should return a 204 if nhsNumber, odsCode, type, conversationId are provided', async () => {
+      const res = await request(testApp)
+        .post('/registration-requests/')
+        .set('Authorization', 'correct-key')
+        .send(mockBody);
 
-  it('should return a 204 if Authorization Header is provided', async () => {
-    const res = await request(testApp)
-      .post('/registration-requests/')
-      .set('Authorization', 'correct-key')
-      .send(mockBody);
+      expect(res.statusCode).toBe(204);
+    });
 
-    expect(res.request.header['Authorization']).toBe('correct-key');
-    expect(res.statusCode).toBe(204);
-  });
+    it('should return a 204 if Authorization Header is provided', async () => {
+      const res = await request(testApp)
+        .post('/registration-requests/')
+        .set('Authorization', 'correct-key')
+        .send(mockBody);
 
-  it('should call createRegistrationRequest and return 204 if the request is correct', async () => {
-    createRegistrationRequest.mockResolvedValue();
-    const res = await request(testApp)
-      .post('/registration-requests/')
-      .set('Authorization', 'correct-key')
-      .send(mockBody);
+      expect(res.request.header['Authorization']).toBe('correct-key');
+      expect(res.statusCode).toBe(204);
+    });
 
-    expect(res.statusCode).toBe(204);
-    expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
-  });
+    it('should call createRegistrationRequest and return 204 if the request is correct', async () => {
+      createRegistrationRequest.mockResolvedValue();
+      const res = await request(testApp)
+        .post('/registration-requests/')
+        .set('Authorization', 'correct-key')
+        .send(mockBody);
 
-  it('should return location header for the created resource', async () => {
-    createRegistrationRequest.mockResolvedValue();
-    const res = await request(testApp)
-      .post('/registration-requests/')
-      .set('Authorization', 'correct-key')
-      .send(mockBody);
+      expect(res.statusCode).toBe(204);
+      expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
+    });
 
-    expect(res.header['location']).toEqual(`test-url/deduction-requests/${conversationId}`);
-    expect(res.statusCode).toBe(204);
+    it('should return location header for the created resource', async () => {
+      createRegistrationRequest.mockResolvedValue();
+      const res = await request(testApp)
+        .post('/registration-requests/')
+        .set('Authorization', 'correct-key')
+        .send(mockBody);
+
+      expect(res.header['location']).toEqual(`test-url/deduction-requests/${conversationId}`);
+      expect(res.statusCode).toBe(204);
+    });
   });
 
   it('should return a 503 if createRegistrationRequest promise is rejected', async () => {
-    createRegistrationRequest.mockRejectedValue({});
+    createRegistrationRequest.mockRejectedValueOnce({});
     const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
@@ -99,7 +106,7 @@ describe('POST /registration-requests/', () => {
   });
 
   it('should return a 409 if registration is already in progress', async () => {
-    getRegistrationRequestStatusByConversationId.mockResolvedValue({
+    getRegistrationRequestStatusByConversationId.mockResolvedValueOnce({
       conversationId,
       status: Status.REGISTRATION_REQUEST_RECEIVED
     });
@@ -112,7 +119,8 @@ describe('POST /registration-requests/', () => {
   });
 
   it('should return a 406 when patients ODS Code in PDS does not match requester', async () => {
-    getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode: 'B1234' }}})
+    getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
+    getPdsPatientDetails.mockResolvedValueOnce({ data: { data: { odsCode: 'B1234' } } });
     const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
@@ -122,14 +130,18 @@ describe('POST /registration-requests/', () => {
   });
 
   it('should call updateRegistrationRequestStatus when patients ODS Code in PDS does not match requester', async () => {
-    getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode: 'B1234' }}})
+    getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
+    getPdsPatientDetails.mockResolvedValueOnce({ data: { data: { odsCode: 'B1234' } } });
     const invalidOdsCodeStatus = Status.INVALID_ODS_CODE;
     await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
       .send(mockBody);
 
-    expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, invalidOdsCodeStatus);
+    expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
+      conversationId,
+      invalidOdsCodeStatus
+    );
   });
 
   describe('validations', () => {

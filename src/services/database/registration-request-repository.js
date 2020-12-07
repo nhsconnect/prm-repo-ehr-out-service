@@ -1,6 +1,6 @@
 import ModelFactory from '../../models';
 import { modelName } from '../../models/registration-request';
-import {runWithinTransaction} from "./helper";
+import { runWithinTransaction } from './helper';
 
 const RegistrationRequest = ModelFactory.getByName(modelName);
 

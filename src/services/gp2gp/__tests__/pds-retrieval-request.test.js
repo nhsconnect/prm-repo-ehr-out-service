@@ -32,7 +32,7 @@ describe('sendPdsRetrievalRequest', () => {
       odsCode
     });
     expect(res.status).toBe(200);
-    expect(res.data).toEqual(mockBody)
+    expect(res.data).toEqual(mockBody);
   });
 
   it('should log and throw error when pds retrieval returns 500', async () => {
