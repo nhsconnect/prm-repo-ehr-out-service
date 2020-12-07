@@ -11,7 +11,7 @@ export const getPatientHealthRecordFromRepo = async nhsNumber => {
       nhsNumber,
       conversationId: res.data.data.attributes.conversationId
     });
-    return res;
+    return res.status === 200;
   } catch (err) {
     const errorMessage = 'Cannot find complete patient health record';
     logError(errorMessage, err);

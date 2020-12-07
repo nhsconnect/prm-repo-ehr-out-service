@@ -40,8 +40,7 @@ describe('getPatientHealthRecordFromRepo', () => {
         conversationId
       }
     );
-    expect(res.status).toBe(200);
-    expect(res.data).toEqual(mockResponseBody);
+    expect(res).toBe(true);
   });
 
   it('should log and throw error when pds retrieval returns 500', async () => {
