@@ -1,11 +1,23 @@
 import request from 'supertest';
+import { v4 } from 'uuid';
+import nock from 'nock';
 import app from '../app';
 import { initializeConfig } from '../config';
 import ModelFactory from '../models';
 import { modelName, Status } from '../models/registration-request';
-import { getPdsPatientDetails } from '../services/gp2gp/pds-retrieval-request';
 
-jest.mock('../services/gp2gp/pds-retrieval-request');
+jest.mock('../config', () => ({
+  initializeConfig: jest.fn().mockReturnValue({
+    sequelize: {
+      username: process.env.DATABASE_USER,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME,
+      host: process.env.DATABASE_HOST,
+      dialect: 'postgres',
+      logging: false
+    }
+  })
+}));
 
 describe('GET /health', () => {
   const config = initializeConfig();
@@ -46,13 +58,17 @@ describe('Swagger Documentation', () => {
 });
 
 describe('GET /registration-requests/:conversationId', () => {
-  const config = initializeConfig();
-  const conversationId = '798d3574-635f-447b-8ff0-a41a95d951db';
+  const conversationId = v4();
+  const fakeAuth = 'fake-keys';
   const nhsNumber = '1234567891';
   const odsCode = 'B12345';
   const status = Status.REGISTRATION_REQUEST_RECEIVED;
 
   it('should return registration request info', async () => {
+    initializeConfig.mockReturnValue({
+      repoToGpAuthKeys: fakeAuth
+    });
+
     const retrievalResponse = {
       data: {
         type: 'registration-requests',
@@ -75,7 +91,7 @@ describe('GET /registration-requests/:conversationId', () => {
 
     const res = await request(app)
       .get(`/registration-requests/${conversationId}`)
-      .set('Authorization', config.repoToGpAuthKeys);
+      .set('Authorization', fakeAuth);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual(retrievalResponse);
@@ -85,20 +101,46 @@ describe('GET /registration-requests/:conversationId', () => {
     const nonExistentConversationId = '941ca257-f88f-499b-8e13-f8a62e7fea7a';
     const res = await request(app)
       .get(`/registration-requests/${nonExistentConversationId}`)
-      .set('Authorization', config.repoToGpAuthKeys);
+      .set('Authorization', fakeAuth);
 
     expect(res.statusCode).toBe(404);
   });
 });
 
 describe('POST /registration-requests/', () => {
-  const config = initializeConfig();
-  const conversationId = 'ed354a0d-be71-4026-804a-4674ca6cdd17';
+  const localhostUrl = 'http://localhost';
+  const fakeAuth = 'fake-keys';
+  initializeConfig.mockReturnValue({
+    ehrRepoServiceUrl: localhostUrl,
+    gp2gpAdaptorServiceUrl: localhostUrl,
+    repoToGpServiceUrl: localhostUrl,
+    ehrRepoAuthKeys: fakeAuth,
+    gp2gpAdaptorAuthKeys: fakeAuth,
+    repoToGpAuthKeys: fakeAuth
+  });
+
+  const conversationId = v4();
   const nhsNumber = '1234567890';
   const odsCode = 'A12345';
+  const ehrHeaders = { reqheaders: { Authorization: fakeAuth } };
+  const gp2gpHeaders = { reqheaders: { Authorization: fakeAuth } };
+  const pdsResponseBody = { data: { odsCode } };
+  const ehrResponseBody = {
+    data: {
+      id: nhsNumber,
+      type: 'patients',
+      attributes: {
+        conversationId
+      }
+    }
+  };
 
   it('should return a 204 status code for correct request', async () => {
-    getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode } } });
+    nock(localhostUrl, ehrHeaders).get(`/patients/${nhsNumber}`).reply(200, ehrResponseBody);
+    nock(localhostUrl, gp2gpHeaders)
+      .get(`/patient-demographics/${nhsNumber}`)
+      .reply(200, pdsResponseBody);
+
     const body = {
       data: {
         type: 'registration-requests',
@@ -112,12 +154,18 @@ describe('POST /registration-requests/', () => {
 
     const res = await request(app)
       .post(`/registration-requests/`)
-      .set('Authorization', config.repoToGpAuthKeys)
+      .set('Authorization', fakeAuth)
       .send(body);
 
     expect(res.header[`location`]).toEqual(
-      `${config.repoToGpServiceUrl}/deduction-requests/${conversationId}`
+      `${localhostUrl}/registration-requests/${conversationId}`
     );
     expect(res.statusCode).toBe(204);
+
+    const statusUpdate = await request(app)
+      .get(`/registration-requests/${conversationId}`)
+      .set('Authorization', fakeAuth);
+
+    expect(statusUpdate.body.data.attributes.status).toEqual('validation_checks_passed');
   });
 });

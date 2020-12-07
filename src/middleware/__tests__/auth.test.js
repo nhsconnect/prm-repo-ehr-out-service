@@ -5,6 +5,7 @@ import { buildTestApp } from '../../__builders__/testApp';
 import { registrationRequests } from '../../api/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
 import { getPdsPatientDetails } from '../../services/gp2gp/pds-retrieval-request';
+import { getPatientHealthRecordFromRepo } from '../../services/ehr-repo/get-health-record';
 
 jest.mock('../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
@@ -12,6 +13,7 @@ jest.mock('../../config', () => ({
 jest.mock('../../services/database/create-registration-request');
 jest.mock('../../services/database/registration-request-repository');
 jest.mock('../../services/gp2gp/pds-retrieval-request');
+jest.mock('../../services/ehr-repo/get-health-record');
 jest.mock('../../middleware/logging');
 
 describe('auth', () => {
@@ -22,6 +24,7 @@ describe('auth', () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
     getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
     getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode } } });
+    getPatientHealthRecordFromRepo.mockResolvedValue(true);
     createRegistrationRequest.mockResolvedValue();
 
     const body = {

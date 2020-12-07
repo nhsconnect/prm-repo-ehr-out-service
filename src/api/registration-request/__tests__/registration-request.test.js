@@ -7,6 +7,7 @@ import {
   updateRegistrationRequestStatus
 } from '../../../services/database/registration-request-repository';
 import { getPdsPatientDetails } from '../../../services/gp2gp/pds-retrieval-request';
+import { getPatientHealthRecordFromRepo } from '../../../services/ehr-repo/get-health-record';
 import { Status } from '../../../models/registration-request';
 import { initializeConfig } from '../../../config';
 import { registrationRequests } from '../index';
@@ -14,6 +15,7 @@ import { registrationRequests } from '../index';
 jest.mock('../../../services/database/registration-request-repository');
 jest.mock('../../../services/database/create-registration-request');
 jest.mock('../../../services/gp2gp/pds-retrieval-request');
+jest.mock('../../../services/ehr-repo/get-health-record');
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
@@ -43,6 +45,7 @@ describe('POST /registration-requests/', () => {
   describe('success', () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
     getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode } } });
+    getPatientHealthRecordFromRepo.mockResolvedValue(true);
 
     it('should return a 204 if nhsNumber, odsCode, type, conversationId are provided', async () => {
       const res = await request(testApp)
@@ -95,7 +98,7 @@ describe('POST /registration-requests/', () => {
         .set('Authorization', 'correct-key')
         .send(mockBody);
 
-      expect(res.header['location']).toEqual(`test-url/deduction-requests/${conversationId}`);
+      expect(res.header['location']).toEqual(`test-url/registration-requests/${conversationId}`);
       expect(res.statusCode).toBe(204);
     });
   });
@@ -132,29 +135,35 @@ describe('POST /registration-requests/', () => {
     expect(res.statusCode).toBe(409);
   });
 
-  it('should return a 406 when patients ODS Code in PDS does not match requester', async () => {
+  it('should return 204 and call updateRegistrationRequestStatus when patients ODS Code in PDS does not match requester', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     getPdsPatientDetails.mockResolvedValueOnce({ data: { data: { odsCode: 'B1234' } } });
+    const invalidOdsCodeStatus = Status.INVALID_ODS_CODE;
     const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
       .send(mockBody);
 
-    expect(res.statusCode).toBe(406);
+    expect(res.statusCode).toBe(204);
+    expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
+      conversationId,
+      invalidOdsCodeStatus
+    );
   });
 
-  it('should call updateRegistrationRequestStatus when patients ODS Code in PDS does not match requester', async () => {
+  it('should return 204 and call updateRegistrationRequestStatus when patient is not stored in repo', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
-    getPdsPatientDetails.mockResolvedValueOnce({ data: { data: { odsCode: 'B1234' } } });
-    const invalidOdsCodeStatus = Status.INVALID_ODS_CODE;
-    await request(testApp)
+    getPatientHealthRecordFromRepo.mockResolvedValueOnce(false);
+    const patientMissingStatus = Status.MISSING;
+    const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
       .send(mockBody);
 
+    expect(res.statusCode).toBe(204);
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
       conversationId,
-      invalidOdsCodeStatus
+      patientMissingStatus
     );
   });
 

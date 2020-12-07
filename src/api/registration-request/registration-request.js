@@ -8,6 +8,7 @@ import {
   updateRegistrationRequestStatus
 } from '../../services/database/registration-request-repository';
 import { Status } from '../../models/registration-request';
+import { getPatientHealthRecordFromRepo } from '../../services/ehr-repo/get-health-record';
 
 export const registrationRequestValidationRules = [
   body('data.type').equals('registration-requests'),
@@ -23,24 +24,29 @@ export const registrationRequest = async (req, res) => {
   const config = initializeConfig();
   const { id: conversationId, attributes } = req.body.data;
   const { nhsNumber, odsCode } = attributes;
+  const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
 
   try {
     const previousRegistration = await getRegistrationRequestStatusByConversationId(conversationId);
-
     if (previousRegistration !== null) {
       res.sendStatus(409);
       return;
     }
     await createRegistrationRequest(conversationId, nhsNumber, odsCode);
-    const pdsPatientDetails = await getPdsPatientDetails(nhsNumber);
 
+    const pdsPatientDetails = await getPdsPatientDetails(nhsNumber);
     if (pdsPatientDetails.data.data.odsCode !== odsCode) {
       await updateRegistrationRequestStatus(conversationId, Status.INVALID_ODS_CODE);
-      res.sendStatus(406);
+      res.set('Location', statusEndpoint).sendStatus(204);
       return;
     }
 
-    const statusEndpoint = `${config.repoToGpServiceUrl}/deduction-requests/${conversationId}`;
+    const patientHealthRecordIsInRepo = await getPatientHealthRecordFromRepo(nhsNumber);
+    if (!patientHealthRecordIsInRepo) {
+      await updateRegistrationRequestStatus(conversationId, Status.MISSING);
+      res.set('Location', statusEndpoint).sendStatus(204);
+      return;
+    }
 
     await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
     res.set('Location', statusEndpoint).sendStatus(204);
