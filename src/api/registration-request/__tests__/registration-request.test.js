@@ -74,6 +74,20 @@ describe('POST /registration-requests/', () => {
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
     });
 
+    it('should updateRegistrationRequestStatus if the request is correct', async () => {
+      createRegistrationRequest.mockResolvedValue();
+      const res = await request(testApp)
+        .post('/registration-requests/')
+        .set('Authorization', 'correct-key')
+        .send(mockBody);
+
+      expect(res.statusCode).toBe(204);
+      expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
+        conversationId,
+        Status.VALIDATION_CHECKS_PASSED
+      );
+    });
+
     it('should return location header for the created resource', async () => {
       createRegistrationRequest.mockResolvedValue();
       const res = await request(testApp)

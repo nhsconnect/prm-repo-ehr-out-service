@@ -42,6 +42,7 @@ export const registrationRequest = async (req, res) => {
 
     const statusEndpoint = `${config.repoToGpServiceUrl}/deduction-requests/${conversationId}`;
 
+    await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
     res.set('Location', statusEndpoint).sendStatus(204);
   } catch (err) {
     logError('Registration request failed', err);
