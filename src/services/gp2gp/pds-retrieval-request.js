@@ -2,7 +2,7 @@ import axios from 'axios';
 import { initializeConfig } from '../../config';
 import { logError, logEvent } from '../../middleware/logging';
 
-export const getPdsPatientDetails = async nhsNumber => {
+export const getPdsOdsCode = async nhsNumber => {
   const config = initializeConfig();
   const url = `${config.gp2gpAdaptorServiceUrl}/patient-demographics/${nhsNumber}`;
   try {
@@ -11,7 +11,7 @@ export const getPdsPatientDetails = async nhsNumber => {
       nhsNumber,
       odsCode: res.data.data.odsCode
     });
-    return res;
+    return res.data.data.odsCode;
   } catch (err) {
     const errorMessage = 'Unable to retrieve patient from PDS';
     logError(errorMessage, err);

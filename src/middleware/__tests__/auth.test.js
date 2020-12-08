@@ -4,7 +4,7 @@ import { createRegistrationRequest } from '../../services/database/create-regist
 import { buildTestApp } from '../../__builders__/testApp';
 import { registrationRequests } from '../../api/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
-import { getPdsPatientDetails } from '../../services/gp2gp/pds-retrieval-request';
+import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
 import { getPatientHealthRecordFromRepo } from '../../services/ehr-repo/get-health-record';
 
 jest.mock('../../config', () => ({
@@ -23,7 +23,7 @@ describe('auth', () => {
   it('should return HTTP 204 when correctly authenticated', async () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
     getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
-    getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode } } });
+    getPdsOdsCode.mockResolvedValue({ data: { data: { odsCode } } });
     getPatientHealthRecordFromRepo.mockResolvedValue(true);
     createRegistrationRequest.mockResolvedValue();
 

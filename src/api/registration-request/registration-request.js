@@ -2,7 +2,7 @@ import { body } from 'express-validator';
 import { createRegistrationRequest } from '../../services/database/create-registration-request';
 import { logError } from '../../middleware/logging';
 import { initializeConfig } from '../../config';
-import { getPdsPatientDetails } from '../../services/gp2gp/pds-retrieval-request';
+import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
 import {
   getRegistrationRequestStatusByConversationId,
   updateRegistrationRequestStatus
@@ -21,10 +21,8 @@ export const registrationRequestValidationRules = [
 ];
 
 export const registrationRequest = async (req, res) => {
-  const config = initializeConfig();
   const { id: conversationId, attributes } = req.body.data;
   const { nhsNumber, odsCode } = attributes;
-  const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
 
   try {
     const previousRegistration = await getRegistrationRequestStatusByConversationId(conversationId);
@@ -32,28 +30,34 @@ export const registrationRequest = async (req, res) => {
       res.sendStatus(409);
       return;
     }
+
     await createRegistrationRequest(conversationId, nhsNumber, odsCode);
 
-    const pdsPatientDetails = await getPdsPatientDetails(nhsNumber);
-    if (pdsPatientDetails.data.data.odsCode !== odsCode) {
-      await updateRegistrationRequestStatus(conversationId, Status.INVALID_ODS_CODE);
-      res.set('Location', statusEndpoint).sendStatus(204);
+    const pdsOdsCode = await getPdsOdsCode(nhsNumber);
+    if (pdsOdsCode !== odsCode) {
+      await updateStatusAndSendResponse(res, conversationId, Status.INVALID_ODS_CODE);
       return;
     }
 
     const patientHealthRecordIsInRepo = await getPatientHealthRecordFromRepo(nhsNumber);
     if (!patientHealthRecordIsInRepo) {
-      await updateRegistrationRequestStatus(conversationId, Status.MISSING);
-      res.set('Location', statusEndpoint).sendStatus(204);
+      await updateStatusAndSendResponse(res, conversationId, Status.MISSING);
       return;
     }
 
-    await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
-    res.set('Location', statusEndpoint).sendStatus(204);
+    await updateStatusAndSendResponse(res, conversationId, Status.VALIDATION_CHECKS_PASSED);
   } catch (err) {
     logError('Registration request failed', err);
     res.status(503).json({
       errors: err.message
     });
   }
+};
+
+const updateStatusAndSendResponse = async (res, conversationId, status) => {
+  const config = initializeConfig();
+  const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
+
+  await updateRegistrationRequestStatus(conversationId, status);
+  res.set('Location', statusEndpoint).sendStatus(204);
 };

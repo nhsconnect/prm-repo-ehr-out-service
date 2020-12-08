@@ -6,7 +6,7 @@ import {
   getRegistrationRequestStatusByConversationId,
   updateRegistrationRequestStatus
 } from '../../../services/database/registration-request-repository';
-import { getPdsPatientDetails } from '../../../services/gp2gp/pds-retrieval-request';
+import { getPdsOdsCode } from '../../../services/gp2gp/pds-retrieval-request';
 import { getPatientHealthRecordFromRepo } from '../../../services/ehr-repo/get-health-record';
 import { Status } from '../../../models/registration-request';
 import { initializeConfig } from '../../../config';
@@ -44,7 +44,7 @@ describe('POST /registration-requests/', () => {
 
   describe('success', () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
-    getPdsPatientDetails.mockResolvedValue({ data: { data: { odsCode } } });
+    getPdsOdsCode.mockResolvedValue(odsCode);
     getPatientHealthRecordFromRepo.mockResolvedValue(true);
 
     it('should return a 204 if nhsNumber, odsCode, type, conversationId are provided', async () => {
@@ -137,7 +137,7 @@ describe('POST /registration-requests/', () => {
 
   it('should return 204 and call updateRegistrationRequestStatus when patients ODS Code in PDS does not match requester', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
-    getPdsPatientDetails.mockResolvedValueOnce({ data: { data: { odsCode: 'B1234' } } });
+    getPdsOdsCode.mockResolvedValueOnce('B1234');
     const invalidOdsCodeStatus = Status.INVALID_ODS_CODE;
     const res = await request(testApp)
       .post('/registration-requests/')

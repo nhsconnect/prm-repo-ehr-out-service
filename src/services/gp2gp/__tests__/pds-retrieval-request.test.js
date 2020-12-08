@@ -1,5 +1,5 @@
 import nock from 'nock';
-import { getPdsPatientDetails } from '../pds-retrieval-request';
+import { getPdsOdsCode } from '../pds-retrieval-request';
 import { logError, logEvent } from '../../../middleware/logging';
 
 jest.mock('../../../middleware/logging');
@@ -25,14 +25,14 @@ describe('sendPdsRetrievalRequest', () => {
       .get(`/patient-demographics/${nhsNumber}`)
       .reply(200, mockBody);
 
-    const res = await getPdsPatientDetails(nhsNumber);
+    const res = await getPdsOdsCode(nhsNumber);
     expect(scope.isDone()).toBe(true);
     expect(logEvent).toHaveBeenCalledWith('Successfully retrieved patient from PDS', {
       nhsNumber,
       odsCode
     });
-    expect(res.status).toBe(200);
-    expect(res.data).toEqual(mockBody);
+
+    expect(res).toEqual(odsCode);
   });
 
   it('should log and throw error when pds retrieval returns 500', async () => {
@@ -41,7 +41,7 @@ describe('sendPdsRetrievalRequest', () => {
     nock(mockGp2gpAdaptorServiceUrl, headers).get(`/patient-demographics/${nhsNumber}`).reply(500);
 
     try {
-      await getPdsPatientDetails(nhsNumber);
+      await getPdsOdsCode(nhsNumber);
     } catch (err) {
       error = err;
     }
