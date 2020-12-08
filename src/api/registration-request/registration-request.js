@@ -1,6 +1,6 @@
 import { body } from 'express-validator';
 import { createRegistrationRequest } from '../../services/database/create-registration-request';
-import { logError } from '../../middleware/logging';
+import { logError, logEvent } from '../../middleware/logging';
 import { initializeConfig } from '../../config';
 import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
 import {
@@ -23,11 +23,13 @@ export const registrationRequestValidationRules = [
 export const registrationRequest = async (req, res) => {
   const { id: conversationId, attributes } = req.body.data;
   const { nhsNumber, odsCode } = attributes;
+  let logs = `Validation checks passed for ${nhsNumber}`;
 
   try {
     const previousRegistration = await getRegistrationRequestStatusByConversationId(conversationId);
     if (previousRegistration !== null) {
       res.sendStatus(409);
+      logEvent(`Duplicate registration request for ${nhsNumber}`);
       return;
     }
 
@@ -35,17 +37,19 @@ export const registrationRequest = async (req, res) => {
 
     const pdsOdsCode = await getPdsOdsCode(nhsNumber);
     if (pdsOdsCode !== odsCode) {
-      await updateStatusAndSendResponse(res, conversationId, Status.INVALID_ODS_CODE);
+      logs = 'Patients ODS Code in PDS does not match requesting practices ODS Code';
+      await updateStatusAndSendResponse(res, conversationId, Status.INVALID_ODS_CODE, logs);
       return;
     }
 
     const patientHealthRecordIsInRepo = await getPatientHealthRecordFromRepo(nhsNumber);
     if (!patientHealthRecordIsInRepo) {
-      await updateStatusAndSendResponse(res, conversationId, Status.MISSING);
+      logs = `Patient ${nhsNumber} does not have a complete health record in repo`;
+      await updateStatusAndSendResponse(res, conversationId, Status.MISSING, logs);
       return;
     }
 
-    await updateStatusAndSendResponse(res, conversationId, Status.VALIDATION_CHECKS_PASSED);
+    await updateStatusAndSendResponse(res, conversationId, Status.VALIDATION_CHECKS_PASSED, logs);
   } catch (err) {
     logError('Registration request failed', err);
     res.status(503).json({
@@ -54,10 +58,11 @@ export const registrationRequest = async (req, res) => {
   }
 };
 
-const updateStatusAndSendResponse = async (res, conversationId, status) => {
+const updateStatusAndSendResponse = async (res, conversationId, status, logs) => {
   const config = initializeConfig();
   const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
 
   await updateRegistrationRequestStatus(conversationId, status);
   res.set('Location', statusEndpoint).sendStatus(204);
+  logEvent(logs);
 };

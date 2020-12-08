@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { buildTestApp } from '../../../__builders__/testApp';
-import { logError } from '../../../middleware/logging';
+import { logError, logEvent } from '../../../middleware/logging';
 import { createRegistrationRequest } from '../../../services/database/create-registration-request';
 import {
   getRegistrationRequestStatusByConversationId,
@@ -77,7 +77,7 @@ describe('POST /registration-requests/', () => {
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
     });
 
-    it('should updateRegistrationRequestStatus if the request is correct', async () => {
+    it('should updateRegistrationRequestStatus and log event if the request is correct', async () => {
       createRegistrationRequest.mockResolvedValue();
       const res = await request(testApp)
         .post('/registration-requests/')
@@ -89,6 +89,7 @@ describe('POST /registration-requests/', () => {
         conversationId,
         Status.VALIDATION_CHECKS_PASSED
       );
+      expect(logEvent).toHaveBeenCalledWith(`Validation checks passed for ${nhsNumber}`);
     });
 
     it('should return location header for the created resource', async () => {
@@ -122,7 +123,7 @@ describe('POST /registration-requests/', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('should return a 409 if registration is already in progress', async () => {
+  it('should return a 409 if registration is already in progress and update logs', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce({
       conversationId,
       status: Status.REGISTRATION_REQUEST_RECEIVED
@@ -133,9 +134,10 @@ describe('POST /registration-requests/', () => {
       .send(mockBody);
 
     expect(res.statusCode).toBe(409);
+    expect(logEvent).toHaveBeenCalledWith(`Duplicate registration request for ${nhsNumber}`);
   });
 
-  it('should return 204 and call updateRegistrationRequestStatus when patients ODS Code in PDS does not match requester', async () => {
+  it('should return 204, log event and call updateRegistrationRequestStatus when patients ODS Code in PDS does not match requester', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     getPdsOdsCode.mockResolvedValueOnce('B1234');
     const invalidOdsCodeStatus = Status.INVALID_ODS_CODE;
@@ -149,9 +151,12 @@ describe('POST /registration-requests/', () => {
       conversationId,
       invalidOdsCodeStatus
     );
+    expect(logEvent).toHaveBeenCalledWith(
+      'Patients ODS Code in PDS does not match requesting practices ODS Code'
+    );
   });
 
-  it('should return 204 and call updateRegistrationRequestStatus when patient is not stored in repo', async () => {
+  it('should return 204, log event and call updateRegistrationRequestStatus when patient is not stored in repo', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     getPatientHealthRecordFromRepo.mockResolvedValueOnce(false);
     const patientMissingStatus = Status.MISSING;
@@ -164,6 +169,9 @@ describe('POST /registration-requests/', () => {
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
       conversationId,
       patientMissingStatus
+    );
+    expect(logEvent).toHaveBeenCalledWith(
+      `Patient ${nhsNumber} does not have a complete health record in repo`
     );
   });
 
