@@ -9,25 +9,6 @@ import { modelName, Status } from '../models/registration-request';
 const localhostUrl = 'http://localhost';
 const fakeAuth = 'fake-keys';
 
-jest.mock('../config', () => ({
-  initializeConfig: jest.fn().mockReturnValue({
-    sequelize: {
-      username: process.env.DATABASE_USER,
-      password: process.env.DATABASE_PASSWORD,
-      database: process.env.DATABASE_NAME,
-      host: process.env.DATABASE_HOST,
-      dialect: 'postgres',
-      logging: false
-    },
-    ehrRepoServiceUrl: localhostUrl,
-    gp2gpAdaptorServiceUrl: localhostUrl,
-    repoToGpServiceUrl: localhostUrl,
-    ehrRepoAuthKeys: fakeAuth,
-    gp2gpAdaptorAuthKeys: fakeAuth,
-    repoToGpAuthKeys: fakeAuth
-  })
-}));
-
 describe('GET /health', () => {
   const config = initializeConfig();
 
@@ -72,11 +53,15 @@ describe('GET /registration-requests/:conversationId', () => {
   const odsCode = 'B12345';
   const status = Status.REGISTRATION_REQUEST_RECEIVED;
 
-  it('should return registration request info', async () => {
-    initializeConfig.mockReturnValue({
-      repoToGpAuthKeys: fakeAuth
-    });
+  beforeEach(() => {
+    process.env.AUTHORIZATION_KEYS = fakeAuth;
+  });
 
+  afterEach(() => {
+    delete process.env.AUTHORIZATION_KEYS;
+  });
+
+  it('should return registration request info', async () => {
     const retrievalResponse = {
       data: {
         type: 'registration-requests',
@@ -119,6 +104,7 @@ describe('POST /registration-requests/', () => {
   const conversationId = v4();
   const nhsNumber = '1234567890';
   const odsCode = 'A12345';
+  const repoToGpUrl = 'http://repo-to-gp';
   const ehrHeaders = { reqheaders: { Authorization: fakeAuth } };
   const gp2gpHeaders = { reqheaders: { Authorization: fakeAuth } };
   const pdsResponseBody = { data: { odsCode } };
@@ -131,6 +117,23 @@ describe('POST /registration-requests/', () => {
       }
     }
   };
+
+  beforeEach(() => {
+    process.env.SERVICE_URL = repoToGpUrl;
+    process.env.AUTHORIZATION_KEYS = fakeAuth;
+    process.env.GP2GP_ADAPTOR_SERVICE_URL = localhostUrl;
+    process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS = fakeAuth;
+    process.env.EHR_REPO_SERVICE_URL = localhostUrl;
+    process.env.EHR_REPO_AUTHORIZATION_KEYS = fakeAuth;
+  });
+
+  afterEach(() => {
+    delete process.env.AUTHORIZATION_KEYS;
+    delete process.env.GP2GP_ADAPTOR_SERVICE_URL;
+    delete process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS;
+    delete process.env.EHR_REPO_SERVICE_URL;
+    delete process.env.EHR_REPO_AUTHORIZATION_KEYS;
+  });
 
   it('should return a 204 status code for correct request', async () => {
     nock(localhostUrl, ehrHeaders).get(`/patients/${nhsNumber}`).reply(200, ehrResponseBody);
@@ -155,7 +158,7 @@ describe('POST /registration-requests/', () => {
       .send(body);
 
     expect(res.header[`location`]).toEqual(
-      `${localhostUrl}/registration-requests/${conversationId}`
+      `${repoToGpUrl}/registration-requests/${conversationId}`
     );
     expect(res.statusCode).toBe(204);
 
