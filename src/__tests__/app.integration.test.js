@@ -6,6 +6,9 @@ import { initializeConfig } from '../config';
 import ModelFactory from '../models';
 import { modelName, Status } from '../models/registration-request';
 
+const localhostUrl = 'http://localhost';
+const fakeAuth = 'fake-keys';
+
 jest.mock('../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({
     sequelize: {
@@ -15,7 +18,13 @@ jest.mock('../config', () => ({
       host: process.env.DATABASE_HOST,
       dialect: 'postgres',
       logging: false
-    }
+    },
+    ehrRepoServiceUrl: localhostUrl,
+    gp2gpAdaptorServiceUrl: localhostUrl,
+    repoToGpServiceUrl: localhostUrl,
+    ehrRepoAuthKeys: fakeAuth,
+    gp2gpAdaptorAuthKeys: fakeAuth,
+    repoToGpAuthKeys: fakeAuth
   })
 }));
 
@@ -59,7 +68,6 @@ describe('Swagger Documentation', () => {
 
 describe('GET /registration-requests/:conversationId', () => {
   const conversationId = v4();
-  const fakeAuth = 'fake-keys';
   const nhsNumber = '1234567891';
   const odsCode = 'B12345';
   const status = Status.REGISTRATION_REQUEST_RECEIVED;
@@ -108,17 +116,6 @@ describe('GET /registration-requests/:conversationId', () => {
 });
 
 describe('POST /registration-requests/', () => {
-  const localhostUrl = 'http://localhost';
-  const fakeAuth = 'fake-keys';
-  initializeConfig.mockReturnValue({
-    ehrRepoServiceUrl: localhostUrl,
-    gp2gpAdaptorServiceUrl: localhostUrl,
-    repoToGpServiceUrl: localhostUrl,
-    ehrRepoAuthKeys: fakeAuth,
-    gp2gpAdaptorAuthKeys: fakeAuth,
-    repoToGpAuthKeys: fakeAuth
-  });
-
   const conversationId = v4();
   const nhsNumber = '1234567890';
   const odsCode = 'A12345';
