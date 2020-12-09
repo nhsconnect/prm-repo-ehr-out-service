@@ -15,6 +15,6 @@ export const getPatientHealthRecordFromRepo = async nhsNumber => {
   } catch (err) {
     const errorMessage = 'Cannot find complete patient health record';
     logError(errorMessage, err);
-    throw errorMessage;
+    return false;
   }
 };
