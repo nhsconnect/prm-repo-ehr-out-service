@@ -89,7 +89,10 @@ describe('POST /registration-requests/', () => {
         conversationId,
         Status.VALIDATION_CHECKS_PASSED
       );
-      expect(logEvent).toHaveBeenCalledWith(`Validation checks passed for ${nhsNumber}`);
+      expect(logEvent).toHaveBeenCalledWith(`Validation checks passed`, {
+        nhsNumber,
+        conversationId
+      });
     });
 
     it('should return location header for the created resource', async () => {
@@ -134,7 +137,10 @@ describe('POST /registration-requests/', () => {
       .send(mockBody);
 
     expect(res.statusCode).toBe(409);
-    expect(logEvent).toHaveBeenCalledWith(`Duplicate registration request for ${nhsNumber}`);
+    expect(logEvent).toHaveBeenCalledWith(`Duplicate registration request`, {
+      nhsNumber,
+      conversationId
+    });
   });
 
   it('should return 204, log event and call updateRegistrationRequestStatus when patients ODS Code in PDS does not match requester', async () => {
@@ -151,8 +157,11 @@ describe('POST /registration-requests/', () => {
       conversationId,
       invalidOdsCodeStatus
     );
-    expect(logEvent).toHaveBeenCalledWith(
-      'Patients ODS Code in PDS does not match requesting practices ODS Code'
+    expect(
+      logEvent
+    ).toHaveBeenCalledWith(
+      'Patients ODS Code in PDS does not match requesting practices ODS Code',
+      { nhsNumber, conversationId }
     );
   });
 
@@ -171,7 +180,8 @@ describe('POST /registration-requests/', () => {
       patientMissingStatus
     );
     expect(logEvent).toHaveBeenCalledWith(
-      `Patient ${nhsNumber} does not have a complete health record in repo`
+      `Patient does not have a complete health record in repo`,
+      { nhsNumber, conversationId }
     );
   });
 
