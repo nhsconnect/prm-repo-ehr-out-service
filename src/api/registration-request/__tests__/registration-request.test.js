@@ -29,12 +29,24 @@ describe('POST /registration-requests/', () => {
   });
 
   const conversationId = '5BB36755-279F-43D5-86AB-DEFEA717D93F';
+  const conversationIdUuidv1 = '817db238-3adf-11eb-adc1-0242ac120002';
   const odsCode = 'A12345';
   const nhsNumber = '1111111111';
   const mockBody = {
     data: {
       type: 'registration-requests',
       id: conversationId,
+      attributes: {
+        nhsNumber: nhsNumber,
+        odsCode: odsCode
+      }
+    }
+  };
+
+  const mockBodyUuidV1 = {
+    data: {
+      type: 'registration-requests',
+      id: conversationIdUuidv1,
       attributes: {
         nhsNumber: nhsNumber,
         odsCode: odsCode
@@ -63,6 +75,15 @@ describe('POST /registration-requests/', () => {
         .send(mockBody);
 
       expect(res.request.header['Authorization']).toBe('correct-key');
+      expect(res.statusCode).toBe(204);
+    });
+
+    it('should return a 204 with a conversation Id that is uuidv1', async () => {
+      const res = await request(testApp)
+        .post('/registration-requests/')
+        .set('Authorization', 'correct-key')
+        .send(mockBodyUuidV1);
+
       expect(res.statusCode).toBe(204);
     });
 
@@ -231,7 +252,7 @@ describe('POST /registration-requests/', () => {
     });
 
     it('should return an error if :conversationId is not uuid', async () => {
-      const errorMessage = [{ 'data.id': "'conversationId' provided is not of type UUIDv4" }];
+      const errorMessage = [{ 'data.id': "'conversationId' provided is not of type UUID" }];
       const res = await request(testApp)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')

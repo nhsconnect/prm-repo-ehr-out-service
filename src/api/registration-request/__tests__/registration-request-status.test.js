@@ -21,7 +21,7 @@ describe('GET /registration-requests/', () => {
   const status = Status.REGISTRATION_REQUEST_RECEIVED;
   const testApp = buildTestApp('/registration-requests', registrationRequests);
 
-  it('should return 200 and registration request information if :conversationId is uuid and Authorization Header provided', async () => {
+  it('should return 200 and registration request information if :conversationId is uuidv4 and Authorization Header provided', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValue({
       conversationId,
       nhsNumber,
@@ -50,8 +50,38 @@ describe('GET /registration-requests/', () => {
     expect(res.body).toEqual(mockBody);
   });
 
+  it('should return 200 and registration request information if :conversationId is uuidv1 and Authorization Header provided', async () => {
+    const conversationIdUuidv1 = 'ebc252ca-3adf-11eb-adc1-0242ac120002';
+    getRegistrationRequestStatusByConversationId.mockResolvedValue({
+      conversationId: conversationIdUuidv1,
+      nhsNumber,
+      odsCode,
+      status
+    });
+
+    const res = await request(testApp)
+      .get(`/registration-requests/${conversationIdUuidv1}`)
+      .set('Authorization', 'valid-key');
+
+    const mockBody = {
+      data: {
+        type: 'registration-requests',
+        id: conversationIdUuidv1,
+        attributes: {
+          nhsNumber,
+          odsCode,
+          status
+        }
+      }
+    };
+
+    expect(res.statusCode).toBe(200);
+    expect(getRegistrationRequestStatusByConversationId).toHaveBeenCalledWith(conversationIdUuidv1);
+    expect(res.body).toEqual(mockBody);
+  });
+
   it('should return an error if :conversationId is not valid', async () => {
-    const errorMessage = [{ conversationId: "'conversationId' provided is not of type UUIDv4" }];
+    const errorMessage = [{ conversationId: "'conversationId' provided is not of type UUID" }];
     const res = await request(testApp)
       .get(`/registration-requests/${invalidConversationId}`)
       .set('Authorization', 'valid-key');

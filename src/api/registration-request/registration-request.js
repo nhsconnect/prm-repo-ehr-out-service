@@ -12,7 +12,7 @@ import { getPatientHealthRecordFromRepo } from '../../services/ehr-repo/get-heal
 
 export const registrationRequestValidationRules = [
   body('data.type').equals('registration-requests'),
-  body('data.id').isUUID('4').withMessage("'conversationId' provided is not of type UUIDv4"),
+  body('data.id').isUUID().withMessage("'conversationId' provided is not of type UUID"),
   body('data.attributes.nhsNumber').isNumeric().withMessage("'nhsNumber' provided is not numeric"),
   body('data.attributes.nhsNumber')
     .isLength({ min: 10, max: 10 })
@@ -75,6 +75,6 @@ const updateStatusAndSendResponse = async (res, conversationId, status, logs, nh
   const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
 
   await updateRegistrationRequestStatus(conversationId, status);
-  res.set('Location', statusEndpoint).sendStatus(204);
   logEvent(logs, { nhsNumber, conversationId });
+  res.set('Location', statusEndpoint).sendStatus(204);
 };

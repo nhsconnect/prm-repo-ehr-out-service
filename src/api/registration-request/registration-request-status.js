@@ -3,9 +3,7 @@ import { getRegistrationRequestStatusByConversationId } from '../../services/dat
 import { logError } from '../../middleware/logging';
 
 export const registrationRequestStatusValidationRules = [
-  param('conversationId')
-    .isUUID('4')
-    .withMessage("'conversationId' provided is not of type UUIDv4"),
+  param('conversationId').isUUID().withMessage("'conversationId' provided is not of type UUID"),
   param('conversationId').not().isEmpty().withMessage(`'conversationId' has not been provided`)
 ];
 
