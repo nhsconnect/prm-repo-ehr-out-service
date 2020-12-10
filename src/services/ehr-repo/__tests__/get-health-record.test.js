@@ -52,13 +52,16 @@ describe('getPatientHealthRecordFromRepo', () => {
   it('should log and throw error when pds retrieval returns 500', async () => {
     const expectedError = new Error('Request failed with status code 500');
     const scope = nock(mockEhrRepoServiceUrl, headers).get(`/patients/${nhsNumber}`).reply(500);
-    const res = await getPatientHealthRecordFromRepo(nhsNumber);
+
+    let actualError = null;
+    try {
+      await getPatientHealthRecordFromRepo(nhsNumber);
+    } catch (err) {
+      actualError = err;
+    }
 
     expect(scope.isDone()).toBe(true);
-    expect(res).toBe(false);
-    expect(logError).toHaveBeenCalledWith(
-      'Cannot find complete patient health record',
-      expectedError
-    );
+    expect(actualError).not.toBeNull();
+    expect(logError).toHaveBeenCalledWith('Error retrieving health record', expectedError);
   });
 });
