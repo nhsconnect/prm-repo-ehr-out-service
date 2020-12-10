@@ -5,8 +5,8 @@ const tableName = 'registration_requests';
 
 export const Status = {
   REGISTRATION_REQUEST_RECEIVED: 'registration_request_received',
-  INVALID_ODS_CODE: 'invalid_ods_code',
-  MISSING: 'missing',
+  INCORRECT_ODS_CODE: 'incorrect_ods_code',
+  MISSING_FROM_REPO: 'missing_from_repo',
   VALIDATION_CHECKS_PASSED: 'validation_checks_passed'
 };
 

@@ -44,7 +44,7 @@ describe('Registration request repository', () => {
   it('should change registration request status to invalid_ods_code', async () => {
     const conversationId = 'e30d008e-0134-479c-bf59-6d4978227617';
     const nhsNumber = '1234567890';
-    const status = Status.INVALID_ODS_CODE;
+    const status = Status.INCORRECT_ODS_CODE;
     const odsCode = 'B1234';
 
     await RegistrationRequest.create({

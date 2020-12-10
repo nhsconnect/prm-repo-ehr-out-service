@@ -170,7 +170,7 @@ describe('POST /registration-requests/', () => {
   it('should return 204, log event and call updateRegistrationRequestStatus when patients ODS Code in PDS does not match requester', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     getPdsOdsCode.mockResolvedValueOnce('B1234');
-    const invalidOdsCodeStatus = Status.INVALID_ODS_CODE;
+    const incorrectOdsCodeStatus = Status.INCORRECT_ODS_CODE;
     const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')
@@ -179,7 +179,7 @@ describe('POST /registration-requests/', () => {
     expect(res.statusCode).toBe(204);
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
       conversationId,
-      invalidOdsCodeStatus
+      incorrectOdsCodeStatus
     );
     expect(
       logEvent
@@ -192,7 +192,7 @@ describe('POST /registration-requests/', () => {
   it('should return 204, log event and call updateRegistrationRequestStatus when patient is not stored in repo', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     getPatientHealthRecordFromRepo.mockResolvedValueOnce(false);
-    const patientMissingStatus = Status.MISSING;
+    const patientMissingStatus = Status.MISSING_FROM_REPO;
     const res = await request(testApp)
       .post('/registration-requests/')
       .set('Authorization', 'correct-key')

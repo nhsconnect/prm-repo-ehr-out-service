@@ -43,7 +43,7 @@ export const registrationRequest = async (req, res) => {
       await updateStatusAndSendResponse(
         res,
         conversationId,
-        Status.INVALID_ODS_CODE,
+        Status.INCORRECT_ODS_CODE,
         logs,
         nhsNumber
       );
@@ -53,7 +53,13 @@ export const registrationRequest = async (req, res) => {
     const patientHealthRecordIsInRepo = await getPatientHealthRecordFromRepo(nhsNumber);
     if (!patientHealthRecordIsInRepo) {
       logs = `Patient does not have a complete health record in repo`;
-      await updateStatusAndSendResponse(res, conversationId, Status.MISSING, logs, nhsNumber);
+      await updateStatusAndSendResponse(
+        res,
+        conversationId,
+        Status.MISSING_FROM_REPO,
+        logs,
+        nhsNumber
+      );
       return;
     }
 
