@@ -199,6 +199,7 @@ describe('POST /registration-requests/', () => {
       .send(mockBody);
 
     expect(res.statusCode).toBe(204);
+    expect(getPdsOdsCode).not.toHaveBeenCalled();
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
       conversationId,
       patientMissingStatus

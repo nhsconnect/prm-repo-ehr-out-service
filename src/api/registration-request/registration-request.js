@@ -37,19 +37,6 @@ export const registrationRequest = async (req, res) => {
 
     await createRegistrationRequest(conversationId, nhsNumber, odsCode);
 
-    const pdsOdsCode = await getPdsOdsCode(nhsNumber);
-    if (pdsOdsCode !== odsCode) {
-      logs = 'Patients ODS Code in PDS does not match requesting practices ODS Code';
-      await updateStatusAndSendResponse(
-        res,
-        conversationId,
-        Status.INCORRECT_ODS_CODE,
-        logs,
-        nhsNumber
-      );
-      return;
-    }
-
     const patientHealthRecordIsInRepo = await getPatientHealthRecordFromRepo(nhsNumber);
     if (!patientHealthRecordIsInRepo) {
       logs = `Patient does not have a complete health record in repo`;
@@ -57,6 +44,19 @@ export const registrationRequest = async (req, res) => {
         res,
         conversationId,
         Status.MISSING_FROM_REPO,
+        logs,
+        nhsNumber
+      );
+      return;
+    }
+
+    const pdsOdsCode = await getPdsOdsCode(nhsNumber);
+    if (pdsOdsCode !== odsCode) {
+      logs = 'Patients ODS Code in PDS does not match requesting practices ODS Code';
+      await updateStatusAndSendResponse(
+        res,
+        conversationId,
+        Status.INCORRECT_ODS_CODE,
         logs,
         nhsNumber
       );
