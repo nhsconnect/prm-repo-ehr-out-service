@@ -147,7 +147,7 @@ describe('POST /registration-requests/', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('should return a 409 if registration is already in progress and update logs', async () => {
+  it('should return a 409 and error message if registration is already in progress and update logs', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce({
       conversationId,
       status: Status.REGISTRATION_REQUEST_RECEIVED
@@ -158,6 +158,9 @@ describe('POST /registration-requests/', () => {
       .send(mockBody);
 
     expect(res.statusCode).toBe(409);
+    expect(res.body).toEqual({
+      error: `Registration request with this ConversationId is already in progress`
+    });
     expect(logEvent).toHaveBeenCalledWith(`Duplicate registration request`, {
       nhsNumber,
       conversationId

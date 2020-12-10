@@ -28,7 +28,9 @@ export const registrationRequest = async (req, res) => {
   try {
     const previousRegistration = await getRegistrationRequestStatusByConversationId(conversationId);
     if (previousRegistration !== null) {
-      res.sendStatus(409);
+      res.status(409).json({
+        error: `Registration request with this ConversationId is already in progress`
+      });
       logEvent(`Duplicate registration request`, { nhsNumber, conversationId });
       return;
     }
