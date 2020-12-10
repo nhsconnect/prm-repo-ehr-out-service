@@ -1,5 +1,5 @@
 import nock from 'nock';
-import { logError, logEvent } from '../../../middleware/logging';
+import { logError } from '../../../middleware/logging';
 import { getPatientHealthRecordFromRepo } from '../get-health-record';
 
 jest.mock('../../../middleware/logging');
@@ -33,13 +33,6 @@ describe('getPatientHealthRecordFromRepo', () => {
 
     const res = await getPatientHealthRecordFromRepo(nhsNumber);
     expect(scope.isDone()).toBe(true);
-    expect(logEvent).toHaveBeenCalledWith(
-      'Successfully retrieved complete health record from EHR Repo',
-      {
-        nhsNumber,
-        conversationId
-      }
-    );
     expect(res).toBe(true);
   });
 
