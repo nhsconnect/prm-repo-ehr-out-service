@@ -59,13 +59,16 @@ describe('POST /registration-requests/', () => {
     getPdsOdsCode.mockResolvedValue(odsCode);
     getPatientHealthRecordFromRepo.mockResolvedValue(true);
 
-    it('should return a 204 if nhsNumber, odsCode, type, conversationId are provided', async () => {
+    it('should return a 204 when all values are provided and should call validation functions correctly', async () => {
       const res = await request(testApp)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')
         .send(mockBody);
 
       expect(res.statusCode).toBe(204);
+      expect(getRegistrationRequestStatusByConversationId).toHaveBeenCalledWith(conversationId);
+      expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber);
+      expect(getPdsOdsCode).toHaveBeenCalledWith(nhsNumber);
     });
 
     it('should return a 204 if Authorization Header is provided', async () => {
