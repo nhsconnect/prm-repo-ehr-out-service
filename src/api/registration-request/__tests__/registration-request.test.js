@@ -114,7 +114,6 @@ describe('POST /registration-requests/', () => {
         Status.VALIDATION_CHECKS_PASSED
       );
       expect(logEvent).toHaveBeenCalledWith(`Validation checks passed`, {
-        nhsNumber,
         conversationId
       });
     });
@@ -165,7 +164,6 @@ describe('POST /registration-requests/', () => {
       error: `Registration request with this ConversationId is already in progress`
     });
     expect(logEvent).toHaveBeenCalledWith(`Duplicate registration request`, {
-      nhsNumber,
       conversationId
     });
   });
@@ -188,7 +186,7 @@ describe('POST /registration-requests/', () => {
       logEvent
     ).toHaveBeenCalledWith(
       'Patients ODS Code in PDS does not match requesting practices ODS Code',
-      { nhsNumber, conversationId }
+      { conversationId }
     );
   });
 
@@ -209,7 +207,7 @@ describe('POST /registration-requests/', () => {
     );
     expect(logEvent).toHaveBeenCalledWith(
       `Patient does not have a complete health record in repo`,
-      { nhsNumber, conversationId }
+      { conversationId }
     );
   });
 

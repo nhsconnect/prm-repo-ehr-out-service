@@ -31,7 +31,7 @@ export const registrationRequest = async (req, res) => {
       res.status(409).json({
         error: `Registration request with this ConversationId is already in progress`
       });
-      logEvent(`Duplicate registration request`, { nhsNumber, conversationId });
+      logEvent(`Duplicate registration request`, { conversationId });
       return;
     }
 
@@ -40,36 +40,18 @@ export const registrationRequest = async (req, res) => {
     const patientHealthRecordIsInRepo = await getPatientHealthRecordFromRepo(nhsNumber);
     if (!patientHealthRecordIsInRepo) {
       logs = `Patient does not have a complete health record in repo`;
-      await updateStatusAndSendResponse(
-        res,
-        conversationId,
-        Status.MISSING_FROM_REPO,
-        logs,
-        nhsNumber
-      );
+      await updateStatusAndSendResponse(res, conversationId, Status.MISSING_FROM_REPO, logs);
       return;
     }
 
     const pdsOdsCode = await getPdsOdsCode(nhsNumber);
     if (pdsOdsCode !== odsCode) {
       logs = 'Patients ODS Code in PDS does not match requesting practices ODS Code';
-      await updateStatusAndSendResponse(
-        res,
-        conversationId,
-        Status.INCORRECT_ODS_CODE,
-        logs,
-        nhsNumber
-      );
+      await updateStatusAndSendResponse(res, conversationId, Status.INCORRECT_ODS_CODE, logs);
       return;
     }
 
-    await updateStatusAndSendResponse(
-      res,
-      conversationId,
-      Status.VALIDATION_CHECKS_PASSED,
-      logs,
-      nhsNumber
-    );
+    await updateStatusAndSendResponse(res, conversationId, Status.VALIDATION_CHECKS_PASSED, logs);
   } catch (err) {
     logError('Registration request failed', err);
     res.status(503).json({
@@ -78,11 +60,11 @@ export const registrationRequest = async (req, res) => {
   }
 };
 
-const updateStatusAndSendResponse = async (res, conversationId, status, logs, nhsNumber) => {
+const updateStatusAndSendResponse = async (res, conversationId, status, logs) => {
   const config = initializeConfig();
   const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
 
   await updateRegistrationRequestStatus(conversationId, status);
-  logEvent(logs, { nhsNumber, conversationId });
+  logEvent(logs, { conversationId });
   res.set('Location', statusEndpoint).sendStatus(204);
 };
