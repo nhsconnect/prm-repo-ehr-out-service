@@ -30,6 +30,7 @@ describe('POST /registration-requests/', () => {
 
   const conversationId = '5BB36755-279F-43D5-86AB-DEFEA717D93F';
   const conversationIdUuidv1 = '817db238-3adf-11eb-adc1-0242ac120002';
+  const ehrRequestId = '870F6EF9-746F-4E81-B51F-884D64530BED';
   const odsCode = 'A12345';
   const nhsNumber = '1111111111';
   const mockBody = {
@@ -37,8 +38,9 @@ describe('POST /registration-requests/', () => {
       type: 'registration-requests',
       id: conversationId,
       attributes: {
-        nhsNumber: nhsNumber,
-        odsCode: odsCode
+        nhsNumber,
+        odsCode,
+        ehrRequestId
       }
     }
   };
@@ -48,8 +50,9 @@ describe('POST /registration-requests/', () => {
       type: 'registration-requests',
       id: conversationIdUuidv1,
       attributes: {
-        nhsNumber: nhsNumber,
-        odsCode: odsCode
+        nhsNumber,
+        odsCode,
+        ehrRequestId
       }
     }
   };
@@ -222,7 +225,8 @@ describe('POST /registration-requests/', () => {
           id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
           attributes: {
             nhsNumber: '111111',
-            odsCode: 'A12345'
+            odsCode,
+            ehrRequestId
           }
         }
       };
@@ -243,7 +247,32 @@ describe('POST /registration-requests/', () => {
           id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
           attributes: {
             nhsNumber: 'xxxxxxxxxx',
-            odsCode: 'A12345'
+            odsCode,
+            ehrRequestId
+          }
+        }
+      };
+      const res = await request(testApp)
+        .post('/registration-requests/')
+        .set('Authorization', 'correct-key')
+        .send(mockBody);
+
+      expect(res.statusCode).toBe(422);
+      expect(res.body).toEqual({ errors: errorMessage });
+    });
+
+    it('should return an error if :ehrRequestId is not uuid', async () => {
+      const errorMessage = [
+        { 'data.attributes.ehrRequestId': "'ehrRequestId' provided is not of type UUID" }
+      ];
+      const mockBody = {
+        data: {
+          type: 'registration-requests',
+          id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
+          attributes: {
+            nhsNumber,
+            odsCode,
+            ehrRequestId: 'xxxxx'
           }
         }
       };

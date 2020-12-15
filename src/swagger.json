@@ -146,6 +146,10 @@
                 "nhsNumber": {
                   "type": "string"
                 },
+                "ehrRequestId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
                 "odsCode": {
                   "type": "string"
                 }

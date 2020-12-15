@@ -1,4 +1,5 @@
 import request from 'supertest';
+import { v4 } from 'uuid';
 import { initializeConfig } from '../../config';
 import { createRegistrationRequest } from '../../services/database/create-registration-request';
 import { buildTestApp } from '../../__builders__/testApp';
@@ -19,6 +20,7 @@ jest.mock('../../middleware/logging');
 describe('auth', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
   const odsCode = 'A12345';
+  const ehrRequestId = v4();
 
   it('should return HTTP 204 when correctly authenticated', async () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
@@ -33,7 +35,8 @@ describe('auth', () => {
         id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
         attributes: {
           nhsNumber: '1111111111',
-          odsCode
+          odsCode,
+          ehrRequestId
         }
       }
     };

@@ -17,7 +17,10 @@ export const registrationRequestValidationRules = [
   body('data.attributes.nhsNumber')
     .isLength({ min: 10, max: 10 })
     .withMessage("'nhsNumber' provided is not 10 characters"),
-  body('data.attributes.odsCode').notEmpty()
+  body('data.attributes.odsCode').notEmpty(),
+  body('data.attributes.ehrRequestId')
+    .isUUID()
+    .withMessage("'ehrRequestId' provided is not of type UUID")
 ];
 
 export const registrationRequest = async (req, res) => {
