@@ -20,13 +20,14 @@ jest.mock('../../middleware/logging');
 describe('auth', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
   const odsCode = 'A12345';
+  const currentEhr = 'fake-url';
   const ehrRequestId = v4();
 
   it('should return HTTP 204 when correctly authenticated', async () => {
     initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
     getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
     getPdsOdsCode.mockResolvedValue({ data: { data: { odsCode } } });
-    getPatientHealthRecordFromRepo.mockResolvedValue(true);
+    getPatientHealthRecordFromRepo.mockResolvedValue({ currentEhr });
     createRegistrationRequest.mockResolvedValue();
 
     const body = {

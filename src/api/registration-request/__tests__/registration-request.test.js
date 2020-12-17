@@ -33,6 +33,7 @@ describe('POST /registration-requests/', () => {
   const ehrRequestId = '870F6EF9-746F-4E81-B51F-884D64530BED';
   const odsCode = 'A12345';
   const nhsNumber = '1111111111';
+  const currentEhr = 'fake-url';
   const mockBody = {
     data: {
       type: 'registration-requests',
@@ -60,7 +61,7 @@ describe('POST /registration-requests/', () => {
   describe('success', () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
     getPdsOdsCode.mockResolvedValue(odsCode);
-    getPatientHealthRecordFromRepo.mockResolvedValue(true);
+    getPatientHealthRecordFromRepo.mockResolvedValue({ currentEhr });
 
     it('should return a 204 when all values are provided and should call validation functions correctly', async () => {
       const res = await request(testApp)
@@ -195,7 +196,7 @@ describe('POST /registration-requests/', () => {
 
   it('should return 204, log event and call updateRegistrationRequestStatus when patient is not stored in repo', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
-    getPatientHealthRecordFromRepo.mockResolvedValueOnce(false);
+    getPatientHealthRecordFromRepo.mockResolvedValueOnce(null);
     const patientMissingStatus = Status.MISSING_FROM_REPO;
     const res = await request(testApp)
       .post('/registration-requests/')

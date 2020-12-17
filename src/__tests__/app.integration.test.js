@@ -106,6 +106,7 @@ describe('POST /registration-requests/', () => {
   const odsCode = 'A12345';
   const ehrRequestId = v4();
   const repoToGpUrl = 'http://repo-to-gp';
+  const currentEhr = 'fake-url';
   const ehrHeaders = { reqheaders: { Authorization: fakeAuth } };
   const gp2gpHeaders = { reqheaders: { Authorization: fakeAuth } };
   const pdsResponseBody = { data: { odsCode } };
@@ -113,8 +114,8 @@ describe('POST /registration-requests/', () => {
     data: {
       id: nhsNumber,
       type: 'patients',
-      attributes: {
-        conversationId
+      links: {
+        currentEhr
       }
     }
   };

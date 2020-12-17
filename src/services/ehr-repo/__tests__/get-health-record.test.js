@@ -15,28 +15,28 @@ describe('getPatientHealthRecordFromRepo', () => {
   const mockEhrRepoAuthKeys = 'fake-keys';
   const headers = { reqheaders: { Authorization: `${mockEhrRepoAuthKeys}` } };
   const nhsNumber = '1234567890';
-  const conversationId = '87ebc8f1-41a0-4501-a96e-e9ae76dde7e6';
+  const currentEhr = 'fake-url';
   const mockResponseBody = {
     data: {
       id: nhsNumber,
       type: 'patients',
-      attributes: {
-        conversationId
+      links: {
+        currentEhr
       }
     }
   };
 
-  it('should return true when the patients health record is in repo', async () => {
+  it('should return currentEhr when the patients health record is in repo', async () => {
     const scope = nock(mockEhrRepoServiceUrl, headers)
       .get(`/patients/${nhsNumber}`)
       .reply(200, mockResponseBody);
 
     const res = await getPatientHealthRecordFromRepo(nhsNumber);
     expect(scope.isDone()).toBe(true);
-    expect(res).toBe(true);
+    expect(res).toEqual({ currentEhr });
   });
 
-  it('should return false when gets a 404 and patients health record was not found in repo', async () => {
+  it('should return null when gets a 404 and patients health record was not found in repo', async () => {
     const expectedError = new Error('Request failed with status code 404');
     const scope = nock(mockEhrRepoServiceUrl, headers).get(`/patients/${nhsNumber}`).reply(404);
 
@@ -46,7 +46,7 @@ describe('getPatientHealthRecordFromRepo', () => {
       'Cannot find complete patient health record',
       expectedError
     );
-    expect(res).toBe(false);
+    expect(res).toBe(null);
   });
 
   it('should log and throw error when pds retrieval returns 500', async () => {

@@ -40,8 +40,8 @@ export const registrationRequest = async (req, res) => {
 
     await createRegistrationRequest(conversationId, nhsNumber, odsCode);
 
-    const patientHealthRecordIsInRepo = await getPatientHealthRecordFromRepo(nhsNumber);
-    if (!patientHealthRecordIsInRepo) {
+    const patientHealthRecord = await getPatientHealthRecordFromRepo(nhsNumber);
+    if (!patientHealthRecord) {
       logs = `Patient does not have a complete health record in repo`;
       await updateStatusAndSendResponse(res, conversationId, Status.MISSING_FROM_REPO, logs);
       return;
