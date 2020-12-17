@@ -120,6 +120,20 @@ describe('POST /registration-requests/', () => {
     }
   };
 
+  const sendEhrBody = {
+    data: {
+      type: 'health-record-transfers',
+      id: conversationId,
+      attributes: {
+        odsCode,
+        ehrRequestId
+      },
+      links: {
+        currentEhrUrl: currentEhr
+      }
+    }
+  };
+
   beforeEach(() => {
     process.env.SERVICE_URL = repoToGpUrl;
     process.env.AUTHORIZATION_KEYS = fakeAuth;
@@ -142,6 +156,7 @@ describe('POST /registration-requests/', () => {
     nock(localhostUrl, gp2gpHeaders)
       .get(`/patient-demographics/${nhsNumber}`)
       .reply(200, pdsResponseBody);
+    nock(localhostUrl, gp2gpHeaders).post(`/health-record-transfers`, sendEhrBody).reply(204);
 
     const body = {
       data: {

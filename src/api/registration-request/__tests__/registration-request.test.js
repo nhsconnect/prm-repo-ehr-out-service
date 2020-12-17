@@ -11,10 +11,12 @@ import { getPatientHealthRecordFromRepo } from '../../../services/ehr-repo/get-h
 import { Status } from '../../../models/registration-request';
 import { initializeConfig } from '../../../config';
 import { registrationRequests } from '../index';
+import { sendEhrExtract } from '../../../services/gp2gp/send-ehr-extract';
 
 jest.mock('../../../services/database/registration-request-repository');
 jest.mock('../../../services/database/create-registration-request');
 jest.mock('../../../services/gp2gp/pds-retrieval-request');
+jest.mock('../../../services/gp2gp/send-ehr-extract');
 jest.mock('../../../services/ehr-repo/get-health-record');
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
@@ -46,18 +48,6 @@ describe('POST /registration-requests/', () => {
     }
   };
 
-  const mockBodyUuidV1 = {
-    data: {
-      type: 'registration-requests',
-      id: conversationIdUuidv1,
-      attributes: {
-        nhsNumber,
-        odsCode,
-        ehrRequestId
-      }
-    }
-  };
-
   describe('success', () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
     getPdsOdsCode.mockResolvedValue(odsCode);
@@ -73,6 +63,12 @@ describe('POST /registration-requests/', () => {
       expect(getRegistrationRequestStatusByConversationId).toHaveBeenCalledWith(conversationId);
       expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber);
       expect(getPdsOdsCode).toHaveBeenCalledWith(nhsNumber);
+      expect(sendEhrExtract).toHaveBeenCalledWith(
+        conversationId,
+        odsCode,
+        ehrRequestId,
+        currentEhr
+      );
     });
 
     it('should return a 204 if Authorization Header is provided', async () => {
@@ -89,7 +85,7 @@ describe('POST /registration-requests/', () => {
       const res = await request(testApp)
         .post('/registration-requests/')
         .set('Authorization', 'correct-key')
-        .send(mockBodyUuidV1);
+        .send({ data: { ...mockBody.data, id: conversationIdUuidv1 } });
 
       expect(res.statusCode).toBe(204);
     });
@@ -182,6 +178,7 @@ describe('POST /registration-requests/', () => {
       .send(mockBody);
 
     expect(res.statusCode).toBe(204);
+    expect(sendEhrExtract).not.toHaveBeenCalled();
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
       conversationId,
       incorrectOdsCodeStatus
@@ -205,6 +202,7 @@ describe('POST /registration-requests/', () => {
 
     expect(res.statusCode).toBe(204);
     expect(getPdsOdsCode).not.toHaveBeenCalled();
+    expect(sendEhrExtract).not.toHaveBeenCalled();
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
       conversationId,
       patientMissingStatus

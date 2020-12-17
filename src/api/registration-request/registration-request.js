@@ -9,6 +9,7 @@ import {
 } from '../../services/database/registration-request-repository';
 import { Status } from '../../models/registration-request';
 import { getPatientHealthRecordFromRepo } from '../../services/ehr-repo/get-health-record';
+import { sendEhrExtract } from '../../services/gp2gp/send-ehr-extract';
 
 export const registrationRequestValidationRules = [
   body('data.type').equals('registration-requests'),
@@ -25,7 +26,7 @@ export const registrationRequestValidationRules = [
 
 export const registrationRequest = async (req, res) => {
   const { id: conversationId, attributes } = req.body.data;
-  const { nhsNumber, odsCode } = attributes;
+  const { nhsNumber, odsCode, ehrRequestId } = attributes;
   let logs = `Validation checks passed`;
 
   try {
@@ -55,6 +56,7 @@ export const registrationRequest = async (req, res) => {
     }
 
     await updateStatusAndSendResponse(res, conversationId, Status.VALIDATION_CHECKS_PASSED, logs);
+    await sendEhrExtract(conversationId, odsCode, ehrRequestId, patientHealthRecord.currentEhr);
   } catch (err) {
     logError('Registration request failed', err);
     res.status(503).json({

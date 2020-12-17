@@ -17,13 +17,13 @@ export const sendEhrExtract = async (conversationId, odsCode, ehrRequestId, curr
         currentEhrUrl
       }
     }
-  }
+  };
 
   try {
     await axios.post(url, requestBody, { headers: { Authorization: config.gp2gpAdaptorAuthKeys } });
-    logEvent('Successfully sent ehr', { conversationId })
+    logEvent('Successfully sent ehr', { conversationId });
   } catch (err) {
     logError('Failed while trying to send ehr', err);
     throw err;
   }
-}
+};

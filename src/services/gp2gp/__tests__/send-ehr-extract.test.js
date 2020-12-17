@@ -39,13 +39,15 @@ describe('sendEhrExtract', () => {
 
     await sendEhrExtract(conversationId, odsCode, ehrRequestId, currentEhrUrl);
     expect(scope.isDone()).toBe(true);
-    expect(logEvent).toHaveBeenCalledWith('Successfully sent ehr', { conversationId })
+    expect(logEvent).toHaveBeenCalledWith('Successfully sent ehr', { conversationId });
   });
 
   it('should log and throw error when returns 500', async () => {
     let error = null;
     const expectedError = new Error('Request failed with status code 500');
-    nock(mockGp2gpAdaptorServiceUrl, headers).post(`/health-record-transfers`, requestBody).reply(500);
+    nock(mockGp2gpAdaptorServiceUrl, headers)
+      .post(`/health-record-transfers`, requestBody)
+      .reply(500);
 
     try {
       await sendEhrExtract(conversationId, odsCode, ehrRequestId, currentEhrUrl);
@@ -56,4 +58,4 @@ describe('sendEhrExtract', () => {
     expect(error).not.toBeNull();
     expect(logError).toHaveBeenCalledWith('Failed while trying to send ehr', expectedError);
   });
-})
+});
