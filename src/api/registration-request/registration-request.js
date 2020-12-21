@@ -27,7 +27,7 @@ export const registrationRequestValidationRules = [
 export const registrationRequest = async (req, res) => {
   const { id: conversationId, attributes } = req.body.data;
   const { nhsNumber, odsCode, ehrRequestId } = attributes;
-  let logs = `Validation checks passed`;
+  let logs = 'EHR has been successfully sent';
 
   try {
     const previousRegistration = await getRegistrationRequestStatusByConversationId(conversationId);
@@ -55,8 +55,10 @@ export const registrationRequest = async (req, res) => {
       return;
     }
 
-    await updateStatusAndSendResponse(res, conversationId, Status.VALIDATION_CHECKS_PASSED, logs);
+    await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
+
     await sendEhrExtract(conversationId, odsCode, ehrRequestId, patientHealthRecord.currentEhr);
+    await updateStatusAndSendResponse(res, conversationId, Status.SENT_EHR, logs);
   } catch (err) {
     logError('Registration request failed', err);
     res.status(503).json({

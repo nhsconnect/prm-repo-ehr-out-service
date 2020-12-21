@@ -184,6 +184,6 @@ describe('POST /registration-requests/', () => {
       .get(`/registration-requests/${conversationId}`)
       .set('Authorization', fakeAuth);
 
-    expect(statusUpdate.body.data.attributes.status).toEqual('validation_checks_passed');
+    expect(statusUpdate.body.data.attributes.status).toEqual('sent_ehr');
   });
 });

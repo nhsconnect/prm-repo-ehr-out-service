@@ -7,7 +7,8 @@ export const Status = {
   REGISTRATION_REQUEST_RECEIVED: 'registration_request_received',
   INCORRECT_ODS_CODE: 'incorrect_ods_code',
   MISSING_FROM_REPO: 'missing_from_repo',
-  VALIDATION_CHECKS_PASSED: 'validation_checks_passed'
+  VALIDATION_CHECKS_PASSED: 'validation_checks_passed',
+  SENT_EHR: 'sent_ehr'
 };
 
 Object.freeze(Status);

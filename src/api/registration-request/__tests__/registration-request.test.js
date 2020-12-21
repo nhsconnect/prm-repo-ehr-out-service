@@ -69,6 +69,7 @@ describe('POST /registration-requests/', () => {
         ehrRequestId,
         currentEhr
       );
+      expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.SENT_EHR);
     });
 
     it('should return a 204 if Authorization Header is provided', async () => {
@@ -109,11 +110,8 @@ describe('POST /registration-requests/', () => {
         .send(mockBody);
 
       expect(res.statusCode).toBe(204);
-      expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
-        conversationId,
-        Status.VALIDATION_CHECKS_PASSED
-      );
-      expect(logEvent).toHaveBeenCalledWith(`Validation checks passed`, {
+      expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.SENT_EHR);
+      expect(logEvent).toHaveBeenCalledWith(`EHR has been successfully sent`, {
         conversationId
       });
     });
