@@ -15,7 +15,7 @@
     "test:health": "jest test/functional/health.test.js",
     "test:docker": "npm run test:health",
     "test:functional": "jest test/functional/*",
-    "test:smoke": "jest test/smoke/*",
+    "test:e2e": "jest test/e2e/*",
     "test:coverage": "jest src/ --maxWorkers=1 --coverage --detectOpenHandles --forceExit --setupFiles dotenv/config",
     "db:wait": "babel-node scripts/wait-for-postgres.js",
     "db:migrate": "npm run db:wait && sequelize-cli db:migrate",
