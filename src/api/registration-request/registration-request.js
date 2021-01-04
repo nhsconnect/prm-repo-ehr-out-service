@@ -57,7 +57,9 @@ export const registrationRequest = async (req, res) => {
 
     await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
 
+    logEvent('Sending EHR extract', { conversationId });
     await sendEhrExtract(conversationId, odsCode, ehrRequestId, patientHealthRecord.currentEhr);
+
     await updateStatusAndSendResponse(res, conversationId, Status.SENT_EHR, logs);
   } catch (err) {
     logError('Registration request failed', err);
