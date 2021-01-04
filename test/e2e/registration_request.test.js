@@ -4,12 +4,12 @@ import { v4 } from 'uuid';
 import { emisEhrRequestTemplate } from './data/emis_ehr_request';
 import { config } from '../config';
 
-function ehrRequestFor(conversationId, nhsNumber, odsCode) {
+const generateEhrRequest = (conversationId, nhsNumber, odsCode) => {
   return emisEhrRequestTemplate
     .replace('${conversationId}', conversationId)
     .replace('${nhsNumber}', nhsNumber)
     .replace('${odsCode}', odsCode);
-}
+};
 
 describe('EMIS registration requests', () => {
   const RETRY_COUNT = 20;
@@ -25,18 +25,16 @@ describe('EMIS registration requests', () => {
           nhsNumber: '9692842304'
         },
         test: {
-          odsCode: 'A20047',
-          nhsNumber: '9692294900'
+          odsCode: 'N82668',
+          nhsNumber: '9692295281'
         }
       };
+
       //action: send an EHR request to MHS Adapter inbound
       const mhsInboundUrl = config.mhsInboundUrl;
-
       const conversationId = v4();
-      const envData = testData[config.nhsEnvironment];
-      const nhsNumber = envData.nhsNumber;
-      const odsCode = envData.odsCode;
-      const ehrRequest = ehrRequestFor(conversationId, nhsNumber, odsCode);
+      const { nhsNumber, odsCode } = testData[config.nhsEnvironment];
+      const ehrRequest = generateEhrRequest(conversationId, nhsNumber, odsCode);
 
       const headers = {
         Soapaction: 'urn:nhs:names:services:gp2gp/RCMR_IN010000UK05',
@@ -44,9 +42,8 @@ describe('EMIS registration requests', () => {
           'multipart/related;charset="UTF-8";type="text/xml";boundary="0adedbcc-ed0f-415d-8091-4e816bf9d86f";start="<ContentRoot>"'
       };
 
-      await axios.post(mhsInboundUrl, ehrRequest, { headers: headers, adapter }).catch(error => {
+      await axios.post(mhsInboundUrl, ehrRequest, { headers: headers, adapter }).catch(() => {
         console.log("MHS can't handle this message so it returns with 500");
-        console.log(error.response);
       });
 
       console.log('ConversationId:', conversationId);
@@ -57,6 +54,7 @@ describe('EMIS registration requests', () => {
         const registrationDetails = await getRegistrationDetails(conversationId);
         registrationStatus = registrationDetails.status;
         console.log(`try: ${i} - status: ${registrationStatus}`);
+
         if (registrationStatus === expectedStatus) {
           break;
         }
@@ -76,15 +74,18 @@ const sleep = ms => {
 const getRegistrationDetails = async conversationId => {
   const repoToGpUrl = `https://${config.nhsEnvironment}.repo-to-gp.patient-deductions.nhs.uk`;
   const repoToGpAuthKeys = config.repoToGpAuthKeys;
-  const registrationDetailsResp = await axios.get(
-    `${repoToGpUrl}/registration-requests/${conversationId}`,
-    {
-      headers: { Authorization: repoToGpAuthKeys },
-      adapter
-    }
-  );
-  if (registrationDetailsResp.status !== 200) {
+
+  try {
+    const registrationDetailsResp = await axios.get(
+      `${repoToGpUrl}/registration-requests/${conversationId}`,
+      {
+        headers: { Authorization: repoToGpAuthKeys },
+        adapter
+      }
+    );
+    return registrationDetailsResp.data.data.attributes;
+  } catch (err) {
+    console.log(err);
     return {};
   }
-  return registrationDetailsResp.data.data.attributes;
 };

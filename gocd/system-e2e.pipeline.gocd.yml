@@ -1,0 +1,33 @@
+format_version: 4
+pipelines:
+  'system-e2e.test':
+    group: deductions
+    label_template: '${git[:8]}'
+    materials:
+      git:
+        type: configrepo
+        blacklist:
+          - docs/**/*.*
+      repo-to-gp:
+        pipeline: prm-deductions-repo-to-gp.test
+        stage: deploy
+      gp2gp-worker:
+        pipeline: prm-deductions-gp2gp-worker.test
+        stage: deploy
+      gp2gp-adaptor:
+        pipeline: prm-deductions-gp2gp-adaptor.test
+        stage: deploy
+    environment_variables:
+      NHS_ENVIRONMENT: test
+    stages:
+      - test:
+          clean_workspace: true
+          resources:
+            - deductions-private
+            - test
+          tasks:
+            - exec:
+                command: /bin/bash
+                arguments:
+                  - -c
+                  - ./tasks test_e2e

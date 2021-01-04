@@ -87,6 +87,16 @@ function configure_aws_service_auth_keys {
     parameter_name="/repo/${NHS_ENVIRONMENT}/user-input/${NHS_SERVICE}-authorization-keys"
     echo "${parameter_name}"
     export AUTHORIZATION_KEYS=$(dojo -c Dojofile-infra "aws ssm get-parameter --with-decryption --region ${AWS_DEFAULT_REGION} --name  ${parameter_name} | jq -r .Parameter.Value")
+    export REPO_TO_GP_AUTHORIZATION_KEYS=$AUTHORIZATION_KEYS
+}
+
+function configure_mhs_inbound_url {
+    check_env
+    if [[ $NHS_ENVIRONMENT == "dev" ]]; then
+      export MHS_INBOUND_URL=http://mhs-inbound-dev-opentest.mhs.patient-deductions.nhs.uk
+    else
+      export MHS_INBOUND_URL=http://mhs-inbound-test-b86041.mhs.patient-deductions.nhs.uk
+    fi
 }
 
 ############################
@@ -280,6 +290,16 @@ case "${command}" in
   test_docker_local)
       configure_local_envs
       dojo -c Dojofile-dtest "./tasks _test_docker"
+      ;;
+  _test_e2e)
+      npm install
+      npm run test:e2e
+      ;;
+  test_e2e)
+      check_env
+      configure_aws_service_auth_keys
+      configure_mhs_inbound_url
+      dojo "./tasks _test_e2e"
       ;;
   run_docker_local)
       configure_local_envs
