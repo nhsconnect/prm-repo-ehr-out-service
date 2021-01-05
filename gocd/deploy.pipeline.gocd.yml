@@ -63,8 +63,8 @@ pipelines:
         blacklist:
           - docs/**/*.*
       dev_env:
-        pipeline: prm-deductions-repo-to-gp.dev
-        stage: test_functional
+        pipeline: system-e2e.dev
+        stage: test
       base_infra:
         pipeline: prm-deductions-infra
         stage: deploy_test
