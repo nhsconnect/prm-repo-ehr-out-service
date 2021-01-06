@@ -63,7 +63,7 @@ pipelines:
         blacklist:
           - docs/**/*.*
       dev_env:
-        pipeline: system-e2e.dev
+        pipeline: prm-deductions-system-e2e.dev
         stage: test
       base_infra:
         pipeline: prm-deductions-infra
