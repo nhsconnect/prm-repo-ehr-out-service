@@ -14,9 +14,9 @@ describe('sendEhrExtract', () => {
   const mockGp2gpAdaptorServiceUrl = 'http://localhost';
   const mockGp2gpAdaptorAuthKeys = 'fake-keys';
   const headers = { reqheaders: { Authorization: `${mockGp2gpAdaptorAuthKeys}` } };
-  let conversationId = '41291044-8259-4D83-AE2B-93B7BFCABE73';
+  let conversationId = '41291044-8259-4d83-ae2b-93b7bfcabe73';
   let odsCode = 'B1234';
-  let ehrRequestId = '26A541CE-A5AB-4713-99A4-150EC3DA25C6';
+  let ehrRequestId = '26a541ce-a5ab-4713-99a4-150ec3da25c6';
   let currentEhrUrl = 'fake-url';
   const requestBody = {
     data: {

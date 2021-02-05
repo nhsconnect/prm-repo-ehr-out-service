@@ -33,7 +33,7 @@ describe('auth', () => {
     const body = {
       data: {
         type: 'registration-requests',
-        id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
+        id: '5bb36755-279f-43d5-86ab-defea717d93f',
         attributes: {
           nhsNumber: '1111111111',
           odsCode,

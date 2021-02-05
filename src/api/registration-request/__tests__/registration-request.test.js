@@ -30,9 +30,9 @@ describe('POST /registration-requests/', () => {
     repoToGpAuthKeys: 'correct-key'
   });
 
-  const conversationId = '5BB36755-279F-43D5-86AB-DEFEA717D93F';
+  const conversationId = '5bb36755-279f-43d5-86ab-defea717d93f';
   const conversationIdUuidv1 = '817db238-3adf-11eb-adc1-0242ac120002';
-  const ehrRequestId = '870F6EF9-746F-4E81-B51F-884D64530BED';
+  const ehrRequestId = '870f6ef9-746f-4e81-b51f-884d64530bed';
   const odsCode = 'A12345';
   const nhsNumber = '1111111111';
   const currentEhr = 'fake-url';
@@ -219,7 +219,7 @@ describe('POST /registration-requests/', () => {
       const mockBody = {
         data: {
           type: 'registration-requests',
-          id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
+          id: '5bb36755-279f-43d5-86ab-defea717d93f',
           attributes: {
             nhsNumber: '111111',
             odsCode,
@@ -241,7 +241,7 @@ describe('POST /registration-requests/', () => {
       const mockBody = {
         data: {
           type: 'registration-requests',
-          id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
+          id: '5bb36755-279f-43d5-86ab-defea717d93f',
           attributes: {
             nhsNumber: 'xxxxxxxxxx',
             odsCode,
@@ -265,7 +265,7 @@ describe('POST /registration-requests/', () => {
       const mockBody = {
         data: {
           type: 'registration-requests',
-          id: '5BB36755-279F-43D5-86AB-DEFEA717D93F',
+          id: '5bb36755-279f-43d5-86ab-defea717d93f',
           attributes: {
             nhsNumber,
             odsCode,
