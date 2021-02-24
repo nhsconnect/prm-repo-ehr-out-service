@@ -31,7 +31,7 @@ Follow the links to download
 
 1. Run `npm install` to install all node dependencies.
 2. Create an .env file at the root of the directory
-3. Copy the contents of the [.env.sample](./.env.sample) file at the root of the directory, and paste into the .env file. The .env.sample file contains template environment variables.
+3. As a reference for .env values, see ecs-task.tf 
 4. Run `npm run start:local`
 5. If successful, you will be able to reach the Swagger docs: [http://localhost:3000/swagger/](http://localhost:3000/swagger/)
 
