@@ -187,3 +187,94 @@ describe('POST /registration-requests/', () => {
     expect(statusUpdate.body.data.attributes.status).toEqual('sent_ehr');
   });
 });
+
+describe('POST /registration-requests/ - new ehr repo api', () => {
+  const conversationId = v4();
+  const nhsNumber = '1234567890';
+  const odsCode = 'A12345';
+  const ehrRequestId = v4();
+  const repoToGpUrl = 'http://repo-to-gp';
+  const currentEhr = 'fake-url';
+  const ehrHeaders = { reqheaders: { Authorization: fakeAuth } };
+  const gp2gpHeaders = { reqheaders: { Authorization: fakeAuth } };
+  const pdsResponseBody = { data: { odsCode } };
+  const ehrResponseBody = {
+    data: {
+      id: nhsNumber,
+      type: 'patients',
+      links: {
+        healthRecordExtract: currentEhr,
+        attachments: []
+      }
+    }
+  };
+
+  const sendEhrBody = {
+    data: {
+      type: 'health-record-transfers',
+      id: conversationId,
+      attributes: {
+        odsCode,
+        ehrRequestId
+      },
+      links: {
+        currentEhrUrl: currentEhr
+      }
+    }
+  };
+
+  beforeEach(() => {
+    process.env.SERVICE_URL = repoToGpUrl;
+    process.env.AUTHORIZATION_KEYS = fakeAuth;
+    process.env.GP2GP_ADAPTOR_SERVICE_URL = localhostUrl;
+    process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS = fakeAuth;
+    process.env.EHR_REPO_SERVICE_URL = localhostUrl;
+    process.env.EHR_REPO_AUTHORIZATION_KEYS = fakeAuth;
+    process.env.USE_NEW_EHR_REPO_API = 'true';
+  });
+
+  afterEach(() => {
+    delete process.env.AUTHORIZATION_KEYS;
+    delete process.env.GP2GP_ADAPTOR_SERVICE_URL;
+    delete process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS;
+    delete process.env.EHR_REPO_SERVICE_URL;
+    delete process.env.EHR_REPO_AUTHORIZATION_KEYS;
+    delete process.env.USE_NEW_EHR_REPO_API;
+  });
+
+  it('should return a 204 status code for correct request', async () => {
+    nock(localhostUrl, ehrHeaders).get(`/new/patients/${nhsNumber}`).reply(200, ehrResponseBody);
+    nock(localhostUrl, gp2gpHeaders)
+      .get(`/patient-demographics/${nhsNumber}`)
+      .reply(200, pdsResponseBody);
+    nock(localhostUrl, gp2gpHeaders).post(`/health-record-transfers`, sendEhrBody).reply(204);
+
+    const body = {
+      data: {
+        type: 'registration-requests',
+        id: conversationId,
+        attributes: {
+          nhsNumber,
+          odsCode,
+          ehrRequestId
+        }
+      }
+    };
+
+    const res = await request(app)
+      .post(`/registration-requests/`)
+      .set('Authorization', fakeAuth)
+      .send(body);
+
+    expect(res.header[`location`]).toEqual(
+      `${repoToGpUrl}/registration-requests/${conversationId}`
+    );
+    expect(res.statusCode).toBe(204);
+
+    const statusUpdate = await request(app)
+      .get(`/registration-requests/${conversationId}`)
+      .set('Authorization', fakeAuth);
+
+    expect(statusUpdate.body.data.attributes.status).toEqual('sent_ehr');
+  });
+});
