@@ -74,6 +74,6 @@ const updateStatusAndSendResponse = async (res, conversationId, status, logs) =>
   const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
 
   await updateRegistrationRequestStatus(conversationId, status);
-  logInfo(logs, { conversationId });
+  logInfo(logs, conversationId);
   res.set('Location', statusEndpoint).sendStatus(204);
 };

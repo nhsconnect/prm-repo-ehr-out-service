@@ -111,9 +111,7 @@ describe('POST /registration-requests/', () => {
 
       expect(res.statusCode).toBe(204);
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.SENT_EHR);
-      expect(logInfo).toHaveBeenCalledWith(`EHR has been successfully sent`, {
-        conversationId
-      });
+      expect(logInfo).toHaveBeenCalledWith(`EHR has been successfully sent`, conversationId);
     });
 
     it('should return location header for the created resource', async () => {
@@ -181,11 +179,9 @@ describe('POST /registration-requests/', () => {
       conversationId,
       incorrectOdsCodeStatus
     );
-    expect(
-      logInfo
-    ).toHaveBeenCalledWith(
+    expect(logInfo).toHaveBeenCalledWith(
       'Patients ODS Code in PDS does not match requesting practices ODS Code',
-      { conversationId }
+      conversationId
     );
   });
 
