@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { initializeConfig } from '../../config';
-import { logError, logEvent } from '../../middleware/logging';
+import { logError, logInfo } from '../../middleware/logging';
 
 export const sendEhrExtract = async (conversationId, odsCode, ehrRequestId, currentEhrUrl) => {
   const config = initializeConfig();
@@ -21,7 +21,7 @@ export const sendEhrExtract = async (conversationId, odsCode, ehrRequestId, curr
 
   try {
     await axios.post(url, requestBody, { headers: { Authorization: config.gp2gpAdaptorAuthKeys } });
-    logEvent('Successfully sent ehr', { conversationId });
+    logInfo(`Successfully sent ehr with conversationId: ${conversationId}`);
   } catch (err) {
     logError('Failed while trying to send ehr', err);
     throw err;

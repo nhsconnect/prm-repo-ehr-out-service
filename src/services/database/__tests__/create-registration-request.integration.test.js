@@ -1,4 +1,4 @@
-import { logEvent, logError } from '../../../middleware/logging';
+import { logInfo, logError } from '../../../middleware/logging';
 import ModelFactory from '../../../models';
 import { modelName, Status } from '../../../models/registration-request';
 import { createRegistrationRequest } from '../create-registration-request';
@@ -38,8 +38,8 @@ describe('createRegistrationRequest', () => {
     const conversationId = '36e9c17f-943c-4efc-9afd-a6f8d58bc884';
     await createRegistrationRequest(conversationId, nhsNumber, odsCode);
 
-    expect(logEvent).toHaveBeenCalled();
-    expect(logEvent).toHaveBeenCalledWith('Registration request has been stored');
+    expect(logInfo).toHaveBeenCalled();
+    expect(logInfo).toHaveBeenCalledWith('Registration request has been stored');
   });
 
   it('should log errors when nhs number is invalid', async () => {

@@ -1,7 +1,7 @@
 import ModelFactory from '../../models';
 import { modelName } from '../../models/registration-request';
 import { runWithinTransaction } from './helper';
-import { logEvent } from '../../middleware/logging';
+import { logInfo } from '../../middleware/logging';
 
 const RegistrationRequest = ModelFactory.getByName(modelName);
 
@@ -10,7 +10,7 @@ export const getRegistrationRequestStatusByConversationId = conversationId => {
 };
 
 export const updateRegistrationRequestStatus = async (conversationId, status) => {
-  logEvent('Updating registration request status', { status, conversationId });
+  logInfo(`Updating registration request status ${status}, conversationId: ${conversationId}`);
   await runWithinTransaction(async transaction => {
     return await RegistrationRequest.update(
       { status },

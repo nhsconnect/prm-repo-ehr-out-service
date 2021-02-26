@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { getPdsOdsCode } from '../pds-retrieval-request';
-import { logError, logEvent } from '../../../middleware/logging';
+import { logError, logInfo } from '../../../middleware/logging';
 
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
@@ -27,7 +27,7 @@ describe('sendPdsRetrievalRequest', () => {
 
     const res = await getPdsOdsCode(nhsNumber);
     expect(scope.isDone()).toBe(true);
-    expect(logEvent).toHaveBeenCalledWith('Successfully retrieved patient from PDS', {
+    expect(logInfo).toHaveBeenCalledWith('Successfully retrieved patient from PDS', {
       nhsNumber,
       odsCode
     });

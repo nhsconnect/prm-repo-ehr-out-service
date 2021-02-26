@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { sendEhrExtract } from '../send-ehr-extract';
-import { logError, logEvent } from '../../../middleware/logging';
+import { logError, logInfo } from '../../../middleware/logging';
 
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
@@ -39,7 +39,9 @@ describe('sendEhrExtract', () => {
 
     await sendEhrExtract(conversationId, odsCode, ehrRequestId, currentEhrUrl);
     expect(scope.isDone()).toBe(true);
-    expect(logEvent).toHaveBeenCalledWith('Successfully sent ehr', { conversationId });
+    expect(logInfo).toHaveBeenCalledWith(
+      `Successfully sent ehr with conversationId: ${conversationId}`
+    );
   });
 
   it('should log and throw error when returns 500', async () => {

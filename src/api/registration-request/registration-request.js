@@ -1,6 +1,6 @@
 import { body } from 'express-validator';
 import { createRegistrationRequest } from '../../services/database/create-registration-request';
-import { logError, logEvent } from '../../middleware/logging';
+import { logError, logInfo } from '../../middleware/logging';
 import { initializeConfig } from '../../config';
 import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
 import {
@@ -35,7 +35,7 @@ export const registrationRequest = async (req, res) => {
       res.status(409).json({
         error: `Registration request with this ConversationId is already in progress`
       });
-      logEvent(`Duplicate registration request`, { conversationId });
+      logInfo(`Duplicate registration request`, { conversationId });
       return;
     }
 
@@ -57,7 +57,7 @@ export const registrationRequest = async (req, res) => {
 
     await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
 
-    logEvent('Sending EHR extract', { conversationId });
+    logInfo('Sending EHR extract', { conversationId });
     await sendEhrExtract(conversationId, odsCode, ehrRequestId, patientHealthRecord.currentEhr);
 
     await updateStatusAndSendResponse(res, conversationId, Status.SENT_EHR, logs);
@@ -74,6 +74,6 @@ const updateStatusAndSendResponse = async (res, conversationId, status, logs) =>
   const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
 
   await updateRegistrationRequestStatus(conversationId, status);
-  logEvent(logs, { conversationId });
+  logInfo(logs, { conversationId });
   res.set('Location', statusEndpoint).sendStatus(204);
 };

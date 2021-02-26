@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { buildTestApp } from '../../../__builders__/testApp';
-import { logError, logEvent } from '../../../middleware/logging';
+import { logError, logInfo } from '../../../middleware/logging';
 import { createRegistrationRequest } from '../../../services/database/create-registration-request';
 import {
   getRegistrationRequestStatusByConversationId,
@@ -111,7 +111,7 @@ describe('POST /registration-requests/', () => {
 
       expect(res.statusCode).toBe(204);
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.SENT_EHR);
-      expect(logEvent).toHaveBeenCalledWith(`EHR has been successfully sent`, {
+      expect(logInfo).toHaveBeenCalledWith(`EHR has been successfully sent`, {
         conversationId
       });
     });
@@ -161,7 +161,7 @@ describe('POST /registration-requests/', () => {
     expect(res.body).toEqual({
       error: `Registration request with this ConversationId is already in progress`
     });
-    expect(logEvent).toHaveBeenCalledWith(`Duplicate registration request`, {
+    expect(logInfo).toHaveBeenCalledWith(`Duplicate registration request`, {
       conversationId
     });
   });
@@ -182,7 +182,7 @@ describe('POST /registration-requests/', () => {
       incorrectOdsCodeStatus
     );
     expect(
-      logEvent
+      logInfo
     ).toHaveBeenCalledWith(
       'Patients ODS Code in PDS does not match requesting practices ODS Code',
       { conversationId }
@@ -205,9 +205,9 @@ describe('POST /registration-requests/', () => {
       conversationId,
       patientMissingStatus
     );
-    expect(logEvent).toHaveBeenCalledWith(
+    expect(logInfo).toHaveBeenCalledWith(
       `Patient does not have a complete health record in repo`,
-      { conversationId }
+      conversationId
     );
   });
 

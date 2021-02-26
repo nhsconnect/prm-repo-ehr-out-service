@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { getHealthCheck } from '../../../services/health-check/get-health-check';
-import { logEvent, logError } from '../../../middleware/logging';
+import { logInfo, logError } from '../../../middleware/logging';
 import { buildTestApp } from '../../../__builders__/testApp';
 import { healthCheck } from '../health-check';
 
@@ -16,7 +16,7 @@ describe('GET /health', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual(expectedHealthCheckBase());
-    expect(logEvent).toHaveBeenCalledWith('Health check completed');
+    expect(logInfo).toHaveBeenCalledWith('Health check completed');
   });
 
   it('should return 503 status if db writable is false', async () => {
@@ -36,7 +36,7 @@ describe('GET /health', () => {
     const res = await request(testApp).get('/health');
 
     expect(res.statusCode).toBe(500);
-    expect(logEvent).not.toHaveBeenCalled();
+    expect(logInfo).not.toHaveBeenCalled();
     expect(logError).toHaveBeenCalledWith('Health check error', 'some-error');
   });
 });
