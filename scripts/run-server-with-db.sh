@@ -2,12 +2,12 @@
 
 # This script executes on docker container start.
 # It runs the DB migration and then starts node.js server
+
+#Structured logging
+NHS_SERVICE=repo-to-gp
 timestamp() {
   date +"%Y-%m-%d %H:%M:%S"
 }
-
-NHS_SERVICE=repo-to-gp
-
 function jsonPrettify {
   echo "{message: $1, level: $2, timestamp: `timestamp`, service: ${NHS_SERVICE}, environment: ${NHS_ENVIRONMENT} } "
 }
