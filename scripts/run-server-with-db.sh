@@ -7,7 +7,6 @@ timestamp() {
 }
 
 NHS_SERVICE=repo-to-gp
-NHS_ENVIRONMENT=node 'process.env.NHS_ENVIRONMENT'
 
 function jsonPrettify {
   echo "{message: $1, level: $2, timestamp: `timestamp`, service: ${NHS_SERVICE}, environment: ${NHS_ENVIRONMENT} } "
