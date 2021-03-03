@@ -63,7 +63,3 @@ data "aws_ssm_parameter" "db-password" {
 data "aws_ssm_parameter" "rds_endpoint" {
   name = "/repo/${var.environment}/output/prm-deductions-infra/repo-to-gp-rds-endpoint"
 }
-
-data "aws_ssm_parameter" "use_new_ehr_repo_api" {
-  name = "/repo/${var.environment}/user-input/feature-toggle/use-new-ehr-repo-api"
-}

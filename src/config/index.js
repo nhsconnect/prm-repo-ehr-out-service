@@ -10,6 +10,5 @@ export const initializeConfig = () => ({
   gp2gpAdaptorAuthKeys: process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS,
   ehrRepoServiceUrl: process.env.EHR_REPO_SERVICE_URL,
   ehrRepoAuthKeys: process.env.EHR_REPO_AUTHORIZATION_KEYS,
-  sequelize: databaseConfig,
-  useNewEhrRepoApi: process.env.USE_NEW_EHR_REPO_API === 'true'
+  sequelize: databaseConfig
 });
