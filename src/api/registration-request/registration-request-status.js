@@ -1,6 +1,6 @@
 import { param } from 'express-validator';
 import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
-import { logError } from '../../middleware/logging';
+import { logError, logInfo } from '../../middleware/logging';
 
 export const registrationRequestStatusValidationRules = [
   param('conversationId').isUUID().withMessage("'conversationId' provided is not of type UUID"),
@@ -13,7 +13,10 @@ export const registrationRequestStatus = async (req, res) => {
       req.params.conversationId
     );
 
-    if (registrationRequestStatus === null) return res.sendStatus(404);
+    if (registrationRequestStatus === null) {
+      logInfo('Registration not found');
+      return res.sendStatus(404);
+    }
 
     const { conversationId, nhsNumber, odsCode, status } = registrationRequestStatus;
 
@@ -28,6 +31,7 @@ export const registrationRequestStatus = async (req, res) => {
         }
       }
     };
+
     res.status(200).json(data);
   } catch (err) {
     logError('Registration request status call failed', err);
