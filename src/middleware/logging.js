@@ -51,7 +51,7 @@ export const eventFinished = (req, res) => {
 
 const extractConversationId = req => {
   if (req.method === 'GET') {
-    return req.params.conversationId;
+    return req.url.split('/')[1];
   }
 
   if (req.method === 'POST') {
