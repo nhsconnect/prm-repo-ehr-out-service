@@ -18,4 +18,4 @@ registerInstrumentations({
 
 console.log('tracing initialised');
 
-export const tracer = tracerProvider.getTracer('ehr-repo-tracer');
+export const tracer = tracerProvider.getTracer('repo-to-gp-tracer');
