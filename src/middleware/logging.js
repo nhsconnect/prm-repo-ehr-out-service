@@ -30,7 +30,9 @@ let span;
 export const middleware = (req, res, next) => {
   const conversationId = extractConversationId(req);
   span = tracer.startSpan('inboundRequestSpan', context.active());
-  span.setAttribute('conversationId', conversationId);
+  if (conversationId) {
+    span.setAttribute('conversationId', conversationId);
+  }
 
   res.on('finish', () => eventFinished(req, res));
   next();
@@ -49,7 +51,7 @@ export const eventFinished = (req, res) => {
   }
 };
 
-const extractConversationId = req => {
+export const extractConversationId = req => {
   if (req.method === 'GET') {
     return req.url.split('/')[1];
   }

@@ -1,5 +1,13 @@
-import { eventFinished, logError, logInfo } from '../logging';
+import {
+  eventFinished,
+  extractConversationId,
+  logDebug,
+  logError,
+  logInfo,
+  logWarning
+} from '../logging';
 import { logger } from '../../config/logging';
+import { v4 as uuid } from 'uuid';
 
 jest.mock('../../config/logging');
 
@@ -20,11 +28,27 @@ describe('logging', () => {
     });
   });
 
+  describe('logWarning', () => {
+    it('should log with level warn', () => {
+      logWarning('warn');
+
+      expect(logger.warn).toBeCalledTimes(1);
+    });
+  });
+
+  describe('logDebug', () => {
+    it('should log with level debug', () => {
+      logDebug('debug');
+
+      expect(logger.debug).toBeCalledTimes(1);
+    });
+  });
+
   describe('eventFinished', () => {
     const mockReq = {
       headers: { host: '127.0.0.1:123' },
       method: 'GET',
-      originalUrl: '/test'
+      originalUrl: '/test/12345'
     };
 
     it('should log path as log status', () => {
@@ -55,6 +79,34 @@ describe('logging', () => {
 
       eventFinished(mockReq, mockRes);
       expect(logger.error).toBeCalledTimes(1);
+    });
+  });
+
+  describe('should extract conversationId', () => {
+    const conversationId = uuid();
+
+    it('for GET requests', () => {
+      const mockGetReq = {
+        headers: { host: '127.0.0.1:123' },
+        method: 'GET',
+        url: `test/${conversationId}`
+      };
+
+      expect(extractConversationId(mockGetReq)).toBe(conversationId);
+    });
+
+    it('for POST requests', () => {
+      const mockPostReq = {
+        headers: { host: '127.0.0.1:123' },
+        method: 'POST',
+        body: {
+          data: {
+            id: conversationId
+          }
+        }
+      };
+
+      expect(extractConversationId(mockPostReq)).toBe(conversationId);
     });
   });
 });
