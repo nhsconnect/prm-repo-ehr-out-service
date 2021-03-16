@@ -82,20 +82,30 @@ describe('logging', () => {
     });
   });
 
-  describe('should extract conversationId', () => {
+  describe('extract conversationId', () => {
     const conversationId = uuid();
 
-    it('for GET requests', () => {
+    it('should work for GET requests from registration-requests urls', () => {
+      const mockGetReq = {
+        headers: { host: '127.0.0.1:123' },
+        method: 'GET',
+        url: `registration-requests/${conversationId}`
+      };
+
+      expect(extractConversationId(mockGetReq)).toBe(conversationId);
+    });
+
+    it('should not work for non-registration urls', () => {
       const mockGetReq = {
         headers: { host: '127.0.0.1:123' },
         method: 'GET',
         url: `test/${conversationId}`
       };
 
-      expect(extractConversationId(mockGetReq)).toBe(conversationId);
+      expect(extractConversationId(mockGetReq)).not.toBe(conversationId);
     });
 
-    it('for POST requests', () => {
+    it('should work for POST requests', () => {
       const mockPostReq = {
         headers: { host: '127.0.0.1:123' },
         method: 'POST',

@@ -35,7 +35,9 @@ export const middleware = (req, res, next) => {
   }
 
   res.on('finish', () => eventFinished(req, res));
-  next();
+  context.with(setSpan(context.active(), span), () => {
+    next();
+  });
   span.end();
 };
 
@@ -52,7 +54,7 @@ export const eventFinished = (req, res) => {
 };
 
 export const extractConversationId = req => {
-  if (req.method === 'GET') {
+  if (req.method === 'GET' && req.url.includes('registration-requests')) {
     return req.url.split('/')[1];
   }
 
