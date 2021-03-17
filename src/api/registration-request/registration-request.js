@@ -43,6 +43,7 @@ export const registrationRequest = async (req, res) => {
 
     await createRegistrationRequest(conversationId, nhsNumber, odsCode);
 
+    logInfo('Getting patient health record from EHR repo');
     const patientHealthRecord = await getPatientHealthRecordFromRepo(nhsNumber);
     if (!patientHealthRecord) {
       logs = `Patient does not have a complete health record in repo`;
@@ -50,6 +51,7 @@ export const registrationRequest = async (req, res) => {
       return;
     }
 
+    logInfo('Getting patient current ODS code');
     const pdsOdsCode = await getPdsOdsCode(nhsNumber);
     if (pdsOdsCode !== odsCode) {
       logs = 'Patients ODS Code in PDS does not match requesting practices ODS Code';
@@ -59,7 +61,7 @@ export const registrationRequest = async (req, res) => {
 
     await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
 
-    logInfo('Sending EHR extract', { conversationId });
+    logInfo('Sending EHR extract');
     await sendEhrExtract(conversationId, odsCode, ehrRequestId, patientHealthRecord.currentEhr);
 
     await updateStatusAndSendResponse(res, conversationId, Status.SENT_EHR, logs);

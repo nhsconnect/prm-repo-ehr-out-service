@@ -27,10 +27,7 @@ describe('sendPdsRetrievalRequest', () => {
 
     const res = await getPdsOdsCode(nhsNumber);
     expect(scope.isDone()).toBe(true);
-    expect(logInfo).toHaveBeenCalledWith('Successfully retrieved patient from PDS', {
-      nhsNumber,
-      odsCode
-    });
+    expect(logInfo).toHaveBeenCalledWith('Successfully retrieved patient from PDS');
 
     expect(res).toEqual(odsCode);
   });

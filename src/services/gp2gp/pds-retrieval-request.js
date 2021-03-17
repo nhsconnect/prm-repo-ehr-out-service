@@ -7,10 +7,8 @@ export const getPdsOdsCode = async nhsNumber => {
   const url = `${config.gp2gpAdaptorServiceUrl}/patient-demographics/${nhsNumber}`;
   try {
     const res = await axios.get(url, { headers: { Authorization: config.gp2gpAdaptorAuthKeys } });
-    logInfo('Successfully retrieved patient from PDS', {
-      nhsNumber,
-      odsCode: res.data.data.odsCode
-    });
+    logInfo('Successfully retrieved patient from PDS');
+
     return res.data.data.odsCode;
   } catch (err) {
     const errorMessage = 'Unable to retrieve patient from PDS';
