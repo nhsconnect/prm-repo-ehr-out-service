@@ -2,6 +2,7 @@ import { body } from 'express-validator';
 import { createRegistrationRequest } from '../../services/database/create-registration-request';
 import { logError, logInfo } from '../../middleware/logging';
 import { initializeConfig } from '../../config';
+import { setCurrentSpanAttributes } from '../../config/tracing';
 import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
 import {
   getRegistrationRequestStatusByConversationId,
@@ -27,6 +28,7 @@ export const registrationRequestValidationRules = [
 export const registrationRequest = async (req, res) => {
   const { id: conversationId, attributes } = req.body.data;
   const { nhsNumber, odsCode, ehrRequestId } = attributes;
+  setCurrentSpanAttributes({ conversationId });
   let logs = 'EHR has been successfully sent';
 
   try {

@@ -1,6 +1,7 @@
 import { param } from 'express-validator';
 import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
 import { logError, logInfo } from '../../middleware/logging';
+import { setCurrentSpanAttributes } from '../../config/tracing';
 
 export const registrationRequestStatusValidationRules = [
   param('conversationId').isUUID().withMessage("'conversationId' provided is not of type UUID"),
@@ -9,6 +10,7 @@ export const registrationRequestStatusValidationRules = [
 
 export const registrationRequestStatus = async (req, res) => {
   try {
+    setCurrentSpanAttributes({ conversationId: req.params.conversationId });
     const registrationRequestStatus = await getRegistrationRequestStatusByConversationId(
       req.params.conversationId
     );

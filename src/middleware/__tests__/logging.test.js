@@ -1,13 +1,5 @@
-import {
-  eventFinished,
-  extractConversationId,
-  logDebug,
-  logError,
-  logInfo,
-  logWarning
-} from '../logging';
+import { eventFinished, logDebug, logError, logInfo, logWarning } from '../logging';
 import { logger } from '../../config/logging';
-import { v4 as uuid } from 'uuid';
 
 jest.mock('../../config/logging');
 
@@ -79,44 +71,6 @@ describe('logging', () => {
 
       eventFinished(mockReq, mockRes);
       expect(logger.error).toBeCalledTimes(1);
-    });
-  });
-
-  describe('extract conversationId', () => {
-    const conversationId = uuid();
-
-    it('should work for GET requests from registration-requests urls', () => {
-      const mockGetReq = {
-        headers: { host: '127.0.0.1:123' },
-        method: 'GET',
-        url: `registration-requests/${conversationId}`
-      };
-
-      expect(extractConversationId(mockGetReq)).toBe(conversationId);
-    });
-
-    it('should not work for non-registration urls', () => {
-      const mockGetReq = {
-        headers: { host: '127.0.0.1:123' },
-        method: 'GET',
-        url: `test/${conversationId}`
-      };
-
-      expect(extractConversationId(mockGetReq)).not.toBe(conversationId);
-    });
-
-    it('should work for POST requests', () => {
-      const mockPostReq = {
-        headers: { host: '127.0.0.1:123' },
-        method: 'POST',
-        body: {
-          data: {
-            id: conversationId
-          }
-        }
-      };
-
-      expect(extractConversationId(mockPostReq)).toBe(conversationId);
     });
   });
 });
