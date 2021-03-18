@@ -5,6 +5,8 @@ import app from '../app';
 import { initializeConfig } from '../config';
 import ModelFactory from '../models';
 import { modelName, Status } from '../models/registration-request';
+import { logger } from '../config/logging';
+import { expectStructuredLogToContain, transportSpy } from './logging-helper';
 
 const localhostUrl = 'http://localhost';
 const fakeAuth = 'fake-keys';
@@ -136,6 +138,8 @@ describe('POST /registration-requests/', () => {
   };
 
   beforeEach(() => {
+    logger.add(transportSpy);
+
     process.env.SERVICE_URL = repoToGpUrl;
     process.env.AUTHORIZATION_KEYS = fakeAuth;
     process.env.GP2GP_ADAPTOR_SERVICE_URL = localhostUrl;
@@ -186,5 +190,6 @@ describe('POST /registration-requests/', () => {
       .set('Authorization', fakeAuth);
 
     expect(statusUpdate.body.data.attributes.status).toEqual('sent_ehr');
+    expectStructuredLogToContain(transportSpy, { conversationId, traceId: expect.anything() });
   });
 });
