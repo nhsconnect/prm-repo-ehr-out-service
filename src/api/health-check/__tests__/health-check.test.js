@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { getHealthCheck } from '../../../services/health-check/get-health-check';
 import { logInfo, logError } from '../../../middleware/logging';
-import { buildTestApp } from '../../../__builders__/testApp';
+import { buildTestApp } from '../../../__builders__/test-app';
 import { healthCheck } from '../health-check';
 
 jest.mock('../../../middleware/logging');

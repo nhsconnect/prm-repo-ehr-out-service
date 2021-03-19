@@ -2,7 +2,7 @@ import request from 'supertest';
 import { Status } from '../../../models/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../../services/database/registration-request-repository';
 import { logError } from '../../../middleware/logging';
-import { buildTestApp } from '../../../__builders__/testApp';
+import { buildTestApp } from '../../../__builders__/test-app';
 import { registrationRequests } from '../index';
 
 jest.mock('../../../middleware/logging');

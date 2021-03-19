@@ -56,6 +56,7 @@ describe('GET /registration-requests/:conversationId', () => {
   const status = Status.REGISTRATION_REQUEST_RECEIVED;
 
   beforeEach(() => {
+    logger.add(transportSpy);
     process.env.AUTHORIZATION_KEYS = fakeAuth;
   });
 
@@ -90,6 +91,7 @@ describe('GET /registration-requests/:conversationId', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual(retrievalResponse);
+    expectStructuredLogToContain(transportSpy, { conversationId, traceId: expect.anything() });
   });
 
   it('should return 404 when registration request cannot be found', async () => {
@@ -99,6 +101,10 @@ describe('GET /registration-requests/:conversationId', () => {
       .set('Authorization', fakeAuth);
 
     expect(res.statusCode).toBe(404);
+    expectStructuredLogToContain(transportSpy, {
+      conversationId: nonExistentConversationId,
+      traceId: expect.anything()
+    });
   });
 });
 

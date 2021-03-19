@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { buildTestApp } from '../../../__builders__/testApp';
+import { buildTestApp } from '../../../__builders__/test-app';
 import { logError, logInfo } from '../../../middleware/logging';
 import { createRegistrationRequest } from '../../../services/database/create-registration-request';
 import {

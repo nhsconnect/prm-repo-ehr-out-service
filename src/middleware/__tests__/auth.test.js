@@ -2,7 +2,7 @@ import request from 'supertest';
 import { v4 } from 'uuid';
 import { initializeConfig } from '../../config';
 import { createRegistrationRequest } from '../../services/database/create-registration-request';
-import { buildTestApp } from '../../__builders__/testApp';
+import { buildTestApp } from '../../__builders__/test-app';
 import { registrationRequests } from '../../api/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
 import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
