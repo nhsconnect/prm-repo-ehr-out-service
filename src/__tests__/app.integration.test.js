@@ -6,7 +6,7 @@ import { initializeConfig } from '../config';
 import ModelFactory from '../models';
 import { modelName, Status } from '../models/registration-request';
 import { logger } from '../config/logging';
-import { expectStructuredLogToContain, transportSpy } from './logging-helper';
+import { expectStructuredLogToContain, transportSpy } from '../__builders__/logging-helper';
 
 const localhostUrl = 'http://localhost';
 const fakeAuth = 'fake-keys';
