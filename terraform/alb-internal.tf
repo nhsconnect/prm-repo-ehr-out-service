@@ -1,3 +1,7 @@
+locals {
+  domain = trimsuffix("${var.dns_name}.${data.aws_route53_zone.environment_public_zone.name}", ".")
+}
+
 resource "aws_alb_target_group" "internal-alb-tg" {
   name        = "${var.environment}-${var.component_name}-int-tg"
   port        = 3000
@@ -36,7 +40,7 @@ resource "aws_alb_listener_rule" "int-alb-http-listener-rule" {
 
   condition {
     host_header {
-      values = ["${var.dns_name}.${data.aws_route53_zone.environment_public_zone.name}"]
+      values = [local.domain]
     }
   }
 }
@@ -52,7 +56,7 @@ resource "aws_alb_listener_rule" "int-alb-https-listener-rule" {
 
   condition {
     host_header {
-      values = ["${var.dns_name}.${data.aws_route53_zone.environment_public_zone.name}"]
+      values = [local.domain]
     }
   }
 }
