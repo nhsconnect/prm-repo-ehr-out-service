@@ -35,8 +35,9 @@ resource "aws_alb_listener_rule" "int-alb-http-listener-rule" {
   }
 
   condition {
-    field  = "host-header"
-    values = ["${var.environment}.${var.dns_name}.patient-deductions.nhs.uk"]
+    host_header {
+      values = ["${var.dns_name}.${data.aws_route53_zone.environment_public_zone.name}"]
+    }
   }
 }
 
@@ -50,7 +51,17 @@ resource "aws_alb_listener_rule" "int-alb-https-listener-rule" {
   }
 
   condition {
-    field  = "host-header"
-    values = ["${var.environment}.${var.dns_name}.patient-deductions.nhs.uk"]
+    host_header {
+      values = ["${var.dns_name}.${data.aws_route53_zone.environment_public_zone.name}"]
+    }
   }
+}
+
+data "aws_ssm_parameter" "int-alb-listener-https-arn" {
+  name = "/repo/${var.environment}/output/prm-deductions-infra/int-alb-listener-https-arn"
+}
+
+resource "aws_lb_listener_certificate" "repo-to-gp-int-listener-cert" {
+  listener_arn    = data.aws_ssm_parameter.int-alb-listener-https-arn.value
+  certificate_arn = aws_acm_certificate_validation.repo-to-gp-cert-validation.certificate_arn
 }

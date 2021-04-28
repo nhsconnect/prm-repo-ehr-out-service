@@ -48,3 +48,9 @@ resource "aws_acm_certificate_validation" "repo-to-gp-cert-validation" {
   certificate_arn = aws_acm_certificate.repo-to-gp-cert.arn
   validation_record_fqdns = [for record in aws_route53_record.repo-to-gp-cert-validation-record : record.fqdn]
 }
+
+resource "aws_ssm_parameter" "repo_to_gp_service_url" {
+  name  = "/repo/${var.environment}/output/${var.repo_name}/repo-to-gp-service-url"
+  type  = "String"
+  value = "https://${var.dns_name}.${data.aws_route53_zone.environment_public_zone.name}"
+}
