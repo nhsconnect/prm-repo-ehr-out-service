@@ -6,7 +6,7 @@ locals {
     { name = "NHS_ENVIRONMENT", value = var.environment },
     { name = "SERVICE_URL", value = "http://repo-to-gp.${var.environment}.non-prod.patient-deductions.nhs.uk" },
     { name = "GP2GP_ADAPTOR_SERVICE_URL", value = data.aws_ssm_parameter.gp2gp_adaptor_service_url.value },
-    { name = "EHR_REPO_SERVICE_URL", value = "http://${var.environment}.ehr-repo.patient-deductions.nhs.uk" },
+    { name = "EHR_REPO_SERVICE_URL", value = "https://ehr-repo.${var.environment}.non-prod.patient-deductions.nhs.uk" },
     { name = "DATABASE_NAME", value = var.database_name },
     { name = "DATABASE_HOST", value = data.aws_ssm_parameter.rds_endpoint.value }
   ]
