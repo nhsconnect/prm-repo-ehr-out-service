@@ -169,6 +169,26 @@ function configure_hangout_webhook {
   fi
 }
 
+function generate_authorization_keys {
+  check_env
+  secret_id="/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-authorization-keys"
+  value=$(openssl rand -base64 24  | tr -d "/@\'+")
+  set +e
+  aws ssm get-parameter --region $AWS_DEFAULT_REGION --name $secret_id | jq -r ".Parameter.Value" > /dev/null
+  if [[ $? == 0 ]]; then
+    echo "Authorization keys already exist"
+  else
+    set -e
+    echo "Authorization keys do not exist. Creating..."
+    aws ssm put-parameter \
+     --region $AWS_DEFAULT_REGION \
+     --name "$secret_id" \
+     --type SecureString \
+     --overwrite \
+     --value "$value"
+  fi
+}
+
 ###########
 # Testing #
 ###########
@@ -293,6 +313,12 @@ case "${command}" in
   run_docker_local)
       configure_local_envs
       dojo -c Dojofile-dtest
+      ;;
+  _generate_authorization_keys)
+      generate_authorization_keys
+      ;;
+  generate_authorization_keys)
+      dojo -c Dojofile-infra "./tasks _generate_authorization_keys"
       ;;
   _tf_plan)
       tf_plan "$2"
