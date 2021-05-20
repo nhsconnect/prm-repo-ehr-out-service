@@ -28,12 +28,16 @@ data "aws_ssm_parameter" "authorization_keys" {
   name = "/repo/${var.environment}/user-input/${var.component_name}-authorization-keys"
 }
 
+data "aws_ssm_parameter" "e2e_test_authorization_keys_for_repo_to_gp" {
+  name = "/repo/${var.environment}/user-input/api-keys/${var.component_name}/e2e-test"
+}
+
 data "aws_ssm_parameter" "gp2gp_adaptor_authorization_keys" {
-  name = "/repo/${var.environment}/user-input/gp2gp-adaptor-authorization-keys"
+  name = "/repo/${var.environment}/user-input/api-keys/gp2gp-adaptor/repo-to-gp"
 }
 
 data "aws_ssm_parameter" "ehr_repo_authorization_keys" {
-  name = "/repo/${var.environment}/user-input/ehr-repo-authorization-keys"
+  name = "/repo/${var.environment}/user-input/api-keys/ehr-repo/repo-to-gp"
 }
 
 data "aws_ssm_parameter" "deductions_private_alb_internal_dns" {

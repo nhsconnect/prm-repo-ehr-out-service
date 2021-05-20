@@ -12,6 +12,7 @@ locals {
   ]
   secret_environment_variables = [
     { name = "AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.authorization_keys.arn },
+    { name = "E2E_TEST_AUTHORIZATION_KEYS_FOR_GP_TO_REPO", valueFrom = data.aws_ssm_parameter.e2e_test_authorization_keys_for_repo_to_gp.arn },
     { name = "GP2GP_ADAPTOR_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.gp2gp_adaptor_authorization_keys.arn },
     { name = "EHR_REPO_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.ehr_repo_authorization_keys.arn },
     { name = "DATABASE_USER", valueFrom = data.aws_ssm_parameter.db-username.arn },
