@@ -110,20 +110,9 @@ function docker_login {
   eval $(dojo -c Dojofile-infra "aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION")
 }
 
-function _docker_login {
-  echo Logging in to Amazon ECR...
-  eval $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-}
-
 function configure_docker_repository_uri {
   docker_login
   get_aws_account_id
-  export REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/$IMAGE_REPO_NAME
-}
-
-function _configure_docker_repository_uri {
-  _docker_login
-  _get_aws_account_id
   export REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/$IMAGE_REPO_NAME
 }
 
@@ -134,6 +123,10 @@ function build_docker_image {
   echo Building the Docker image...
   docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG .
   echo Build completed on `date`
+}
+
+function assume-ci-agent-role {
+  eval $(dojo -c Dojofile-infra "./tasks _assume_ci_agent_role $1")
 }
 
 function promote_docker_image {
@@ -147,13 +140,13 @@ function promote_docker_image {
   get_latest_commit_hash
   IMAGE_TAG=${COMMIT_HASH}
 
-  _assume-ci-agent-role "$environment_from"
-  _configure_docker_repository_uri
+  assume-ci-agent-role "$environment_from"
+  configure_docker_repository_uri
   echo "Pulling the image from $REPOSITORY_URI:$IMAGE_TAG.."
   docker pull "$REPOSITORY_URI:$IMAGE_TAG"
 
-  _assume-ci-agent-role "$environment_to"
-  _configure_docker_repository_uri
+  assume-ci-agent-role "$environment_to"
+  configure_docker_repository_uri
   echo "Pushing the image to $REPOSITORY_URI:$IMAGE_TAG.."
   docker push "$REPOSITORY_URI:$IMAGE_TAG"
 }
@@ -385,13 +378,16 @@ case "${command}" in
       check_env
       dojo -c Dojofile-infra "./tasks _tf_apply"
       ;;
-  _promote_docker_image)
-    promote_docker_image
-    ;;
+  _assume_ci_agent_role)
+      _assume-ci-agent-role $2
+      echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID"
+      echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY"
+      echo "export AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN"
+      ;;
   promote_docker_image)
-    check_env
-    dojo -c Dojofile-infra "./tasks _promote_docker_image"
-    ;;
+      check_env
+      promote_docker_image
+      ;;
   _wait_ecs)
       aws ecs wait services-stable \
         --region $AWS_DEFAULT_REGION \
