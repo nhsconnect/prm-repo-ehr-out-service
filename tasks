@@ -9,6 +9,13 @@ set -Eeo pipefail
 AWS_DEFAULT_REGION=eu-west-2
 IMAGE_REPO_NAME=deductions/repo-to-gp
 export NHS_SERVICE=repo-to-gp
+AWS_HELPERS_FILE="utils/aws-helpers"
+
+mkdir -p utils
+if [[ ! -f $AWS_HELPERS_FILE ]];then
+  wget --quiet -O $AWS_HELPERS_FILE https://raw.githubusercontent.com/nhsconnect/prm-deductions-support-infra/master/utils/aws-helpers
+fi
+source $AWS_HELPERS_FILE
 
 ####################################
 # Instance (Environment) Variables #
@@ -71,6 +78,10 @@ function get_aws_account_id {
     AWS_ACCOUNT_ID=$(dojo -c Dojofile-infra "aws sts get-caller-identity | jq -r .Account")
  }
 
+function _get_aws_account_id {
+    AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq -r .Account)
+ }
+
 function get_aws_ssm_secret {
    secret_id=$1
    json=$(dojo -c Dojofile-infra "aws ssm get-parameter --with-decryption --region $AWS_DEFAULT_REGION --name $secret_id")
@@ -99,9 +110,20 @@ function docker_login {
   eval $(dojo -c Dojofile-infra "aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION")
 }
 
+function _docker_login {
+  echo Logging in to Amazon ECR...
+  eval $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+}
+
 function configure_docker_repository_uri {
   docker_login
   get_aws_account_id
+  export REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/$IMAGE_REPO_NAME
+}
+
+function _configure_docker_repository_uri {
+  _docker_login
+  _get_aws_account_id
   export REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/$IMAGE_REPO_NAME
 }
 
@@ -112,6 +134,24 @@ function build_docker_image {
   echo Building the Docker image...
   docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG .
   echo Build completed on `date`
+}
+
+function promote_docker_image {
+  declare -A from_environment_promotion_map=( ["dev"]="ci" ["test"]="dev")
+  declare -A to_environment_promotion_map=( ["dev"]="dev" ["test"]="ci")
+
+  environment_from=${from_environment_promotion_map[$NHS_ENVIRONMENT]}
+  environment_to=${to_environment_promotion_map[$NHS_ENVIRONMENT]}
+
+  echo "Promoting docker image to $environment_from to $environment_to..."
+
+  _assume-ci-agent-role "$environment_from"
+  _configure_docker_repository_uri
+  docker pull "$REPOSITORY_URI:$IMAGE_TAG"
+
+  _assume-ci-agent-role "$environment_to"
+  _configure_docker_repository_uri
+  docker push "$REPOSITORY_URI:$IMAGE_TAG"
 }
 
 #######################
@@ -341,6 +381,13 @@ case "${command}" in
       check_env
       dojo -c Dojofile-infra "./tasks _tf_apply"
       ;;
+  _promote_docker_image)
+    promote_docker_image
+    ;;
+  promote_docker_image)
+    check_env
+    dojo -c Dojofile-infra "./tasks _promote_docker_image"
+    ;;
   _wait_ecs)
       aws ecs wait services-stable \
         --region $AWS_DEFAULT_REGION \

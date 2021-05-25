@@ -34,7 +34,15 @@ common:
           arguments:
             - -c
             - ./tasks wait_ecs
-  deploy_and_test_stages: &deploy_and_test_stages
+  deploy_and_test_stages: &common_stages
+    - promote_docker_image:
+        clean_workspace: true
+        tasks:
+          - exec:
+              command: /bin/bash
+              arguments:
+                - -c
+                - ./tasks promote_docker_image
     - deploy:
         clean_workspace: true
         jobs:
@@ -68,7 +76,7 @@ pipelines:
         stage: deploy_dev
     environment_variables:
       NHS_ENVIRONMENT: dev
-    stages: *deploy_and_test_stages
+    stages: *common_stages
   'prm-deductions-repo-to-gp.test':
     group: deductions
     label_template: '${git[:8]}'
@@ -85,5 +93,5 @@ pipelines:
         stage: deploy_test
     environment_variables:
       NHS_ENVIRONMENT: test
-    stages: *deploy_and_test_stages
+    stages: *common_stages
 
