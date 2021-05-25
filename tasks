@@ -144,6 +144,8 @@ function promote_docker_image {
   environment_to=${to_environment_promotion_map[$NHS_ENVIRONMENT]}
 
   echo "Promoting docker image to $environment_from to $environment_to..."
+  get_latest_commit_hash
+  IMAGE_TAG=${COMMIT_HASH}
 
   _assume-ci-agent-role "$environment_from"
   _configure_docker_repository_uri
