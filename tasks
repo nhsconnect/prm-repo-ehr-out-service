@@ -147,10 +147,12 @@ function promote_docker_image {
 
   _assume-ci-agent-role "$environment_from"
   _configure_docker_repository_uri
+  echo "Pulling the image from $REPOSITORY_URI:$IMAGE_TAG.."
   docker pull "$REPOSITORY_URI:$IMAGE_TAG"
 
   _assume-ci-agent-role "$environment_to"
   _configure_docker_repository_uri
+  echo "Pushing the image to $REPOSITORY_URI:$IMAGE_TAG.."
   docker push "$REPOSITORY_URI:$IMAGE_TAG"
 }
 
