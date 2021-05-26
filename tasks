@@ -125,31 +125,6 @@ function build_docker_image {
   echo Build completed on `date`
 }
 
-function promote_docker_image {
-  declare -A from_environment_promotion_map=( ["dev"]="ci" ["test"]="dev")
-  declare -A to_environment_promotion_map=( ["dev"]="dev" ["test"]="ci")
-
-  environment_from=${from_environment_promotion_map[$NHS_ENVIRONMENT]}
-  environment_to=${to_environment_promotion_map[$NHS_ENVIRONMENT]}
-
-  echo "Promoting docker image to $environment_from to $environment_to..."
-  get_latest_commit_hash
-  IMAGE_TAG=${COMMIT_HASH}
-  IMAGE_TEMPORARY_NAME="$IMAGE_REPO_NAME:$IMAGE_TAG"
-
-  assume-ci-agent-role "$environment_from"
-  configure_docker_repository_uri
-  echo "Pulling the image from $REPOSITORY_URI:$IMAGE_TAG.."
-  docker pull "$REPOSITORY_URI:$IMAGE_TAG"
-  docker tag "$REPOSITORY_URI:$IMAGE_TAG" "$IMAGE_TEMPORARY_NAME"
-
-  assume-ci-agent-role "$environment_to"
-  configure_docker_repository_uri
-  docker tag "$IMAGE_TEMPORARY_NAME" "$REPOSITORY_URI:$IMAGE_TAG"
-  echo "Pushing the image to $REPOSITORY_URI:$IMAGE_TAG.."
-  docker push "$REPOSITORY_URI:$IMAGE_TAG"
-}
-
 #######################
 # Terraform Functions #
 #######################
