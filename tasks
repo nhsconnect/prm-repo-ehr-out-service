@@ -125,10 +125,6 @@ function build_docker_image {
   echo Build completed on `date`
 }
 
-function assume-ci-agent-role {
-  eval $(dojo -c Dojofile-infra "./tasks _assume_ci_agent_role $1")
-}
-
 function promote_docker_image {
   declare -A from_environment_promotion_map=( ["dev"]="ci" ["test"]="dev")
   declare -A to_environment_promotion_map=( ["dev"]="dev" ["test"]="ci")
@@ -217,6 +213,7 @@ function generate_authorization_keys {
   aws ssm get-parameter --region $AWS_DEFAULT_REGION --name $secret_id | jq -r ".Parameter.Value" > /dev/null
   if [[ $? == 0 ]]; then
     echo "Authorization keys already exist"
+    set -e
   else
     set -e
     echo "Authorization keys do not exist. Creating..."
@@ -380,12 +377,6 @@ case "${command}" in
   tf_apply)
       check_env
       dojo -c Dojofile-infra "./tasks _tf_apply"
-      ;;
-  _assume_ci_agent_role)
-      _assume-ci-agent-role $2
-      echo "export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID"
-      echo "export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY"
-      echo "export AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN"
       ;;
   promote_docker_image)
       check_env
