@@ -34,7 +34,7 @@ common:
           arguments:
             - -c
             - ./tasks wait_ecs
-  deploy_and_test_stages: &common_stages
+  common_stages: &common_stages
     - promote_docker_image:
         resources:
           - docker
