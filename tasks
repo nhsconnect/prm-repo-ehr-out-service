@@ -15,6 +15,7 @@ mkdir -p utils
 if [[ ! -f $AWS_HELPERS_FILE ]];then
   wget --quiet -O $AWS_HELPERS_FILE https://raw.githubusercontent.com/nhsconnect/prm-deductions-support-infra/master/utils/aws-helpers
 fi
+chmod +x $AWS_HELPERS_FILE
 source $AWS_HELPERS_FILE
 
 ####################################
