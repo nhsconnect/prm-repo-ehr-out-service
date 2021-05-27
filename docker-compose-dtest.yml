@@ -4,7 +4,7 @@ services:
     links:
       - repo-to-gp:repo-to-gp
   repo-to-gp:
-    image: ${REPOSITORY_URI}:${COMMIT_HASH}
+    image: ${REPOSITORY_URI}:${IMAGE_TAG}
     ports:
       - 3000:3000
     links:
