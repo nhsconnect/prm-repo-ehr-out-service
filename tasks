@@ -44,8 +44,8 @@ function configure_service_url {
   fi
 }
 
-function get_latest_commit_hash {
-  export COMMIT_HASH=$(git rev-parse HEAD | cut -c 1-7)
+function set_image_tag() {
+  export IMAGE_TAG=$(git rev-parse HEAD | cut -c 1-8)
 }
 
 function prepare_local_envs_for_ide {
@@ -72,7 +72,7 @@ function configure_local_envs {
   export REPO_TO_GP_SKIP_MIGRATION=false
   export REPOSITORY_URI=$IMAGE_REPO_NAME
   configure_service_url
-  get_latest_commit_hash
+  set_image_tag
 }
 
 function get_aws_account_id {
@@ -117,10 +117,9 @@ function configure_docker_repository_uri {
   export REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/$IMAGE_REPO_NAME
 }
 
-function build_docker_image {
-  echo Build started on `date`
-  get_latest_commit_hash
-  IMAGE_TAG=${COMMIT_HASH}
+function build_docker_image() {
+  echo Build started on $(date)
+  set_image_tag
   echo Building the Docker image...
   docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG .
   echo Build completed on `date`
@@ -134,9 +133,7 @@ function tf_plan {
   operation=$1
   certs=$2
   cd terraform
-
-  COMMIT_HASH=$(git rev-parse HEAD | cut -c 1-7)
-  IMAGE_TAG=${COMMIT_HASH}
+  set_image_tag
   TARGET=""
 
 
@@ -356,6 +353,7 @@ case "${command}" in
       ;;
   promote_docker_image)
       check_env
+      set_image_tag
       promote_docker_image "$IMAGE_REPO_NAME:$IMAGE_TAG" "$NHS_ENVIRONMENT"
       ;;
   _wait_ecs)
