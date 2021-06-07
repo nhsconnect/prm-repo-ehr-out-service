@@ -1,7 +1,7 @@
 # prm-deductions-repo-to-gp
-This repository is responsible for the registration functionality of our services.
+This component is responsible for the registration functionality of our services.
 
-When the GP2GP adapter receives an EHR request and sends this to the RepoToGP component, the RepoToGP accepts this and creates a new registration request associated with that EHR request so that it can keep track of the transfer. 
+When the message handler receives an EHR request and sends this to the RepoToGP component, the RepoToGP accepts this and creates a new registration request associated with that EHR request so that it can keep track of the transfer. 
 
 
 ## Prerequisites
