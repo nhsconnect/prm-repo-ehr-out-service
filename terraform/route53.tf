@@ -1,6 +1,5 @@
 locals {
   deductions_private_internal_alb_dns = data.aws_ssm_parameter.deductions_private_alb_internal_dns.value
-  zone_id = data.aws_ssm_parameter.root_zone_id.value
   private_zone_id = data.aws_ssm_parameter.private_zone_id.value
 }
 
