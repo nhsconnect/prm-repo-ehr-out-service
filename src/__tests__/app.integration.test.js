@@ -57,11 +57,11 @@ describe('GET /registration-requests/:conversationId', () => {
 
   beforeEach(() => {
     logger.add(transportSpy);
-    process.env.AUTHORIZATION_KEYS = fakeAuth;
+    process.env.API_KEY_FOR_TEST = fakeAuth;
   });
 
   afterEach(() => {
-    delete process.env.AUTHORIZATION_KEYS;
+    delete process.env.API_KEY_FOR_TEST;
   });
 
   it('should return registration request info', async () => {
@@ -147,7 +147,7 @@ describe('POST /registration-requests/', () => {
     logger.add(transportSpy);
 
     process.env.SERVICE_URL = repoToGpUrl;
-    process.env.AUTHORIZATION_KEYS = fakeAuth;
+    process.env.API_KEY_FOR_TEST = fakeAuth;
     process.env.GP2GP_ADAPTOR_SERVICE_URL = localhostUrl;
     process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS = fakeAuth;
     process.env.EHR_REPO_SERVICE_URL = localhostUrl;
@@ -155,7 +155,7 @@ describe('POST /registration-requests/', () => {
   });
 
   afterEach(() => {
-    delete process.env.AUTHORIZATION_KEYS;
+    delete process.env.API_KEY_FOR_TEST;
     delete process.env.GP2GP_ADAPTOR_SERVICE_URL;
     delete process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS;
     delete process.env.EHR_REPO_SERVICE_URL;

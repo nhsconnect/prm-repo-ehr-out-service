@@ -10,7 +10,7 @@ jest.mock('../../../services/database/registration-request-repository');
 jest.mock('../../../config', () => ({
   initializeConfig: jest
     .fn()
-    .mockReturnValue({ sequelize: { dialect: 'postgres' }, repoToGpAuthKeys: 'valid-key' })
+    .mockReturnValue({ sequelize: { dialect: 'postgres' }, consumerApiKeys: { TEST: 'valid-key' } })
 }));
 
 describe('GET /registration-requests/', () => {

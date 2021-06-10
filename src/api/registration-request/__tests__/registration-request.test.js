@@ -27,7 +27,7 @@ describe('POST /registration-requests/', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
   initializeConfig.mockReturnValue({
     repoToGpServiceUrl: 'test-url',
-    repoToGpAuthKeys: 'correct-key'
+    consumerApiKeys: { TEST: 'correct-key' }
   });
 
   const conversationId = '5bb36755-279f-43d5-86ab-defea717d93f';

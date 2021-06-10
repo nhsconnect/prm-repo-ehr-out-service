@@ -9,7 +9,10 @@ import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
 import { getPatientHealthRecordFromRepo } from '../../services/ehr-repo/get-health-record';
 
 jest.mock('../../config', () => ({
-  initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
+  initializeConfig: jest.fn().mockReturnValue({
+    sequelize: { dialect: 'postgres' },
+    consumerApiKeys: { API_KEY: 'correct-key' }
+  })
 }));
 jest.mock('../../services/database/create-registration-request');
 jest.mock('../../services/database/registration-request-repository');
@@ -24,7 +27,6 @@ describe('auth', () => {
   const ehrRequestId = v4();
 
   it('should return HTTP 204 when correctly authenticated', async () => {
-    initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
     getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
     getPdsOdsCode.mockResolvedValue({ data: { data: { odsCode } } });
     getPatientHealthRecordFromRepo.mockResolvedValue({ currentEhr });
@@ -50,7 +52,7 @@ describe('auth', () => {
   });
 
   it('should return 412 if repoToGpAuthKeys have not been set', async () => {
-    initializeConfig.mockReturnValue({});
+    initializeConfig.mockReturnValueOnce({ consumerApiKeys: {} });
     const errorMessage = {
       error: 'Server-side Authorization keys have not been set, cannot authenticate'
     };
@@ -64,7 +66,6 @@ describe('auth', () => {
   });
 
   it('should return HTTP 401 when no authorization header provided', async () => {
-    initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
     const errorMessage = {
       error: 'The request (/registration-requests) requires a valid Authorization header to be set'
     };
@@ -76,7 +77,6 @@ describe('auth', () => {
   });
 
   it('should return HTTP 403 when authorization key is incorrect', async () => {
-    initializeConfig.mockReturnValue({ repoToGpAuthKeys: 'correct-key' });
     const errorMessage = { error: 'Authorization header is provided but not valid' };
 
     const res = await request(testApp)

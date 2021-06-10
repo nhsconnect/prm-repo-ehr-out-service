@@ -10,5 +10,17 @@ export const initializeConfig = () => ({
   gp2gpAdaptorAuthKeys: process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS,
   ehrRepoServiceUrl: process.env.EHR_REPO_SERVICE_URL,
   ehrRepoAuthKeys: process.env.EHR_REPO_AUTHORIZATION_KEYS,
-  sequelize: databaseConfig
+  sequelize: databaseConfig,
+  consumerApiKeys: loadConsumerKeys()
 });
+
+const loadConsumerKeys = () => {
+  const consumerObjectKeys = {};
+  Object.keys(process.env).forEach(envVarName => {
+    if (envVarName.startsWith('API_KEY_FOR_')) {
+      const consumerName = envVarName.split('API_KEY_FOR_')[1];
+      consumerObjectKeys[consumerName] = process.env[envVarName];
+    }
+  });
+  return consumerObjectKeys;
+};
