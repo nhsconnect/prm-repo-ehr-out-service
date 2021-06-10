@@ -1,11 +1,20 @@
 FROM node:12.14.0-alpine
 
 RUN apk update && \
-    apk add --no-cache bash tini postgresql-client && \
+    apk add --no-cache bash tini postgresql-client jq && \
     rm -rf /var/cache/apk/*
+
+RUN apk add --no-cache \
+        python3 \
+        py3-pip \
+    && pip3 install --upgrade pip \
+    && pip3 install \
+        awscli \
+    && rm -rf /var/cache/apk/*
 
 # Migration script
 COPY scripts/run-server-with-db.sh /usr/bin/run-repo-to-gp-server
+COPY scripts/load-api-keys.sh /app/scripts/load-api-keys.sh
 
 ENV NHS_ENVIRONMENT="" \
   SERVICE_URL="" \

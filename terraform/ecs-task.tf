@@ -1,4 +1,5 @@
 locals {
+  task_role_arn       = aws_iam_role.component-ecs-role.arn
   task_execution_role = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.environment}-${var.component_name}-EcsTaskRole"
   task_ecr_url        = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com"
   task_log_group      = "/nhs/deductions/${var.environment}-${data.aws_caller_identity.current.account_id}/${var.component_name}"
@@ -27,6 +28,7 @@ resource "aws_ecs_task_definition" "task" {
   cpu                      = var.task_cpu
   memory                   = var.task_memory
   execution_role_arn       = local.task_execution_role
+  task_role_arn            = local.task_role_arn
 
 
   container_definitions = templatefile("${path.module}/templates/ecs-task-def.tmpl", {
