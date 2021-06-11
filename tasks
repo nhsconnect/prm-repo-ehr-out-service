@@ -53,7 +53,6 @@ function set_image_tag() {
 function prepare_local_envs_for_ide {
   export DATABASE_HOST=localhost
   envs=$( printenv | grep "DATABASE" && \
-          printenv | grep "AUTHORIZATION_KEYS" && \
           printenv | grep "REPOSITORY_URI" && \
           printenv | grep "SERVICE_URL"
   )
@@ -66,7 +65,6 @@ function configure_local_envs {
   export DATABASE_PASSWORD=secret
   export DATABASE_NAME=deductions_test
   export DATABASE_HOST=db
-  export AUTHORIZATION_KEYS=not-real
   export GP2GP_ADAPTOR_AUTHORIZATION_KEYS=auth-key-1
   export EHR_REPO_AUTHORIZATION_KEYS=auth-key-2
   export GP2GP_ADAPTOR_SERVICE_URL="www.notreal.com"
@@ -89,15 +87,6 @@ function get_aws_ssm_secret {
      exit 5
    fi
    echo $json | jq -r ".Parameter.Value"
-}
-
-function configure_aws_service_auth_keys {
-    check_env
-    get_aws_account_id
-    parameter_name="/repo/${NHS_ENVIRONMENT}/user-input/${NHS_SERVICE}-authorization-keys"
-    echo "${parameter_name}"
-    export AUTHORIZATION_KEYS=$(dojo -c Dojofile-infra "aws ssm get-parameter --with-decryption --region ${AWS_DEFAULT_REGION} --name  ${parameter_name} | jq -r .Parameter.Value")
-    export REPO_TO_GP_AUTHORIZATION_KEYS=$AUTHORIZATION_KEYS
 }
 
 ############################
@@ -188,27 +177,6 @@ function configure_hangout_webhook {
   fi
 }
 
-function generate_authorization_keys {
-  check_env
-  secret_id="/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-authorization-keys"
-  value=$(openssl rand -base64 24  | tr -d "/@\'+")
-  set +e
-  aws ssm get-parameter --region $AWS_DEFAULT_REGION --name $secret_id | jq -r ".Parameter.Value" > /dev/null
-  if [[ $? == 0 ]]; then
-    echo "Authorization keys already exist"
-    set -e
-  else
-    set -e
-    echo "Authorization keys do not exist. Creating..."
-    aws ssm put-parameter \
-     --region $AWS_DEFAULT_REGION \
-     --name "$secret_id" \
-     --type SecureString \
-     --overwrite \
-     --value "$value"
-  fi
-}
-
 ###########
 # Testing #
 ###########
@@ -285,7 +253,6 @@ case "${command}" in
       test_functional
       ;;
   test_functional)
-      configure_aws_service_auth_keys
       configure_service_url
       dojo "./tasks _test_functional"
       ;;
@@ -333,12 +300,6 @@ case "${command}" in
   run_docker_local)
       configure_local_envs
       dojo -c Dojofile-dtest
-      ;;
-  _generate_authorization_keys)
-      generate_authorization_keys
-      ;;
-  generate_authorization_keys)
-      dojo -c Dojofile-infra "./tasks _generate_authorization_keys"
       ;;
   _tf_plan)
       _assume_environment_role $NHS_ENVIRONMENT

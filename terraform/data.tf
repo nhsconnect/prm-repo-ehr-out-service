@@ -24,10 +24,6 @@ data "aws_ssm_parameter" "deductions_private_int_alb_httpsl_arn" {
   name = "/repo/${var.environment}/output/prm-deductions-infra/deductions-private-int-alb-httpsl-arn"
 }
 
-data "aws_ssm_parameter" "authorization_keys" {
-  name = "/repo/${var.environment}/user-input/${var.component_name}-authorization-keys"
-}
-
 data "aws_ssm_parameter" "e2e_test_authorization_keys_for_repo_to_gp" {
   name = "/repo/${var.environment}/user-input/api-keys/${var.component_name}/e2e-test"
 }
