@@ -11,7 +11,7 @@ IMAGE_REPO_NAME=deductions/repo-to-gp
 export NHS_SERVICE=repo-to-gp
 
 AWS_HELPERS_VERSION=0.2.1
-AWS_HELPERS_FILE="utils/aws-helpers-$AWS_HELPERS_VERSION"
+AWS_HELPERS_FILE="utils/aws-helpers"
 
 mkdir -p utils
 if [[ ! -f $AWS_HELPERS_FILE ]];then
