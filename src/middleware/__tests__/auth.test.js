@@ -7,11 +7,16 @@ import { registrationRequests } from '../../api/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
 import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
 import { getPatientHealthRecordFromRepo } from '../../services/ehr-repo/get-health-record';
+import { logInfo, logWarning } from '../logging';
 
 jest.mock('../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({
     sequelize: { dialect: 'postgres' },
-    consumerApiKeys: { API_KEY: 'correct-key' }
+    consumerApiKeys: {
+      TEST_USER: 'correct-key',
+      DUPLICATE_TEST_USER: 'correct-key',
+      USER_2: 'key_2'
+    }
   })
 }));
 jest.mock('../../services/database/create-registration-request');
@@ -85,5 +90,31 @@ describe('auth', () => {
 
     expect(res.statusCode).toBe(403);
     expect(res.body).toEqual(errorMessage);
+  });
+
+  describe('Auth logging', () => {
+    it('should log consumer, method and url for correctly authenticated request', async () => {
+      await request(testApp).post('/registration-requests/').set('Authorization', 'key_2');
+
+      expect(logInfo).toHaveBeenCalledWith(
+        'Consumer: USER_2, Request: POST /registration-requests/'
+      );
+    });
+
+    it('should log multiple consumers when they use the same key value', async () => {
+      await request(testApp).post('/registration-requests/').set('Authorization', 'correct-key');
+
+      expect(logInfo).toHaveBeenCalledWith(
+        'Consumer: TEST_USER/DUPLICATE_TEST_USER, Request: POST /registration-requests/'
+      );
+    });
+
+    it('should log the method, url and partial api key when a request is unsuccessful', async () => {
+      await request(testApp).post('/registration-requests/').set('Authorization', 'incorrect-key');
+
+      expect(logWarning).toHaveBeenCalledWith(
+        'Unsuccessful Request: POST /registration-requests/, API Key: ******key'
+      );
+    });
   });
 });
