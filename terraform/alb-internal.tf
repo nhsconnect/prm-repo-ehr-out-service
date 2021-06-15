@@ -69,3 +69,16 @@ resource "aws_lb_listener_certificate" "repo-to-gp-int-listener-cert" {
   listener_arn    = data.aws_ssm_parameter.int-alb-listener-https-arn.value
   certificate_arn = aws_acm_certificate_validation.repo-to-gp-cert-validation.certificate_arn
 }
+
+data "aws_ssm_parameter" "service-to-ehr-repo-sg-id" {
+  name = "/repo/${var.environment}/output/prm-deductions-ehr-repository/service-to-ehr-repo-sg-id"
+}
+
+resource "aws_security_group_rule" "repo-to-gp-to-ehr-repo" {
+  type = "ingress"
+  protocol = "TCP"
+  from_port = 443
+  to_port = 443
+  security_group_id = data.aws_ssm_parameter.service-to-ehr-repo-sg-id.value
+  source_security_group_id = data.aws_ssm_parameter.deductions_private_repo_to_gp_sg_id.value
+}
