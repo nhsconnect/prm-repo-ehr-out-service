@@ -93,15 +93,6 @@ data "aws_ssm_parameter" "service-to-gp2gp-adaptor-sg-id" {
   name = "/repo/${var.environment}/output/prm-deductions-gp2gp-adaptor/service-to-gp2gp-adaptor-sg-id"
 }
 
-resource "aws_security_group_rule" "repo-to-gp-to-gp2gp-adaptor" {
-  type = "ingress"
-  protocol = "TCP"
-  from_port = 443
-  to_port = 443
-  security_group_id = data.aws_ssm_parameter.service-to-gp2gp-adaptor-sg-id.value
-  source_security_group_id = local.ecs_task_sg_id
-}
-
 data "aws_ssm_parameter" "service-to-ehr-repo-sg-id" {
   name = "/repo/${var.environment}/output/prm-deductions-ehr-repository/service-to-ehr-repo-sg-id"
 }
