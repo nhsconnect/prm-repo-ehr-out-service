@@ -28,16 +28,6 @@ resource "aws_kms_key" "repo_to_gp_key" {
   }
 }
 
-resource "aws_ssm_parameter" "repo_to_gp_rds_endpoint" {
-  name = "/repo/${var.environment}/output/${var.repo_name}/repo-to-gp-rds-endpoint"
-  type = "String"
-  value = aws_rds_cluster.repo_to_gp_db_cluster.endpoint
-  tags = {
-    CreatedBy   = var.repo_name
-    Environment = var.environment
-  }
-}
-
 resource "aws_db_subnet_group" "repo_to_gp_db_cluster_subnet_group" {
   name       = "${var.environment}-repo-to-gp-db-subnet-group"
   subnet_ids = split(",", data.aws_ssm_parameter.deductions_private_db_subnets.value)

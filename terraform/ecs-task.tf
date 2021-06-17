@@ -8,8 +8,8 @@ locals {
     { name = "SERVICE_URL", value = "https://repo-to-gp.${var.environment}.non-prod.patient-deductions.nhs.uk" },
     { name = "GP2GP_ADAPTOR_SERVICE_URL", value = "https://gp2gp-adaptor.${var.environment}.non-prod.patient-deductions.nhs.uk" },
     { name = "EHR_REPO_SERVICE_URL", value = "https://ehr-repo.${var.environment}.non-prod.patient-deductions.nhs.uk" },
-    { name = "DATABASE_NAME", value = var.database_name },
-    { name = "DATABASE_HOST", value = data.aws_ssm_parameter.rds_endpoint.value }
+    { name = "DATABASE_NAME", value = aws_rds_cluster.repo_to_gp_db_cluster.database_name },
+    { name = "DATABASE_HOST", value = aws_rds_cluster.repo_to_gp_db_cluster.endpoint }
   ]
   secret_environment_variables = [
     { name = "E2E_TEST_AUTHORIZATION_KEYS_FOR_GP_TO_REPO", valueFrom = data.aws_ssm_parameter.e2e_test_authorization_keys_for_repo_to_gp.arn },
@@ -98,11 +98,12 @@ data "aws_ssm_parameter" "service-to-ehr-repo-sg-id" {
   name = "/repo/${var.environment}/output/prm-deductions-ehr-repository/service-to-ehr-repo-sg-id"
 }
 
+
 resource "aws_security_group_rule" "repo-to-gp-to-ehr-repo" {
   type = "ingress"
   protocol = "TCP"
   from_port = 443
   to_port = 443
   security_group_id = data.aws_ssm_parameter.service-to-ehr-repo-sg-id.value
-  source_security_group_id = data.aws_ssm_parameter.deductions_private_repo_to_gp_sg_id.value
+  source_security_group_id = aws_security_group.ecs-tasks-sg.id
 }

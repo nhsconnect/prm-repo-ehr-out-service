@@ -8,10 +8,6 @@ variable "repo_name" {
   default = "prm-deductions-repo-to-gp"
 }
 
-variable "database_name" {
-  type = string
-}
-
 variable "environment" {}
 variable "component_name" {}
 variable "dns_name" {}
