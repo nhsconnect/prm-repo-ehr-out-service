@@ -51,6 +51,44 @@ resource "aws_ecs_task_definition" "task" {
   }
 }
 
+resource "aws_security_group" "ecs-tasks-sg" {
+  name        = "${var.environment}-${var.component_name}-ecs-tasks-sg"
+  vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
+
+  ingress {
+    description     = "Allow traffic from internal ALB of gp to repo"
+    protocol        = "tcp"
+    from_port       = "3000"
+    to_port         = "3000"
+    security_groups = [
+      aws_security_group.repo_to_gp_alb.id
+    ]
+  }
+
+  egress {
+    description = "Allow All Outbound"
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.environment}-${var.component_name}-ecs-tasks-sg"
+    CreatedBy   = var.repo_name
+    Environment = var.environment
+  }
+}
+
+resource "aws_security_group_rule" "repo-to-gp-to-ehr-repo" {
+  type = "ingress"
+  protocol = "TCP"
+  from_port = 443
+  to_port = 443
+  security_group_id = data.aws_ssm_parameter.service-to-ehr-repo-sg-id.value
+  source_security_group_id = local.ecs_task_sg_id
+}
+
 data "aws_ssm_parameter" "service-to-gp2gp-adaptor-sg-id" {
   name = "/repo/${var.environment}/output/prm-deductions-gp2gp-adaptor/service-to-gp2gp-adaptor-sg-id"
 }
@@ -62,4 +100,17 @@ resource "aws_security_group_rule" "repo-to-gp-to-gp2gp-adaptor" {
   to_port = 443
   security_group_id = data.aws_ssm_parameter.service-to-gp2gp-adaptor-sg-id.value
   source_security_group_id = local.ecs_task_sg_id
+}
+
+data "aws_ssm_parameter" "service-to-ehr-repo-sg-id" {
+  name = "/repo/${var.environment}/output/prm-deductions-ehr-repository/service-to-ehr-repo-sg-id"
+}
+
+resource "aws_security_group_rule" "repo-to-gp-to-ehr-repo" {
+  type = "ingress"
+  protocol = "TCP"
+  from_port = 443
+  to_port = 443
+  security_group_id = data.aws_ssm_parameter.service-to-ehr-repo-sg-id.value
+  source_security_group_id = data.aws_ssm_parameter.deductions_private_repo_to_gp_sg_id.value
 }

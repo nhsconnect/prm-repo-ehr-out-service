@@ -1,5 +1,4 @@
 locals {
-  deductions_private_internal_alb_dns = data.aws_ssm_parameter.deductions_private_alb_internal_dns.value
   private_zone_id = data.aws_ssm_parameter.private_zone_id.value
 }
 
@@ -8,7 +7,7 @@ resource "aws_route53_record" "repo-to-gp" {
   name    = var.dns_name
   type    = "CNAME"
   ttl     = "300"
-  records = [local.deductions_private_internal_alb_dns]
+  records = [aws_alb.alb-internal.dns_name]
 }
 
 data "aws_route53_zone" "environment_public_zone" {
