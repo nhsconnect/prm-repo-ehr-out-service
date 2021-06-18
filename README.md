@@ -8,7 +8,7 @@ When the message handler receives an EHR request and sends this to the RepoToGP 
 
 Follow the links to download
 
-- [Node](https://nodejs.org/en/download/package-manager/#nvm) - version 12.x
+- [Node](https://nodejs.org/en/download/package-manager/#nvm) - version 14.x
 - [Docker](https://docs.docker.com/install/)
 - [kudulab/dojo](https://github.com/kudulab/dojo#installation)
 
