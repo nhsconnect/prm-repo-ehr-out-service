@@ -12,6 +12,7 @@ resource "aws_rds_cluster" "repo_to_gp_db_cluster" {
   skip_final_snapshot = true
   storage_encrypted       = true
   kms_key_id              = aws_kms_key.repo_to_gp_key.arn
+  iam_database_authentication_enabled  = true
 
   tags = {
     CreatedBy   = var.repo_name
