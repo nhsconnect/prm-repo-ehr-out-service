@@ -66,6 +66,14 @@ resource "aws_security_group" "repo-to-gp-db-sg" {
     security_groups = [aws_security_group.ecs-tasks-sg.id]
   }
 
+  ingress {
+    description     = "Allow traffic from GoCD agent to the db"
+    protocol        = "tcp"
+    from_port       = "5432"
+    to_port         = "5432"
+    security_groups = [data.aws_ssm_parameter.gocd_sg_id.value]
+  }
+
   tags = {
     Name = "${var.environment}-state-db-sg"
     CreatedBy   = var.repo_name
