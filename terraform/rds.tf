@@ -72,3 +72,26 @@ resource "aws_security_group" "repo-to-gp-db-sg" {
     Environment = var.environment
   }
 }
+
+resource "aws_ssm_parameter" "db_host" {
+  name =  "/repo/${var.environment}/output/${var.repo_name}/db-host"
+  type  = "String"
+  value = aws_rds_cluster.repo_to_gp_db_cluster.endpoint
+
+  tags = {
+    CreatedBy   = var.repo_name
+    Environment = var.environment
+  }
+}
+
+resource "aws_ssm_parameter" "db_resource_cluster_id" {
+  name =  "/repo/${var.environment}/output/${var.repo_name}/db-resource-cluster-id"
+  type  = "String"
+  value = aws_rds_cluster.repo_to_gp_db_cluster.cluster_resource_id
+
+  tags = {
+    CreatedBy   = var.repo_name
+    Environment = var.environment
+  }
+}
+
