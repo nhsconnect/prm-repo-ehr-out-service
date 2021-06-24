@@ -10,6 +10,7 @@ provider "postgresql" {
   username        = var.db_username
   password        = var.db_password
   connect_timeout = 15
+  superuser = false
 }
 
 terraform {

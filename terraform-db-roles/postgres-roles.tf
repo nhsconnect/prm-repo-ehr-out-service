@@ -11,15 +11,7 @@ resource "postgresql_grant" "migration_role_schema_usage_grant" {
   role        = postgresql_role.migration_role.name
   schema      = "public"
   object_type = "schema"
-  privileges  = ["USAGE"]
-}
-
-resource "postgresql_grant" "migration_role_table_create_grant" {
-  database    = var.db_name
-  role        = postgresql_role.migration_role.name
-  schema      = "public"
-  object_type = "table"
-  privileges  = ["CREATE"]
+  privileges  = ["USAGE", "CREATE"]
 }
 
 resource "postgresql_role" "migration_user" {
@@ -84,4 +76,3 @@ resource "aws_iam_role_policy_attachment" "db_migration_user_policy_attach" {
   role       = aws_iam_role.db_migration_role.name
   policy_arn = aws_iam_policy.db_migration_user_policy.arn
 }
-
