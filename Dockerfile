@@ -12,8 +12,8 @@ RUN apk add --no-cache \
         awscli \
     && rm -rf /var/cache/apk/*
 
-# Migration script
 COPY scripts/run-server-with-db.sh /usr/bin/run-repo-to-gp-server
+COPY scripts/migrate-db.sh /app/scripts/migrate-db.sh
 COPY scripts/load-api-keys.sh /app/scripts/load-api-keys.sh
 
 ENV NHS_ENVIRONMENT="" \

@@ -14,7 +14,7 @@ function jsonPrettify {
 }
 
 jsonPrettify "Running DB migrations" INFO
-exec ./scripts/migrate-db.sh
+source ./scripts/migrate-db.sh
 
 jsonPrettify "Loading API Keys" INFO
 source ./scripts/load-api-keys.sh
