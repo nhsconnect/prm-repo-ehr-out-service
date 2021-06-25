@@ -1,7 +1,3 @@
-locals {
-  account_id = data.aws_caller_identity.current.account_id
-}
-
 resource "postgresql_role" "migration_role" {
   name     = "migration_role"
 }
@@ -35,7 +31,7 @@ resource "postgresql_grant_role" "migration_user_migration_role_grant" {
   grant_role        = postgresql_role.migration_role.name
 }
 
-data "aws_iam_policy_document" "ec2-assume-role-policy" {
+data "aws_iam_policy_document" "migration-assume-role-policy" {
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -50,7 +46,7 @@ data "aws_iam_policy_document" "ec2-assume-role-policy" {
 
 resource "aws_iam_role" "db_migration_role" {
   name               = "${var.environment}-${var.component_name}-DbMigrationRole"
-  assume_role_policy = data.aws_iam_policy_document.ec2-assume-role-policy.json
+  assume_role_policy = data.aws_iam_policy_document.migration-assume-role-policy.json
   description        = "DbMigration role to migrate db in the pipeline"
 
   tags = {
@@ -66,7 +62,7 @@ data "aws_iam_policy_document" "db_migration_user_policy_doc" {
     ]
 
     resources = [
-      "arn:aws:rds-db:${var.region}:${local.account_id}:dbuser:${data.aws_ssm_parameter.db_cluster_resource_id.value}/${postgresql_role.migration_user.name}"
+      "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${data.aws_ssm_parameter.db_cluster_resource_id.value}/${postgresql_role.migration_user.name}"
     ]
 
     effect = "Allow"
