@@ -19,6 +19,12 @@ resource "postgresql_role" "migration_user" {
   login    = true
 }
 
+resource "aws_ssm_parameter" "migration_user" {
+  name = "/repo/${var.environment}/output/${var.repo_name}/db-migration-user"
+  type = "String"
+  value = postgresql_role.migration_user.name
+}
+
 resource "postgresql_grant_role" "migration_user_rds_iam_grant" {
   role              = postgresql_role.migration_user.name
   grant_role        = "rds_iam"
