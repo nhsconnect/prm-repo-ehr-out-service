@@ -1,7 +1,7 @@
 resource "aws_rds_cluster" "repo_to_gp_db_cluster" {
   cluster_identifier      = "${var.environment}-repo-to-gp-db-cluster"
   engine                  = "aurora-postgresql"
-  database_name           = "repotogpdb"
+  database_name           = var.db_name
   master_username         = data.aws_ssm_parameter.db-username.value
   master_password         = data.aws_ssm_parameter.db-password.value
   backup_retention_period = 5
@@ -20,8 +20,14 @@ resource "aws_rds_cluster" "repo_to_gp_db_cluster" {
   }
 }
 
+resource "aws_ssm_parameter" "db-name" {
+  name =  "/repo/${var.environment}/output/${var.repo_name}/db-name"
+  type  = "String"
+  value = aws_rds_cluster.repo_to_gp_db_cluster.database_name
+}
+
 resource "aws_kms_key" "repo_to_gp_key" {
-  description             = "Repo To Gp KMS key in ${var.environment} environment"
+  description = "Repo To Gp KMS key in ${var.environment} environment"
   tags = {
     Name = "${var.environment}-repo-to-gp-db"
     CreatedBy   = var.repo_name
