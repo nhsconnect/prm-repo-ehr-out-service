@@ -75,6 +75,14 @@ function configure_local_envs {
   set_image_tag
 }
 
+function configure_db_migration_envs {
+  export REPO_TO_GP_SKIP_MIGRATION=false
+  export DATABASE_HOST=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-host")
+  export DATABASE_USER=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-migration-user")
+  export DATABASE_NAME=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-name")
+  export DATABASE_PASSWORD="$(aws rds generate-db-auth-token --hostname $DATABASE_HOST --port 5432 --region $AWS_DEFAULT_REGION --username $DATABASE_USER)"
+}
+
 function get_aws_account_id {
     AWS_ACCOUNT_ID=$(dojo -c Dojofile-infra "aws sts get-caller-identity | jq -r .Account")
 }
@@ -180,13 +188,14 @@ function tf_plan_db_roles {
   db_host=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-host")
   db_username=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-username")
   db_password=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-password")
+  db_name=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-name")
 
   tf_init_db_roles
   terraform get # modules
   if [[ "${operation}" == "create" ]]; then
-    terraform plan -var db_host=$db_host -var db_username=$db_username -var db_password=$db_password -var environment=$NHS_ENVIRONMENT -out="${NHS_ENVIRONMENT}-db-roles.tfplan"
+    terraform plan -var db_host=$db_host -var db_username=$db_username -var db_password=$db_password -var environment=$NHS_ENVIRONMENT -var db_name=$db_name -out="${NHS_ENVIRONMENT}-db-roles.tfplan"
   elif [[ "${operation}" == "destroy" ]]; then
-    terraform plan -var db_host=$db_host -var db_username=$db_username -var db_password=$db_password -var environment=$NHS_ENVIRONMENT -out="${NHS_ENVIRONMENT}-db-roles.tfplan" -destroy
+    terraform plan -var db_host=$db_host -var db_username=$db_username -var db_password=$db_password -var environment=$NHS_ENVIRONMENT -var db_name=$db_name -out="${NHS_ENVIRONMENT}-db-roles.tfplan" -destroy
   else
     echo "Unknown operation (should be create or destroy), got: ${operation}"
     exit 1
@@ -381,6 +390,15 @@ case "${command}" in
   tf_apply_db_roles)
       check_env
       dojo -c Dojofile-infra "./tasks _tf_apply_db_roles"
+      ;;
+  _run_db_migrations)
+      _assume_environment_role $NHS_ENVIRONMENT
+      configure_db_migration_envs
+      scripts/migrate-db.sh
+      ;;
+  run_db_migrations)
+      check_env
+      dojo -c Dojofile "./tasks _run_db_migrations"
       ;;
   promote_docker_image)
       check_env
