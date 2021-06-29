@@ -13,6 +13,7 @@ resource "postgresql_grant" "migration_role_schema_usage_grant" {
 resource "postgresql_role" "migration_user" {
   name     = "migration_user"
   login    = true
+  valid_until = ""
   roles = ["rds_iam", postgresql_role.migration_role.name]
 }
 
