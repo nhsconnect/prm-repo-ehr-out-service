@@ -394,6 +394,7 @@ case "${command}" in
   _run_db_migrations)
       _assume_environment_role $NHS_ENVIRONMENT
       configure_db_migration_envs
+      npm install
       scripts/migrate-db.sh
       ;;
   run_db_migrations)
