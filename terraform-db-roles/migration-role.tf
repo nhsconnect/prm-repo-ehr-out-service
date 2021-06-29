@@ -46,6 +46,11 @@ resource "aws_iam_role" "db_migration_role" {
   }
 }
 
+resource "aws_iam_instance_profile" "db_migration_role_profile" {
+  name = "${var.environment}-${var.component_name}-DbMigrationRole"
+  role = aws_iam_role.db_migration_role.name
+}
+
 data "aws_iam_policy_document" "db_migration_user_policy_doc" {
   statement {
     actions = [

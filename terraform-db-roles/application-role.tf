@@ -37,7 +37,6 @@ data "aws_iam_policy_document" "application-assume-role-policy" {
   }
 }
 
-
 resource "aws_iam_role" "db_application_role" {
   name               = "${var.environment}-${var.component_name}-DbApplicationRole"
   assume_role_policy = data.aws_iam_policy_document.application-assume-role-policy.json
@@ -47,6 +46,11 @@ resource "aws_iam_role" "db_application_role" {
     Environment = var.environment
     CreatedBy= var.repo_name
   }
+}
+
+resource "aws_iam_instance_profile" "db_application_role_profile" {
+  name = "${var.environment}-${var.component_name}-DbApplicationRole"
+  role = aws_iam_role.db_application_role.name
 }
 
 data "aws_iam_policy_document" "db_application_user_policy_doc" {
