@@ -21,16 +21,7 @@ resource "postgresql_grant" "application_role_table_read_write_grant" {
 resource "postgresql_role" "application_user" {
   name     = "application_user"
   login    = true
-}
-
-resource "postgresql_grant_role" "application_user_rds_iam_grant" {
-  role              = postgresql_role.application_user.name
-  grant_role        = "rds_iam"
-}
-
-resource "postgresql_grant_role" "application_user_application_role_grant" {
-  role              = postgresql_role.application_user.name
-  grant_role        = postgresql_role.application_role.name
+  roles = ["rds_iam", postgresql_role.application_role.name]
 }
 
 data "aws_iam_policy_document" "application-assume-role-policy" {

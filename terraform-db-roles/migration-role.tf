@@ -13,6 +13,7 @@ resource "postgresql_grant" "migration_role_schema_usage_grant" {
 resource "postgresql_role" "migration_user" {
   name     = "migration_user"
   login    = true
+  roles = ["rds_iam", postgresql_role.migration_role.name]
 }
 
 resource "aws_ssm_parameter" "migration_user" {
@@ -21,17 +22,7 @@ resource "aws_ssm_parameter" "migration_user" {
   value = postgresql_role.migration_user.name
 }
 
-resource "postgresql_grant_role" "migration_user_rds_iam_grant" {
-  role              = postgresql_role.migration_user.name
-  grant_role        = "rds_iam"
-}
-
-resource "postgresql_grant_role" "migration_user_migration_role_grant" {
-  role              = postgresql_role.migration_user.name
-  grant_role        = postgresql_role.migration_role.name
-}
-
-data "aws_iam_policy_document" "migration-assume-role-policy" {
+ data "aws_iam_policy_document" "migration-assume-role-policy" {
   statement {
     actions = ["sts:AssumeRole"]
 
