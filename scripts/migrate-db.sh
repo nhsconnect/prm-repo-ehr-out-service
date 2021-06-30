@@ -27,11 +27,7 @@ else
   done
   jsonPrettify "DB connection at ${DATABASE_HOST}:5432 is available" INFO
   jsonPrettify "Trying to create a database, if not exists. 'Already exists' errors are safe to ignore" INFO
-  export PGPASSWORD="${DATABASE_PASSWORD}"
   PGPASSWORD="${DATABASE_PASSWORD}" createdb --host="${DATABASE_HOST}" --username="${DATABASE_USER}" $DATABASE_NAME || true
-
-  psql -h $DATABASE_HOST -p 5432 -d $DATABASE_NAME -U $DATABASE_USER -c "CREATE TABLE test-table (code char(5));"
-
   set -e
   jsonPrettify "Migrating DB, will not migrate parts that have already been migrated (meta)"  INFO && \
   npx sequelize-cli db:migrate
