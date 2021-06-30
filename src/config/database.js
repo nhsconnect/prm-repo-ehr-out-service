@@ -4,7 +4,11 @@ const databaseConfig = {
   database: process.env.DATABASE_NAME,
   host: process.env.DATABASE_HOST,
   dialect: 'postgres',
-  logging: true
+  logging: true,
+  ssl: true,
+  dialectOptions: {
+    ssl: true
+  }
 };
 
 module.exports = databaseConfig;
