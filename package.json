@@ -34,7 +34,6 @@
     "express-validator": "^6.11.1",
     "lodash.clonedeep": "^4.5.0",
     "pg": "^8.6.0",
-    "pg-native": "^3.0.0",
     "sequelize": "^6.6.2",
     "sequelize-cli": "^6.2.0",
     "swagger-ui-express": "^4.1.6",
