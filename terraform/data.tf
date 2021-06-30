@@ -43,3 +43,11 @@ data "aws_ssm_parameter" "db-password" {
 data "aws_ssm_parameter" "deductions_private_db_subnets" {
   name = "/repo/${var.environment}/output/prm-deductions-infra/deductions-private-database-subnets"
 }
+
+data "aws_ssm_parameter" "vpn_sg_id" {
+  name = "/repo/${var.environment}/output/prm-deductions-infra/vpn-sg-id"
+}
+
+data "aws_ssm_parameter" "gocd_sg_id" {
+  name = "/repo/${var.environment}/user-input/external/gocd-agent-sg-id"
+}

@@ -80,6 +80,15 @@ resource "aws_security_group" "repo-to-gp-db-sg" {
     security_groups = [data.aws_ssm_parameter.gocd_sg_id.value]
   }
 
+  # Should be conditional in pre-prod/prod environments
+  ingress {
+    description     = "Allow traffic from VPN to the db"
+    protocol        = "tcp"
+    from_port       = "5432"
+    to_port         = "5432"
+    security_groups = [data.aws_ssm_parameter.vpn_sg_id.value]
+  }
+
   tags = {
     Name = "${var.environment}-state-db-sg"
     CreatedBy   = var.repo_name
@@ -108,4 +117,3 @@ resource "aws_ssm_parameter" "db_resource_cluster_id" {
     Environment = var.environment
   }
 }
-
