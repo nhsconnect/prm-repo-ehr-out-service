@@ -22,3 +22,7 @@ variable "task_memory" {}
 variable "port" {}
 variable "service_desired_count" {}
 variable "alb_deregistration_delay" {}
+variable "application_database_user" {
+  default = "application_user"
+  description = "Needs to match with the user created in db-roles tf plan"
+}

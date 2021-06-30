@@ -24,35 +24,6 @@ resource "postgresql_role" "application_user" {
   roles = ["rds_iam", postgresql_role.application_role.name]
 }
 
-data "aws_iam_policy_document" "application-assume-role-policy" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type = "Service"
-      identifiers = [
-        "ec2.amazonaws.com"
-      ]
-    }
-  }
-}
-
-resource "aws_iam_role" "db_application_role" {
-  name               = "${var.environment}-${var.component_name}-DbApplicationRole"
-  assume_role_policy = data.aws_iam_policy_document.application-assume-role-policy.json
-  description        = "DbApplication role read write data in ${var.component_name} db"
-
-  tags = {
-    Environment = var.environment
-    CreatedBy= var.repo_name
-  }
-}
-
-resource "aws_iam_instance_profile" "db_application_role_profile" {
-  name = "${var.environment}-${var.component_name}-DbApplicationRole"
-  role = aws_iam_role.db_application_role.name
-}
-
 data "aws_iam_policy_document" "db_application_user_policy_doc" {
   statement {
     actions = [
@@ -72,7 +43,8 @@ resource "aws_iam_policy" "db_application_user_policy" {
   policy = data.aws_iam_policy_document.db_application_user_policy_doc.json
 }
 
+# Grant ECS Task permissions to connect to the DB as application_user
 resource "aws_iam_role_policy_attachment" "db_application_user_policy_attach" {
-  role       = aws_iam_role.db_application_role.name
+  role       = "${var.environment}-${var.component_name}-EcsTaskRole"
   policy_arn = aws_iam_policy.db_application_user_policy.arn
 }

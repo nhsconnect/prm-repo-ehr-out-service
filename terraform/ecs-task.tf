@@ -10,15 +10,16 @@ locals {
     { name = "EHR_REPO_SERVICE_URL", value = "https://ehr-repo.${var.environment}.non-prod.patient-deductions.nhs.uk" },
     { name = "DATABASE_NAME", value = aws_rds_cluster.repo_to_gp_db_cluster.database_name },
     { name = "DATABASE_HOST", value = aws_rds_cluster.repo_to_gp_db_cluster.endpoint },
+    { name = "DATABASE_USER", value = var.application_database_user },
+    { name = "REPO_TO_GP_USE_AWS_RDS_CREDENTIALS", value = "true" },
+    { name = "AWS_REGION", value = var.region },
     { name = "REPO_TO_GP_SKIP_MIGRATION", value = "true" },
     { name = "USE_SSL_FOR_DB", value = "true" }
   ]
   secret_environment_variables = [
     { name = "E2E_TEST_AUTHORIZATION_KEYS_FOR_GP_TO_REPO", valueFrom = data.aws_ssm_parameter.e2e_test_authorization_keys_for_repo_to_gp.arn },
     { name = "GP2GP_ADAPTOR_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.gp2gp_adaptor_authorization_keys.arn },
-    { name = "EHR_REPO_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.ehr_repo_authorization_keys.arn },
-    { name = "DATABASE_USER", valueFrom = data.aws_ssm_parameter.db-username.arn },
-    { name = "DATABASE_PASSWORD", valueFrom = data.aws_ssm_parameter.db-password.arn }
+    { name = "EHR_REPO_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.ehr_repo_authorization_keys.arn }
   ]
 }
 
