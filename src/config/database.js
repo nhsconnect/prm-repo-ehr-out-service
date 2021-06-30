@@ -9,7 +9,7 @@ const databaseConfig = {
   ssl: use_ssl,
   native: use_ssl,
   dialectOptions: {
-    ssl: use_ssl
+    ssl: use_ssl ? 'require' : 'false'
   }
 };
 
