@@ -7,7 +7,7 @@ const databaseConfig = {
   dialect: 'postgres',
   logging: true,
   ssl: use_ssl,
-  // native: use_ssl,
+  native: use_ssl,
   dialectOptions: {
     ssl: use_ssl
   }
