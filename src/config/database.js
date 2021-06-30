@@ -1,4 +1,4 @@
-const use_ssl = process.env.USE_SSL_FOR_DB === 'true' || false;
+const use_ssl = process.env.USE_SSL_FOR_DB === 'true';
 const databaseConfig = {
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
