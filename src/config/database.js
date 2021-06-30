@@ -1,3 +1,4 @@
+const use_ssl = process.env.USE_SSL_FOR_DB === 'true' || false;
 const databaseConfig = {
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
@@ -5,9 +6,10 @@ const databaseConfig = {
   host: process.env.DATABASE_HOST,
   dialect: 'postgres',
   logging: true,
-  ssl: true,
+  ssl: use_ssl,
+  native: use_ssl,
   dialectOptions: {
-    ssl: true
+    ssl: use_ssl
   }
 };
 

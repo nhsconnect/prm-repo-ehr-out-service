@@ -81,6 +81,7 @@ function configure_db_migration_envs {
   export DATABASE_USER=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-migration-user")
   export DATABASE_NAME=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-name")
   export DATABASE_PASSWORD="$(aws rds generate-db-auth-token --hostname $DATABASE_HOST --port 5432 --region $AWS_DEFAULT_REGION --username $DATABASE_USER)"
+  export USE_SSL_FOR_DB="true"
 }
 
 function get_aws_account_id {
