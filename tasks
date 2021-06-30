@@ -394,7 +394,6 @@ case "${command}" in
       ;;
   _run_db_migrations)
       _assume_environment_role $NHS_ENVIRONMENT
-      aws sts get-caller-identity
       configure_db_migration_envs
       npm install
       scripts/migrate-db.sh
