@@ -10,14 +10,15 @@ resource "postgresql_grant" "migration_role_schema_usage_grant" {
   privileges  = ["USAGE", "CREATE"]
 }
 
-# Giving access to all tables instead of SequelizeMeta until this is implemented: https://github.com/cyrilgdn/terraform-provider-postgresql/pull/79
-resource "postgresql_grant" "migration_role_table_read_write_grant" {
-  database    = var.db_name
-  role        = postgresql_role.migration_role.name
-  schema      = "public"
-  object_type = "table"
-  privileges  = ["SELECT", "INSERT"]
-}
+# See patch in ./tasks grant_db_permissions
+# until this is implemented: https://github.com/cyrilgdn/terraform-provider-postgresql/pull/79
+# resource "postgresql_grant" "migration_role_table_read_write_grant" {
+#   database    = var.db_name
+#   role        = postgresql_role.migration_role.name
+#   schema      = "public"
+#   object_type = "table"
+#   privileges  = ["SELECT", "INSERT"]
+# }
 
 resource "postgresql_role" "migration_user" {
   name     = "migration_user"
