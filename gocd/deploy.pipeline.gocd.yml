@@ -43,6 +43,11 @@ common:
           command: /bin/bash
           arguments:
             - -c
+            - ./tasks grant_db_permissions
+      - exec:
+          command: /bin/bash
+          arguments:
+            - -c
             - ./tasks wait_ecs
   common_stages: &common_stages
     - promote_docker_image:
@@ -106,4 +111,3 @@ pipelines:
     environment_variables:
       NHS_ENVIRONMENT: test
     stages: *common_stages
-
