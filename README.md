@@ -1,7 +1,7 @@
 # prm-deductions-repo-to-gp
 This component is responsible for the registration functionality of our services.
 
-When the message handler receives an EHR request and sends this to the RepoToGP component, the RepoToGP accepts this and creates a new registration request associated with that EHR request so that it can keep track of the transfer. 
+When the message handler receives an EHR request and sends this to the RepoToGP component, the RepoToGP accepts this and creates a new registration request associated with that EHR request so that it can keep track of the transfer.
 
 
 ## Prerequisites
@@ -11,6 +11,11 @@ Follow the links to download
 - [Node](https://nodejs.org/en/download/package-manager/#nvm) - version 14.x
 - [Docker](https://docs.docker.com/install/)
 - [kudulab/dojo](https://github.com/kudulab/dojo#installation)
+
+In order to run npm install locally on your host, you'll need to install postgresql:
+```
+brew install postgresql
+```
 
 
 ## Directories
@@ -31,7 +36,7 @@ Follow the links to download
 
 1. Run `npm install` to install all node dependencies.
 2. Create an .env file at the root of the directory
-3. As a reference for .env values, see ecs-task.tf 
+3. As a reference for .env values, see ecs-task.tf
 4. Run `npm run start:local`
 5. If successful, you will be able to reach the Swagger docs: [http://localhost:3000/swagger/](http://localhost:3000/swagger/)
 
@@ -96,7 +101,7 @@ Below are the environment variables that are automatically set:
 
 In order to get sufficient access to work with terraform or AWS CLI, please follow the instructions in: https://gpitbjss.atlassian.net/wiki/spaces/TW/pages/11384160276/AWS+Accounts+and+Roles
 and https://gpitbjss.atlassian.net/wiki/spaces/TW/pages/11286020174/How+to+set+up+access+to+AWS+from+CLI
-  
+
 ### Design:
 Please follow this design to ensure the ssm keys are easy to maintain and navigate through:
 
@@ -104,4 +109,3 @@ Please follow this design to ensure the ssm keys are easy to maintain and naviga
 | -------------------| ----------------------------------------| ------------------------------------------------------|
 | **User-specified** |`/repo/<env>?/user-input/`               | `/repo/${var.environment}/user-input/db-username`     |
 | **Auto-generated** |`/repo/<env>?/output/<name-of-git-repo>/`| `/repo/output/prm-deductions-base-infra/root-zone-id` |
-
