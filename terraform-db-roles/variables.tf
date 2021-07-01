@@ -15,7 +15,7 @@ variable "db_port" {
 
 variable "component_name" {
   type = string
-  default = "prm-deductions-repo-to-gp"
+  default = "repo-to-gp"
 }
 
 variable "environment" {}
