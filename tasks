@@ -206,7 +206,7 @@ function tf_plan_db_roles {
 function tf_apply_db_roles {
   tf_init_db_roles
   terraform get # modules
-  terraform apply "${NHS_ENVIRONMENT}-db-roles.tfplan"
+  terraform apply --parallelism=1 "${NHS_ENVIRONMENT}-db-roles.tfplan"
   terraform output -json > tf-out-db-roles.json
 }
 
