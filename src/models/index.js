@@ -1,8 +1,11 @@
 import Sequelize from 'sequelize';
 import { initializeConfig } from '../config';
 import * as models from './models';
+import AWS from 'aws-sdk';
 import { Signer } from 'aws-sdk/clients/rds';
 import { logError, logInfo } from '../middleware/logging';
+
+AWS.config.logger = console;
 
 class ModelFactory {
   constructor() {
