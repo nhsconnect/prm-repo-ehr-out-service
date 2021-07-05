@@ -2,8 +2,9 @@ import Sequelize from 'sequelize';
 import { initializeConfig } from '../config';
 import * as models from './models';
 import AWS from 'aws-sdk';
-import { Signer } from 'aws-sdk/clients/rds';
+// import { Signer } from 'aws-sdk/clients/rds';
 import { logError, logInfo } from '../middleware/logging';
+import Shell from 'shelljs';
 
 AWS.config.logger = console;
 
@@ -30,16 +31,23 @@ class ModelFactory {
       this.sequelize.close();
     }
 
-    let signer;
-    if (this.base_config.use_rds_credentials) {
-      signer = new Signer({
-        region: 'eu-west-2',
-        username: this.base_config.username,
-        hostname: this.base_config.host,
-        port: 5432
-      });
+    let getAuthToken = () => {
+      logInfo('Obtaining new RDS DB Auth token');
+      return Shell.exec(
+        `aws rds generate-db-auth-token --hostname ${this.base_config.host} --port 5432 --region eu-west-2 --username ${this.base_config.username}`
+      ).stdout.replace('\n', '');
+    };
 
-      this.base_config.password = signer.getAuthToken();
+    // let signer;
+    if (this.base_config.use_rds_credentials) {
+      // signer = new Signer({
+      //   region: 'eu-west-2',
+      //   username: this.base_config.username,
+      //   hostname: this.base_config.host,
+      //   port: 5432
+      // });
+
+      this.base_config.password = getAuthToken();
     }
 
     this.sequelize = new Sequelize(
@@ -51,7 +59,7 @@ class ModelFactory {
 
     if (this.base_config.use_rds_credentials) {
       this.sequelize.beforeConnect(config => {
-        config.password = signer.getAuthToken();
+        config.password = getAuthToken();
       });
     }
 
