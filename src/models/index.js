@@ -4,7 +4,6 @@ import * as models from './models';
 import AWS from 'aws-sdk';
 import { Signer } from 'aws-sdk/clients/rds';
 import { logError, logInfo } from '../middleware/logging';
-// import Shell from 'shelljs';
 
 AWS.config.logger = console;
 
@@ -31,22 +30,14 @@ class ModelFactory {
       this.sequelize.close();
     }
 
-    // let getAuthToken = () => {
-    //   logInfo('Obtaining new RDS DB Auth token');
-    //   return Shell.exec(
-    //     `aws rds generate-db-auth-token --hostname ${this.base_config.host} --port 5432 --region eu-west-2 --username ${this.base_config.username}`
-    //   ).stdout.replace('\n', '');
-    // };
-
     let signer;
     if (this.base_config.use_rds_credentials) {
-      let creds = new AWS.RemoteCredentials({
-        httpOptions: { timeout: 5000 }, // 5 second timeout
-        maxRetries: 10, // retry 10 times
-        retryDelayOptions: { base: 200 } // see AWS.Config for information
-      });
       signer = new Signer({
-        credentials: creds,
+        credentials: new AWS.RemoteCredentials({
+          httpOptions: { timeout: 5000 }, // 5 second timeout
+          maxRetries: 10, // retry 10 times
+          retryDelayOptions: { base: 200 } // see AWS.Config for information
+        }),
         region: 'eu-west-2',
         username: this.base_config.username,
         hostname: this.base_config.host,
