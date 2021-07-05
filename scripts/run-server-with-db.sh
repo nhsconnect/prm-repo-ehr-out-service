@@ -13,6 +13,9 @@ function jsonPrettify {
   echo "{message: $1, level: $2, timestamp: `timestamp`, service: ${NHS_SERVICE}, environment: ${NHS_ENVIRONMENT} } "
 }
 
+jsonPrettify "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=$AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"
+jsonPrettify "AWS_CONTAINER_CREDENTIALS_FULL_URI=$AWS_CONTAINER_CREDENTIALS_FULL_URI"
+
 jsonPrettify "Running DB migrations" INFO
 source ./scripts/migrate-db.sh
 

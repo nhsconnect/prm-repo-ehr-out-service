@@ -40,12 +40,13 @@ class ModelFactory {
 
     let signer;
     if (this.base_config.use_rds_credentials) {
+      let creds = new AWS.RemoteCredentials({
+        httpOptions: { timeout: 5000 }, // 5 second timeout
+        maxRetries: 10, // retry 10 times
+        retryDelayOptions: { base: 200 } // see AWS.Config for information
+      });
       signer = new Signer({
-        credentials: new AWS.EC2MetadataCredentials({
-          httpOptions: { timeout: 5000 }, // 5 second timeout
-          maxRetries: 10, // retry 10 times
-          retryDelayOptions: { base: 200 } // see AWS.Config for information
-        }),
+        credentials: creds,
         region: 'eu-west-2',
         username: this.base_config.username,
         hostname: this.base_config.host,
