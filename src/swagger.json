@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "Repo to GP Component",
+    "description": "Repo to GP Component for the O/S records registration",
     "version": "1.0.0",
     "title": "Repo to GP"
   },

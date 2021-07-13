@@ -1,7 +1,7 @@
 # prm-deductions-repo-to-gp
-This component is responsible for the registration functionality of our services.
+When the O/S health record is requested by the new practice where patient wants to register, this component is responsible for the registration functionality.
 
-When the message handler receives an EHR request and sends this to the RepoToGP component, the RepoToGP accepts this and creates a new registration request associated with that EHR request so that it can keep track of the transfer.
+When the message handler receives an EHR request and sends this to the RepoToGP component, the RepoToGP accepts this request and creates a new registration request associated with that EHR request so that it can keep track of the transfer.
 
 
 ## Prerequisites
@@ -99,13 +99,36 @@ Below are the environment variables that are automatically set:
 
 ## Access to AWS
 
-In order to get sufficient access to work with terraform or AWS CLI, please follow the instructions in: https://gpitbjss.atlassian.net/wiki/spaces/TW/pages/11384160276/AWS+Accounts+and+Roles
-and https://gpitbjss.atlassian.net/wiki/spaces/TW/pages/11286020174/How+to+set+up+access+to+AWS+from+CLI
+In order to get sufficient access to work with terraform or AWS CLI, please follow the instructions on this [confluence pages](https://gpitbjss.atlassian.net/wiki/spaces/TW/pages/11384160276/AWS+Accounts+and+Roles)
+and [this how to?](https://gpitbjss.atlassian.net/wiki/spaces/TW/pages/11286020174/How+to+set+up+access+to+AWS+from+CLI)
 
-### Design:
-Please follow this design to ensure the ssm keys are easy to maintain and navigate through:
+As a note, this set-up is based on the README of assume-role [tool](https://github.com/remind101/assume-role)
 
-| Type               | Design                                  | Example                                               |
-| -------------------| ----------------------------------------| ------------------------------------------------------|
-| **User-specified** |`/repo/<env>?/user-input/`               | `/repo/${var.environment}/user-input/db-username`     |
-| **Auto-generated** |`/repo/<env>?/output/<name-of-git-repo>/`| `/repo/output/prm-deductions-base-infra/root-zone-id` |
+## Assume role with elevated permissions
+
+### Install `assume-role` locally:
+`brew install remind101/formulae/assume-role`
+
+Run the following command with the profile configured in your `~/.aws/config`:
+
+`assume-role dev [here choose one of the options from your config: ci/dev/test]`
+
+### Run `assume-role` with dojo:
+Run the following command with the profile configured in your `~/.aws/config`:
+
+`eval $(dojo "echo <mfa-code> | assume-role dev"`
+or
+`assume-role dev [here choose one of the options from your config: ci/dev/test]`
+
+Run the following command to confirm the role was assumed correctly:
+
+`aws sts get-caller-identity`
+
+Work with terraform as per usual:
+
+```
+terraform init
+terraform apply
+```
+
+If your session expires, exit the container to drop the temporary credentials and run dojo again.
