@@ -1,7 +1,8 @@
 # prm-deductions-repo-to-gp
-When the O/S health record is requested by the new practice where patient wants to register, this component is responsible for the registration functionality.
+This component is responsible for creating and handling of the registration request, when the Orphaned/Stranded health record stored in Repository is requested by the new practice.
 
 When the message handler receives an EHR request and sends this to the RepoToGP component, the RepoToGP accepts this request and creates a new registration request associated with that EHR request so that it can keep track of the transfer.
+After the successful validation of the request and retrieval of patient's health record, it sends EHR out to the requesting practice.
 
 
 ## Prerequisites
@@ -11,11 +12,6 @@ Follow the links to download
 - [Node](https://nodejs.org/en/download/package-manager/#nvm) - version 14.x
 - [Docker](https://docs.docker.com/install/)
 - [kudulab/dojo](https://github.com/kudulab/dojo#installation)
-
-In order to run npm install locally on your host, you'll need to install postgresql:
-```
-brew install postgresql
-```
 
 
 ## Directories
@@ -28,17 +24,23 @@ brew install postgresql
 | /src              | The source code                                   |
 | /terraform        | Terraform to deploy app as a Fargate task in AWS  |
 | /scripts          | Useful scripts (e.g. for sending canary messages) |
-
+| /utils            | Contains aws-helpers                              |
 
 ## Starting the app
+
+In order to run tasks with npm locally on your host (outside of dojo), you'll need to install postgresql:
+```
+brew install postgresql
+```
 
 ### Locally
 
 1. Run `npm install` to install all node dependencies.
-2. Create an .env file at the root of the directory
-3. As a reference for .env values, see ecs-task.tf
-4. Run `npm run start:local`
-5. If successful, you will be able to reach the Swagger docs: [http://localhost:3000/swagger/](http://localhost:3000/swagger/)
+2. Configure local environment variables:
+    - enter `dojo`
+    - run `./tasks _setup_test_integration_local`
+3. Run `npm run start:local`
+4. If successful, you will be able to reach the Swagger docs: [http://localhost:3000/swagger/](http://localhost:3000/swagger/)
 
 Note: `npm run start:nodemon` can be used to build the app before launching the Express server on port `3000` using [nodemon](https://www.npmjs.com/package/nodemon) - it will watch and reload the server upon any file changes.
 
@@ -60,16 +62,19 @@ The swagger documentation for the app can be found at [http://localhost:3000/swa
 
 ### Unit tests
 
-Run the unit tests with `npm run test:unit` (or `npm test` to run it with lint). Alternatively `./tasks test` can be used to run the tests with Dojo.
+Run the unit tests with `npm run test:unit` (or `npm test` to run it with lint). 
+
+Alternatively, `./tasks test` can be used to run the tests with Dojo.
 
 ### Integration tests
 
+Enter `dojo -c Dojofile-itest`
 Run `./tasks test_integration` to run with Dojo.
 
 ### Coverage tests
 
 Runs the coverage tests (unit test and integration test) and collects coverage metrics.
-
+Enter `dojo -c Dojofile-itest`
 Run `./tasks test_coverage` to run within Dojo.
 
 ### Local Docker tests

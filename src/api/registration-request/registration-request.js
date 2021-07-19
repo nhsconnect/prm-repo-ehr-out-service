@@ -54,7 +54,7 @@ export const registrationRequest = async (req, res) => {
     logInfo('Getting patient current ODS code');
     const pdsOdsCode = await getPdsOdsCode(nhsNumber);
     if (pdsOdsCode !== odsCode) {
-      logs = 'Patients ODS Code in PDS does not match requesting practices ODS Code';
+      logs = "Patients ODS Code in PDS does not match requesting practice's ODS Code";
       await updateStatusAndSendResponse(res, conversationId, Status.INCORRECT_ODS_CODE, logs);
       return;
     }

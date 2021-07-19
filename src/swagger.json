@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "Repo to GP Component for the O/S records registration",
+    "description": "Repo to GP Component to handle the registration requests",
     "version": "1.0.0",
     "title": "Repo to GP"
   },
@@ -36,7 +36,7 @@
         "tags": [
           "/registration-requests"
         ],
-        "summary": "Triggers a registration process",
+        "summary": "Responsible for the registration request. Retrieves patient's health record and sends it out",
         "parameters": [
           {
             "in": "body",
@@ -76,7 +76,7 @@
         "tags": [
           "/registration-requests/{conversationId}"
         ],
-        "summary": "Gets the status of a registration request",
+        "summary": "Retrieves the status and details of a given registration request",
         "parameters": [
           {
             "in": "path",
