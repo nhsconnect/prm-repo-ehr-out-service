@@ -10,7 +10,7 @@ AWS_DEFAULT_REGION=eu-west-2
 IMAGE_REPO_NAME=deductions/repo-to-gp
 export NHS_SERVICE=repo-to-gp
 
-AWS_HELPERS_VERSION=0.2.1
+AWS_HELPERS_VERSION=0.2.2
 AWS_HELPERS_FILE="utils/aws-helpers"
 
 mkdir -p utils
@@ -50,6 +50,37 @@ function set_image_tag() {
   export IMAGE_TAG=$(git rev-parse HEAD | cut -c 1-8)
 }
 
+function create_secret_ssm_param {
+  secret_id="$1"
+  value="$2"
+  set +e
+  aws ssm get-parameter --region $AWS_DEFAULT_REGION --name "$secret_id" | jq -r ".Parameter.Value" > /dev/null
+  if [[ $? == 0 ]]; then
+    echo "Secret at $secret_id already exists"
+  else
+    set -e
+    echo "Secret does not exists. Creating $secret_id"
+    aws ssm put-parameter \
+     --region $AWS_DEFAULT_REGION \
+     --name "$secret_id" \
+     --type SecureString \
+     --overwrite \
+     --value "$value"
+  fi
+}
+
+function generate_secret_ssm_param {
+  value=$(openssl rand -base64 24  | tr -d "/@\'+")
+  create_secret_ssm_param "$1" "$value"
+}
+
+function generate_username_ssm_param {
+  set +e
+  value=$(< /dev/urandom tr -dc a-z | head -c12)
+  set -e
+  create_secret_ssm_param "$1" "$value"
+}
+
 function prepare_local_envs_for_ide {
   export DATABASE_HOST=localhost
   envs=$( printenv | grep "DATABASE" && \
@@ -86,16 +117,6 @@ function configure_db_migration_envs {
 
 function get_aws_account_id {
     AWS_ACCOUNT_ID=$(dojo -c Dojofile-infra "aws sts get-caller-identity | jq -r .Account")
-}
-
-function get_aws_ssm_secret {
-   secret_id=$1
-   json=$(dojo -c Dojofile-infra "aws ssm get-parameter --with-decryption --region $AWS_DEFAULT_REGION --name $secret_id")
-   if [ $? != 0 ]; then
-     >&2 echo "Failed to obtain AWS secret from SSM: $secret_id"
-     exit 5
-   fi
-   echo $json | jq -r ".Parameter.Value"
 }
 
 ############################
@@ -221,7 +242,7 @@ function send_canary_update_message {
 }
 
 function configure_hangout_webhook {
-  export GOOGLE_CHAT_CANARY_WEBHOOK=$(get_aws_ssm_secret "/repo/prod/user-input/external/gocd-google-chat-canary-webhook")
+  export GOOGLE_CHAT_CANARY_WEBHOOK=$(_get_aws_ssm_secret "/repo/prod/user-input/external/gocd-google-chat-canary-webhook")
   if [ -z "${GOOGLE_CHAT_CANARY_WEBHOOK}" ]; then
     echo "Unable to obtain GOOGLE_CHAT_CANARY_WEBHOOK from AWS"
     exit 5
@@ -401,6 +422,15 @@ case "${command}" in
   run_db_migrations)
       check_env
       dojo -c Dojofile "./tasks _run_db_migrations"
+      ;;
+  _create_secrets)
+      _assume_environment_role $NHS_ENVIRONMENT
+      generate_username_ssm_param "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-username"
+      generate_secret_ssm_param "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-password"
+      ;;
+  create_secrets)
+      check_env
+      dojo -c Dojofile-infra "./tasks _create_secrets"
       ;;
   _grant_db_permissions)
       check_env

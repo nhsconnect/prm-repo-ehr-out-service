@@ -8,6 +8,11 @@ common:
           command: /bin/bash
           arguments:
             - -c
+            - ./tasks create_secrets
+      - exec:
+          command: /bin/bash
+          arguments:
+            - -c
             - ./tasks tf_plan_certs create
       - exec:
           command: /bin/bash
@@ -97,7 +102,7 @@ pipelines:
         stage: test_docker
       base_infra:
         pipeline: prm-deductions-infra
-        stage: deploy_dev
+        stage: wait_dns_test
     environment_variables:
       NHS_ENVIRONMENT: dev
     stages: *common_stages
@@ -114,7 +119,24 @@ pipelines:
         stage: test
       base_infra:
         pipeline: prm-deductions-infra
-        stage: deploy_test
+        stage: wait_dns_test
     environment_variables:
       NHS_ENVIRONMENT: test
+    stages: *common_stages
+  'prm-deductions-repo-to-gp.pre-prod':
+    group: deductions
+    label_template: '${git[:8]}'
+    materials:
+      git:
+        type: configrepo
+        blacklist:
+          - docs/**/*.*
+      test_env:
+        pipeline: prm-deductions-system-e2e.test
+        stage: test
+      base_infra:
+        pipeline: prm-deductions-infra
+        stage: wait_dns_pre_prod
+    environment_variables:
+      NHS_ENVIRONMENT: pre-prod
     stages: *common_stages
