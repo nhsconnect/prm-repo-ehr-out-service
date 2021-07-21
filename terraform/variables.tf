@@ -27,7 +27,7 @@ variable "application_database_user" {
   description = "Needs to match with the user created in db-roles tf plan"
 }
 
-variable "logl_level" {
+variable "log_level" {
   type = string
   default = "debug"
 }
