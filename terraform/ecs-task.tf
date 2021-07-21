@@ -14,7 +14,8 @@ locals {
     { name = "REPO_TO_GP_USE_AWS_RDS_CREDENTIALS", value = "true" },
     { name = "AWS_REGION", value = var.region },
     { name = "REPO_TO_GP_SKIP_MIGRATION", value = "true" },
-    { name = "USE_SSL_FOR_DB", value = "true" }
+    { name = "USE_SSL_FOR_DB", value = "true" },
+    { name = "LOG_LEVEL", value = var.log_level }
   ]
   secret_environment_variables = [
     { name = "GP2GP_ADAPTOR_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.gp2gp_adaptor_authorization_keys.arn },

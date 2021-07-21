@@ -36,6 +36,7 @@ export const options = {
     addCommonFields(),
     format.json()
   ),
+  level: process.env.LOG_LEVEL,
   transports: [new transports.Console({ handleExceptions: true })]
 };
 
