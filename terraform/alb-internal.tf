@@ -23,7 +23,7 @@ resource "aws_alb" "alb-internal" {
 # Exists to be referred by the ECS task of repo-to-gp
 resource "aws_security_group" "repo_to_gp_alb" {
   name        = "${var.environment}-alb-${var.component_name}"
-  description = "repo-to-gp ALB security group"
+  description = "Repo-to-gp ALB security group"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   tags = {
@@ -155,7 +155,7 @@ resource "aws_security_group" "alb_to_repo_to_gp_ecs" {
 
 resource "aws_security_group" "service_to_repo_to_gp" {
   name        = "${var.environment}-service-to-${var.component_name}"
-  description = "controls access from repo services to repo-to-gp"
+  description = "Controls access from repo services to repo-to-gp"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   tags = {
@@ -177,7 +177,7 @@ resource "aws_ssm_parameter" "service_to_repo_to_gp" {
 
 resource "aws_security_group" "vpn_to_repo_to_gp" {
   name        = "${var.environment}-vpn-to-${var.component_name}"
-  description = "controls access from vpn to repo-to-gp"
+  description = "Controls access from vpn to repo-to-gp"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   tags = {
@@ -200,7 +200,7 @@ resource "aws_security_group_rule" "vpn_to_repo_to_gp" {
 
 resource "aws_security_group" "gocd_to_repo_to_gp" {
   name        = "${var.environment}-gocd-to-${var.component_name}"
-  description = "controls access from gocd to repo-to-gp"
+  description = "Controls access from gocd to repo-to-gp"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   ingress {
