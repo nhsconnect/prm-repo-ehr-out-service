@@ -84,7 +84,7 @@ resource "aws_security_group" "repo_to_gp_db_sg" {
 }
 
 resource "aws_security_group" "gocd_to_db_sg" {
-  name = "${var.environment}-gocd-to-db-sg"
+  name = "${var.environment}-gocd-to-${var.component_name}-db-sg"
   vpc_id = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   ingress {
@@ -96,18 +96,18 @@ resource "aws_security_group" "gocd_to_db_sg" {
   }
 
   tags = {
-    Name = "${var.environment}-gocd-to-db-sg"
+    Name = "${var.environment}-gocd-to-${var.component_name}-db-sg"
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
 }
 
 resource "aws_security_group" "vpn_to_db_sg" {
-  name = "${var.environment}-vpn-to-db-sg"
+  name = "${var.environment}-vpn-to-${var.component_name}-db-sg"
   vpc_id = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   tags = {
-    Name = "${var.environment}-vpn-to-db-sg"
+    Name = "${var.environment}-vpn-to-${var.component_name}-db-sg"
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
