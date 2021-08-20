@@ -13,6 +13,10 @@ Follow the links to download
 - [Docker](https://docs.docker.com/install/)
 - [kudulab/dojo](https://github.com/kudulab/dojo#installation)
 
+### AWS helpers
+
+This repository imports shared AWS helpers from [prm-deductions-support-infra](https://github.com/nhsconnect/prm-deductions-support-infra/).
+They can be found `utils` directory after running any task from `tasks` file.
 
 ## Directories
 
