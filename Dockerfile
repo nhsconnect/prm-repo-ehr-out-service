@@ -41,3 +41,5 @@ EXPOSE 3000
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["/usr/bin/run-repo-to-gp-server"]
+
+USER node
