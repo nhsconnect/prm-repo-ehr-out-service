@@ -19,7 +19,8 @@
     "test:coverage": "jest src/ --maxWorkers=1 --coverage --detectOpenHandles --forceExit --setupFiles dotenv/config",
     "db:wait": "babel-node scripts/wait-for-postgres.js",
     "db:migrate": "npm run db:wait && sequelize-cli db:migrate",
-    "db:teardown": "sequelize-cli db:migrate:undo:all"
+    "db:teardown": "sequelize-cli db:migrate:undo:all",
+    "preinstall": "npm install npm-force-resolutions && npm-force-resolutions"
   },
   "dependencies": {
     "@opentelemetry/api": "^0.20.0",
@@ -67,5 +68,8 @@
     "resetModules": true,
     "clearMocks": true,
     "automock": false
+  },
+  "resolutions": {
+    "color-string": "1.5.5"
   }
 }
