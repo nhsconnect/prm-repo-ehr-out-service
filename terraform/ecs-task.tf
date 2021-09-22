@@ -110,3 +110,23 @@ resource "aws_security_group_rule" "repo-to-gp-to-ehr-repo" {
   security_group_id = data.aws_ssm_parameter.service-to-ehr-repo-sg-id.value
   source_security_group_id = aws_security_group.ecs-tasks-sg.id
 }
+
+
+resource "aws_security_group" "vpn_to_repo_to_gp_ecs" {
+  name        = "${var.environment}-vpn-to-${var.component_name}-ecs"
+  description = "Controls access from vpn to repo-to-gp ecs"
+  vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
+
+  ingress {
+    from_port = 3000
+    protocol = "tcp"
+    to_port = 3000
+    security_groups = [data.aws_ssm_parameter.vpn_sg_id.value]
+  }
+
+  tags = {
+    Name = "${var.environment}-vpn-to-${var.component_name}-sg"
+    CreatedBy   = var.repo_name
+    Environment = var.environment
+  }
+}
