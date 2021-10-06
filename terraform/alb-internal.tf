@@ -13,6 +13,7 @@ resource "aws_alb" "alb-internal" {
     aws_security_group.gocd_to_repo_to_gp.id
   ]
   internal        = true
+  drop_invalid_header_fields = true
 
   tags = {
     CreatedBy   = var.repo_name
