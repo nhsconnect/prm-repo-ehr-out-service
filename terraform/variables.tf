@@ -28,6 +28,7 @@ variable "application_database_user" {
 }
 variable "grant_access_through_vpn" {}
 variable "allow_vpn_to_ecs_tasks" { default=false }
+variable "enable_rds_cluster_deletion_protection" {}
 
 variable "log_level" {
   type = string

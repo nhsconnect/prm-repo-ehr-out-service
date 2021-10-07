@@ -17,6 +17,7 @@ resource "aws_rds_cluster" "repo_to_gp_db_cluster" {
   storage_encrypted       = true
   kms_key_id              = aws_kms_key.repo_to_gp_key.arn
   iam_database_authentication_enabled  = true
+  deletion_protection = var.enable_rds_cluster_deletion_protection
 
   tags = {
     CreatedBy   = var.repo_name
