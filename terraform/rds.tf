@@ -18,6 +18,7 @@ resource "aws_rds_cluster" "repo_to_gp_db_cluster" {
   kms_key_id              = aws_kms_key.repo_to_gp_key.arn
   iam_database_authentication_enabled  = true
   deletion_protection = var.enable_rds_cluster_deletion_protection
+  db_cluster_parameter_group_name = data.aws_ssm_parameter.repo_databases_parameter_group_name.value
 
   tags = {
     CreatedBy   = var.repo_name
@@ -145,4 +146,8 @@ resource "aws_ssm_parameter" "db_resource_cluster_id" {
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
+}
+
+data "aws_ssm_parameter" "repo_databases_parameter_group_name" {
+  name = "/repo/${var.environment}/output/prm-deductions-infra/repo-databases-parameter-group-name"
 }
