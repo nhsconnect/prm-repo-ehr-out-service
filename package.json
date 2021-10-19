@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "main": "src/server.js",
   "scripts": {
+    "check-audit": "check-audit",
+    "resolve-audit": "resolve-audit",
     "build": "babel src -d build --ignore '**/*.test.js' && cp src/*.json build",
     "lint": "eslint src/ test/ scripts/",
     "lint:fix": "npm run lint -- --fix",
@@ -35,6 +37,7 @@
     "express": "^4.17.1",
     "express-validator": "^6.12.2",
     "lodash.clonedeep": "^4.5.0",
+    "npm-audit-resolver": "^2.3.1",
     "npm-force-resolutions": "0.0.10",
     "pg": "^8.7.1",
     "pg-native": "^3.0.0",

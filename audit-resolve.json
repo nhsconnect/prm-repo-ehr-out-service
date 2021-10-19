@@ -1,0 +1,36 @@
+{
+  "decisions": {
+    "1002401|npm-audit-resolver>yargs-unparser>yargs>string-width>strip-ansi>ansi-regex": {
+      "decision": "ignore",
+      "madeAt": 1634661397216,
+      "expiresAt": 1637253358326
+    },
+    "1002401|npm-audit-resolver>yargs-unparser>yargs>cliui>string-width>strip-ansi>ansi-regex": {
+      "decision": "ignore",
+      "madeAt": 1634661397216,
+      "expiresAt": 1637253358326
+    },
+    "1002401|npm-audit-resolver>yargs-unparser>yargs>cliui>wrap-ansi>string-width>strip-ansi>ansi-regex": {
+      "decision": "ignore",
+      "madeAt": 1634661397216,
+      "expiresAt": 1637253358326
+    },
+    "1002401|sequelize-cli>yargs>string-width>strip-ansi>ansi-regex": {
+      "decision": "ignore",
+      "madeAt": 1634661397216,
+      "expiresAt": 1637253358326
+    },
+    "1002401|sequelize-cli>yargs>cliui>string-width>strip-ansi>ansi-regex": {
+      "decision": "ignore",
+      "madeAt": 1634661397216,
+      "expiresAt": 1637253358326
+    },
+    "1002401|sequelize-cli>yargs>cliui>wrap-ansi>string-width>strip-ansi>ansi-regex": {
+      "decision": "ignore",
+      "madeAt": 1634661397216,
+      "expiresAt": 1637253358326
+    }
+  },
+  "rules": {},
+  "version": 1
+}
