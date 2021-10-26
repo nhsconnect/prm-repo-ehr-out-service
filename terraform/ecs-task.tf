@@ -120,6 +120,7 @@ resource "aws_security_group_rule" "repo-to-gp-to-ehr-repo" {
 
 
 resource "aws_security_group" "vpn_to_repo_to_gp_ecs" {
+  count       = var.allow_vpn_to_ecs_tasks ? 1 : 0
   name        = "${var.environment}-vpn-to-${var.component_name}-ecs"
   description = "Controls access from vpn to repo-to-gp ecs"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value

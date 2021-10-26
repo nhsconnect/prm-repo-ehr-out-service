@@ -1,7 +1,7 @@
 locals {
-  ecs_cluster_id  = aws_ecs_cluster.ecs-cluster.id
-  ecs_task_sg_id = aws_security_group.ecs-tasks-sg.id
-  ecs_task_sg_ids = var.allow_vpn_to_ecs_tasks ? [aws_security_group.ecs-tasks-sg.id, aws_security_group.vpn_to_repo_to_gp_ecs.id] : [aws_security_group.ecs-tasks-sg.id]
+  ecs_cluster_id    = aws_ecs_cluster.ecs-cluster.id
+  ecs_task_sg_id    = aws_security_group.ecs-tasks-sg.id
+  ecs_task_sg_ids   = var.allow_vpn_to_ecs_tasks ? [aws_security_group.ecs-tasks-sg.id, aws_security_group.vpn_to_repo_to_gp_ecs[0].id] : [aws_security_group.ecs-tasks-sg.id]
   private_subnets   = split(",", data.aws_ssm_parameter.deductions_private_private_subnets.value)
   int_alb_tg_arn    = aws_alb_target_group.internal-alb-tg.arn
 }
