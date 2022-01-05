@@ -32,18 +32,18 @@
     },
     "1004946|npm-audit-resolver>yargs-unparser>yargs>string-width>strip-ansi>ansi-regex": {
       "decision": "ignore",
-      "madeAt": 1637592141914,
-      "expiresAt": 1640184132609
+      "madeAt": 1641374544633,
+      "expiresAt": 1643966535039
     },
     "1004946|npm-audit-resolver>yargs-unparser>yargs>cliui>string-width>strip-ansi>ansi-regex": {
       "decision": "ignore",
-      "madeAt": 1637592141914,
-      "expiresAt": 1640184132609
+      "madeAt": 1641374544633,
+      "expiresAt": 1643966535039
     },
     "1004946|npm-audit-resolver>yargs-unparser>yargs>cliui>wrap-ansi>string-width>strip-ansi>ansi-regex": {
       "decision": "ignore",
-      "madeAt": 1637592141914,
-      "expiresAt": 1640184132609
+      "madeAt": 1641374544633,
+      "expiresAt": 1643966535039
     }
   },
   "rules": {},
