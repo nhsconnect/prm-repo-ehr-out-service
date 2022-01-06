@@ -27,9 +27,11 @@ export const registrationRequestValidationRules = [
 
 export const registrationRequest = async (req, res) => {
   const { id: conversationId, attributes } = req.body.data;
-  logInfo('Create registration request received', { conversationId });
   const { nhsNumber, odsCode, ehrRequestId } = attributes;
+
   setCurrentSpanAttributes({ conversationId });
+  logInfo('Create registration request received');
+
   let logs = 'EHR has been successfully sent';
 
   try {
@@ -38,7 +40,7 @@ export const registrationRequest = async (req, res) => {
       res.status(409).json({
         error: `Registration request with this ConversationId is already in progress`
       });
-      logInfo(`Duplicate registration request`, { conversationId });
+      logInfo(`Duplicate registration request`);
       return;
     }
 
@@ -80,6 +82,6 @@ const updateStatusAndSendResponse = async (res, conversationId, status, logs) =>
   const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
 
   await updateRegistrationRequestStatus(conversationId, status);
-  logInfo(logs, conversationId);
+  logInfo(logs);
   res.set('Location', statusEndpoint).sendStatus(204);
 };

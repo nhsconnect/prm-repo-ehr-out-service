@@ -111,7 +111,7 @@ describe('POST /registration-requests/', () => {
 
       expect(res.statusCode).toBe(204);
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.SENT_EHR);
-      expect(logInfo).toHaveBeenCalledWith(`EHR has been successfully sent`, conversationId);
+      expect(logInfo).toHaveBeenCalledWith(`EHR has been successfully sent`);
     });
 
     it('should return location header for the created resource', async () => {
@@ -159,9 +159,7 @@ describe('POST /registration-requests/', () => {
     expect(res.body).toEqual({
       error: `Registration request with this ConversationId is already in progress`
     });
-    expect(logInfo).toHaveBeenCalledWith(`Duplicate registration request`, {
-      conversationId
-    });
+    expect(logInfo).toHaveBeenCalledWith(`Duplicate registration request`);
   });
 
   it('should return 204, log event and call updateRegistrationRequestStatus when patients ODS Code in PDS does not match requester', async () => {
@@ -179,10 +177,7 @@ describe('POST /registration-requests/', () => {
       conversationId,
       incorrectOdsCodeStatus
     );
-    expect(logInfo).toHaveBeenCalledWith(
-      'Patients ODS Code in PDS does not match requesting practices ODS Code',
-      conversationId
-    );
+    expect(logInfo).toHaveBeenCalledWith('Patients ODS Code in PDS does not match requesting practices ODS Code');
   });
 
   it('should return 204, log event and call updateRegistrationRequestStatus when patient is not stored in repo', async () => {
@@ -201,10 +196,7 @@ describe('POST /registration-requests/', () => {
       conversationId,
       patientMissingStatus
     );
-    expect(logInfo).toHaveBeenCalledWith(
-      `Patient does not have a complete health record in repo`,
-      conversationId
-    );
+    expect(logInfo).toHaveBeenCalledWith(`Patient does not have a complete health record in repo`);
   });
 
   describe('validations', () => {
