@@ -177,7 +177,9 @@ describe('POST /registration-requests/', () => {
       conversationId,
       incorrectOdsCodeStatus
     );
-    expect(logInfo).toHaveBeenCalledWith('Patients ODS Code in PDS does not match requesting practices ODS Code');
+    expect(logInfo).toHaveBeenCalledWith(
+      'Patients ODS Code in PDS does not match requesting practices ODS Code'
+    );
   });
 
   it('should return 204, log event and call updateRegistrationRequestStatus when patient is not stored in repo', async () => {
