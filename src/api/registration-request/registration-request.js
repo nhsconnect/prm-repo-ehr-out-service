@@ -27,6 +27,7 @@ export const registrationRequestValidationRules = [
 
 export const registrationRequest = async (req, res) => {
   const { id: conversationId, attributes } = req.body.data;
+  logInfo('Create registration request received', { conversationId });
   const { nhsNumber, odsCode, ehrRequestId } = attributes;
   setCurrentSpanAttributes({ conversationId });
   let logs = 'EHR has been successfully sent';
