@@ -44,6 +44,10 @@
       "decision": "ignore",
       "madeAt": 1641374544633,
       "expiresAt": 1643966535039
+    },
+    "1006865|axios>follow-redirects": {
+      "decision": "fix",
+      "madeAt": 1642520809333
     }
   },
   "rules": {},
