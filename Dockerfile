@@ -1,4 +1,4 @@
-FROM node:14.17.1-alpine
+FROM node:14.19.0-alpine
 
 RUN apk update && \
     apk add --no-cache bash tini postgresql-client jq && \
