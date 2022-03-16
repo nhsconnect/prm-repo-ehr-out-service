@@ -35,7 +35,7 @@ COPY database/      /app/database
 COPY build/config/database.js /app/src/config/
 COPY .sequelizerc   /app/
 
-RUN npm install
+RUN npm install --production
 
 EXPOSE 3000
 
@@ -43,9 +43,7 @@ ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["/usr/bin/run-repo-to-gp-server"]
 
 # remove npm leaving node
-RUN rm -rf \
-    /usr/share/man/* /usr/share/doc /root/.npm /root/.node-gyp /root/.config \
-    /usr/lib/node_modules/npm/man /usr/lib/node_modules/npm/doc /usr/lib/node_modules/npm/docs \
-    /usr/lib/node_modules/npm/html /usr/lib/node_modules/npm/scripts
+RUN rm -rf /root/.npm /root/.cache \
+    /usr/local/lib/node_modules/npm /usr/local/bin/npm
 
 USER node
