@@ -42,4 +42,9 @@ EXPOSE 3000
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["/usr/bin/run-repo-to-gp-server"]
 
+RUN rm -rf \
+    /usr/share/man/* /usr/share/doc /root/.npm /root/.node-gyp /root/.config \
+    /usr/lib/node_modules/npm/man /usr/lib/node_modules/npm/doc /usr/lib/node_modules/npm/docs \
+    /usr/lib/node_modules/npm/html /usr/lib/node_modules/npm/scripts
+
 USER node
