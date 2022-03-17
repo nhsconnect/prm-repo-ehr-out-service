@@ -35,7 +35,7 @@ COPY database/      /app/database
 COPY build/config/database.js /app/src/config/
 COPY .sequelizerc   /app/
 
-RUN npm install --production
+RUN npm install
 
 EXPOSE 3000
 
