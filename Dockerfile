@@ -43,7 +43,7 @@ ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["/usr/bin/run-repo-to-gp-server"]
 
 # remove npm leaving node
-RUN rm -rf /root/.npm /root/.cache \
-    /usr/local/lib/node_modules/npm /usr/local/bin/npm
+#RUN rm -rf /root/.npm /root/.cache \
+#    /usr/local/lib/node_modules/npm /usr/local/bin/npm
 
 USER node
