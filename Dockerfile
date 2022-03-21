@@ -16,7 +16,6 @@ RUN apk add --no-cache \
 RUN apk add --no-cache postgresql-dev g++ make
 
 COPY scripts/run-server-with-db.sh /usr/bin/run-repo-to-gp-server
-COPY scripts/migrate-db.sh /app/scripts/migrate-db.sh
 COPY scripts/load-api-keys.sh /app/scripts/load-api-keys.sh
 
 ENV NHS_ENVIRONMENT="" \
