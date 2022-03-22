@@ -1,4 +1,5 @@
 # prm-deductions-repo-to-gp
+
 This component is responsible for creating and handling of the registration request, when the Orphaned/Stranded health record stored in Repository is requested by the new practice.
 
 When the message handler receives an EHR request and sends this to the RepoToGP component, the RepoToGP accepts this request and creates a new registration request associated with that EHR request so that it can keep track of the transfer.
