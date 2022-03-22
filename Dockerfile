@@ -2,7 +2,7 @@ FROM node:14.19.0-alpine AS builder
 
 # install python and postgres native requirements
 RUN apk update && \
-    apk add --no-cache bash tini postgresql-client jq && \
+    apk add --no-cache bash tini postgresql-client && \
     rm -rf /var/cache/apk/*
 
 RUN apk add --no-cache \
@@ -33,7 +33,7 @@ COPY --from=builder /app /app
 
 # install python and postgres native requirements (again, as per builder)
 RUN apk update && \
-    apk add --no-cache bash tini postgresql-client jq && \
+    apk add --no-cache bash tini postgresql-client && \
     rm -rf /var/cache/apk/*
 
 RUN apk add --no-cache \
