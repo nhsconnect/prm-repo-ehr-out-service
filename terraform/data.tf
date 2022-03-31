@@ -12,8 +12,8 @@ data "aws_ssm_parameter" "deductions_core_vpc_id" {
   name = "/repo/${var.environment}/output/prm-deductions-infra/deductions-core-vpc-id"
 }
 
-data "aws_ssm_parameter" "gp2gp_adaptor_authorization_keys" {
-  name = "/repo/${var.environment}/user-input/api-keys/gp2gp-adaptor/repo-to-gp"
+data "aws_ssm_parameter" "gp2gp_messenger_authorization_keys" {
+  name = "/repo/${var.environment}/user-input/api-keys/gp2gp-messenger/repo-to-gp"
 }
 
 data "aws_ssm_parameter" "ehr_repo_authorization_keys" {

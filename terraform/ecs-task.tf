@@ -6,7 +6,7 @@ locals {
   environment_variables = [
     { name = "NHS_ENVIRONMENT", value = var.environment },
     { name = "SERVICE_URL", value = "https://repo-to-gp.${var.environment}.non-prod.patient-deductions.nhs.uk" },
-    { name = "GP2GP_ADAPTOR_SERVICE_URL", value = "https://gp2gp-adaptor.${var.environment}.non-prod.patient-deductions.nhs.uk" },
+    { name = "GP2GP_ADAPTOR_SERVICE_URL", value = "https://gp2gp-messenger.${var.environment}.non-prod.patient-deductions.nhs.uk" },
     { name = "EHR_REPO_SERVICE_URL", value = "https://ehr-repo.${var.environment}.non-prod.patient-deductions.nhs.uk" },
     { name = "DATABASE_NAME", value = aws_rds_cluster.repo_to_gp_db_cluster.database_name },
     { name = "DATABASE_HOST", value = aws_rds_cluster.repo_to_gp_db_cluster.endpoint },
@@ -18,7 +18,7 @@ locals {
     { name = "LOG_LEVEL", value = var.log_level }
   ]
   secret_environment_variables = [
-    { name = "GP2GP_ADAPTOR_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.gp2gp_adaptor_authorization_keys.arn },
+    { name = "GP2GP_ADAPTOR_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.gp2gp_messenger_authorization_keys.arn },
     { name = "EHR_REPO_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.ehr_repo_authorization_keys.arn }
   ]
 }
@@ -100,12 +100,12 @@ resource "aws_security_group" "ecs-tasks-sg" {
   }
 }
 
-resource "aws_security_group_rule" "repo-to-gp-to-gp2gp-adaptor" {
+resource "aws_security_group_rule" "repo-to-gp-to-gp2gp-messenger" {
   type = "ingress"
   protocol = "TCP"
   from_port = 443
   to_port = 443
-  security_group_id = data.aws_ssm_parameter.service-to-gp2gp-adaptor-sg-id.value
+  security_group_id = data.aws_ssm_parameter.service-to-gp2gp-messenger-sg-id.value
   source_security_group_id = local.ecs_task_sg_id
 }
 
@@ -172,8 +172,8 @@ data "aws_vpc_endpoint" "s3" {
   service_name = "com.amazonaws.${var.region}.s3"
 }
 
-data "aws_ssm_parameter" "service-to-gp2gp-adaptor-sg-id" {
-  name = "/repo/${var.environment}/output/prm-deductions-gp2gp-adaptor/service-to-gp2gp-adaptor-sg-id"
+data "aws_ssm_parameter" "service-to-gp2gp-messenger-sg-id" {
+  name = "/repo/${var.environment}/output/prm-deductions-gp2gp-messenger/service-to-gp2gp-messenger-sg-id"
 }
 
 data "aws_ssm_parameter" "service-to-ehr-repo-sg-id" {
