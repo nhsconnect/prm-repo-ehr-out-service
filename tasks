@@ -144,6 +144,21 @@ function build_docker_image() {
   echo Build completed on `date`
 }
 
+function die_postgres_die {
+  echo docker processes running: $(docker ps)
+
+  DOCKER_CONTAINERS_ON_PORT=$(docker ps --filter publish=5432 -q)
+
+  echo docker processes running on expected postgres port: $DOCKER_CONTAINERS_ON_PORT
+
+  if [ -z "$DOCKER_CONTAINERS_ON_PORT" ]; then
+    echo no postgres nonsense going on, cool
+  else
+    echo trying to kill postgres...
+    docker stop $DOCKER_CONTAINERS_ON_PORT
+  fi
+}
+
 #######################
 # Terraform Functions #
 #######################
@@ -295,6 +310,9 @@ case "${command}" in
       configure_hangout_webhook
       dojo "node scripts/send-canary-error.js"
       ;;
+  die_postgres_die)
+      die_postgres_die
+      ;;
   _test_lint)
       npm install
       npm run lint
@@ -322,6 +340,7 @@ case "${command}" in
       ;;
   test_integration)
       configure_local_envs
+      die_postgres_die
       dojo -c Dojofile-itest "./tasks _test_integration"
       ;;
   _test_functional)
@@ -338,6 +357,7 @@ case "${command}" in
       ;;
   test_coverage)
       configure_local_envs
+      die_postgres_die
       dojo -c Dojofile-itest "./tasks _test_coverage"
       ;;
   _build)
