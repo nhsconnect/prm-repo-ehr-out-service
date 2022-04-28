@@ -53,7 +53,7 @@ resource "aws_db_subnet_group" "repo_to_gp_db_cluster_subnet_group" {
 }
 
 resource "aws_rds_cluster_instance" "repo_to_gp_db_instances" {
-  count                 = 1
+  count                 = var.db_instance_number
   identifier            = "${var.environment}-repo-to-gp-db-instance-${count.index}"
   cluster_identifier    = aws_rds_cluster.repo_to_gp_db_cluster.id
   instance_class        = "db.t3.medium"

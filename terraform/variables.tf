@@ -34,3 +34,7 @@ variable "log_level" {
   type = string
   default = "debug"
 }
+
+variable "db_instance_number" {
+  default = 1
+}
