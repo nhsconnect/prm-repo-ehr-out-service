@@ -400,6 +400,14 @@ case "${command}" in
       configure_local_envs
       dojo -c Dojofile-dtest
       ;;
+  _tf)
+      check_env
+      tf_init
+      bash
+      ;;
+  tf)
+      dojo -c Dojofile-infra "./tasks _tf"
+      ;;
   _tf_plan)
       _assume_environment_role $NHS_ENVIRONMENT
       tf_plan "$2"
