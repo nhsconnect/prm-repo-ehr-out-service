@@ -1,7 +1,3 @@
-# NB: ARCHIVED 
-
-*No longer currently used we are keeping around for reference and potential resurrection*
-
 # prm-deductions-repo-to-gp
 
 This component is responsible for creating and handling of the registration request, when the Orphaned/Stranded health record stored in Repository is requested by the new practice.
