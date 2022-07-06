@@ -1,7 +1,7 @@
 resource "aws_rds_cluster" "repo_to_gp_db_cluster" {
   cluster_identifier      = "${var.environment}-repo-to-gp-db-cluster"
   engine                  = "aurora-postgresql"
-  engine_version          = "11.16"
+  engine_version          = var.environment == "pre-prod" ? "11.13" : "11.16"
   database_name           = var.db_name
   master_username         = data.aws_ssm_parameter.db-username.value
   master_password         = data.aws_ssm_parameter.db-password.value
