@@ -188,10 +188,6 @@ function tf_plan {
   tf_init
   terraform get # modules
   if [[ "${operation}" == "create" ]]; then
-#    Temporary solution to replace rds in pre-prod
-#    if [ "$NHS_ENVIRONMENT" == "pre-prod" ]; then REPLACE_RDS="-replace=aws_rds_cluster.repo_to_gp_db_cluster"; else REPLACE_RDS=""; fi
-#    echo "REPLACE_RDS set to: $REPLACE_RDS"
-#    terraform plan -var task_image_tag=$IMAGE_TAG -var-file=$NHS_ENVIRONMENT.tfvars $REPLACE_RDS $TARGET -out="nhs_deployment.tfplan"
     terraform plan -var task_image_tag=$IMAGE_TAG -var-file=$NHS_ENVIRONMENT.tfvars $TARGET -out="nhs_deployment.tfplan"
   elif [[ "${operation}" == "destroy" ]]; then
     terraform plan -var task_image_tag=$IMAGE_TAG -var-file=$NHS_ENVIRONMENT.tfvars -out="nhs_deployment.tfplan" -destroy
