@@ -7,7 +7,7 @@ export const getPatientHealthRecordFromRepo = async nhsNumber => {
   try {
     const url = `${config.ehrRepoServiceUrl}/patients/${nhsNumber}`;
     const res = await axios.get(url, { headers: { Authorization: config.ehrRepoAuthKeys } });
-    return { currentEhr: res.data.data.links.healthRecordExtract };
+    return { coreEhrMessageUrl: res.data.data.links.healthRecordExtract };
   } catch (err) {
     if (err.response && err.response.status === 404) {
       const errorMessage = 'Cannot find complete patient health record';

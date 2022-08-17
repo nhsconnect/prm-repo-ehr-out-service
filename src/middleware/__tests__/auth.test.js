@@ -28,14 +28,14 @@ jest.mock('../../config', () => ({
 describe('auth', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
   const odsCode = 'A12345';
-  const currentEhr = 'fake-url';
+  const coreEhrMessageUrl = 'fake-url';
   const ehrRequestId = v4();
 
   describe('authenticated successfully', () => {
     it('should return HTTP 204 when correctly authenticated', async () => {
       getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
       getPdsOdsCode.mockResolvedValue({ data: { data: { odsCode } } });
-      getPatientHealthRecordFromRepo.mockResolvedValue({ currentEhr });
+      getPatientHealthRecordFromRepo.mockResolvedValue({ coreEhrMessageUrl });
       createRegistrationRequest.mockResolvedValue();
 
       const body = {

@@ -114,7 +114,7 @@ describe('POST /registration-requests/', () => {
   const odsCode = 'A12345';
   const ehrRequestId = v4();
   const repoToGpUrl = 'http://repo-to-gp';
-  const currentEhr = 'fake-url';
+  const coreEhrMessageUrl = 'fake-url';
   const ehrHeaders = { reqheaders: { Authorization: fakeAuth } };
   const gp2gpHeaders = { reqheaders: { Authorization: fakeAuth } };
   const pdsResponseBody = { data: { odsCode } };
@@ -123,7 +123,7 @@ describe('POST /registration-requests/', () => {
       id: nhsNumber,
       type: 'patients',
       links: {
-        healthRecordExtract: currentEhr,
+        healthRecordExtract: coreEhrMessageUrl,
         attachments: []
       }
     }
@@ -138,7 +138,7 @@ describe('POST /registration-requests/', () => {
         ehrRequestId
       },
       links: {
-        currentEhrUrl: currentEhr
+        currentEhrUrl: coreEhrMessageUrl
       }
     }
   };

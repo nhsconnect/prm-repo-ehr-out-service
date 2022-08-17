@@ -35,7 +35,7 @@ describe('POST /registration-requests/', () => {
   const ehrRequestId = '870f6ef9-746f-4e81-b51f-884d64530bed';
   const odsCode = 'A12345';
   const nhsNumber = '1111111111';
-  const currentEhr = 'fake-url';
+  const coreEhrMessageUrl = 'fake-url';
   const mockBody = {
     data: {
       type: 'registration-requests',
@@ -51,7 +51,7 @@ describe('POST /registration-requests/', () => {
   describe('success', () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
     getPdsOdsCode.mockResolvedValue(odsCode);
-    getPatientHealthRecordFromRepo.mockResolvedValue({ currentEhr });
+    getPatientHealthRecordFromRepo.mockResolvedValue({ coreEhrMessageUrl });
 
     it('should return a 204 when all values are provided and should call validation functions correctly', async () => {
       const res = await request(testApp)
@@ -67,7 +67,7 @@ describe('POST /registration-requests/', () => {
         conversationId,
         odsCode,
         ehrRequestId,
-        currentEhr
+        coreEhrMessageUrl
       );
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.SENT_EHR);
     });
