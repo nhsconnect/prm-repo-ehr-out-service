@@ -11,6 +11,22 @@
     "1080830|pg-native>libpq": {
       "decision": "ignore",
       "madeAt": 1660752819658
+    },
+    "1084229|pg-native": {
+      "decision": "fix",
+      "madeAt": 1662129100739
+    },
+    "1084230|pg-native>libpq": {
+      "decision": "fix",
+      "madeAt": 1662129110546
+    },
+    "1084253|sequelize>moment-timezone": {
+      "decision": "fix",
+      "madeAt": 1662129144989
+    },
+    "1084254|sequelize>moment-timezone": {
+      "decision": "fix",
+      "madeAt": 1662129144989
     }
   },
   "rules": {},
