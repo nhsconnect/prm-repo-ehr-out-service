@@ -133,7 +133,21 @@ pipelines:
         stage: deploy_perf
     environment_variables:
       NHS_ENVIRONMENT: perf
-    stages: *common_stages
+    stages:
+      - promote_docker_image:
+          resources:
+            - docker
+          clean_workspace: true
+          tasks:
+            - exec:
+                command: /bin/bash
+                arguments:
+                  - -c
+                  - ./tasks promote_docker_image
+      - deploy:
+          clean_workspace: true
+          jobs:
+            deploy: *deploy_job
   'prm-deductions-repo-to-gp.pre-prod':
     group: deductions
     label_template: '${git[:8]}'
