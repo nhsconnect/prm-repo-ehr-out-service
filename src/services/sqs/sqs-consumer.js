@@ -5,11 +5,11 @@ const sqsClient = new SQSClient({ region: process.env.AWS_DEFAULT_REGION || 'eu-
 const ehrOutIncoming = process.env.SQS_EHR_OUT_INCOMING_QUEUE_URL;
 
 const params = {
-  AttributeNames: ["SentTimestamp"],
+  AttributeNames: ['SentTimestamp'],
   MaxNumberOfMessages: 1,
-  MessageAttributeNames: ["All"],
+  MessageAttributeNames: ['All'],
   QueueUrl: ehrOutIncoming,
-  WaitTimeSeconds: 20,
+  WaitTimeSeconds: 20
 };
 
 export const run = async () => {
