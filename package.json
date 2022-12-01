@@ -1,7 +1,6 @@
 {
   "name": "prm-deductions-repo-to-gp",
   "version": "1.0.0",
-  "type": "module",
   "main": "src/server.js",
   "scripts": {
     "check-audit": "check-audit",
