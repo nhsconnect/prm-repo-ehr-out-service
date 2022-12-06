@@ -13,7 +13,6 @@ const databaseConfig = {
 
 if (use_ssl) {
   databaseConfig.ssl = use_ssl;
-  databaseConfig.native = use_ssl;
   databaseConfig.dialectOptions = { ssl: 'require' };
 }
 
