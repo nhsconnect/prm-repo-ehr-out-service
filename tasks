@@ -343,6 +343,11 @@ case "${command}" in
       die_postgres_die
       dojo -c Dojofile-itest "./tasks _test_integration"
       ;;
+  test_integration_shell)
+      configure_local_envs
+      die_postgres_die
+      dojo -c Dojofile-itest
+      ;;
   _test_functional)
       test_functional
       ;;
