@@ -1,4 +1,4 @@
-FROM node:14.19.0-alpine AS builder
+FROM node:18.2-alpine AS builder
 
 # install python and postgres native requirements
 RUN apk update && \
@@ -20,7 +20,7 @@ COPY package*.json /app/
 
 WORKDIR /app
 
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 # production app image
 FROM alpine:3.15
@@ -43,7 +43,6 @@ RUN apk add --no-cache \
     && pip3 install \
         awscli \
     && rm -rf /var/cache/apk/*
-
 
 COPY build/                   /app/build
 COPY database/                /app/database

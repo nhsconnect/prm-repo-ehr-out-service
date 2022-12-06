@@ -21,8 +21,7 @@
     "test:coverage": "jest src/ --maxWorkers=1 --coverage --detectOpenHandles --forceExit --setupFiles dotenv/config",
     "db:wait": "babel-node scripts/wait-for-postgres.js",
     "db:migrate": "npm run db:wait && sequelize-cli db:migrate",
-    "db:teardown": "sequelize-cli db:migrate:undo:all",
-    "preinstall": "npm install npm-force-resolutions && npm-force-resolutions"
+    "db:teardown": "sequelize-cli db:migrate:undo:all"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.218.0",
@@ -42,7 +41,7 @@
     "npm-audit-resolver": "^2.3.1",
     "npm-force-resolutions": "^0.0.10",
     "pg": "^8.8.0",
-    "sequelize": "^6.17.0",
+    "sequelize": "^6.26.0",
     "sequelize-cli": "^6.4.1",
     "sqs-consumer": "^5.7.0",
     "swagger-ui-express": "^4.3.0",
@@ -66,6 +65,9 @@
     "supertest": "^6.2.2",
     "uuid": "^8.3.2"
   },
+  "overrides": {
+    "moment-timezone": "0.5.39"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nhsconnect/prm-deductions-repo-to-gp.git"
@@ -74,9 +76,5 @@
     "resetModules": true,
     "clearMocks": true,
     "automock": false
-  },
-  "resolutions": {
-    "ansi-regex": "5.0.1",
-    "moment": "2.29.4"
   }
 }

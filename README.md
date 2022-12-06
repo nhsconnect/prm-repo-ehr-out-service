@@ -40,6 +40,9 @@ brew install postgresql
 
 ### Locally
 
+*BEWARE be sure what you're doing here as `node_modules` can contain platform-specific files e.g. mac vs linux/amd64 not
+necessarily compatible*
+
 1. Run `npm install` to install all node dependencies.
 2. Configure local environment variables:
     - enter `dojo`
@@ -53,7 +56,7 @@ Note: `npm run start:nodemon` can be used to build the app before launching the 
 
 A Docker image can be built locally with:
 
-1. Run `./tasks build`
+1. Run `./tasks build`. This runs babel on source (needed?) but also uses `npm install` to ensure `package-lock,json` is up-to-date.
 2. Run `./tasks build_docker_local`. This builds the docker containers `deductions/<component-name>:<commit-no>` and `deductions/<component-name>:latest` with the app in
 3. Run `./tasks test_docker_local` to ensure the image has been built correctly
 4. If the above fails, `./tasks run_docker_local` to debug production build
