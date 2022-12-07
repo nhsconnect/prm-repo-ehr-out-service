@@ -13,7 +13,12 @@ const databaseConfig = {
 
 if (use_ssl) {
   databaseConfig.ssl = use_ssl;
-  databaseConfig.dialectOptions = { ssl: 'require' };
+  databaseConfig.dialectOptions = {
+    // see https://node-postgres.com/features/ssl
+    ssl: {
+      rejectUnauthorized: true
+    }
+  };
 }
 
 module.exports = databaseConfig;
