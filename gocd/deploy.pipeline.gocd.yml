@@ -89,7 +89,7 @@ common:
                     - -c
                     - ./tasks test_functional
 pipelines:
-  'prm-deductions-repo-to-gp.dev':
+  prm-deductions-repo-to-gp.dev:
     group: deductions
     label_template: '${git[:8]}'
     materials:
@@ -106,7 +106,7 @@ pipelines:
     environment_variables:
       NHS_ENVIRONMENT: dev
     stages: *common_stages
-  'prm-deductions-repo-to-gp.test':
+  prm-deductions-repo-to-gp.test:
     group: deductions
     label_template: '${git[:8]}'
     materials:
@@ -115,7 +115,7 @@ pipelines:
         blacklist:
           - docs/**/*.*
       dev_env:
-        pipeline: prm-deductions-system-e2e.dev
+        pipeline: prm-deductions-repo-to-gp.dev
         stage: functional
       base_infra:
         pipeline: prm-deductions-infra
@@ -123,7 +123,7 @@ pipelines:
     environment_variables:
       NHS_ENVIRONMENT: test
     stages: *common_stages
-  'prm-deductions-repo-to-gp.perf':
+  prm-deductions-repo-to-gp.perf:
     group: deductions
     label_template: '${git[:8]}'
     materials:
@@ -132,7 +132,7 @@ pipelines:
         blacklist:
           - docs/**/*.*
       dev_env:
-        pipeline: prm-deductions-system-e2e.dev
+        pipeline: prm-deductions-repo-to-gp.dev
         stage: functional
       base_infra:
         pipeline: prm-deductions-infra
@@ -154,7 +154,7 @@ pipelines:
           clean_workspace: true
           jobs:
             deploy: *deploy_job
-  'prm-deductions-repo-to-gp.pre-prod':
+  prm-deductions-repo-to-gp.pre-prod:
     group: deductions
     label_template: '${git[:8]}'
     materials:
@@ -163,7 +163,7 @@ pipelines:
         blacklist:
           - docs/**/*.*
       test_env:
-        pipeline: prm-deductions-system-e2e.test
+        pipeline: prm-deductions-repo-to-gp.test
         stage: functional
       base_infra:
         pipeline: prm-deductions-infra
