@@ -114,6 +114,9 @@ pipelines:
         type: configrepo
         blacklist:
           - docs/**/*.*
+      dev_env:
+        pipeline: prm-deductions-system-e2e.dev
+        stage: functional
       base_infra:
         pipeline: prm-deductions-infra
         stage: deploy_test
@@ -128,6 +131,9 @@ pipelines:
         type: configrepo
         blacklist:
           - docs/**/*.*
+      dev_env:
+        pipeline: prm-deductions-system-e2e.dev
+        stage: functional
       base_infra:
         pipeline: prm-deductions-infra
         stage: deploy_perf
@@ -156,6 +162,9 @@ pipelines:
         type: configrepo
         blacklist:
           - docs/**/*.*
+      test_env:
+        pipeline: prm-deductions-system-e2e.test
+        stage: functional
       base_infra:
         pipeline: prm-deductions-infra
         stage: deploy_pre_prod
