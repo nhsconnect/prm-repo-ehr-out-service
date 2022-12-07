@@ -16,7 +16,7 @@ if (use_ssl) {
   databaseConfig.dialectOptions = {
     // see https://node-postgres.com/features/ssl
     ssl: {
-      rejectUnauthorized: true
+      rejectUnauthorized: false
     }
   };
 }
