@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  localstack:
+    container_name: "localstack-deductions-repo-to-gp"
+    image: localstack/localstack
+    network_mode: bridge
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sqs,sns
+      - DEFAULT_REGION=eu-west-2
+      - HOSTNAME_EXTERNAL=localhost
+      - EDGE_PORT=4566
+    volumes:
+      - "${TMPDIR:-/tmp}/localstack:/var/lib/localstack"
