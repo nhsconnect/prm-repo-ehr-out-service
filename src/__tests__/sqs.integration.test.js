@@ -5,6 +5,7 @@ import {
   SendMessageCommand,
   SQSClient
 } from '@aws-sdk/client-sqs';
+import { startSqsConsumer } from '../services/sqs/sqs-consumer';
 
 function ehrRequestMessage() {
   const messageBody =
@@ -58,13 +59,18 @@ describe('SQS incoming message handling', () => {
   let sqs;
   beforeEach(() => {
     sqs = TestSqsClient();
+    startSqsConsumer();
   });
 
-  xit('should receive messages from the incoming queue', async () => {
+  xit('should receive messages from the incoming queue', async done => {
     let queue = await sqs.queue('ehr-out-service-incoming');
 
     queue.send(ehrRequestMessage());
 
-    expect(await queue.becomesEmpty()).toEqual(true);
+    const expectation = async () => {
+      expect(await queue.becomesEmpty()).toEqual(true);
+      done();
+    };
+    setTimeout(expectation, 3000);
   });
 });
