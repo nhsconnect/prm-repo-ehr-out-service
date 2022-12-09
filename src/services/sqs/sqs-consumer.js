@@ -24,14 +24,12 @@ const pollQueue = () => {
     .catch(err => {
       logError('Error reading from EHR out incoming queue', err);
     });
-  // processMessage(message);
   setTimeout(pollQueue, 100);
 };
 
-export const processMessage = data => {
+const processMessage = data => {
   try {
     parse(data);
-    return data;
   } catch (err) {
     console.log('Receive Error', err);
   }
