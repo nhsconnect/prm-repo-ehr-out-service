@@ -7,7 +7,7 @@ import {
   SQSClient
 } from '@aws-sdk/client-sqs';
 import { startSqsConsumer } from '../services/sqs/sqs-consumer';
-import { config } from '../../test/config';
+import { config, initialiseConfig } from '../../test/config';
 
 function ehrRequestMessage() {
   const messageBody =
@@ -16,9 +16,8 @@ function ehrRequestMessage() {
 }
 
 function TestSqsClient() {
-  const localstackEndpoint = config.localstackEndpointUrl;
   const awsAccountNo = config.awsAccountNo;
-  let _client = new SQSClient({ endpoint: localstackEndpoint, region: config.region });
+  let _client = new SQSClient({ endpoint: config.localstackEndpointUrl, region: config.region });
 
   let client = {};
   client.queue = {
@@ -33,14 +32,16 @@ function TestSqsClient() {
     },
     delete: async queueName => {
       await _client.send(
-        new DeleteQueueCommand({ QueueUrl: `${localstackEndpoint}/${awsAccountNo}/${queueName}` })
+        new DeleteQueueCommand({
+          QueueUrl: `${config.localstackEndpointUrl}/${awsAccountNo}/${queueName}`
+        })
       );
     },
     send: async (message, queueName) => {
       await _client.send(
         new SendMessageCommand({
           MessageBody: message,
-          QueueUrl: `${localstackEndpoint}/${awsAccountNo}/${queueName}`
+          QueueUrl: `${config.localstackEndpointUrl}/${awsAccountNo}/${queueName}`
         })
       );
     },
@@ -49,7 +50,7 @@ function TestSqsClient() {
       const queueAttributes = await _client.send(
         new GetQueueAttributesCommand({
           AttributeNames: ['ApproximateNumberOfMessages'],
-          QueueUrl: `${localstackEndpoint}/${awsAccountNo}/${queueName}`
+          QueueUrl: `${config.localstackEndpointUrl}/${awsAccountNo}/${queueName}`
         })
       );
       let queueSize = queueAttributes.Attributes['ApproximateNumberOfMessages'];
@@ -62,19 +63,18 @@ function TestSqsClient() {
 describe('SQS incoming message handling', () => {
   let sqs;
   beforeEach(() => {
+    initialiseConfig();
     sqs = TestSqsClient();
-    startSqsConsumer();
-  });
-  afterEach(() => {
-    sqs.queue.delete(config.SQS_EHR_OUT_INCOMING_QUEUE_URL);
+    startSqsConsumer({ endpoint: config.localstackEndpointUrl, region: config.region });
   });
 
-  xit('should receive messages from the incoming queue', async () => {
+  it('should receive messages from the incoming queue', async () => {
     let queue = sqs.queue;
     await queue.create(config.SQS_EHR_OUT_INCOMING_QUEUE_URL).then(() => {
       queue.send(ehrRequestMessage(), config.SQS_EHR_OUT_INCOMING_QUEUE_URL);
     });
-
-    expect(await queue.becomesEmpty(config.SQS_EHR_OUT_INCOMING_QUEUE_URL)).toEqual(true);
+    expect.assertions(1);
+    await expect(await queue.becomesEmpty(config.SQS_EHR_OUT_INCOMING_QUEUE_URL)).toEqual(true);
+    queue.delete(config.SQS_EHR_OUT_INCOMING_QUEUE_URL);
   });
 });

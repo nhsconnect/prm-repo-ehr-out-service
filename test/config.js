@@ -6,3 +6,7 @@ export const config = {
   awsAccountNo: '000000000000',
   SQS_EHR_OUT_INCOMING_QUEUE_URL: 'test-ehr-out-service-incoming'
 };
+
+export const initialiseConfig = () => {
+  process.env.SQS_EHR_OUT_INCOMING_QUEUE_URL = config.SQS_EHR_OUT_INCOMING_QUEUE_URL;
+};

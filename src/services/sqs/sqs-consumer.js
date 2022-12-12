@@ -2,14 +2,14 @@ import { SQSClient, ReceiveMessageCommand } from '@aws-sdk/client-sqs';
 import { parse } from '../parser/sqs-incoming-message-parser.js';
 import { logError } from '../../middleware/logging';
 
-const ehrOutIncoming = process.env.SQS_EHR_OUT_INCOMING_QUEUE_URL;
-
-const params = {
-  AttributeNames: ['SentTimestamp'],
-  MaxNumberOfMessages: 1,
-  MessageAttributeNames: ['All'],
-  QueueUrl: ehrOutIncoming,
-  WaitTimeSeconds: 20
+const getParams = () => {
+  return {
+    AttributeNames: ['SentTimestamp'],
+    MaxNumberOfMessages: 1,
+    MessageAttributeNames: ['All'],
+    QueueUrl: process.env.SQS_EHR_OUT_INCOMING_QUEUE_URL,
+    WaitTimeSeconds: 20
+  };
 };
 export const startSqsConsumer = (
   config = { region: process.env.AWS_DEFAULT_REGION || 'eu-west-2' }
@@ -19,7 +19,7 @@ export const startSqsConsumer = (
 };
 const pollQueue = sqsClient => {
   sqsClient
-    .send(new ReceiveMessageCommand(params))
+    .send(new ReceiveMessageCommand(getParams()))
     .then(data => {
       processMessage(data);
     })
