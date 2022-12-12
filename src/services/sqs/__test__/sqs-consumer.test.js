@@ -2,6 +2,7 @@ import { startSqsConsumer } from '../sqs-consumer.js';
 import { parse } from '../../parser/sqs-incoming-message-parser';
 import { SQSClient } from '@aws-sdk/client-sqs';
 import { logError } from '../../../middleware/logging';
+import { config } from '../../../../test/config';
 
 jest.mock('../../parser/sqs-incoming-message-parser');
 jest.mock('../../../middleware/logging');
@@ -36,6 +37,9 @@ describe('sqs consumer', () => {
     await startSqsConsumer();
     await jest.advanceTimersByTime(210);
 
+    expect(SQSClient.mock.calls[0][0]).toStrictEqual({
+      region: config.region
+    });
     expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 100);
     expect(setTimeout).toHaveBeenCalledTimes(3);
     expect(sqsSendMessageSpy).toHaveBeenCalledTimes(3);
@@ -47,5 +51,25 @@ describe('sqs consumer', () => {
       'Error reading from EHR out incoming queue',
       errorMessage
     );
+  });
+
+  it('sqs client is configurable', async () => {
+    jest.useFakeTimers();
+    jest.spyOn(global, 'setTimeout');
+    const sqsSendMessageSpy = jest.spyOn(SQSClient.prototype, 'send');
+    const message1 = { key: 'this is a test message 1' };
+
+    sqsSendMessageSpy.mockReturnValueOnce(
+      new Promise(resolve => {
+        resolve(message1);
+      })
+    );
+
+    await startSqsConsumer({ endpoint: config.localstackEndpointUrl, region: config.region });
+
+    expect(SQSClient.mock.calls[0][0]).toStrictEqual({
+      endpoint: config.localstackEndpointUrl,
+      region: config.region
+    });
   });
 });
