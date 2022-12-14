@@ -16,7 +16,16 @@ describe('Parse the incoming message from the ehr-out-incoming-queue', () => {
   it('should successfully parse the incoming message', async () => {
     const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
     xmlParser.mockReturnValueOnce({
-      data: { Envelope: { Header: { MessageHeader: { Action: 'RCMR_IN010000UK05', ConversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22' } } } }
+      data: {
+        Envelope: {
+          Header: {
+            MessageHeader: {
+              Action: 'RCMR_IN010000UK05',
+              ConversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22'
+            }
+          }
+        }
+      }
     });
     let parsedMessage = await parse(ehrRequest);
     expect(xmlParser).toHaveBeenCalledTimes(1);
