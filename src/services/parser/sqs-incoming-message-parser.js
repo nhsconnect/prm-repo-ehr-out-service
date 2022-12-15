@@ -1,5 +1,7 @@
 import { XmlParser } from './xml-parser/xml-parser';
-import { logError, logInfo } from '../../middleware/logging';
+import { logError, logInfo, logWarning } from '../../middleware/logging';
+
+const EHR_REQUEST_INTERACTION_ID = 'RCMR_IN010000UK05';
 
 export const parse = async messageBody => {
   logInfo('Parsing ehr-out-service-incoming event');
@@ -8,11 +10,19 @@ export const parse = async messageBody => {
     const { interactionId, conversationId } = await extractEbXmlData(JSON.parse(messageBody).ebXML);
     logInfo('Successfully parsed ebXML');
 
-    const { ehrRequestId, nhsNumber, odsCode } = await extractPayloadData(
-      JSON.parse(messageBody).payload
-    );
-    // determine request type by interaction id
-    logInfo(`Successfully parsed payload`);
+    let ehrRequestId = undefined,
+      nhsNumber = undefined,
+      odsCode = undefined;
+
+    if (interactionId === EHR_REQUEST_INTERACTION_ID) {
+      [ehrRequestId, nhsNumber, odsCode] = await extractPayloadData(
+        JSON.parse(messageBody).payload
+      );
+      logInfo(`Successfully parsed payload`);
+    } else {
+      logWarning('Invalid interaction id ' + interactionId);
+    }
+
     logInfo('Successfully parsed ehr-out-service-incoming event');
 
     return {
@@ -38,21 +48,19 @@ const extractEbXmlData = async ebXml => {
   };
 };
 
-//TODO need to verify the RCMR tag
-
 const extractPayloadData = async payload => {
   const payloadParser = await new XmlParser().parse(payload);
   const ehrRequestId =
-    payloadParser['data']['RCMR_IN010000UK05']['ControlActEvent']['subject']['EhrRequest']['id'][
-      'root'
-    ];
+    payloadParser['data'][EHR_REQUEST_INTERACTION_ID]['ControlActEvent']['subject']['EhrRequest'][
+      'id'
+    ]['root'];
   const nhsNumber =
-    payloadParser['data']['RCMR_IN010000UK05']['ControlActEvent']['subject']['EhrRequest'][
+    payloadParser['data'][EHR_REQUEST_INTERACTION_ID]['ControlActEvent']['subject']['EhrRequest'][
       'recordTarget'
     ]['patient']['id']['extension'];
   const odsCode =
-    payloadParser['data']['RCMR_IN010000UK05']['ControlActEvent']['subject']['EhrRequest'][
+    payloadParser['data'][EHR_REQUEST_INTERACTION_ID]['ControlActEvent']['subject']['EhrRequest'][
       'author'
     ]['AgentOrgSDS']['agentOrganizationSDS']['id']['extension'];
-  return { ehrRequestId, nhsNumber, odsCode };
+  return [ehrRequestId, nhsNumber, odsCode];
 };
