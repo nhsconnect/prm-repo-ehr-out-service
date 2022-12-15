@@ -17,22 +17,57 @@ const expectedParsedMessage = {
 describe('Parse the incoming message from the ehr-out-incoming-queue', () => {
   it('should successfully parse the incoming message', async () => {
     const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
-    xmlParser.mockReturnValueOnce({
-      data: {
-        Envelope: {
-          Header: {
-            MessageHeader: {
-              Action: 'RCMR_IN010000UK05',
-              ConversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22'
+    xmlParser
+      .mockReturnValueOnce({
+        data: {
+          Envelope: {
+            Header: {
+              MessageHeader: {
+                Action: 'RCMR_IN010000UK05',
+                ConversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22'
+              }
             }
           }
         }
-      }
-    });
+      })
+      .mockReturnValueOnce({
+        data: {
+          RCMR_IN010000UK05: {
+            ControlActEvent: {
+              subject: {
+                EhrRequest: {
+                  id: { root: 'FFFB3C70-0BCC-4D9E-A441-7E9C41A897AA' },
+                  recordTarget: {
+                    patient: {
+                      id: {
+                        extension: '9692842304'
+                      }
+                    }
+                  },
+                  author: {
+                    AgentOrgSDS: {
+                      agentOrganizationSDS: {
+                        id: {
+                          extension: 'A91720'
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+
     let parsedMessage = await parse(rawEhrRequestBody);
-    expect(xmlParser).toHaveBeenCalledTimes(1);
+    expect(xmlParser).toHaveBeenCalledTimes(2);
     expect(xmlParser).toHaveBeenCalledWith(ehrRequestMessage.ebXML);
+    expect(xmlParser).toHaveBeenCalledWith(ehrRequestMessage.payload);
     await expect(parsedMessage.interactionId).toBe(expectedParsedMessage.interactionId);
     await expect(parsedMessage.conversationId).toBe(expectedParsedMessage.conversationId);
+    await expect(parsedMessage.ehrRequestId).toBe(expectedParsedMessage.ehrRequestId);
+    await expect(parsedMessage.nhsNumber).toBe(expectedParsedMessage.nhsNumber);
+    await expect(parsedMessage.odsCode).toBe(expectedParsedMessage.odsCode);
   });
 });

@@ -6,12 +6,21 @@ export const parse = async messageBody => {
 
   try {
     const { interactionId, conversationId } = await extractEbXmlData(JSON.parse(messageBody).ebXML);
+    logInfo('Successfully parsed ebXML');
+
+    const { ehrRequestId, nhsNumber, odsCode } = await extractPayloadData(
+      JSON.parse(messageBody).payload
+    );
     // determine request type by interaction id
-    // parse the payload
+    logInfo(`Successfully parsed payload`);
+    logInfo('Successfully parsed ehr-out-service-incoming event');
 
     return {
       interactionId: interactionId,
-      conversationId: conversationId
+      conversationId: conversationId,
+      ehrRequestId: ehrRequestId,
+      nhsNumber: nhsNumber,
+      odsCode: odsCode
     };
   } catch (e) {
     logError('Error parsing ehr-out-service-incoming queue event', e);
@@ -27,4 +36,23 @@ const extractEbXmlData = async ebXml => {
     interactionId,
     conversationId
   };
+};
+
+//TODO need to verify the RCMR tag
+
+const extractPayloadData = async payload => {
+  const payloadParser = await new XmlParser().parse(payload);
+  const ehrRequestId =
+    payloadParser['data']['RCMR_IN010000UK05']['ControlActEvent']['subject']['EhrRequest']['id'][
+      'root'
+    ];
+  const nhsNumber =
+    payloadParser['data']['RCMR_IN010000UK05']['ControlActEvent']['subject']['EhrRequest'][
+      'recordTarget'
+    ]['patient']['id']['extension'];
+  const odsCode =
+    payloadParser['data']['RCMR_IN010000UK05']['ControlActEvent']['subject']['EhrRequest'][
+      'author'
+    ]['AgentOrgSDS']['agentOrganizationSDS']['id']['extension'];
+  return { ehrRequestId, nhsNumber, odsCode };
 };
