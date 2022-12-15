@@ -21,7 +21,7 @@ const pollQueue = sqsClient => {
   sqsClient
     .send(new ReceiveMessageCommand(getParams()))
     .then(data => {
-      processMessage(data);
+      processMessages(data);
     })
     .catch(err => {
       logError('Error reading from EHR out incoming queue', err);
@@ -29,9 +29,11 @@ const pollQueue = sqsClient => {
   setTimeout(() => pollQueue(sqsClient), 100);
 };
 
-const processMessage = data => {
+const processMessages = receiveMessageCommandOutput => {
   try {
-    parse(data);
+    receiveMessageCommandOutput.Messages.forEach(message => {
+      parse(message.Body);
+    });
   } catch (err) {
     console.log('Receive Error', err);
   }

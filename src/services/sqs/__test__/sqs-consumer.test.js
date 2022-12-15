@@ -13,8 +13,24 @@ describe('sqs consumer', () => {
     jest.useFakeTimers();
     jest.spyOn(global, 'setTimeout');
     const sqsSendMessageSpy = jest.spyOn(SQSClient.prototype, 'send');
-    const message1 = { key: 'this is a test message 1' };
-    const message2 = { key: 'this is a test message 2' };
+    const message1 = {
+      $metadata: { attempts: 1, httpStatusCode: 200, totalRetryDelay: 0 },
+      Messages: [
+        {
+          Attributes: { SentTimestamp: '1671103624717' },
+          Body: '{ "key": "this is a test message 1" }'
+        }
+      ]
+    };
+    const message2 = {
+      $metadata: { attempts: 1, httpStatusCode: 200, totalRetryDelay: 0 },
+      Messages: [
+        {
+          Attributes: { SentTimestamp: '1671103624717' },
+          Body: '{ "key": "this is a test message 2" }'
+        }
+      ]
+    };
     const errorMessage = 'test error message';
 
     sqsSendMessageSpy
@@ -43,8 +59,8 @@ describe('sqs consumer', () => {
     expect(setTimeout).toHaveBeenLastCalledWith(expect.any(Function), 100);
     expect(setTimeout).toHaveBeenCalledTimes(3);
     expect(sqsSendMessageSpy).toHaveBeenCalledTimes(3);
-    expect(parse).toHaveBeenNthCalledWith(1, message1);
-    expect(parse).toHaveBeenNthCalledWith(2, message2);
+    expect(parse).toHaveBeenNthCalledWith(1, message1.Messages[0].Body);
+    expect(parse).toHaveBeenNthCalledWith(2, message2.Messages[0].Body);
     await expect(parse).toHaveBeenCalledTimes(2);
     await expect(logError).toHaveBeenCalledTimes(1);
     expect(logError).toHaveBeenCalledWith(

@@ -8,11 +8,10 @@ import {
 } from '@aws-sdk/client-sqs';
 import { startSqsConsumer } from '../services/sqs/sqs-consumer';
 import { config, initialiseConfig } from '../../test/config';
+import { readFileSync } from 'fs';
 
 function ehrRequestMessage() {
-  const messageBody =
-    'Information about current NY Times fiction bestseller for week of 12/11/2016.';
-  return messageBody;
+  return readFileSync('src/__tests__/data/RCMR_IN010000UK05');
 }
 
 function TestSqsClient() {

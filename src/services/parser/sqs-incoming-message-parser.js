@@ -1,12 +1,11 @@
 import { XmlParser } from './xml-parser/xml-parser';
-import { logInfo } from '../../middleware/logging';
+import { logError, logInfo } from '../../middleware/logging';
 
 export const parse = async messageBody => {
-  logInfo('Trying to parse ehr-out-service-incoming event');
+  logInfo('Parsing ehr-out-service-incoming event');
 
   try {
-    const { interactionId, conversationId } = await extractEbXmlData(messageBody.ebXML);
-
+    const { interactionId, conversationId } = await extractEbXmlData(JSON.parse(messageBody).ebXML);
     // determine request type by interaction id
     // parse the payload
 
@@ -15,7 +14,7 @@ export const parse = async messageBody => {
       conversationId: conversationId
     };
   } catch (e) {
-    // ToDo Handle errors
+    logError('Error parsing ehr-out-service-incoming queue event', e);
   }
 };
 

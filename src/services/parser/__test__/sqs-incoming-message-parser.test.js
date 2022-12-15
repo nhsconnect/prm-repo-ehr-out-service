@@ -1,9 +1,11 @@
 import { parse } from '../sqs-incoming-message-parser';
-import { ehrRequest } from './data/RCMR_IN010000UK05';
 import expect from 'expect';
 import { XmlParser } from '../xml-parser/xml-parser';
 jest.mock('../xml-parser/xml-parser');
 
+const rawEhrRequestBody =
+  '{"ebXML":"<soap:Envelope><soap:Header><eb:MessageHeader ></eb:MessageHeader></soap:Header><soap:Body></soap:Body></soap:Envelope>","payload":"<RCMR_IN010000UK05 xmlns:xsi=\\"http://www.w3.org\\" xmlns:xs=\\"XMLSchema\\" type=\\"Message\\" xmlns=\\"urn:hl7-org:v3\\"></RCMR_IN010000UK05>","attachments":[]}';
+const ehrRequestMessage = JSON.parse(rawEhrRequestBody);
 const expectedParsedMessage = {
   interactionId: 'RCMR_IN010000UK05',
   conversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22',
@@ -27,8 +29,9 @@ describe('Parse the incoming message from the ehr-out-incoming-queue', () => {
         }
       }
     });
-    let parsedMessage = await parse(ehrRequest);
+    let parsedMessage = await parse(rawEhrRequestBody);
     expect(xmlParser).toHaveBeenCalledTimes(1);
+    expect(xmlParser).toHaveBeenCalledWith(ehrRequestMessage.ebXML);
     await expect(parsedMessage.interactionId).toBe(expectedParsedMessage.interactionId);
     await expect(parsedMessage.conversationId).toBe(expectedParsedMessage.conversationId);
   });
