@@ -1,6 +1,7 @@
-import { SQSClient, ReceiveMessageCommand } from '@aws-sdk/client-sqs';
+import { ReceiveMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { parse } from '../parser/sqs-incoming-message-parser.js';
 import { logError } from '../../middleware/logging';
+import sendMessageToCorrespondingHandler from '../handler/broker';
 
 const getParams = () => {
   return {
@@ -32,7 +33,8 @@ const pollQueue = sqsClient => {
 const processMessages = receiveMessageCommandOutput => {
   try {
     receiveMessageCommandOutput.Messages.forEach(message => {
-      parse(message.Body);
+      const parsedMessage = parse(message.Body);
+      sendMessageToCorrespondingHandler(parsedMessage);
     });
   } catch (err) {
     console.log('Receive Error', err);

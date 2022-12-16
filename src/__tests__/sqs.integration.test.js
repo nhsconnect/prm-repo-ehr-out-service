@@ -3,6 +3,7 @@ import {
   DeleteQueueCommand,
   GetQueueAttributesCommand,
   ListQueuesCommand,
+  ReceiveMessageCommand,
   SendMessageCommand,
   SQSClient
 } from '@aws-sdk/client-sqs';
@@ -54,9 +55,25 @@ function TestSqsClient() {
       );
       let queueSize = queueAttributes.Attributes['ApproximateNumberOfMessages'];
       return queueSize === '0';
+    },
+
+    receive: async queueName => {
+      let params = {
+        AttributeNames: ['SentTimestamp'],
+        MaxNumberOfMessages: 10,
+        MessageAttributeNames: ['All'],
+        QueueUrl: `${config.localstackEndpointUrl}/${awsAccountNo}/${queueName}`,
+        VisibilityTimeout: 20,
+        WaitTimeSeconds: 0
+      };
+      const receiveMessageCommandOutput = await _client.send(new ReceiveMessageCommand(params));
+      return receiveMessageCommandOutput.Messages;
     }
   };
-  return client;
+
+  // let queueSize =
+  //   receiveMessageCommandOutput.Messages[0].Attributes['ApproximateNumberOfMessages'].length;
+  // return queueSize;
 }
 
 describe('SQS incoming message handling', () => {
@@ -67,13 +84,18 @@ describe('SQS incoming message handling', () => {
     startSqsConsumer({ endpoint: config.localstackEndpointUrl, region: config.region });
   });
 
-  it('should receive messages from the incoming queue', async () => {
+  xit('should receive messages from the incoming queue', async () => {
     let queue = sqs.queue;
+
     await queue.create(config.SQS_EHR_OUT_INCOMING_QUEUE_URL).then(() => {
       queue.send(ehrRequestMessage(), config.SQS_EHR_OUT_INCOMING_QUEUE_URL);
     });
+    await queue.receive(config.SQS_EHR_OUT_INCOMING_QUEUE_URL);
     expect.assertions(1);
+    await expect((await queue.receive(config.SQS_EHR_OUT_INCOMING_QUEUE_URL)).length).toHaveLength(
+      1
+    );
     await expect(await queue.becomesEmpty(config.SQS_EHR_OUT_INCOMING_QUEUE_URL)).toEqual(true);
-    queue.delete(config.SQS_EHR_OUT_INCOMING_QUEUE_URL);
+    await queue.delete(config.SQS_EHR_OUT_INCOMING_QUEUE_URL);
   });
 });
