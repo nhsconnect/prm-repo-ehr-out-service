@@ -1,6 +1,7 @@
 import { parse } from '../sqs-incoming-message-parser';
 import expect from 'expect';
 import { XmlParser } from '../xml-parser/xml-parser';
+
 jest.mock('../xml-parser/xml-parser');
 
 const rawEhrRequestBody =
@@ -69,26 +70,5 @@ describe('Parse the incoming message from the ehr-out-incoming-queue', () => {
     await expect(parsedMessage.ehrRequestId).toBe(expectedParsedMessage.ehrRequestId);
     await expect(parsedMessage.nhsNumber).toBe(expectedParsedMessage.nhsNumber);
     await expect(parsedMessage.odsCode).toBe(expectedParsedMessage.odsCode);
-  });
-
-  it('should  handle appropriate request event based on the interactionId ', async () => {
-    const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
-    xmlParser.mockReturnValueOnce({
-      data: {
-        Envelope: {
-          Header: {
-            MessageHeader: {
-              Action: 'INVALID_INTERACTION_ID',
-              ConversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22'
-            }
-          }
-        }
-      }
-    });
-
-    let parsedMessage = await parse(rawEhrRequestBody);
-    expect(xmlParser).toHaveBeenCalledTimes(1);
-    expect(xmlParser).toHaveBeenCalledWith(ehrRequestMessage.ebXML);
-    await expect(parsedMessage.interactionId).toBe('INVALID_INTERACTION_ID');
   });
 });

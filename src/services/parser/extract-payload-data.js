@@ -12,5 +12,5 @@ export const extractPayloadData = async (payload, interactionId) => {
     payloadParser['data'][interactionId]['ControlActEvent']['subject']['EhrRequest']['author'][
       'AgentOrgSDS'
     ]['agentOrganizationSDS']['id']['extension'];
-  return [ehrRequestId, nhsNumber, odsCode];
+  return { ehrRequestId, nhsNumber, odsCode };
 };
