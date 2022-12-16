@@ -6,7 +6,7 @@ export default function sendMessageToCorrespondingHandler(parsedMessage) {
   switch (parsedMessage.interactionId) {
     case INTERACTION_IDS.EHR_REQUEST_INTERACTION_ID:
       logInfo('Message Type: EHR REQUEST');
-      ehrRequestHandler(parsedMessage);
+      ehrRequestHandler();
       break;
     default:
       logError('Invalid interaction id', parsedMessage.interactionId);
