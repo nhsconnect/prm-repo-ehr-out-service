@@ -14,6 +14,7 @@ export const parse = async messageBody => {
       nhsNumber = undefined,
       odsCode = undefined;
 
+    //we can take out this if statement
     if (interactionId === INTERACTION_IDS.EHR_REQUEST_INTERACTION_ID) {
       [ehrRequestId, nhsNumber, odsCode] = await extractPayloadData(
         JSON.parse(messageBody).payload,
