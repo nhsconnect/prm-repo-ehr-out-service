@@ -4,7 +4,6 @@ import {
   DeleteQueueCommand,
   GetQueueAttributesCommand,
   ListQueuesCommand,
-  ReceiveMessageCommand,
   SendMessageCommand,
   SQSClient
 } from '@aws-sdk/client-sqs';
@@ -72,20 +71,6 @@ function TestSqsClient() {
     isEmpty: async queueName => {
       let queueSize = size(queueName);
       return queueSize === 0;
-    },
-
-    receive: async queueName => {
-      let params = {
-        AttributeNames: ['SentTimestamp'],
-        MaxNumberOfMessages: 10,
-        MessageAttributeNames: ['All'],
-        QueueUrl: `${config.localstackEndpointUrl}/${awsAccountNo}/${queueName}`,
-        VisibilityTimeout: 20,
-        WaitTimeSeconds: 0
-      };
-      const receiveMessageCommandOutput = await _client.send(new ReceiveMessageCommand(params));
-      console.log(receiveMessageCommandOutput);
-      return receiveMessageCommandOutput.Messages;
     }
   };
   return client;
