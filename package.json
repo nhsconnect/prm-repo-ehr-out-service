@@ -63,7 +63,8 @@
     "nodemon": "^2.0.19",
     "prettier": "2.6.0",
     "supertest": "^6.2.2",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "wait-for-expect": "^3.0.2"
   },
   "overrides": {
     "moment-timezone": "0.5.39"

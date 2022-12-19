@@ -1,12 +1,16 @@
+const SQS_EHR_OUT_INCOMING_QUEUE_NAME = 'test-ehr-out-service-incoming';
+const AWS_ACCOUNT_NO = '000000000000';
+let localstackEndpointUrl = process.env.LOCALSTACK_URL;
 export const config = {
   nhsEnvironment: process.env.NHS_ENVIRONMENT,
   repoToGpUrl: process.env.REPO_TO_GP_URL,
-  localstackEndpointUrl: process.env.LOCALSTACK_URL,
+  localstackEndpointUrl: localstackEndpointUrl,
   region: process.env.AWS_DEFAULT_REGION || 'eu-west-2',
-  awsAccountNo: '000000000000',
-  SQS_EHR_OUT_INCOMING_QUEUE_URL: 'test-ehr-out-service-incoming'
+  awsAccountNo: AWS_ACCOUNT_NO,
+  SQS_EHR_OUT_INCOMING_QUEUE_NAME,
+  SQS_EHR_OUT_INCOMING_QUEUE_URL: `${localstackEndpointUrl}/${AWS_ACCOUNT_NO}/${SQS_EHR_OUT_INCOMING_QUEUE_NAME}`
 };
 
-export const initialiseConfig = () => {
+export const initialiseAppConfig = () => {
   process.env.SQS_EHR_OUT_INCOMING_QUEUE_URL = config.SQS_EHR_OUT_INCOMING_QUEUE_URL;
 };

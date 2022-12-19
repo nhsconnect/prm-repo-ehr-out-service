@@ -1,3 +1,4 @@
+import { startSqsConsumer } from '../services/sqs/sqs-consumer';
 import {
   CreateQueueCommand,
   DeleteQueueCommand,
@@ -7,9 +8,10 @@ import {
   SendMessageCommand,
   SQSClient
 } from '@aws-sdk/client-sqs';
-import { startSqsConsumer } from '../services/sqs/sqs-consumer';
-import { config, initialiseConfig } from '../../test/config';
+import { config, initialiseAppConfig } from '../../test/config';
 import { readFileSync } from 'fs';
+
+const waitForExpect = require('wait-for-expect');
 
 function ehrRequestMessage() {
   return readFileSync('src/__tests__/data/RCMR_IN010000UK05');
@@ -20,23 +22,42 @@ function TestSqsClient() {
   let _client = new SQSClient({ endpoint: config.localstackEndpointUrl, region: config.region });
 
   let client = {};
-  client.queue = {
-    create: async queueName => {
-      const existingQueues = await _client.send(
-        new ListQueuesCommand({ QueueNamePrefix: queueName })
-      );
+  let deleteQueue = async queueName => {
+    await _client.send(
+      new DeleteQueueCommand({
+        QueueUrl: `${config.localstackEndpointUrl}/${awsAccountNo}/${queueName}`
+      })
+    );
+  };
 
-      if (existingQueues.QueueUrls === undefined || existingQueues.QueueUrls.length === 0) {
-        await _client.send(new CreateQueueCommand({ QueueName: queueName }));
-      }
+  let createQueue = async queueName => {
+    const existingQueues = await _client.send(
+      new ListQueuesCommand({ QueueNamePrefix: queueName })
+    );
+
+    if (existingQueues.QueueUrls === undefined || existingQueues.QueueUrls.length === 0) {
+      await _client.send(new CreateQueueCommand({ QueueName: queueName }));
+    }
+  };
+
+  const size = async queueName => {
+    const queueAttributes = await _client.send(
+      new GetQueueAttributesCommand({
+        AttributeNames: ['ApproximateNumberOfMessages'],
+        QueueUrl: `${config.localstackEndpointUrl}/${awsAccountNo}/${queueName}`
+      })
+    );
+    let queueSize = queueAttributes.Attributes['ApproximateNumberOfMessages'];
+    return parseInt(queueSize);
+  };
+
+  client.queue = {
+    create: createQueue,
+    ensureEmptyQueueIsCreated: async queueName => {
+      await deleteQueue(queueName);
+      await createQueue(queueName);
     },
-    delete: async queueName => {
-      await _client.send(
-        new DeleteQueueCommand({
-          QueueUrl: `${config.localstackEndpointUrl}/${awsAccountNo}/${queueName}`
-        })
-      );
-    },
+    delete: deleteQueue,
     send: async (message, queueName) => {
       await _client.send(
         new SendMessageCommand({
@@ -46,15 +67,11 @@ function TestSqsClient() {
       );
     },
 
-    becomesEmpty: async queueName => {
-      const queueAttributes = await _client.send(
-        new GetQueueAttributesCommand({
-          AttributeNames: ['ApproximateNumberOfMessages'],
-          QueueUrl: `${config.localstackEndpointUrl}/${awsAccountNo}/${queueName}`
-        })
-      );
-      let queueSize = queueAttributes.Attributes['ApproximateNumberOfMessages'];
-      return queueSize === '0';
+    size,
+
+    isEmpty: async queueName => {
+      let queueSize = size(queueName);
+      return queueSize === 0;
     },
 
     receive: async queueName => {
@@ -67,35 +84,34 @@ function TestSqsClient() {
         WaitTimeSeconds: 0
       };
       const receiveMessageCommandOutput = await _client.send(new ReceiveMessageCommand(params));
+      console.log(receiveMessageCommandOutput);
       return receiveMessageCommandOutput.Messages;
     }
   };
-
-  // let queueSize =
-  //   receiveMessageCommandOutput.Messages[0].Attributes['ApproximateNumberOfMessages'].length;
-  // return queueSize;
+  return client;
 }
 
 describe('SQS incoming message handling', () => {
   let sqs;
-  beforeEach(() => {
-    initialiseConfig();
+  beforeEach(async () => {
     sqs = TestSqsClient();
+    await sqs.queue.ensureEmptyQueueIsCreated(config.SQS_EHR_OUT_INCOMING_QUEUE_NAME);
+  });
+
+  beforeEach(() => {
+    initialiseAppConfig();
     startSqsConsumer({ endpoint: config.localstackEndpointUrl, region: config.region });
   });
 
-  xit('should receive messages from the incoming queue', async () => {
+  it('should receive messages from the incoming queue', async () => {
     let queue = sqs.queue;
 
-    await queue.create(config.SQS_EHR_OUT_INCOMING_QUEUE_URL).then(() => {
-      queue.send(ehrRequestMessage(), config.SQS_EHR_OUT_INCOMING_QUEUE_URL);
+    await queue.send(ehrRequestMessage(), config.SQS_EHR_OUT_INCOMING_QUEUE_NAME);
+
+    await waitForExpect(async () => {
+      let hasReceivedMessage = await queue.isEmpty(config.SQS_EHR_OUT_INCOMING_QUEUE_NAME);
+      console.log('checked if received message: ' + hasReceivedMessage);
+      expect(hasReceivedMessage).toEqual(true);
     });
-    await queue.receive(config.SQS_EHR_OUT_INCOMING_QUEUE_URL);
-    expect.assertions(1);
-    await expect((await queue.receive(config.SQS_EHR_OUT_INCOMING_QUEUE_URL)).length).toHaveLength(
-      1
-    );
-    await expect(await queue.becomesEmpty(config.SQS_EHR_OUT_INCOMING_QUEUE_URL)).toEqual(true);
-    await queue.delete(config.SQS_EHR_OUT_INCOMING_QUEUE_URL);
   });
 });
