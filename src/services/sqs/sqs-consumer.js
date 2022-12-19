@@ -46,14 +46,14 @@ const processMessages = receiveMessageCommandOutput => {
     receiveMessageCommandOutput.Messages.forEach(message => {
       const parsedMessage = parse(message.Body);
       sendMessageToCorrespondingHandler(parsedMessage);
-      sqsClient.send(
-        new DeleteMessageCommand({
-          ReceiptHandle: message.ReceiptHandle
-        })
-      );
+      // sqsClient.send(
+      //   new DeleteMessageCommand({
+      //     ReceiptHandle: message.ReceiptHandle
+      //   })
+      // );
     });
   } catch (err) {
-    console.log('Receive Error', err);
+    logError('Receive Error', err);
   }
 };
 
