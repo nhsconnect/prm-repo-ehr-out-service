@@ -1,5 +1,5 @@
 import sendMessageToCorrespondingHandler from '../broker';
-import { ehrRequestHandler } from '../ehrRequestHandler';
+import ehrRequestHandler from '../ehrRequestHandler';
 import { logError } from '../../../middleware/logging';
 
 jest.mock('../ehrRequestHandler');

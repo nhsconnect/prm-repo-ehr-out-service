@@ -1,6 +1,6 @@
 import { INTERACTION_IDS } from '../../constants/interaction-ids';
 import { logError, logInfo } from '../../middleware/logging';
-import { ehrRequestHandler } from './ehrRequestHandler';
+import ehrRequestHandler from './ehrRequestHandler';
 
 export default function sendMessageToCorrespondingHandler(parsedMessage) {
   switch (parsedMessage.interactionId) {
