@@ -53,7 +53,11 @@ function TestSqsClient() {
   client.queue = {
     create: createQueue,
     ensureEmptyQueueIsCreated: async queueName => {
-      await deleteQueue(queueName);
+      try {
+        await deleteQueue(queueName);
+      } catch (e) {
+        console.log('Error deleting queue ' + e);
+      }
       await createQueue(queueName);
     },
     delete: deleteQueue,
@@ -69,7 +73,7 @@ function TestSqsClient() {
     size,
 
     isEmpty: async queueName => {
-      let queueSize = size(queueName);
+      let queueSize = await size(queueName);
       return queueSize === 0;
     }
   };
@@ -95,7 +99,6 @@ describe('SQS incoming message handling', () => {
 
     await waitForExpect(async () => {
       let hasReceivedMessage = await queue.isEmpty(config.SQS_EHR_OUT_INCOMING_QUEUE_NAME);
-      console.log('checked if received message: ' + hasReceivedMessage);
       expect(hasReceivedMessage).toEqual(true);
     });
   });
