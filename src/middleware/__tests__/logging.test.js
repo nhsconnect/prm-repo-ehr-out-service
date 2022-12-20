@@ -18,6 +18,41 @@ describe('logging', () => {
 
       expect(logger.error).toBeCalledTimes(1);
     });
+
+    it('should actually log the Error object if passed', () => {
+      logError('something', new Error('bob'));
+
+      let errorObject = logger.error.mock.calls[0][1];
+
+      expect(errorObject.error).not.toBeNull();
+      expect(errorObject.error.message).toEqual('bob');
+      expect(errorObject.error.stack).toContain('logging.test');
+    });
+
+    it('should log the name of any custom Error object', () => {
+      class SomeCustomError extends Error {
+        constructor(message) {
+          super(message);
+          this.name = 'SomeCustomErrorName';
+        }
+      }
+
+      logError('something', new SomeCustomError('foo'));
+
+      let errorObject = logger.error.mock.calls[0][1];
+
+      expect(errorObject.error.name).toEqual('SomeCustomErrorName');
+      expect(errorObject.error.message).toEqual('foo');
+    });
+
+    it('should log a non-Error error object literally if passed', () => {
+      let notReallyAnError = { message: 'woop', type: 'not really a js error' };
+      logError('somesuch', notReallyAnError);
+
+      let errorObject = logger.error.mock.calls[0][1];
+
+      expect(errorObject.error).toEqual(notReallyAnError);
+    });
   });
 
   describe('logWarning', () => {

@@ -1,4 +1,4 @@
-import {startSqsConsumer, stopSqsConsumer} from '../services/sqs/sqs-consumer';
+import { startSqsConsumer, stopSqsConsumer } from '../services/sqs/sqs-consumer';
 import {
   CreateQueueCommand,
   DeleteQueueCommand,
@@ -7,8 +7,8 @@ import {
   SendMessageCommand,
   SQSClient
 } from '@aws-sdk/client-sqs';
-import {config, initialiseAppConfig} from '../../test/config';
-import {readFileSync} from 'fs';
+import { config, initialiseAppConfig } from '../../test/config';
+import { readFileSync } from 'fs';
 
 const waitForExpect = require('wait-for-expect');
 
@@ -76,7 +76,7 @@ function TestSqsClient() {
         return queueSize === 0;
       }
     };
-    return queue
+    return queue;
   };
   return client;
 }
@@ -96,7 +96,7 @@ describe('SQS incoming message handling', () => {
   afterEach(stopSqsConsumer);
 
   function startAppSqsConsumer() {
-    startSqsConsumer({endpoint: config.localstackEndpointUrl, region: config.region});
+    startSqsConsumer({ endpoint: config.localstackEndpointUrl, region: config.region });
   }
 
   it('should receive messages from the incoming queue once the sqs consumer started', async () => {

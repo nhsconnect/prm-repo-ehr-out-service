@@ -1,8 +1,19 @@
 import { context, trace } from '@opentelemetry/api';
 import { logger } from '../config/logging';
 import { tracer } from '../config/tracing';
+const { toJSON } = require('utils-deep-clone');
 
-export const logError = (status, error) => logger.error(status, { error });
+function serializedError(error) {
+  if (error === undefined) {
+    return undefined;
+  }
+  if (error instanceof Error) {
+    return toJSON(error);
+  }
+  return error;
+}
+
+export const logError = (status, error) => logger.error(status, { error: serializedError(error) });
 
 export const logWarning = status => logger.warn(status);
 
