@@ -1,9 +1,9 @@
-import { DeleteMessageCommand, ReceiveMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import { ReceiveMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { parse } from '../parser/sqs-incoming-message-parser.js';
 import { logError, logInfo } from '../../middleware/logging';
 import sendMessageToCorrespondingHandler from '../handler/broker';
 
-const getParams = () => {
+const receiveCallParameters = () => {
   return {
     AttributeNames: ['SentTimestamp'],
     MaxNumberOfMessages: 1,
@@ -13,19 +13,26 @@ const getParams = () => {
   };
 };
 
+let stop;
+
 export const startSqsConsumer = (
   config = { region: process.env.AWS_DEFAULT_REGION || 'eu-west-2' }
 ) => {
+  logInfo('Starting SQS consumer');
+  stop = false;
   const sqsClient = new SQSClient(config);
   pollQueue(sqsClient);
 };
 
-export const pollQueueOnce = (sqsClient, parser) => {
-  let receiveCallParameters = getParams();
+export const stopSqsConsumer = () => {
+  logInfo('Requesting stop of SQS consumer');
+  return (stop = true);
+};
 
+export const pollQueueOnce = (sqsClient, parser) => {
   logInfo('Polling for incoming messages');
   sqsClient
-    .send(new ReceiveMessageCommand(receiveCallParameters))
+    .send(new ReceiveMessageCommand(receiveCallParameters()))
     .then(data => {
       logInfo('Received message data');
       processMessages(data, parser);
@@ -33,7 +40,7 @@ export const pollQueueOnce = (sqsClient, parser) => {
     .catch(err => {
       logError(
         `Error reading from EHR out incoming queue, receive call parameters: ${readable(
-          receiveCallParameters
+          receiveCallParameters()
         )}`,
         err
       );
@@ -41,6 +48,10 @@ export const pollQueueOnce = (sqsClient, parser) => {
 };
 
 const pollQueue = sqsClient => {
+  if (stop) {
+    logInfo('SQS consumer poll stopped.');
+    return;
+  }
   pollQueueOnce(sqsClient, parse);
   setTimeout(() => pollQueue(sqsClient), 100);
 };

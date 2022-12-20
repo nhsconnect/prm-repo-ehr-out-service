@@ -1,8 +1,5 @@
-import { pollQueueOnce, startSqsConsumer } from '../sqs-consumer.js';
-import { parse } from '../../parser/sqs-incoming-message-parser';
-import { SQSClient } from '@aws-sdk/client-sqs';
+import { pollQueueOnce } from '../sqs-consumer.js';
 import { logError } from '../../../middleware/logging';
-import { config } from '../../../../test/config';
 
 jest.mock('../../parser/sqs-incoming-message-parser', () => ({
   parse: jest.fn()

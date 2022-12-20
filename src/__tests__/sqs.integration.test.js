@@ -1,4 +1,4 @@
-import { startSqsConsumer } from '../services/sqs/sqs-consumer';
+import { startSqsConsumer, stopSqsConsumer } from '../services/sqs/sqs-consumer';
 import {
   CreateQueueCommand,
   DeleteQueueCommand,
@@ -91,6 +91,8 @@ describe('SQS incoming message handling', () => {
     initialiseAppConfig();
     startSqsConsumer({ endpoint: config.localstackEndpointUrl, region: config.region });
   });
+
+  afterEach(stopSqsConsumer);
 
   it('should receive messages from the incoming queue', async () => {
     let queue = sqs.queue;
