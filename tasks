@@ -151,34 +151,35 @@ function build_docker_image() {
   echo Build completed on `date`
 }
 
-function die_postgres_die {
+function die_container_die {
+  local filter=$1
+  local moniker=$2
+
   echo docker processes running: $(docker ps)
 
-  DOCKER_CONTAINERS_ON_PORT=$(docker ps --filter publish=5432 -q)
+  DOCKER_CONTAINERS_MATCHING_FILTER=$(docker ps --filter $filter -q)
 
-  echo docker processes running on expected postgres port: $DOCKER_CONTAINERS_ON_PORT
+  echo docker processes looking like $2 running matching filter: $DOCKER_CONTAINERS_MATCHING_FILTER
 
-  if [ -z "$DOCKER_CONTAINERS_ON_PORT" ]; then
-    echo no postgres nonsense going on, cool
+  if [ -z "$DOCKER_CONTAINERS_MATCHING_FILTER" ]; then
+    echo no $moniker nonsense going on, cool
   else
-    echo trying to kill postgres...
-    docker stop $DOCKER_CONTAINERS_ON_PORT
+    echo trying to kill $moniker...
+    docker stop $DOCKER_CONTAINERS_MATCHING_FILTER
   fi
 }
 
+
+function die_postgres_die {
+  die_container_die publish=5432 postgres
+}
+
 function die_localstack_die {
-  echo docker processes running: $(docker ps)
+  die_container_die publish=4566 localstack
+}
 
-  DOCKER_CONTAINERS_ON_PORT=$(docker ps --filter publish=4566 -q)
-
-  echo docker processes running on expected localstack port: $DOCKER_CONTAINERS_ON_PORT
-
-  if [ -z "$DOCKER_CONTAINERS_ON_PORT" ]; then
-    echo no localstack nonsense going on, cool
-  else
-    echo trying to kill localstack...
-    docker stop $DOCKER_CONTAINERS_ON_PORT
-  fi
+function die_repo_in_perf_die {
+  die_container_die name=repo_in_perf 'repo-in perf job'
 }
 
 #######################
@@ -338,6 +339,9 @@ case "${command}" in
   die_localstack_die)
       die_localstack_die
       ;;
+  die_repo_in_perf_die)
+      die_repo_in_perf_die
+      ;;
   _test_lint)
       npm install
       npm run lint || true # retain lint for WIP tracking and advisory but don't break build
@@ -368,6 +372,7 @@ case "${command}" in
       use_fake_aws_creds_for_localstack
       die_postgres_die
       die_localstack_die
+      die_repo_in_perf_die
       dojo -c Dojofile-itest "./tasks _test_integration"
       ;;
   test_integration_shell)
