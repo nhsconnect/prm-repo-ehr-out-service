@@ -1,5 +1,5 @@
 import { logInfo } from '../../middleware/logging';
 
-export function ehrRequestHandler() {
+export default function ehrRequestHandler(parsedMessage) {
   logInfo('Trying to handle EHR request');
 }

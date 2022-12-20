@@ -16,13 +16,18 @@ export const parse = async messageBody => {
 
     //we can take out this if statement
     if (interactionId === INTERACTION_IDS.EHR_REQUEST_INTERACTION_ID) {
-      [ehrRequestId, nhsNumber, odsCode] = await extractPayloadData(
-        JSON.parse(messageBody).payload,
-        interactionId
-      );
+      let payloadData = await extractPayloadData(JSON.parse(messageBody).payload, interactionId);
+
+      logInfo(`Payload data returned: ` + JSON.stringify(payloadData));
+
+      ehrRequestId = payloadData.ehrRequestId;
+      nhsNumber = payloadData.nhsNumber;
+      odsCode = payloadData.odsCode;
+
       logInfo(`Successfully parsed payload`);
     } else {
       logWarning('Invalid interaction id ' + interactionId);
+      // hang on a minute, it's not even correct interaction id -> fallthrough! BUG
     }
 
     logInfo('Successfully parsed ehr-out-service-incoming event');
@@ -35,6 +40,6 @@ export const parse = async messageBody => {
       odsCode
     };
   } catch (e) {
-    logError('Error parsing ehr-out-service-incoming queue event', e);
+    logError('Error parsing ehr-out-service-incoming queue event: ' + e, e);
   }
 };
