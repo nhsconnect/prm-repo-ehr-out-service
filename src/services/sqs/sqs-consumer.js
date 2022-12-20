@@ -31,7 +31,7 @@ export const stopSqsConsumer = () => {
 
 export const pollQueueOnce = (sqsClient, parser) => {
   logInfo('Polling for incoming messages');
-  sqsClient
+  return sqsClient
     .send(new ReceiveMessageCommand(receiveCallParameters()))
     .then(data => {
       logInfo('Received message data');
@@ -47,13 +47,14 @@ export const pollQueueOnce = (sqsClient, parser) => {
     });
 };
 
-const pollQueue = sqsClient => {
+const INTER_POLL_DELAY_MS = 50;
+const pollQueue = async sqsClient => {
   if (stop) {
     logInfo('SQS consumer poll stopped.');
     return;
   }
-  pollQueueOnce(sqsClient, parse);
-  setTimeout(() => pollQueue(sqsClient), 100);
+  await pollQueueOnce(sqsClient, parse);
+  setTimeout(() => pollQueue(sqsClient), INTER_POLL_DELAY_MS);
 };
 
 const processMessages = (receiveMessageCommandOutput, parser) => {

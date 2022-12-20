@@ -1,4 +1,4 @@
-import { startSqsConsumer, stopSqsConsumer } from '../services/sqs/sqs-consumer';
+import {startSqsConsumer, stopSqsConsumer} from '../services/sqs/sqs-consumer';
 import {
   CreateQueueCommand,
   DeleteQueueCommand,
@@ -7,8 +7,8 @@ import {
   SendMessageCommand,
   SQSClient
 } from '@aws-sdk/client-sqs';
-import { config, initialiseAppConfig } from '../../test/config';
-import { readFileSync } from 'fs';
+import {config, initialiseAppConfig} from '../../test/config';
+import {readFileSync} from 'fs';
 
 const waitForExpect = require('wait-for-expect');
 
@@ -40,6 +40,17 @@ function TestSqsClient() {
   };
 
   client.queue = queueName => {
+    async function queryQueueAttribute(attribute) {
+      const queueAttributes = await _client.send(
+        new GetQueueAttributesCommand({
+          AttributeNames: [attribute],
+          QueueUrl: `${config.localstackEndpointUrl}/${awsAccountNo}/${queueName}`
+        })
+      );
+      let attributeValue = queueAttributes.Attributes[attribute];
+      return attributeValue;
+    }
+
     let queue = {
       create: () => createQueue(queueName),
       ensureEmpty: async () => {
@@ -60,15 +71,12 @@ function TestSqsClient() {
         );
       },
 
+      invisibleMessageCount: async () => {
+        return parseInt(await queryQueueAttribute('ApproximateNumberOfMessagesNotVisible'));
+      },
+
       visibleMessageCount: async () => {
-        const queueAttributes = await _client.send(
-          new GetQueueAttributesCommand({
-            AttributeNames: ['ApproximateNumberOfMessages'],
-            QueueUrl: `${config.localstackEndpointUrl}/${awsAccountNo}/${queueName}`
-          })
-        );
-        let queueSize = queueAttributes.Attributes['ApproximateNumberOfMessages'];
-        return parseInt(queueSize);
+        return parseInt(await queryQueueAttribute('ApproximateNumberOfMessages'));
       },
 
       isEmpty: async () => {
