@@ -38,7 +38,7 @@ export const pollQueueOnce = (sqsClient, parser) => {
         err
       );
     });
-}
+};
 
 const pollQueue = sqsClient => {
   pollQueueOnce(sqsClient, parse);

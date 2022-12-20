@@ -1,8 +1,8 @@
-import {pollQueueOnce, startSqsConsumer} from '../sqs-consumer.js';
-import {parse} from '../../parser/sqs-incoming-message-parser';
-import {SQSClient} from '@aws-sdk/client-sqs';
-import {logError} from '../../../middleware/logging';
-import {config} from '../../../../test/config';
+import { pollQueueOnce, startSqsConsumer } from '../sqs-consumer.js';
+import { parse } from '../../parser/sqs-incoming-message-parser';
+import { SQSClient } from '@aws-sdk/client-sqs';
+import { logError } from '../../../middleware/logging';
+import { config } from '../../../../test/config';
 
 jest.mock('../../parser/sqs-incoming-message-parser', () => ({
   parse: jest.fn()
@@ -19,14 +19,14 @@ describe('sqs consumer', () => {
     };
 
     const parser = jest.fn();
-    parser.mockReturnValue({ interactionId: EHR_REQUEST_INTERACTION_ID })
+    parser.mockReturnValue({ interactionId: EHR_REQUEST_INTERACTION_ID });
 
     let messageBody = '{ "key": "this is a stub message" }';
     sqsClient.send.mockResolvedValue({
-      $metadata: {attempts: 1, httpStatusCode: 200, totalRetryDelay: 0},
+      $metadata: { attempts: 1, httpStatusCode: 200, totalRetryDelay: 0 },
       Messages: [
         {
-          Attributes: {SentTimestamp: '1671103624717'},
+          Attributes: { SentTimestamp: '1671103624717' },
           Body: messageBody
         }
       ]
