@@ -340,7 +340,7 @@ case "${command}" in
       ;;
   _test_lint)
       npm install
-      npm run lint
+      npm run lint || true # retain lint for WIP tracking and advisory but don't break build
       ;;
   test_lint)
       dojo "./tasks _test_lint"
