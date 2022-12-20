@@ -19,7 +19,7 @@ locals {
     { name = "REPO_TO_GP_SKIP_MIGRATION", value = "true" },
     { name = "USE_SSL_FOR_DB", value = "true" },
     { name = "LOG_LEVEL", value = var.log_level },
-    { name = "SQS_EHR_OUT_INCOMING_QUEUE_URL", value = aws_sqs_queue.ehr-out-service-incoming.url }
+    { name = "SQS_EHR_OUT_INCOMING_QUEUE_URL", value = aws_sqs_queue.ehr-out-service-incoming.id }
   ]
   secret_environment_variables = [
     { name      = "GP2GP_ADAPTOR_AUTHORIZATION_KEYS",
