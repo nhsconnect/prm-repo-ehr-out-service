@@ -20,7 +20,7 @@ export const startSqsConsumer = (
   pollQueue(sqsClient);
 };
 
-const pollQueue = sqsClient => {
+export const pollQueueOnce = (sqsClient, parser) => {
   let receiveCallParameters = getParams();
 
   logInfo('Polling for incoming messages');
@@ -28,7 +28,7 @@ const pollQueue = sqsClient => {
     .send(new ReceiveMessageCommand(receiveCallParameters))
     .then(data => {
       logInfo('Received message data');
-      processMessages(data);
+      processMessages(data, parser);
     })
     .catch(err => {
       logError(
@@ -38,13 +38,17 @@ const pollQueue = sqsClient => {
         err
       );
     });
+}
+
+const pollQueue = sqsClient => {
+  pollQueueOnce(sqsClient, parse);
   setTimeout(() => pollQueue(sqsClient), 100);
 };
 
-const processMessages = receiveMessageCommandOutput => {
+const processMessages = (receiveMessageCommandOutput, parser) => {
   try {
     receiveMessageCommandOutput.Messages.forEach(message => {
-      const parsedMessage = parse(message.Body);
+      const parsedMessage = parser(message.Body);
       sendMessageToCorrespondingHandler(parsedMessage);
       // sqsClient.send(
       //   new DeleteMessageCommand({

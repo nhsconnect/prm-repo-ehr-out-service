@@ -377,7 +377,6 @@ case "${command}" in
       die_localstack_die
       dojo -c Dojofile-itest
       ;;
-
   run_localstack_local)
       docker-compose -f docker-compose.localstack-local.yaml up -d
       ;;
