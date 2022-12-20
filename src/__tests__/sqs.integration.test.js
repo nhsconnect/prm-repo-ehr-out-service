@@ -89,19 +89,24 @@ describe('SQS incoming message handling', () => {
 
   beforeEach(() => {
     initialiseAppConfig();
-    startSqsConsumer({ endpoint: config.localstackEndpointUrl, region: config.region });
   });
 
   afterEach(stopSqsConsumer);
 
-  it('should receive messages from the incoming queue', async () => {
+  it('should receive messages from the incoming queue once the sqs consumer started', async () => {
     let queue = sqs.queue;
+
+    await expect(await queue.isEmpty(config.SQS_EHR_OUT_INCOMING_QUEUE_NAME)).toEqual(true);
 
     await queue.send(ehrRequestMessage(), config.SQS_EHR_OUT_INCOMING_QUEUE_NAME);
 
+    await expect(await queue.isEmpty(config.SQS_EHR_OUT_INCOMING_QUEUE_NAME)).toEqual(false);
+
+    startSqsConsumer({ endpoint: config.localstackEndpointUrl, region: config.region });
+
     await waitForExpect(async () => {
-      let hasReceivedMessage = await queue.isEmpty(config.SQS_EHR_OUT_INCOMING_QUEUE_NAME);
-      expect(hasReceivedMessage).toEqual(true);
+      let empty = await queue.isEmpty(config.SQS_EHR_OUT_INCOMING_QUEUE_NAME);
+      expect(empty).toEqual(true);
     });
   });
 });

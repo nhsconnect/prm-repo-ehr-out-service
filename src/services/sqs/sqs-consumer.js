@@ -26,7 +26,7 @@ export const startSqsConsumer = (
 
 export const stopSqsConsumer = () => {
   logInfo('Requesting stop of SQS consumer');
-  return (stop = true);
+  stop = true;
 };
 
 export const pollQueueOnce = (sqsClient, parser) => {

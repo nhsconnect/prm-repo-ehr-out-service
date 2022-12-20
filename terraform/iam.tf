@@ -112,3 +112,29 @@ resource "aws_iam_role_policy_attachment" "logs_policy_attach" {
   role       = aws_iam_role.component-ecs-role.name
   policy_arn = aws_iam_policy.logs_policy.arn
 }
+
+resource "aws_iam_role_policy_attachment" "sqs_policy_attach" {
+  role       = aws_iam_role.component-ecs-role.name
+  policy_arn = aws_iam_policy.sqs_policy.arn
+}
+
+data "aws_iam_policy_document" "sqs_policy_doc" {
+  statement {
+    actions = [
+      "sqs:GetQueue*",
+      "sqs:ChangeMessageVisibility",
+      "sqs:DeleteMessage",
+      "sqs:ReceiveMessage"
+    ]
+    resources = [
+      aws_sqs_queue.ehr-out-service-incoming.arn
+    ]
+  }
+}
+
+resource "aws_iam_policy" "sqs_policy" {
+  name   = "${var.environment}-${var.component_name}-sqs"
+  policy = data.aws_iam_policy_document.sqs_policy_doc.json
+}
+
+
