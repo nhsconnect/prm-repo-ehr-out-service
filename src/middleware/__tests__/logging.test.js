@@ -78,24 +78,24 @@ describe('logging', () => {
       originalUrl: '/test/12345'
     };
 
-    it('should log path as log status', () => {
+    it('should log path as log status at debug level', () => {
       const mockRes = {
         statusCode: 200,
         statusMessage: 'OK'
       };
 
       eventFinished(mockReq, mockRes);
-      expect(logger.info).toHaveBeenCalledWith(mockReq.originalUrl);
+      expect(logger.debug).toHaveBeenCalledWith(mockReq.originalUrl);
     });
 
-    it('should log with level info if status code is successful', () => {
+    it('should log with level debug if status code is successful', () => {
       const mockRes = {
         statusCode: 200,
         statusMessage: 'OK'
       };
 
       eventFinished(mockReq, mockRes);
-      expect(logger.info).toBeCalledTimes(1);
+      expect(logger.debug).toBeCalledTimes(1);
     });
 
     it('should log with level error if status code is not successful', () => {

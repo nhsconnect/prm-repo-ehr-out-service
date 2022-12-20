@@ -1,6 +1,6 @@
 import express from 'express';
 import { getHealthCheck } from '../../services/health-check/get-health-check';
-import { logInfo, logError } from '../../middleware/logging';
+import {logInfo, logError, logDebug} from '../../middleware/logging';
 
 export const healthCheck = express.Router();
 
@@ -9,7 +9,7 @@ healthCheck.get('/', async (req, res, next) => {
     const status = await getHealthCheck();
 
     if (status.details.database.writable) {
-      logInfo('Health check completed');
+      logDebug('Health check completed');
       res.status(200).json(status);
     } else {
       logError('Health check failed', status);

@@ -38,7 +38,7 @@ export const eventFinished = (req, res) => {
   const resLog = { statusCode: res.statusCode, statusMessage: res.statusMessage };
 
   if (res.statusCode < 400) {
-    logInfo(url, { req: reqLog, res: resLog });
+    logDebug(url, { req: reqLog, res: resLog });
   } else {
     logError(url, { req: reqLog, res: resLog });
   }
