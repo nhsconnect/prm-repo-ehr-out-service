@@ -7,7 +7,6 @@ jest.mock('../xml-parser/xml-parser');
 const rawEhrRequestBody =
   '{"ebXML":"<soap:Envelope><soap:Header><eb:MessageHeader ></eb:MessageHeader></soap:Header><soap:Body></soap:Body></soap:Envelope>","payload":"<RCMR_IN010000UK05 xmlns:xsi=\\"http://www.w3.org\\" xmlns:xs=\\"XMLSchema\\" type=\\"Message\\" xmlns=\\"urn:hl7-org:v3\\"></RCMR_IN010000UK05>","attachments":[]}';
 
-const ehrRequestMessage = JSON.parse(rawEhrRequestBody);
 const expectedParsedMessage = {
   interactionId: 'RCMR_IN010000UK05',
   conversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22',
@@ -77,7 +76,7 @@ describe('sqs incoming message parser', () => {
   });
 
   it('should throw if cannot parse json wrapper', async () => {
-    const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
+    jest.spyOn(XmlParser.prototype, 'parse');
 
     await expect(() => parse('foobar')).rejects.toThrow(/Error parsing/);
   });

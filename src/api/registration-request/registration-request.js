@@ -1,7 +1,7 @@
-import {body} from 'express-validator';
-import {logInfo} from '../../middleware/logging';
-import {initializeConfig} from '../../config';
-import {transferOutEhr} from "../../services/transfer/transfer-out-ehr";
+import { body } from 'express-validator';
+import { logInfo } from '../../middleware/logging';
+import { initializeConfig } from '../../config';
+import { transferOutEhr } from '../../services/transfer/transfer-out-ehr';
 
 export const registrationRequestValidationRules = [
   body('data.type').equals('registration-requests'),
@@ -29,13 +29,11 @@ export const registrationRequest = async (req, res) => {
     res.status(409).json({
       error: `EHR out transfer with this conversation ID is already in progress`
     });
-  }
-  else if (result.hasFailed) {
+  } else if (result.hasFailed) {
     res.status(503).json({
       errors: result.error
     });
-  }
-  else {
+  } else {
     respondWithItsFineGoLookAtTheStatus(res, conversationId);
   }
 };

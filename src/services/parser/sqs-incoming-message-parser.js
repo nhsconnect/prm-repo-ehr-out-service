@@ -26,12 +26,12 @@ export const parse = async messageBody => {
 
       logInfo(`Successfully parsed payload`);
     } else {
-      const warning = new Error('Invalid interaction ID: ' + interactionId);
+      const warning = new Error('Invalid interaction ID: ' + interactionId); // TODO really invalid or just not the right type of message for this parser? Dan
       logWarning(warning.message);
       throw warning;
     }
 
-    logInfo('Successfully parsed ehr-out-service-incoming event');
+    logInfo('Successfully parsed message as EHR request');
 
     return {
       interactionId,

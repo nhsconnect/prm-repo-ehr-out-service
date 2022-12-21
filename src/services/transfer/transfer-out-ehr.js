@@ -1,18 +1,18 @@
-import {initializeConfig} from "../../config";
+import { initializeConfig } from '../../config';
 import {
   getRegistrationRequestStatusByConversationId,
   updateRegistrationRequestStatus
-} from "../database/registration-request-repository";
-import {logError, logInfo} from "../../middleware/logging";
-import {setCurrentSpanAttributes} from "../../config/tracing";
-import {createRegistrationRequest} from "../database/create-registration-request";
-import {getPatientHealthRecordFromRepo} from "../ehr-repo/get-health-record";
-import {Status} from "../../models/registration-request";
-import {getPdsOdsCode} from "../gp2gp/pds-retrieval-request";
-import {sendEhrExtract} from "../gp2gp/send-ehr-extract";
+} from '../database/registration-request-repository';
+import { logError, logInfo } from '../../middleware/logging';
+import { setCurrentSpanAttributes } from '../../config/tracing';
+import { createRegistrationRequest } from '../database/create-registration-request';
+import { getPatientHealthRecordFromRepo } from '../ehr-repo/get-health-record';
+import { Status } from '../../models/registration-request';
+import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
+import { sendEhrExtract } from '../gp2gp/send-ehr-extract';
 
-export async function transferOutEhr({conversationId, nhsNumber, odsCode, ehrRequestId}) {
-  setCurrentSpanAttributes({conversationId});
+export async function transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
+  setCurrentSpanAttributes({ conversationId });
   logInfo('EHR transfer out request received');
 
   let logs = 'EHR has been successfully sent';
@@ -57,12 +57,11 @@ export async function transferOutEhr({conversationId, nhsNumber, odsCode, ehrReq
       ehrRequestId,
       patientHealthRecord.coreEhrMessageUrl
     );
-
+  
     logInfo('Updating status');
     await updateStatus(conversationId, Status.SENT_EHR, logs);
     return defaultResult;
-  }
-  catch (err) {
+  } catch (err) {
     logError('EHR transfer out request failed', err);
     return {
       hasFailed: true,
