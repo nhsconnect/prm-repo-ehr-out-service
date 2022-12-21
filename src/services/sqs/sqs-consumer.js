@@ -1,6 +1,6 @@
 import { DeleteMessageCommand, ReceiveMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { parse } from '../parser/sqs-incoming-message-parser.js';
-import { logError, logInfo, logWarning } from '../../middleware/logging';
+import { logDebug, logError, logInfo, logWarning } from '../../middleware/logging';
 import sendMessageToCorrespondingHandler from '../handler/broker';
 
 const INTER_POLL_DELAY_MS = 50;
@@ -60,6 +60,7 @@ const pollQueue = async sqsClient => {
 };
 
 async function deleteToAcknowledge(sqsClient, message) {
+  logDebug('acknowledging (deleting) message');
   await sqsClient.send(
     new DeleteMessageCommand({
       QueueUrl: receiveCallParameters().QueueUrl,
@@ -83,7 +84,7 @@ const processMessages = async (sqsClient, receiveResponse, parser) => {
       await deleteToAcknowledge(sqsClient, message);
     }
   } catch (err) {
-    logError('Receive Error', err); // NB: single error skips out of all messages
+    logError('error processing receive response messages', err); // NB: single error skips out of all messages
   }
 };
 

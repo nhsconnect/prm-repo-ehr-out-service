@@ -77,7 +77,7 @@ function TestSqsClient() {
 
       visibleMessageCount: async () => {
         return parseInt(await queryQueueAttribute('ApproximateNumberOfMessages'));
-      },
+      }
     };
     return queue;
   };
