@@ -134,7 +134,7 @@ describe('POST /registration-requests/', () => {
       .send(mockBody);
 
     expect(res.statusCode).toBe(503);
-    expect(logError).toHaveBeenCalledWith('Registration request failed', {});
+    expect(logError).toHaveBeenCalledWith('EHR transfer out request failed', {});
     expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
   });
 
@@ -157,9 +157,9 @@ describe('POST /registration-requests/', () => {
 
     expect(res.statusCode).toBe(409);
     expect(res.body).toEqual({
-      error: `Registration request with this ConversationId is already in progress`
+      error: `EHR out transfer with this conversation ID is already in progress`
     });
-    expect(logInfo).toHaveBeenCalledWith(`Duplicate registration request`);
+    expect(logInfo).toHaveBeenCalledWith('Duplicate transfer out request');
   });
 
   it('should return 204, log event and call updateRegistrationRequestStatus when patients ODS Code in PDS does not match requester', async () => {
