@@ -402,7 +402,7 @@ case "${command}" in
       die_postgres_die
       die_localstack_die
       die_repo_in_perf_die
-      dojo -c Dojofile-itest "./tasks _testdie_pos_coverage"
+      dojo -c Dojofile-itest "./tasks _test_coverage"
       ;;
   _build)
       rm -rf build
