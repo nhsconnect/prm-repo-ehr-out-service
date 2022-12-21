@@ -83,6 +83,31 @@ data "aws_iam_policy_document" "ssm_policy_doc" {
   }
 }
 
+data "aws_iam_policy_document" "sqs_policy_doc" {
+  statement {
+    actions = [
+      "sqs:GetQueue*",
+      "sqs:ChangeMessageVisibility",
+      "sqs:DeleteMessage",
+      "sqs:ReceiveMessage"
+    ]
+    resources = [
+      aws_sqs_queue.ehr-out-service-incoming.arn
+    ]
+  }
+}
+
+data "aws_iam_policy_document" "kms_policy_doc" {
+  statement {
+    actions = [
+      "kms:Decrypt"
+    ]
+    resources = [
+      aws_kms_key.ehr-out-service-incoming.arn
+    ]
+  }
+}
+
 resource "aws_iam_policy" "ssm_policy" {
   name   = "${var.environment}-${var.component_name}-ssm"
   policy = data.aws_iam_policy_document.ssm_policy_doc.json
@@ -96,6 +121,16 @@ resource "aws_iam_policy" "ecr_policy" {
 resource "aws_iam_policy" "logs_policy" {
   name   = "${var.environment}-${var.component_name}-logs"
   policy = data.aws_iam_policy_document.logs_policy_doc.json
+}
+
+resource "aws_iam_policy" "kms_policy" {
+  name   = "${var.environment}-${var.component_name}-kms"
+  policy = data.aws_iam_policy_document.kms_policy_doc.json
+}
+
+resource "aws_iam_policy" "sqs_policy" {
+  name   = "${var.environment}-${var.component_name}-sqs"
+  policy = data.aws_iam_policy_document.sqs_policy_doc.json
 }
 
 resource "aws_iam_role_policy_attachment" "ssm_policy_attach" {
@@ -118,23 +153,9 @@ resource "aws_iam_role_policy_attachment" "sqs_policy_attach" {
   policy_arn = aws_iam_policy.sqs_policy.arn
 }
 
-data "aws_iam_policy_document" "sqs_policy_doc" {
-  statement {
-    actions = [
-      "sqs:GetQueue*",
-      "sqs:ChangeMessageVisibility",
-      "sqs:DeleteMessage",
-      "sqs:ReceiveMessage"
-    ]
-    resources = [
-      aws_sqs_queue.ehr-out-service-incoming.arn
-    ]
-  }
-}
-
-resource "aws_iam_policy" "sqs_policy" {
-  name   = "${var.environment}-${var.component_name}-sqs"
-  policy = data.aws_iam_policy_document.sqs_policy_doc.json
+resource "aws_iam_role_policy_attachment" "kms_policy_attach" {
+  role       = aws_iam_role.component-ecs-role.name
+  policy_arn = aws_iam_policy.kms_policy.arn
 }
 
 
