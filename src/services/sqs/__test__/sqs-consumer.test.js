@@ -1,5 +1,5 @@
 import { pollQueueOnce } from '../sqs-consumer.js';
-import { logError } from '../../../middleware/logging';
+import { logError, logWarning } from '../../../middleware/logging';
 
 jest.mock('../../parser/sqs-incoming-message-parser', () => ({
   parse: jest.fn()
@@ -53,8 +53,28 @@ describe('sqs consumer', () => {
     expect(parser).not.toHaveBeenCalled();
     await expect(logError).toHaveBeenCalledTimes(1);
     expect(logError).toHaveBeenCalledWith(
-      'Error reading from EHR out incoming queue, receive call parameters: {"AttributeNames":["SentTimestamp"],"MaxNumberOfMessages":1,"MessageAttributeNames":["All"],"WaitTimeSeconds":20}',
+      'Error reading from EHR out incoming queue, receive call parameters: {"AttributeNames":["SentTimestamp"],"MaxNumberOfMessages":1,"MessageAttributeNames":["All"],"WaitTimeSeconds":5}',
       errorMessage
     );
+  });
+
+  it('should log a warning and not blow up if the receive call does not return a Messages list', async () => {
+    const sqsClient = {
+      send: jest.fn()
+    };
+
+    const parser = jest.fn();
+
+    sqsClient.send.mockResolvedValue({
+      $metadata: { attempts: 1, httpStatusCode: 200, totalRetryDelay: 0 },
+      // Messages: [] // that's right not even an empty list
+    });
+
+    await pollQueueOnce(sqsClient, parser);
+
+    await expect(sqsClient.send).toHaveBeenCalledTimes(1);
+    expect(parser).not.toHaveBeenCalled();
+
+    await expect(logWarning).toHaveBeenCalled();
   });
 });

@@ -1,7 +1,10 @@
 import { ReceiveMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { parse } from '../parser/sqs-incoming-message-parser.js';
-import { logError, logInfo } from '../../middleware/logging';
+import {logError, logInfo, logWarning} from '../../middleware/logging';
 import sendMessageToCorrespondingHandler from '../handler/broker';
+
+const INTER_POLL_DELAY_MS = 50;
+const POLL_WAIT_TIME_SECONDS = 5;
 
 const receiveCallParameters = () => {
   return {
@@ -9,7 +12,7 @@ const receiveCallParameters = () => {
     MaxNumberOfMessages: 1,
     MessageAttributeNames: ['All'],
     QueueUrl: process.env.SQS_EHR_OUT_INCOMING_QUEUE_URL,
-    WaitTimeSeconds: 20
+    WaitTimeSeconds: POLL_WAIT_TIME_SECONDS
   };
 };
 
@@ -47,7 +50,6 @@ export const pollQueueOnce = (sqsClient, parser) => {
     });
 };
 
-const INTER_POLL_DELAY_MS = 50;
 const pollQueue = async sqsClient => {
   if (stop) {
     logInfo('SQS consumer poll stopped.');
@@ -57,9 +59,14 @@ const pollQueue = async sqsClient => {
   setTimeout(() => pollQueue(sqsClient), INTER_POLL_DELAY_MS);
 };
 
-const processMessages = (receiveMessageCommandOutput, parser) => {
+const processMessages = (receiveResponse, parser) => {
   try {
-    receiveMessageCommandOutput.Messages.forEach(message => {
+    let messages = receiveResponse.Messages;
+    if (messages === undefined) {
+      logWarning('Messages undefined on response, metadata: ' + JSON.stringify(receiveResponse.$metadata))
+      return;
+    }
+    messages.forEach(message => {
       const parsedMessage = parser(message.Body);
       sendMessageToCorrespondingHandler(parsedMessage);
       // sqsClient.send(

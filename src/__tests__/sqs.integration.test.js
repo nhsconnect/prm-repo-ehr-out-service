@@ -119,5 +119,5 @@ describe('SQS incoming message handling', () => {
     await waitForExpect(async () => {
       expect(await queue.visibleMessageCount()).toEqual(0);
     });
-  });
+  }, 10000);
 });
