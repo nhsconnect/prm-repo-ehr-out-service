@@ -26,7 +26,7 @@ export const parse = async messageBody => {
 
       logInfo(`Successfully parsed payload`);
     } else {
-      const warning = new Error('Invalid interaction ID: ' + interactionId)
+      const warning = new Error('Invalid interaction ID: ' + interactionId);
       logWarning(warning.message);
       throw warning;
     }
@@ -41,7 +41,9 @@ export const parse = async messageBody => {
       odsCode
     };
   } catch (e) {
-    const errorWithContext = new Error('Error parsing message as EHR request: ' + e.message, { cause: e })
+    const errorWithContext = new Error('Error parsing message as EHR request: ' + e.message, {
+      cause: e
+    });
     logError(errorWithContext);
     throw errorWithContext;
   }

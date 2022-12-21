@@ -10,7 +10,7 @@ jest.mock('@aws-sdk/client-sqs');
 const EHR_REQUEST_INTERACTION_ID = 'RCMR_IN010000UK05';
 
 describe('sqs consumer', () => {
-  it('reads a single message from the queue and invokes the parser with it', async () => {
+  it('reads a single message from the queue and invokes the parser with it, acknowledging on success', async () => {
     const sqsClient = {
       send: jest.fn()
     };
@@ -31,11 +31,41 @@ describe('sqs consumer', () => {
 
     await pollQueueOnce(sqsClient, parser);
 
-    await expect(sqsClient.send).toHaveBeenCalledTimes(1);
+    await expect(sqsClient.send).toHaveBeenCalledTimes(2); // receive + ack
+
     expect(parser).toHaveBeenNthCalledWith(1, messageBody);
 
     await expect(parser).toHaveBeenCalledTimes(1);
     await expect(logError).not.toHaveBeenCalled();
+  });
+
+  it('reads and parses a single message but does not acknowledge on parse failure', async () => {
+    const sqsClient = {
+      send: jest.fn()
+    };
+
+    const parser = jest.fn();
+    parser.mockRejectedValue({});
+
+    let messageBody = '{ "key": "this is a stub message" }';
+    sqsClient.send.mockResolvedValue({
+      $metadata: { attempts: 1, httpStatusCode: 200, totalRetryDelay: 0 },
+      Messages: [
+        {
+          Attributes: { SentTimestamp: '1671103624717' },
+          Body: messageBody
+        }
+      ]
+    });
+
+    await pollQueueOnce(sqsClient, parser);
+
+    await expect(sqsClient.send).toHaveBeenCalledTimes(1); // receive + no ack
+
+    expect(parser).toHaveBeenNthCalledWith(1, messageBody);
+
+    await expect(parser).toHaveBeenCalledTimes(1);
+    await expect(logError).toHaveBeenCalled();
   });
 
   it('should log error if it fails to read message from the queue', async () => {
@@ -53,7 +83,7 @@ describe('sqs consumer', () => {
     expect(parser).not.toHaveBeenCalled();
     await expect(logError).toHaveBeenCalledTimes(1);
     expect(logError).toHaveBeenCalledWith(
-      'Error reading from EHR out incoming queue, receive call parameters: {"AttributeNames":["SentTimestamp"],"MaxNumberOfMessages":1,"MessageAttributeNames":["All"],"WaitTimeSeconds":5}',
+      'Error reading from EHR out incoming queue, receive call parameters: {"AttributeNames":["SentTimestamp"],"MaxNumberOfMessages":1,"MessageAttributeNames":["All"],"WaitTimeSeconds":20}',
       errorMessage
     );
   });
@@ -66,7 +96,7 @@ describe('sqs consumer', () => {
     const parser = jest.fn();
 
     sqsClient.send.mockResolvedValue({
-      $metadata: { attempts: 1, httpStatusCode: 200, totalRetryDelay: 0 },
+      $metadata: { attempts: 1, httpStatusCode: 200, totalRetryDelay: 0 }
       // Messages: [] // that's right not even an empty list
     });
 

@@ -9,7 +9,7 @@ export default function sendMessageToCorrespondingHandler(parsedMessage) {
       ehrRequestHandler();
       break;
     default:
-      const error = new Error('Invalid interaction ID: ' + parsedMessage.interactionId)
+      const error = new Error('Invalid interaction ID: ' + parsedMessage.interactionId);
       logError(error.message);
       throw error;
   }

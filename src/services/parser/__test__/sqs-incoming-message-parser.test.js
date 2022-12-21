@@ -63,7 +63,9 @@ describe('sqs incoming message parser', () => {
   it('should successfully parse a valid ehr-request message', async () => {
     const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
 
-    xmlParser.mockReturnValueOnce(validEbXmlAsJson).mockReturnValueOnce(validEhrRequestPayloadAsJson);
+    xmlParser
+      .mockReturnValueOnce(validEbXmlAsJson)
+      .mockReturnValueOnce(validEhrRequestPayloadAsJson);
 
     let parsedMessage = await parse(rawEhrRequestBody);
 
@@ -77,7 +79,7 @@ describe('sqs incoming message parser', () => {
   it('should throw if cannot parse json wrapper', async () => {
     const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
 
-    await expect(() => parse('foobar')).rejects.toThrow(/Error parsing/)
+    await expect(() => parse('foobar')).rejects.toThrow(/Error parsing/);
   });
 
   it('should throw if cannot parse ebxml', async () => {
@@ -85,7 +87,7 @@ describe('sqs incoming message parser', () => {
 
     xmlParser.mockRejectedValue('boom');
 
-    await expect(() => parse({ ebXML: 'notxml' })).rejects.toThrow(/Error parsing/)
+    await expect(() => parse({ ebXML: 'notxml' })).rejects.toThrow(/Error parsing/);
   });
 
   it('should throw if cannot parse as ehr request message', async () => {
@@ -97,7 +99,7 @@ describe('sqs incoming message parser', () => {
       }
     });
 
-    await expect(() => parse(rawEhrRequestBody)).rejects.toThrow(/Error parsing/)
+    await expect(() => parse(rawEhrRequestBody)).rejects.toThrow(/Error parsing/);
   });
 
   it('should throw if interaction ID is missing', async () => {
@@ -108,6 +110,6 @@ describe('sqs incoming message parser', () => {
 
     xmlParser.mockReturnValueOnce(ebxmlWithoutInteractionId);
 
-    await expect(() => parse(rawEhrRequestBody)).rejects.toThrow(/interaction ID/)
+    await expect(() => parse(rawEhrRequestBody)).rejects.toThrow(/interaction ID/);
   });
 });

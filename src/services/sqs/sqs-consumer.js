@@ -1,10 +1,10 @@
-import {DeleteMessageCommand, ReceiveMessageCommand, SQSClient} from '@aws-sdk/client-sqs';
+import { DeleteMessageCommand, ReceiveMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
 import { parse } from '../parser/sqs-incoming-message-parser.js';
-import {logError, logInfo, logWarning} from '../../middleware/logging';
+import { logError, logInfo, logWarning } from '../../middleware/logging';
 import sendMessageToCorrespondingHandler from '../handler/broker';
 
 const INTER_POLL_DELAY_MS = 50;
-const POLL_WAIT_TIME_SECONDS = 5;
+const POLL_WAIT_TIME_SECONDS = 20;
 
 const receiveCallParameters = () => {
   return {
@@ -72,7 +72,9 @@ const processMessages = async (sqsClient, receiveResponse, parser) => {
   try {
     let messages = receiveResponse.Messages;
     if (messages === undefined) {
-      logWarning('Messages undefined on response, metadata: ' + JSON.stringify(receiveResponse.$metadata))
+      logWarning(
+        'Messages undefined on response, metadata: ' + JSON.stringify(receiveResponse.$metadata)
+      );
       return;
     }
     for (const message of messages) {
