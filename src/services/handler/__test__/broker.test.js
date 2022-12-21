@@ -20,10 +20,10 @@ describe('broker', () => {
     await expect(ehrRequestHandler).toHaveBeenCalled();
   });
 
-  it('should log an error when any other interaction id is passed', async () => {
-    sendMessageToCorrespondingHandler({
+  it('should throw an error when any other interaction id is passed', async () => {
+    expect(() => sendMessageToCorrespondingHandler({
       interactionId: 'INVALID_INTERACTION_ID'
-    });
+    })).toThrow(/Invalid interaction ID/) // is this really an invalid interaction ID or just an unknown one?
     await expect(logError).toHaveBeenCalled();
     await expect(ehrRequestHandler).not.toHaveBeenCalled();
   });

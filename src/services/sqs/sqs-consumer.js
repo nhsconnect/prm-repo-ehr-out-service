@@ -1,4 +1,4 @@
-import { ReceiveMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
+import {DeleteMessageCommand, ReceiveMessageCommand, SQSClient} from '@aws-sdk/client-sqs';
 import { parse } from '../parser/sqs-incoming-message-parser.js';
 import {logError, logInfo, logWarning} from '../../middleware/logging';
 import sendMessageToCorrespondingHandler from '../handler/broker';
@@ -38,7 +38,7 @@ export const pollQueueOnce = (sqsClient, parser) => {
     .send(new ReceiveMessageCommand(receiveCallParameters()))
     .then(data => {
       logInfo('Received message data');
-      processMessages(data, parser);
+      processMessages(sqsClient, data, parser);
     })
     .catch(err => {
       logError(
@@ -59,24 +59,29 @@ const pollQueue = async sqsClient => {
   setTimeout(() => pollQueue(sqsClient), INTER_POLL_DELAY_MS);
 };
 
-const processMessages = (receiveResponse, parser) => {
+async function deleteToAcknowledge(sqsClient, message) {
+  await sqsClient.send(
+    new DeleteMessageCommand({
+      QueueUrl: receiveCallParameters().QueueUrl,
+      ReceiptHandle: message.ReceiptHandle
+    })
+  );
+}
+
+const processMessages = async (sqsClient, receiveResponse, parser) => {
   try {
     let messages = receiveResponse.Messages;
     if (messages === undefined) {
       logWarning('Messages undefined on response, metadata: ' + JSON.stringify(receiveResponse.$metadata))
       return;
     }
-    messages.forEach(message => {
-      const parsedMessage = parser(message.Body);
+    for (const message of messages) {
+      const parsedMessage = await parser(message.Body);
       sendMessageToCorrespondingHandler(parsedMessage);
-      // sqsClient.send(
-      //   new DeleteMessageCommand({
-      //     ReceiptHandle: message.ReceiptHandle
-      //   })
-      // );
-    });
+      await deleteToAcknowledge(sqsClient, message);
+    }
   } catch (err) {
-    logError('Receive Error', err);
+    logError('Receive Error', err); // NB: single error skips out of all messages
   }
 };
 

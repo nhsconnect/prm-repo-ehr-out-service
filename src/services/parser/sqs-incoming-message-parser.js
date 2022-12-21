@@ -4,7 +4,7 @@ import { extractPayloadData } from './extract-payload-data';
 import { INTERACTION_IDS } from '../../constants/interaction-ids';
 
 export const parse = async messageBody => {
-  logInfo('Parsing ehr-out-service-incoming event');
+  logInfo('Parsing message as EHR request');
 
   try {
     const { interactionId, conversationId } = await extractEbXmlData(JSON.parse(messageBody).ebXML);
@@ -26,8 +26,9 @@ export const parse = async messageBody => {
 
       logInfo(`Successfully parsed payload`);
     } else {
-      logWarning('Invalid interaction id ' + interactionId);
-      // hang on a minute, it's not even correct interaction id -> fallthrough! BUG
+      const warning = new Error('Invalid interaction ID: ' + interactionId)
+      logWarning(warning.message);
+      throw warning;
     }
 
     logInfo('Successfully parsed ehr-out-service-incoming event');
@@ -40,6 +41,8 @@ export const parse = async messageBody => {
       odsCode
     };
   } catch (e) {
-    logError('Error parsing ehr-out-service-incoming queue event: ' + e, e);
+    const errorWithContext = new Error('Error parsing message as EHR request: ' + e.message, { cause: e })
+    logError(errorWithContext);
+    throw errorWithContext;
   }
 };

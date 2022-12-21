@@ -12,7 +12,7 @@ import {readFileSync} from 'fs';
 
 const waitForExpect = require('wait-for-expect');
 
-function ehrRequestMessage() {
+function validEhrRequestMessage() {
   return readFileSync('src/__tests__/data/RCMR_IN010000UK05');
 }
 
@@ -107,10 +107,10 @@ describe('SQS incoming message handling', () => {
     startSqsConsumer({ endpoint: config.localstackEndpointUrl, region: config.region });
   }
 
-  it('should receive messages from the incoming queue once the sqs consumer started', async () => {
+  it('should receive and acknowledge valid messages from the incoming queue once the sqs consumer started', async () => {
     await expect(await queue.visibleMessageCount()).toEqual(0);
 
-    await queue.send(ehrRequestMessage());
+    await queue.send(validEhrRequestMessage());
 
     await expect(await queue.visibleMessageCount()).toEqual(1);
 
@@ -118,6 +118,22 @@ describe('SQS incoming message handling', () => {
 
     await waitForExpect(async () => {
       expect(await queue.visibleMessageCount()).toEqual(0);
+      expect(await queue.invisibleMessageCount()).toEqual(0);
     });
-  }, 10000);
+  });
+
+  it('should receive but not acknowledge invalid messages', async () => {
+    await expect(await queue.visibleMessageCount()).toEqual(0);
+
+    await queue.send('not a valid message');
+
+    await expect(await queue.visibleMessageCount()).toEqual(1);
+
+    startAppSqsConsumer();
+
+    await waitForExpect(async () => {
+      expect(await queue.visibleMessageCount()).toEqual(0);
+      expect(await queue.invisibleMessageCount()).toEqual(1);
+    });
+  });
 });

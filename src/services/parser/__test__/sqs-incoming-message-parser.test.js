@@ -16,42 +16,25 @@ const expectedParsedMessage = {
   odsCode: 'A91720'
 };
 
-describe('sqs incoming message parser', () => {
-  it('should successfully parse the ehr-request incoming message', async () => {
-    const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
-    let ebXmlAsJson = {
-      data: {
-        Envelope: {
-          Header: {
-            MessageHeader: {
-              Action: 'RCMR_IN010000UK05',
-              ConversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22'
-            }
-          }
-        }
-      }
-    };
-    let ehrRequestPayloadAsJson = {
-      data: {
-        RCMR_IN010000UK05: {
-          ControlActEvent: {
-            subject: {
-              EhrRequest: {
-                id: { root: 'FFFB3C70-0BCC-4D9E-A441-7E9C41A897AA' },
-                recordTarget: {
-                  patient: {
-                    id: {
-                      extension: '9692842304'
-                    }
-                  }
-                },
-                author: {
-                  AgentOrgSDS: {
-                    agentOrganizationSDS: {
-                      id: {
-                        extension: 'A91720'
-                      }
-                    }
+const validEhrRequestPayloadAsJson = {
+  data: {
+    RCMR_IN010000UK05: {
+      ControlActEvent: {
+        subject: {
+          EhrRequest: {
+            id: { root: 'FFFB3C70-0BCC-4D9E-A441-7E9C41A897AA' },
+            recordTarget: {
+              patient: {
+                id: {
+                  extension: '9692842304'
+                }
+              }
+            },
+            author: {
+              AgentOrgSDS: {
+                agentOrganizationSDS: {
+                  id: {
+                    extension: 'A91720'
                   }
                 }
               }
@@ -59,22 +42,72 @@ describe('sqs incoming message parser', () => {
           }
         }
       }
-    };
+    }
+  }
+};
 
-    xmlParser.mockReturnValueOnce(ebXmlAsJson).mockReturnValueOnce(ehrRequestPayloadAsJson);
+let validEbXmlAsJson = {
+  data: {
+    Envelope: {
+      Header: {
+        MessageHeader: {
+          Action: 'RCMR_IN010000UK05',
+          ConversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22'
+        }
+      }
+    }
+  }
+};
+
+describe('sqs incoming message parser', () => {
+  it('should successfully parse a valid ehr-request message', async () => {
+    const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
+
+    xmlParser.mockReturnValueOnce(validEbXmlAsJson).mockReturnValueOnce(validEhrRequestPayloadAsJson);
 
     let parsedMessage = await parse(rawEhrRequestBody);
-
-    expect(xmlParser).toHaveBeenCalledTimes(2);
-    expect(xmlParser).toHaveBeenCalledWith(ehrRequestMessage.ebXML);
-    expect(xmlParser).toHaveBeenCalledWith(ehrRequestMessage.payload);
-
-    console.log('parsed message', parsedMessage);
 
     await expect(parsedMessage.interactionId).toBe(expectedParsedMessage.interactionId);
     await expect(parsedMessage.conversationId).toBe(expectedParsedMessage.conversationId);
     await expect(parsedMessage.ehrRequestId).toBe(expectedParsedMessage.ehrRequestId);
     await expect(parsedMessage.nhsNumber).toBe(expectedParsedMessage.nhsNumber);
     await expect(parsedMessage.odsCode).toBe(expectedParsedMessage.odsCode);
+  });
+
+  it('should throw if cannot parse json wrapper', async () => {
+    const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
+
+    await expect(() => parse('foobar')).rejects.toThrow(/Error parsing/)
+  });
+
+  it('should throw if cannot parse ebxml', async () => {
+    const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
+
+    xmlParser.mockRejectedValue('boom');
+
+    await expect(() => parse({ ebXML: 'notxml' })).rejects.toThrow(/Error parsing/)
+  });
+
+  it('should throw if cannot parse as ehr request message', async () => {
+    const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
+
+    xmlParser.mockReturnValue({
+      data: {
+        notWhatYouExpect: true
+      }
+    });
+
+    await expect(() => parse(rawEhrRequestBody)).rejects.toThrow(/Error parsing/)
+  });
+
+  it('should throw if interaction ID is missing', async () => {
+    const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
+
+    const ebxmlWithoutInteractionId = JSON.parse(JSON.stringify(validEbXmlAsJson));
+    ebxmlWithoutInteractionId.data.Envelope.Header.MessageHeader.Action = undefined;
+
+    xmlParser.mockReturnValueOnce(ebxmlWithoutInteractionId);
+
+    await expect(() => parse(rawEhrRequestBody)).rejects.toThrow(/interaction ID/)
   });
 });
