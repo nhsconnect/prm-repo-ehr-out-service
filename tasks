@@ -400,7 +400,9 @@ case "${command}" in
   test_coverage)
       configure_local_envs
       die_postgres_die
-      dojo -c Dojofile-itest "./tasks _test_coverage"
+      die_localstack_die
+      die_repo_in_perf_die
+      dojo -c Dojofile-itest "./tasks _testdie_pos_coverage"
       ;;
   _build)
       rm -rf build
