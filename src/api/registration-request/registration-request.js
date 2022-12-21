@@ -25,14 +25,18 @@ export const registrationRequestValidationRules = [
     .withMessage("'ehrRequestId' provided is not of type UUID")
 ];
 
-export const registrationRequest = async (req, res) => {
-  const { id: conversationId, attributes } = req.body.data;
-  const { nhsNumber, odsCode, ehrRequestId } = attributes;
-
+async function processEhrRequest(conversationId, res, nhsNumber, odsCode, ehrRequestId) {
   setCurrentSpanAttributes({ conversationId });
-  logInfo('Create registration request received');
+  logInfo('EHR request received');
 
   let logs = 'EHR has been successfully sent';
+
+  const notRespondedYet = {
+    responded: false
+  };
+  const responded = {
+    responded: true
+  };
 
   try {
     const previousRegistration = await getRegistrationRequestStatusByConversationId(conversationId);
@@ -41,7 +45,7 @@ export const registrationRequest = async (req, res) => {
         error: `Registration request with this ConversationId is already in progress`
       });
       logInfo(`Duplicate registration request`);
-      return;
+      return responded;
     }
 
     await createRegistrationRequest(conversationId, nhsNumber, odsCode);
@@ -50,16 +54,16 @@ export const registrationRequest = async (req, res) => {
     const patientHealthRecord = await getPatientHealthRecordFromRepo(nhsNumber);
     if (!patientHealthRecord) {
       logs = `Patient does not have a complete health record in repo`;
-      await updateStatusAndSendResponse(res, conversationId, Status.MISSING_FROM_REPO, logs);
-      return;
+      await updateStatus(conversationId, Status.MISSING_FROM_REPO, logs);
+      return notRespondedYet;
     }
 
     logInfo('Getting patient current ODS code');
     const pdsOdsCode = await getPdsOdsCode(nhsNumber);
     if (pdsOdsCode !== odsCode) {
       logs = 'Patients ODS Code in PDS does not match requesting practices ODS Code';
-      await updateStatusAndSendResponse(res, conversationId, Status.INCORRECT_ODS_CODE, logs);
-      return;
+      await updateStatus(conversationId, Status.INCORRECT_ODS_CODE, logs);
+      return notRespondedYet;
     }
 
     await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
@@ -73,20 +77,42 @@ export const registrationRequest = async (req, res) => {
     );
 
     logInfo('Updating status');
-    await updateStatusAndSendResponse(res, conversationId, Status.SENT_EHR, logs);
+    await updateStatus(conversationId, Status.SENT_EHR, logs);
+    return notRespondedYet;
   } catch (err) {
     logError('Registration request failed', err);
     res.status(503).json({
       errors: err.message
     });
+    return responded;
+  }
+}
+
+export const registrationRequest = async (req, res) => {
+  logInfo('Create registration request received');
+
+  const { id: conversationId, attributes } = req.body.data;
+  const { nhsNumber, odsCode, ehrRequestId } = attributes;
+  const ehrRequestResult = await processEhrRequest(
+    conversationId,
+    res,
+    nhsNumber,
+    odsCode,
+    ehrRequestId
+  );
+  if (ehrRequestResult.responded === false) {
+    await sendResponse(res, conversationId);
   }
 };
 
-const updateStatusAndSendResponse = async (res, conversationId, status, logs) => {
-  const config = initializeConfig();
-  const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
-
+const updateStatus = async (conversationId, status, logs) => {
+  initializeConfig();
   await updateRegistrationRequestStatus(conversationId, status);
   logInfo(logs);
+};
+
+const sendResponse = async (res, conversationId, status, logs) => {
+  const config = initializeConfig();
+  const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
   res.set('Location', statusEndpoint).sendStatus(204);
 };
