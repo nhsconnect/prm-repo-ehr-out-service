@@ -1,9 +1,9 @@
 import sendMessageToCorrespondingHandler from '../broker';
-import ehrRequestHandler from '../ehrRequestHandler';
+import ehrRequestHandler from '../ehr-request-handler';
 import { logError } from '../../../middleware/logging';
 import { INTERACTION_IDS } from '../../../constants/interaction-ids';
 
-jest.mock('../ehrRequestHandler');
+jest.mock('../ehr-request-handler');
 jest.mock('../../../middleware/logging');
 
 describe('broker', () => {

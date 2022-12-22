@@ -1,4 +1,4 @@
-import ehrRequestHandler from '../ehrRequestHandler';
+import ehrRequestHandler from '../ehr-request-handler';
 import { logError, logInfo, logWarning } from '../../../middleware/logging';
 
 jest.mock('../../../middleware/logging');
