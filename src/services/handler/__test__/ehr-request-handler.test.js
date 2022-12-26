@@ -23,7 +23,7 @@ describe('ehrRequestHandler', () => {
     await expect(transferOutEhr).toHaveBeenCalledWith(ehrRequest);
   });
 
-  it('should log when transfer occurs successfully', async () => {
+  it('should log when transfer has been started', async () => {
     let ehrRequest = {
       conversationId: 'convo',
       ehrRequestId: 'ehrRequestId',
