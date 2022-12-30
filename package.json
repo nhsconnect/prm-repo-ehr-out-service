@@ -68,7 +68,8 @@
     "wait-for-expect": "^3.0.2"
   },
   "overrides": {
-    "moment-timezone": "0.5.39"
+    "moment-timezone": "0.5.39",
+    "json5": "2.2.2"
   },
   "repository": {
     "type": "git",
