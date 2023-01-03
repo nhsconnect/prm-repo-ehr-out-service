@@ -16,6 +16,12 @@ resource "aws_sqs_queue" "ehr-out-service-incoming" {
   }
 }
 
+resource "aws_ssm_parameter" "ehr-out-service-incoming-queue" {
+  name  = "/repo/${var.environment}/output/${var.component_name}/ehr-out-service-incoming-sqs-queue-arn"
+  type  = "String"
+  value = aws_sqs_queue.ehr-out-service-incoming.arn
+}
+
 resource "aws_kms_key" "ehr-out-service-incoming" {
   description = "Custom KMS Key to enable server side encryption for SQS"
   policy      = data.aws_iam_policy_document.kms_key_policy_doc.json
