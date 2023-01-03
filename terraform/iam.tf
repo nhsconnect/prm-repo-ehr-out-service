@@ -158,4 +158,30 @@ resource "aws_iam_role_policy_attachment" "kms_policy_attach" {
   policy_arn = aws_iam_policy.kms_policy.arn
 }
 
+resource "aws_sqs_queue_policy" "ehr_out_service_incoming" {
+  queue_url = aws_sqs_queue.ehr-out-service-incoming.id
+  policy    = data.aws_iam_policy_document.ehr_out_service_incoming_policy_doc.json
+}
 
+data "aws_iam_policy_document" "ehr_out_service_incoming_policy_doc" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "sqs:SendMessage"
+    ]
+
+    principals {
+      identifiers = ["sns.amazonaws.com"]
+      type        = "Service"
+    }
+
+    resources = [aws_sqs_queue.ehr-out-service-incoming.arn]
+
+    condition {
+      test     = "ArnEquals"
+      values   = [data.aws_ssm_parameter.ehr_in_unhandled_sns_topic_arn.value]
+      variable = "aws:SourceArn"
+    }
+  }
+}
