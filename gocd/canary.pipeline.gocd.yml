@@ -1,15 +1,13 @@
 format_version: 4
 pipelines:
-  'prm-deductions-repo-to-gp.canary':
+  ehr-out-service.canary:
     group: deductions-canary
     label_template: '${git[:8]}'
     materials:
       git:
         type: configrepo
-        blacklist:
-          - docs/**/*.*
-    timer:
-      spec: 0 30 7 ? * MON,TUE,WED,THU,FRI *
+        ignore:
+          - "**/*"
     stages:
       - update:
           clean_workspace: true

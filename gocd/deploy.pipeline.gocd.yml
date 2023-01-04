@@ -89,16 +89,16 @@ common:
                     - -c
                     - ./tasks test_functional
 pipelines:
-  prm-deductions-repo-to-gp.dev:
-    group: deductions
+  ehr-out-service.dev:
+    group: repository
     label_template: '${git[:8]}'
     materials:
       git:
         type: configrepo
-        blacklist:
-          - docs/**/*.*
+        ignore:
+          - docs/**/*
       app:
-        pipeline: prm-deductions-repo-to-gp
+        pipeline: ehr-out-service
         stage: test_docker
       base_infra:
         pipeline: prm-deductions-infra
@@ -106,16 +106,16 @@ pipelines:
     environment_variables:
       NHS_ENVIRONMENT: dev
     stages: *common_stages
-  prm-deductions-repo-to-gp.test:
-    group: deductions
+  ehr-out-service.test:
+    group: repository
     label_template: '${git[:8]}'
     materials:
       git:
         type: configrepo
-        blacklist:
-          - docs/**/*.*
+        ignore:
+          - docs/**/*
       dev_env:
-        pipeline: prm-deductions-repo-to-gp.dev
+        pipeline: ehr-out-service.dev
         stage: functional
       base_infra:
         pipeline: prm-deductions-infra
@@ -123,16 +123,16 @@ pipelines:
     environment_variables:
       NHS_ENVIRONMENT: test
     stages: *common_stages
-  prm-deductions-repo-to-gp.perf:
-    group: deductions
+  ehr-out-service.perf:
+    group: repository
     label_template: '${git[:8]}'
     materials:
       git:
         type: configrepo
-        blacklist:
+        ignore:
           - docs/**/*.*
       dev_env:
-        pipeline: prm-deductions-repo-to-gp.dev
+        pipeline: ehr-out-service.dev
         stage: functional
       base_infra:
         pipeline: prm-deductions-infra
@@ -154,16 +154,16 @@ pipelines:
           clean_workspace: true
           jobs:
             deploy: *deploy_job
-  prm-deductions-repo-to-gp.pre-prod:
-    group: deductions
+  ehr-out-service.pre-prod:
+    group: repository
     label_template: '${git[:8]}'
     materials:
       git:
         type: configrepo
-        blacklist:
+        ignore:
           - docs/**/*.*
       test_env:
-        pipeline: prm-deductions-repo-to-gp.test
+        pipeline: ehr-out-service.test
         stage: functional
       base_infra:
         pipeline: prm-deductions-infra

@@ -1,0 +1,347 @@
+format_version: 4
+common:
+  deploy_job: &deploy_job
+    resources:
+      - docker
+    tasks:
+      - exec:
+          command: /bin/bash
+          arguments:
+            - -c
+            - echo not really deploying, this pipeline is just for history
+  common_stages: &common_stages
+    - promote_docker_image:
+        approval: manual
+        resources:
+          - docker
+        clean_workspace: true
+        tasks:
+          - exec:
+              command: /bin/bash
+              arguments:
+                - -c
+                - echo not really promoting, this pipeline is just for history
+    - deploy:
+        clean_workspace: true
+        jobs:
+          deploy: *deploy_job
+    - functional:
+        clean_workspace: true
+        jobs:
+          test:
+            resources:
+              - docker
+            tasks:
+              - exec:
+                  command: /bin/bash
+                  arguments:
+                    - -c
+                    - echo not really testing, this pipeline is just for history
+pipelines:
+  'prm-deductions-repo-to-gp':
+    group: repo-history
+    label_template: '${git[:8]}'
+    materials:
+      git:
+        type: configrepo
+        ignore:
+          - "**/*"
+    stages:
+      - build:
+          approval: manual
+          clean_workspace: true
+          jobs:
+            test_lint:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks test_lint
+            test_unit:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks test_unit
+            test_integration:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks test_integration
+            coverage:
+              artifacts:
+                - build:
+                    source: coverage/lcov-report
+              tabs:
+                coverage: lcov-report/index.html
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks test_coverage
+            build_artifacts:
+              resources:
+                - docker
+              artifacts:
+                - build:
+                    source: build
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks build
+      - docker:
+          clean_workspace: true
+          jobs:
+            build:
+              resources:
+                - docker
+              tasks:
+                - fetch:
+                    stage: build
+                    job: build_artifacts
+                    source: build
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks build_docker
+      - test_docker:
+          clean_workspace: true
+          jobs:
+            test:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks test_docker
+  prm-deductions-repo-to-gp.dev:
+    group: repo-history
+    label_template: '${git[:8]}'
+    materials:
+      git:
+        type: configrepo
+        ignore:
+          - "**/*"
+      app:
+        pipeline: prm-deductions-repo-to-gp
+        stage: test_docker
+      base_infra:
+        pipeline: prm-deductions-infra
+        stage: deploy_dev
+    environment_variables:
+      NHS_ENVIRONMENT: dev
+    stages: *common_stages
+  prm-deductions-repo-to-gp.test:
+    group: repo-history
+    label_template: '${git[:8]}'
+    materials:
+      git:
+        type: configrepo
+        ignore:
+          - "**/*"
+      dev_env:
+        pipeline: prm-deductions-repo-to-gp.dev
+        stage: functional
+      base_infra:
+        pipeline: prm-deductions-infra
+        stage: deploy_test
+    environment_variables:
+      NHS_ENVIRONMENT: test
+    stages: *common_stages
+  prm-deductions-repo-to-gp.perf:
+    group: repo-history
+    label_template: '${git[:8]}'
+    materials:
+      git:
+        type: configrepo
+        ignore:
+          - "**/*"
+      dev_env:
+        pipeline: prm-deductions-repo-to-gp.dev
+        stage: functional
+      base_infra:
+        pipeline: prm-deductions-infra
+        stage: deploy_perf
+    environment_variables:
+      NHS_ENVIRONMENT: perf
+    stages:
+      - promote_docker_image:
+          approval: manual
+          resources:
+            - docker
+          clean_workspace: true
+          tasks:
+            - exec:
+                command: /bin/bash
+                arguments:
+                  - -c
+                  - ./tasks promote_docker_image
+      - deploy:
+          clean_workspace: true
+          jobs:
+            deploy: *deploy_job
+  prm-deductions-repo-to-gp.pre-prod:
+    group: repo-history
+    label_template: '${git[:8]}'
+    materials:
+      git:
+        type: configrepo
+        ignore:
+          - "**/*"
+      test_env:
+        pipeline: prm-deductions-repo-to-gp.test
+        stage: functional
+      base_infra:
+        pipeline: prm-deductions-infra
+        stage: deploy_pre_prod
+    environment_variables:
+      NHS_ENVIRONMENT: pre-prod
+    stages: *common_stages
+  repo-to-gp.audit:
+    group: repo-history
+    label_template: '${git[:8]}'
+    materials:
+      git:
+        type: configrepo
+        ignore:
+          - "**/*"
+    stages:
+      - audit:
+          clean_workspace: true
+          approval: manual
+          jobs:
+            dependency_check:
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks dep
+  'prm-deductions-repo-to-gp.canary':
+    group: repo-history
+    label_template: '${git[:8]}'
+    materials:
+      git:
+        type: configrepo
+        ignore:
+          - "**/*"
+    stages:
+      - update:
+          clean_workspace: true
+          approval: manual
+          jobs:
+            update_package_json:
+              artifacts:
+                - build:
+                    source: package.json
+              resources:
+                - docker
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks update_package_json
+      - test:
+          clean_workspace: true
+          jobs:
+            test:
+              resources:
+                - docker
+              tasks:
+                - fetch:
+                    stage: update
+                    job: update_package_json
+                    source: package.json
+                    is_file: yes
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks test_unit
+                - exec:
+                    run_if: failed
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks send_dead_canary_message
+            integration:
+              resources:
+                - docker
+              tasks:
+                - fetch:
+                    stage: update
+                    job: update_package_json
+                    source: package.json
+                    is_file: yes
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks test_integration
+                - exec:
+                    run_if: failed
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks send_dead_canary_message
+      - audit:
+          clean_workspace: true
+          jobs:
+            audit:
+              resources:
+                - docker
+              tasks:
+                - fetch:
+                    stage: update
+                    job: update_package_json
+                    source: package.json
+                    is_file: yes
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks dep
+                - exec:
+                    run_if: failed
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks send_dead_canary_message
+      - communication:
+          clean_workspace: true
+          jobs:
+            send_updates:
+              resources:
+                - docker
+              artifacts:
+                - build:
+                    source: outdated-dependencies.txt
+              tabs:
+                Updates: outdated-dependencies.txt
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - ./tasks list_outdated
