@@ -114,7 +114,7 @@ pipelines:
         type: configrepo
         ignore:
           - docs/**/*
-      dev_env:
+      app:
         pipeline: ehr-out-service.dev
         stage: functional
       base_infra:
@@ -131,7 +131,7 @@ pipelines:
         type: configrepo
         ignore:
           - docs/**/*.*
-      dev_env:
+      app:
         pipeline: ehr-out-service.dev
         stage: functional
       base_infra:
@@ -162,7 +162,7 @@ pipelines:
         type: configrepo
         ignore:
           - docs/**/*.*
-      test_env:
+      app:
         pipeline: ehr-out-service.test
         stage: functional
       base_infra:
