@@ -91,7 +91,7 @@ common:
 pipelines:
   ehr-out-service.dev:
     group: repository
-    label_template: '${git[:8]}'
+    label_template: '${COUNT}-${git[:8]}'
     materials:
       git:
         type: configrepo
@@ -108,7 +108,7 @@ pipelines:
     stages: *common_stages
   ehr-out-service.test:
     group: repository
-    label_template: '${git[:8]}'
+    label_template: '${COUNT}-${git[:8]}'
     materials:
       git:
         type: configrepo
@@ -125,7 +125,7 @@ pipelines:
     stages: *common_stages
   ehr-out-service.perf:
     group: repository
-    label_template: '${git[:8]}'
+    label_template: '${COUNT}-${git[:8]}'
     materials:
       git:
         type: configrepo
@@ -156,7 +156,7 @@ pipelines:
             deploy: *deploy_job
   ehr-out-service.pre-prod:
     group: repository
-    label_template: '${git[:8]}'
+    label_template: '${COUNT}-${git[:8]}'
     materials:
       git:
         type: configrepo

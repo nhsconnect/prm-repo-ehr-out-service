@@ -2,7 +2,7 @@ format_version: 4
 pipelines:
   ehr-out-service.canary:
     group: deductions-canary
-    label_template: '${git[:8]}'
+    label_template: '${COUNT}-${git[:8]}'
     materials:
       git:
         type: configrepo
