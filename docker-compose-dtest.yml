@@ -2,7 +2,7 @@ version: '2'
 services:
   default:
     links:
-      - ehr-out-service:ehr-out-service
+      - ehr-out-service:repo-to-gp
   ehr-out-service:
     image: ${REPOSITORY_URI}:${IMAGE_TAG}
     ports:
