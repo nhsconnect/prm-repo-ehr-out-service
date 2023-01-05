@@ -30,6 +30,14 @@ variable "grant_access_through_vpn" {}
 variable "allow_vpn_to_ecs_tasks" { default=false }
 variable "enable_rds_cluster_deletion_protection" {}
 
+variable "threshold_approx_age_oldest_message" {
+  default = "300"
+}
+
+variable "period_of_age_of_message_metric" {
+  default = "1800"
+}
+
 variable "log_level" {
   type = string
   default = "debug"

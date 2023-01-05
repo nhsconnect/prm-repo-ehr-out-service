@@ -6,3 +6,7 @@ resource "aws_cloudwatch_log_group" "log_group" {
     CreatedBy= var.repo_name
   }
 }
+
+data "aws_sns_topic" "alarm_notifications" {
+  name = "${var.environment}-alarm-notifications-sns-topic"
+}
