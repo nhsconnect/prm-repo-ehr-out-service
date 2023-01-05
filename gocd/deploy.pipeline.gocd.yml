@@ -115,6 +115,9 @@ pipelines:
         ignore:
           - docs/**/*
       app:
+        pipeline: ehr-out-service
+        stage: test_docker
+      dev_env:
         pipeline: ehr-out-service.dev
         stage: functional
       base_infra:
@@ -132,7 +135,10 @@ pipelines:
         ignore:
           - docs/**/*.*
       app:
-        pipeline: ehr-out-service.dev
+        pipeline: ehr-out-service
+        stage: test_docker
+      test_env:
+        pipeline: ehr-out-service.test
         stage: functional
       base_infra:
         pipeline: prm-deductions-infra
@@ -163,6 +169,9 @@ pipelines:
         ignore:
           - docs/**/*.*
       app:
+        pipeline: ehr-out-service
+        stage: test_docker
+      test_env:
         pipeline: ehr-out-service.test
         stage: functional
       base_infra:
