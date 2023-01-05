@@ -49,7 +49,7 @@ COPY database/                /app/database
 COPY build/config/database.js /app/src/config/
 COPY .sequelizerc             /app/
 
-COPY scripts/run-server-with-db.sh /usr/bin/run-repo-to-gp-server
+COPY scripts/run-server-with-db.sh /usr/bin/run-ehr-out-service
 COPY scripts/load-api-keys.sh      /app/scripts/load-api-keys.sh
 
 ENV NHS_ENVIRONMENT="" \
@@ -65,7 +65,7 @@ WORKDIR /app
 EXPOSE 3000
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["/usr/bin/run-repo-to-gp-server"]
+CMD ["/usr/bin/run-ehr-out-service"]
 
 RUN addgroup -g 1000 node \
     && adduser -u 1000 -G node -s /bin/sh -D node

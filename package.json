@@ -1,5 +1,5 @@
 {
-  "name": "prm-deductions-repo-to-gp",
+  "name": "ehr-out-service",
   "version": "1.0.0",
   "main": "src/server.js",
   "scripts": {

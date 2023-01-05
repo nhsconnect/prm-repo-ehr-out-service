@@ -1,9 +1,12 @@
-# prm-deductions-repo-to-gp
+# ehr-out-service
 
-This component is responsible for creating and handling of the registration request, when the Orphaned/Stranded health record stored in Repository is requested by the new practice.
+This component is part of the Repository, responsible for creating and handling of EHR transfers out from the Repository,
+when the Orphaned/Stranded health record stored in the Repository's `ehr-repository` is requested by the next registering
+practice.
 
-When the message handler receives an EHR request and sends this to the RepoToGP component, the RepoToGP accepts this request and creates a new registration request associated with that EHR request so that it can keep track of the transfer.
-After the successful validation of the request and retrieval of patient's health record, it sends EHR out to the requesting practice.
+When the a GP2GP EHR request on its incoming queue, the `ehr-out-service` accepts this and creates a record to track this outward transfer.
+After the successful validation of the request and retrieval of patient's health record from `ehr-repository`, it sends the 
+EHR out to the requesting practice via `gp2gp-messenger`.
 
 
 ## Prerequisites
