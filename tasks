@@ -52,7 +52,8 @@ function set_image_tag() {
   if [[ -z "${GO_DEPENDENCY_LABEL_APP}" ]]; then
     export IMAGE_TAG=${GO_PIPELINE_LABEL:-$(git rev-parse HEAD | cut -c 1-8)}
   else
-    export IMAGE_TAG=$(git rev-parse HEAD | cut -c 1-8)
+    export IMAGE_TAG=${GO_DEPENDENCY_LABEL_APP}
+  fi
 }
 
 function create_secret_ssm_param {
