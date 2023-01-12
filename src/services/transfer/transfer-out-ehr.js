@@ -51,12 +51,7 @@ export async function transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRe
     await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
 
     logInfo('Sending EHR extract');
-    await sendEhrExtract(
-      conversationId,
-      odsCode,
-      ehrRequestId,
-      patientHealthRecord.coreEhrMessageUrl
-    );
+    await sendEhrExtract(conversationId, odsCode, ehrRequestId, patientHealthRecord.coreMessageUrl);
 
     logInfo('Updating status');
     await updateStatus(conversationId, Status.SENT_EHR, logs);

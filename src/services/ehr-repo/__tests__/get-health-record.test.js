@@ -17,20 +17,17 @@ describe('getPatientHealthRecordFromRepo', () => {
     const mockEhrRepoServiceUrl = 'http://localhost';
     const mockEhrRepoAuthKeys = 'fake-keys';
     const conversationId = 'fake-conversationId';
+    const conversationIdFromEhrIn = 'fake-conversationIdFromEhrIn';
+    const fragmentMessageIds = [];
     const headers = {
       reqheaders: { Authorization: `${mockEhrRepoAuthKeys}`, conversationId: `${conversationId}` }
     };
     const nhsNumber = '1234567890';
-    const coreEhrMessageUrl = 'fake-url';
+    const coreMessageUrl = 'fake-url';
     const ehrIsPresentEhrRepoResponse = {
-      data: {
-        id: nhsNumber,
-        type: 'patients',
-        links: {
-          healthRecordExtract: coreEhrMessageUrl,
-          attachments: []
-        }
-      }
+      coreMessageUrl,
+      fragmentMessageIds,
+      conversationIdFromEhrIn: conversationIdFromEhrIn
     };
 
     it('should return the url of the stored core ehr message when the patients health record is in repo', async () => {
@@ -40,7 +37,7 @@ describe('getPatientHealthRecordFromRepo', () => {
 
       const res = await getPatientHealthRecordFromRepo(nhsNumber, conversationId);
       expect(scope.isDone()).toBe(true);
-      expect(res).toEqual({ coreEhrMessageUrl: coreEhrMessageUrl });
+      expect(res).toEqual({ coreMessageUrl: coreMessageUrl });
     });
 
     it('should return null when gets a 404 and patients health record was not found in repo', async () => {

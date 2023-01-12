@@ -26,7 +26,7 @@ describe('transferOutEhr', () => {
   const ehrRequestId = '870f6ef9-746f-4e81-b51f-884d64530bed';
   const odsCode = 'A12345';
   const nhsNumber = '1111111111';
-  const coreEhrMessageUrl = 'fake-url';
+  const coreMessageUrl = 'fake-url';
 
   describe('transfer request validation checks', () => {
     it('should validate duplicate transfer out requests', async () => {
@@ -91,7 +91,7 @@ describe('transferOutEhr', () => {
 
   it('should send EHR extract on success', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
-    getPatientHealthRecordFromRepo.mockResolvedValueOnce({ coreEhrMessageUrl });
+    getPatientHealthRecordFromRepo.mockResolvedValueOnce({ coreMessageUrl: coreMessageUrl });
     getPdsOdsCode.mockResolvedValueOnce(odsCode);
 
     const result = await transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRequestId });
@@ -111,7 +111,7 @@ describe('transferOutEhr', () => {
       conversationId,
       odsCode,
       ehrRequestId,
-      coreEhrMessageUrl
+      coreMessageUrl
     );
   });
 

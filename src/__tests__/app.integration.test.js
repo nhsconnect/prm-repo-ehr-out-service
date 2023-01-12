@@ -114,19 +114,15 @@ describe('POST /registration-requests/', () => {
   const odsCode = 'A12345';
   const ehrRequestId = v4();
   const repoToGpUrl = 'http://repo-to-gp';
-  const coreEhrMessageUrl = 'fake-url';
+  const coreMessageUrl = 'fake-url';
+  const fragmentMessageIds = [];
   const ehrHeaders = { reqheaders: { Authorization: fakeAuth } };
   const gp2gpHeaders = { reqheaders: { Authorization: fakeAuth } };
   const pdsResponseBody = { data: { odsCode } };
   const ehrResponseBody = {
-    data: {
-      id: nhsNumber,
-      type: 'patients',
-      links: {
-        healthRecordExtract: coreEhrMessageUrl,
-        attachments: []
-      }
-    }
+    coreMessageUrl,
+    fragmentMessageIds,
+    conversationIdFromEhrIn: conversationId
   };
 
   const sendEhrBody = {
@@ -138,7 +134,7 @@ describe('POST /registration-requests/', () => {
         ehrRequestId
       },
       links: {
-        currentEhrUrl: coreEhrMessageUrl
+        currentEhrUrl: coreMessageUrl
       }
     }
   };
