@@ -52,7 +52,7 @@ describe('transferOutEhr', () => {
       expect(result.inProgress).toBe(false);
       expect(result.hasFailed).toBe(false);
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
-      expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber);
+      expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
       expect(initializeConfig).toHaveBeenCalled();
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
         conversationId,
@@ -75,7 +75,7 @@ describe('transferOutEhr', () => {
       expect(result.inProgress).toBe(false);
       expect(result.hasFailed).toBe(false);
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
-      expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber);
+      expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
       expect(initializeConfig).toHaveBeenCalled();
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
         conversationId,
@@ -99,7 +99,7 @@ describe('transferOutEhr', () => {
     expect(result.inProgress).toBe(false);
     expect(result.hasFailed).toBe(false);
     expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
-    expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber);
+    expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
       conversationId,
       Status.VALIDATION_CHECKS_PASSED

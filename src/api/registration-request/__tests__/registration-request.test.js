@@ -61,7 +61,7 @@ describe('POST /registration-requests/', () => {
 
       expect(res.statusCode).toBe(204);
       expect(getRegistrationRequestStatusByConversationId).toHaveBeenCalledWith(conversationId);
-      expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber);
+      expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
       expect(getPdsOdsCode).toHaveBeenCalledWith(nhsNumber);
       expect(sendEhrExtract).toHaveBeenCalledWith(
         conversationId,

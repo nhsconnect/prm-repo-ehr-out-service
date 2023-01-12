@@ -16,7 +16,10 @@ describe('getPatientHealthRecordFromRepo', () => {
     });
     const mockEhrRepoServiceUrl = 'http://localhost';
     const mockEhrRepoAuthKeys = 'fake-keys';
-    const headers = { reqheaders: { Authorization: `${mockEhrRepoAuthKeys}` } };
+    const conversationId = 'fake-conversationId';
+    const headers = {
+      reqheaders: { Authorization: `${mockEhrRepoAuthKeys}`, conversationId: `${conversationId}` }
+    };
     const nhsNumber = '1234567890';
     const coreEhrMessageUrl = 'fake-url';
     const ehrIsPresentEhrRepoResponse = {
@@ -35,7 +38,7 @@ describe('getPatientHealthRecordFromRepo', () => {
         .get(`/patients/${nhsNumber}`)
         .reply(200, ehrIsPresentEhrRepoResponse);
 
-      const res = await getPatientHealthRecordFromRepo(nhsNumber);
+      const res = await getPatientHealthRecordFromRepo(nhsNumber, conversationId);
       expect(scope.isDone()).toBe(true);
       expect(res).toEqual({ coreEhrMessageUrl: coreEhrMessageUrl });
     });
@@ -44,7 +47,7 @@ describe('getPatientHealthRecordFromRepo', () => {
       const expectedError = new Error('Request failed with status code 404');
       const scope = nock(mockEhrRepoServiceUrl, headers).get(`/patients/${nhsNumber}`).reply(404);
 
-      const res = await getPatientHealthRecordFromRepo(nhsNumber);
+      const res = await getPatientHealthRecordFromRepo(nhsNumber, conversationId);
       expect(scope.isDone()).toBe(true);
       expect(logError).toHaveBeenCalledWith(
         'Cannot find complete patient health record',
@@ -59,7 +62,7 @@ describe('getPatientHealthRecordFromRepo', () => {
 
       let actualError = null;
       try {
-        await getPatientHealthRecordFromRepo(nhsNumber);
+        await getPatientHealthRecordFromRepo(nhsNumber, conversationId);
       } catch (err) {
         actualError = err;
       }

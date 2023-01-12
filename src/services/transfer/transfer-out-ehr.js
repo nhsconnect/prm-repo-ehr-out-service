@@ -33,7 +33,7 @@ export async function transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRe
     await createRegistrationRequest(conversationId, nhsNumber, odsCode);
 
     logInfo('Getting patient health record from EHR repo');
-    const patientHealthRecord = await getPatientHealthRecordFromRepo(nhsNumber);
+    const patientHealthRecord = await getPatientHealthRecordFromRepo(nhsNumber, conversationId);
     if (!patientHealthRecord) {
       logs = `Patient does not have a complete health record in repo`;
       await updateStatus(conversationId, Status.MISSING_FROM_REPO, logs);
@@ -57,7 +57,7 @@ export async function transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRe
       ehrRequestId,
       patientHealthRecord.coreEhrMessageUrl
     );
-  
+
     logInfo('Updating status');
     await updateStatus(conversationId, Status.SENT_EHR, logs);
     return defaultResult;
