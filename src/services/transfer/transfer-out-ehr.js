@@ -12,7 +12,7 @@ import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
 import { sendEhrExtract } from '../gp2gp/send-ehr-extract';
 
 export async function transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
-  setCurrentSpanAttributes({ conversationId });
+  setCurrentSpanAttributes({ conversationId: conversationId });
   logInfo('EHR transfer out request received');
 
   let logs = 'EHR has been successfully sent';
