@@ -1,10 +1,10 @@
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { transferOutEhr } from '../transfer/transfer-out-ehr';
-import { getCurrentSpanAttributes } from '../../config/tracing';
+import { setCurrentSpanAttributes } from '../../config/tracing';
 
 export default async function ehrRequestHandler(ehrRequest, overrides) {
   const { conversationId } = ehrRequest;
-  getCurrentSpanAttributes({ conversationId: conversationId });
+  setCurrentSpanAttributes({ conversationId: conversationId });
 
   const options = Object.assign({ transferOutEhr }, overrides);
   const doTransfer = options.transferOutEhr;
