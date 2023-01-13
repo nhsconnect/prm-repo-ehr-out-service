@@ -1,8 +1,12 @@
 import { INTERACTION_IDS } from '../../constants/interaction-ids';
 import { logError, logInfo } from '../../middleware/logging';
 import ehrRequestHandler from './ehr-request-handler';
+import {setCurrentSpanAttributes} from "../../config/tracing";
 
 export default async function sendMessageToCorrespondingHandler(parsedMessage) {
+  const { conversationId } = parsedMessage;
+  setCurrentSpanAttributes({ conversationId: conversationId });
+
   switch (parsedMessage.interactionId) {
     case INTERACTION_IDS.EHR_REQUEST_INTERACTION_ID:
       logInfo('Message Type: EHR REQUEST');
