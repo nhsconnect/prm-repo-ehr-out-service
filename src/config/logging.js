@@ -1,8 +1,8 @@
 import { createLogger, format, transports } from 'winston';
 import traverse from 'traverse';
 import cloneDeep from 'lodash.clonedeep';
-import { context, trace } from '@opentelemetry/api';
 import { initializeConfig } from './index';
+import { getCurrentSpanAttributes } from './tracing';
 
 export const obfuscateSecrets = format(info => {
   const OBFUSCATED_VALUE = '********';
@@ -15,16 +15,19 @@ export const obfuscateSecrets = format(info => {
 });
 
 export const addCommonFields = format(info => {
-  const { nhsEnvironment } = initializeConfig();
+  const config = initializeConfig();
+  const nhsEnvironment = config.nhsEnvironment;
   const updated = cloneDeep(info);
-  const currentSpan = trace.getSpan(context.active());
+  const attributes = getCurrentSpanAttributes();
 
-  if (currentSpan) {
-    updated['traceId'] = currentSpan.spanContext().traceId;
-    updated['conversationId'] = currentSpan.attributes.conversationId;
+  if (attributes) {
+    updated['traceId'] = attributes.traceId;
+    updated['conversationId'] = attributes.conversationId;
+    updated['messageId'] = attributes.messageId;
   }
+
   updated.level = updated.level.toUpperCase();
-  updated['service'] = 'repo-to-gp';
+  updated['service'] = 'ehr-repository';
   updated['environment'] = nhsEnvironment;
   return updated;
 });

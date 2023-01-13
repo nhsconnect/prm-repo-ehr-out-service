@@ -60,7 +60,9 @@ describe('ehrRequestHandler', () => {
     await ehrRequestHandler(ehrRequest, { transferOutEhr });
 
     await expect(transferOutEhr).toHaveBeenCalledWith(ehrRequest);
-    await expect(logWarning).toHaveBeenCalledWith('EHR out transfer with this conversation ID is already in progress');
+    await expect(logWarning).toHaveBeenCalledWith(
+      'EHR out transfer with this conversation ID is already in progress'
+    );
   });
 
   it('should log error when transfer fails due to error', async () => {

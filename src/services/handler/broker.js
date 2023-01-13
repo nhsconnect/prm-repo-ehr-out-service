@@ -9,6 +9,7 @@ export default async function sendMessageToCorrespondingHandler(parsedMessage) {
       await ehrRequestHandler(parsedMessage);
       break;
     default:
+      // eslint-disable-next-line no-case-declarations
       const error = new Error('Invalid interaction ID: ' + parsedMessage.interactionId);
       logError(error.message);
       throw error;

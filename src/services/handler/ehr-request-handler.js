@@ -11,11 +11,9 @@ export default async function ehrRequestHandler(ehrRequest, overrides) {
   let result = await doTransfer(ehrRequest);
   if (result.inProgress) {
     logWarning('EHR out transfer with this conversation ID is already in progress');
-  }
-  else if (result.hasFailed) {
+  } else if (result.hasFailed) {
     logError('EHR out transfer failed due to error: ' + result.error);
-  }
-  else {
+  } else {
     logInfo('EHR transfer out started');
   }
 }
