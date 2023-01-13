@@ -2,6 +2,7 @@ import { body } from 'express-validator';
 import { logInfo } from '../../middleware/logging';
 import { initializeConfig } from '../../config';
 import { transferOutEhr } from '../../services/transfer/transfer-out-ehr';
+import { setCurrentSpanAttributes } from '../../config/tracing';
 
 export const registrationRequestValidationRules = [
   body('data.type').equals('registration-requests'),
@@ -19,10 +20,10 @@ export const registrationRequestValidationRules = [
 // TODO needs rename this is a request for EHR, 'registration request' is old terminology coupling
 // this to the process of registering which is correlated but not the same thing
 export const registrationRequest = async (req, res) => {
-  logInfo('Create registration request received');
-
   const { id: conversationId, attributes } = req.body.data;
   const { nhsNumber, odsCode, ehrRequestId } = attributes;
+  setCurrentSpanAttributes({ conversationId: conversationId });
+  logInfo('Create registration request received');
 
   const result = await transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRequestId });
   if (result.inProgress) {

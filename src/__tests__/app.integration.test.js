@@ -91,7 +91,9 @@ describe('GET /registration-requests/:conversationId', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual(retrievalResponse);
-    expectStructuredLogToContain(transportSpy, { conversationId, traceId: expect.anything() });
+    expectStructuredLogToContain(transportSpy, {
+      conversationId: conversationId
+    });
   });
 
   it('should return 404 when registration request cannot be found', async () => {
@@ -102,14 +104,14 @@ describe('GET /registration-requests/:conversationId', () => {
 
     expect(res.statusCode).toBe(404);
     expectStructuredLogToContain(transportSpy, {
-      conversationId: nonExistentConversationId,
-      traceId: expect.anything()
+      conversationId: nonExistentConversationId
     });
   });
 });
 
 describe('POST /registration-requests/', () => {
   const conversationId = v4();
+  const conversationIdFromEhrIn = v4();
   const nhsNumber = '1234567890';
   const odsCode = 'A12345';
   const ehrRequestId = v4();
@@ -122,7 +124,7 @@ describe('POST /registration-requests/', () => {
   const ehrResponseBody = {
     coreMessageUrl,
     fragmentMessageIds,
-    conversationIdFromEhrIn: conversationId
+    conversationIdFromEhrIn: conversationIdFromEhrIn
   };
 
   const sendEhrBody = {
@@ -192,6 +194,8 @@ describe('POST /registration-requests/', () => {
       .set('Authorization', fakeAuth);
 
     expect(statusUpdate.body.data.attributes.status).toEqual('sent_ehr');
-    expectStructuredLogToContain(transportSpy, { conversationId, traceId: expect.anything() });
+    expectStructuredLogToContain(transportSpy, {
+      conversationId: conversationId
+    });
   });
 });
