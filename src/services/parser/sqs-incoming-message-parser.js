@@ -1,6 +1,7 @@
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { extractEbXmlData } from './extract-eb-xml-data';
 import { extractPayloadData } from './extract-payload-data';
+import { setCurrentSpanAttributes } from '../../config/tracing';
 import { INTERACTION_IDS } from '../../constants/interaction-ids';
 
 export const parse = async messageBody => {
@@ -8,6 +9,7 @@ export const parse = async messageBody => {
 
   try {
     const { interactionId, conversationId } = await extractEbXmlData(JSON.parse(messageBody).ebXML);
+    setCurrentSpanAttributes({ conversationId: conversationId });
     logInfo('Successfully parsed ebXML');
 
     let ehrRequestId = undefined,
