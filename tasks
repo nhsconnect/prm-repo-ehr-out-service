@@ -245,10 +245,7 @@ function tf_init_db_roles {
 
 function tf_plan_db_roles {
   operation=$1
-  db_host=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-host")
-  db_username=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-username")
-  db_password=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-password")
-  db_name=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-name")
+  grab_db_params_from_ssm
 
   tf_init_db_roles
   terraform get # modules
@@ -269,10 +266,16 @@ function tf_apply_db_roles {
   terraform output -json > tf-out-db-roles.json
 }
 
-
 ####################
 # Script Functions #
 ####################
+
+function grab_db_params_from_ssm() {
+  db_host=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-host")
+  db_username=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-username")
+  db_password=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-password")
+  db_name=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-name")
+}
 
 function send_canary_update_message {
   check_nhs_service
@@ -510,10 +513,7 @@ case "${command}" in
   _grant_db_permissions)
       check_env
       _assume_environment_role $NHS_ENVIRONMENT
-      db_host=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-host")
-      db_username=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-username")
-      db_password=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-password")
-      db_name=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/prm-deductions-repo-to-gp/db-name")
+      grab_db_params_from_ssm
       export PGPASSWORD=$db_password
       psql -h $db_host -U $db_username -d $db_name -f scripts/grant-db-permissions.sql
       ;;

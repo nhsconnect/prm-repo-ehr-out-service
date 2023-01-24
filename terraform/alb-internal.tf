@@ -21,7 +21,6 @@ resource "aws_alb" "alb-internal" {
   }
 }
 
-# Exists to be referred by the ECS task of repo-to-gp
 resource "aws_security_group" "repo_to_gp_alb" {
   name        = "${var.environment}-alb-${var.component_name}"
   description = "Repo-to-gp ALB security group"
