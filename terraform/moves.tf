@@ -118,7 +118,9 @@ moved {
   to   = aws_ecs_cluster.ecs_cluster
 }
 
-
-
+moved {
+  from = aws_security_group.alb_to_repo_to_gp_ecs
+  to   = aws_security_group.alb_to_app_ecs
+}
 
 

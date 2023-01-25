@@ -23,7 +23,7 @@ resource "aws_alb" "alb_internal" {
 
 resource "aws_security_group" "service_from_alb" {
   name        = "${var.environment}-alb-${var.component_name}"
-  description = "${var.component_name} ALB security group"
+  description = "Repo-to-gp ALB security group"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   tags = {
@@ -134,12 +134,12 @@ resource "aws_lb_listener_certificate" "app_internal_listener_cert" {
 }
 
 resource "aws_security_group" "alb_to_app_ecs" {
-  name        = "${var.environment}-alb-to-${var.component_name}-ecr"
-  description = "Allows repo-to-gp ALB connections to repo-to-gp component task"
+  name        = "${var.environment}-alb-to-${var.component_name}-ecs"
+  description = "Allows ALB connections to service task"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   egress {
-    description = "Allow outbound connections to repo to gp ECS Task"
+    description = "Allow outbound connections from ECS Task"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -150,6 +150,10 @@ resource "aws_security_group" "alb_to_app_ecs" {
     Name = "${var.environment}-alb-to-${var.component_name}-ecs"
     CreatedBy   = var.repo_name
     Environment = var.environment
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
