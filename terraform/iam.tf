@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "ecs-assume-role-policy" {
   }
 }
 
-resource "aws_iam_role" "component-ecs-role" {
+resource "aws_iam_role" "component_ecs_role" {
   name               = "${var.environment}-${var.component_name}-EcsTaskRole"
   assume_role_policy = data.aws_iam_policy_document.ecs-assume-role-policy.json
   description        = "Role assumed by ${var.component_name} ECS task"
@@ -92,7 +92,7 @@ data "aws_iam_policy_document" "sqs_policy_doc" {
       "sqs:ReceiveMessage"
     ]
     resources = [
-      aws_sqs_queue.ehr-out-service-incoming.arn
+      aws_sqs_queue.service_incoming.arn
     ]
   }
 }
@@ -103,7 +103,7 @@ data "aws_iam_policy_document" "kms_policy_doc" {
       "kms:Decrypt"
     ]
     resources = [
-      aws_kms_key.ehr-out-service-incoming.arn
+      aws_kms_key.service_incoming.arn
     ]
   }
 }
@@ -134,32 +134,32 @@ resource "aws_iam_policy" "sqs_policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "ssm_policy_attach" {
-  role       = aws_iam_role.component-ecs-role.name
+  role       = aws_iam_role.component_ecs_role.name
   policy_arn = aws_iam_policy.ssm_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "ecr_policy_attach" {
-  role       = aws_iam_role.component-ecs-role.name
+  role       = aws_iam_role.component_ecs_role.name
   policy_arn = aws_iam_policy.ecr_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "logs_policy_attach" {
-  role       = aws_iam_role.component-ecs-role.name
+  role       = aws_iam_role.component_ecs_role.name
   policy_arn = aws_iam_policy.logs_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "sqs_policy_attach" {
-  role       = aws_iam_role.component-ecs-role.name
+  role       = aws_iam_role.component_ecs_role.name
   policy_arn = aws_iam_policy.sqs_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "kms_policy_attach" {
-  role       = aws_iam_role.component-ecs-role.name
+  role       = aws_iam_role.component_ecs_role.name
   policy_arn = aws_iam_policy.kms_policy.arn
 }
 
 resource "aws_sqs_queue_policy" "ehr_out_service_incoming" {
-  queue_url = aws_sqs_queue.ehr-out-service-incoming.id
+  queue_url = aws_sqs_queue.service_incoming.id
   policy    = data.aws_iam_policy_document.ehr_out_service_incoming_policy_doc.json
 }
 
@@ -176,7 +176,7 @@ data "aws_iam_policy_document" "ehr_out_service_incoming_policy_doc" {
       type        = "Service"
     }
 
-    resources = [aws_sqs_queue.ehr-out-service-incoming.arn]
+    resources = [aws_sqs_queue.service_incoming.arn]
 
     condition {
       test     = "ArnEquals"

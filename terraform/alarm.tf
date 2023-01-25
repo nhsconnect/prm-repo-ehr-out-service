@@ -9,7 +9,7 @@ resource "aws_cloudwatch_metric_alarm" "ehr_out_service_incoming_age_of_message"
   statistic           = "Maximum"
   period              = var.period_of_age_of_message_metric
   dimensions          = {
-    QueueName = aws_sqs_queue.ehr-out-service-incoming.name
+    QueueName = aws_sqs_queue.service_incoming.name
   }
   alarm_actions       = [data.aws_sns_topic.alarm_notifications.arn]
   ok_actions          = [data.aws_sns_topic.alarm_notifications.arn]

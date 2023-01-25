@@ -2,11 +2,11 @@ locals {
   ehr-out-service-incoming-queue-name = "${var.environment}-ehr-out-service-incoming"
 }
 
-resource "aws_sqs_queue" "ehr-out-service-incoming" {
+resource "aws_sqs_queue" "service_incoming" {
   name                       = local.ehr-out-service-incoming-queue-name
   message_retention_seconds  = 1209600
-  kms_master_key_id = aws_kms_key.ehr-out-service-incoming.key_id
-  receive_wait_time_seconds = 20
+  kms_master_key_id          = aws_kms_key.service_incoming.key_id
+  receive_wait_time_seconds  = 20
   visibility_timeout_seconds = 240
 
   tags = {
@@ -16,7 +16,7 @@ resource "aws_sqs_queue" "ehr-out-service-incoming" {
   }
 }
 
-resource "aws_kms_key" "ehr-out-service-incoming" {
+resource "aws_kms_key" "service_incoming" {
   description = "Custom KMS Key to enable server side encryption for SQS"
   policy      = data.aws_iam_policy_document.kms_key_policy_doc.json
   enable_key_rotation = true

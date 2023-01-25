@@ -1,5 +1,5 @@
 locals {
-  task_role_arn                = aws_iam_role.component-ecs-role.arn
+  task_role_arn                = aws_iam_role.component_ecs_role.arn
   task_execution_role          = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.environment}-${var.component_name}-EcsTaskRole"
   task_ecr_url                 = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com"
   task_log_group               = "/nhs/deductions/${var.environment}-${data.aws_caller_identity.current.account_id}/${var.component_name}"
@@ -19,7 +19,7 @@ locals {
     { name = "REPO_TO_GP_SKIP_MIGRATION", value = "true" },
     { name = "USE_SSL_FOR_DB", value = "true" },
     { name = "LOG_LEVEL", value = var.log_level },
-    { name = "SQS_EHR_OUT_INCOMING_QUEUE_URL", value = aws_sqs_queue.ehr-out-service-incoming.id }
+    { name = "SQS_EHR_OUT_INCOMING_QUEUE_URL", value = aws_sqs_queue.service_incoming.id }
   ]
   secret_environment_variables = [
     { name      = "GP2GP_ADAPTOR_AUTHORIZATION_KEYS",
@@ -60,7 +60,7 @@ resource "aws_ecs_task_definition" "task" {
   }
 }
 
-resource "aws_security_group" "ecs-tasks-sg" {
+resource "aws_security_group" "ecs_tasks_sg" {
   name   = "${var.environment}-${var.component_name}-ecs-tasks-sg"
   vpc_id = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
@@ -70,7 +70,7 @@ resource "aws_security_group" "ecs-tasks-sg" {
     from_port       = "3000"
     to_port         = "3000"
     security_groups = [
-      aws_security_group.repo_to_gp_alb.id
+      aws_security_group.service_from_alb.id
     ]
   }
 
@@ -106,7 +106,7 @@ resource "aws_security_group" "ecs-tasks-sg" {
   }
 }
 
-resource "aws_security_group_rule" "repo-to-gp-to-gp2gp-messenger" {
+resource "aws_security_group_rule" "app_to_gp2gp_messenger" {
   type                     = "ingress"
   protocol                 = "TCP"
   from_port                = 443
@@ -115,17 +115,17 @@ resource "aws_security_group_rule" "repo-to-gp-to-gp2gp-messenger" {
   source_security_group_id = local.ecs_task_sg_id
 }
 
-resource "aws_security_group_rule" "repo-to-gp-to-ehr-repo" {
+resource "aws_security_group_rule" "app_to_ehr_repo" {
   type                     = "ingress"
   protocol                 = "TCP"
   from_port                = 443
   to_port                  = 443
   security_group_id        = data.aws_ssm_parameter.service-to-ehr-repo-sg-id.value
-  source_security_group_id = aws_security_group.ecs-tasks-sg.id
+  source_security_group_id = aws_security_group.ecs_tasks_sg.id
 }
 
 
-resource "aws_security_group" "vpn_to_repo_to_gp_ecs" {
+resource "aws_security_group" "vpn_to_service_ecs" {
   count       = var.allow_vpn_to_ecs_tasks ? 1 : 0
   name        = "${var.environment}-vpn-to-${var.component_name}-ecs"
   description = "Controls access from vpn to repo-to-gp ecs"

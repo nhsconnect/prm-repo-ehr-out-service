@@ -27,7 +27,7 @@ resource "aws_rds_cluster" "repo_to_gp_db_cluster" {
   }
 }
 
-resource "aws_ssm_parameter" "db-name" {
+resource "aws_ssm_parameter" "db_name" {
   name =  "/repo/${var.environment}/output/${var.repo_name}/db-name"
   type  = "String"
   value = aws_rds_cluster.repo_to_gp_db_cluster.database_name
@@ -76,7 +76,7 @@ resource "aws_security_group" "repo_to_gp_db_sg" {
     protocol        = "tcp"
     from_port       = "5432"
     to_port         = "5432"
-    security_groups = [aws_security_group.ecs-tasks-sg.id]
+    security_groups = [aws_security_group.ecs_tasks_sg.id]
   }
 
   tags = {
