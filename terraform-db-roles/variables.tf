@@ -5,7 +5,7 @@ variable "region" {
 
 variable "repo_name" {
   type = string
-  default = "prm-deductions-repo-to-gp"
+  default = "prm-repo-ehr-out-service"
 }
 
 variable "db_port" {
