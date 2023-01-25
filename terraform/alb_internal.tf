@@ -1,5 +1,6 @@
 locals {
-  domain = trimsuffix("${var.dns_name}.${data.aws_route53_zone.environment_public_zone.name}", ".")
+  domain = trimsuffix("${var.component_name}.${data.aws_route53_zone.environment_public_zone.name}", ".")
+  alias_domain = trimsuffix("${var.alias_dns_name}.${data.aws_route53_zone.environment_public_zone.name}", ".")
 }
 
 resource "aws_alb" "alb_internal" {
@@ -107,7 +108,10 @@ resource "aws_alb_listener_rule" "int_alb_http_listener_rule" {
 
   condition {
     host_header {
-      values = [local.domain]
+      values = [
+        local.domain,
+        local.alias_domain
+      ]
     }
   }
 }
@@ -123,7 +127,10 @@ resource "aws_alb_listener_rule" "int_alb_https_listener_rule" {
 
   condition {
     host_header {
-      values = [local.domain]
+      values = [
+        local.domain,
+        local.alias_domain
+      ]
     }
   }
 }

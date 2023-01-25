@@ -4,7 +4,15 @@ locals {
 
 resource "aws_route53_record" "service" {
   zone_id = data.aws_ssm_parameter.environment_private_zone_id.value
-  name    = var.dns_name
+  name    = var.alias_dns_name
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_alb.alb_internal.dns_name]
+}
+
+resource "aws_route53_record" "service_alias" {
+  zone_id = data.aws_ssm_parameter.environment_private_zone_id.value
+  name    = var.component_name
   type    = "CNAME"
   ttl     = "300"
   records = [aws_alb.alb_internal.dns_name]
@@ -15,8 +23,8 @@ data "aws_route53_zone" "environment_public_zone" {
 }
 
 resource "aws_acm_certificate" "service_cert" {
-  domain_name       = "${var.dns_name}.${data.aws_route53_zone.environment_public_zone.name}"
-
+  domain_name       = "${var.component_name}.${data.aws_route53_zone.environment_public_zone.name}"
+  subject_alternative_names = ["${var.alias_dns_name}.${data.aws_route53_zone.environment_public_zone.name}"]
   validation_method = "DNS"
 
   tags = {
@@ -50,5 +58,5 @@ resource "aws_acm_certificate_validation" "service_cert_validation" {
 resource "aws_ssm_parameter" "service_url" {
   name  = "/repo/${var.environment}/output/${var.repo_name}/repo-to-gp-service-url"
   type  = "String"
-  value = "https://${var.dns_name}.${data.aws_route53_zone.environment_public_zone.name}"
+  value = "https://${var.component_name}.${data.aws_route53_zone.environment_public_zone.name}"
 }

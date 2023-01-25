@@ -17,8 +17,8 @@ variable "environment" {}
 variable "component_name" {
   default = "repo-to-gp"
 }
-variable "dns_name" {
-  default = "repo-to-gp"
+variable "alias_dns_name" {
+  default = "ehr-out-service"
 }
 variable "task_image_tag" {}
 variable "task_cpu" {
