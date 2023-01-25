@@ -224,14 +224,6 @@ function tf_plan {
   fi
 }
 
-function tf_apply {
-  tf_init
-  terraform get # modules
-  terraform apply nhs_deployment.tfplan
-  terraform output -json > tf-out.json
-}
-
-
 function tf_init_db_roles {
   check_env
   cd terraform-db-roles
@@ -466,22 +458,6 @@ case "${command}" in
   tf_plan_db_roles)
       check_env
       dojo -c Dojofile-infra "./tasks _tf_plan_db_roles $2"
-      ;;
-  _tf_plan_certs)
-      _assume_environment_role $NHS_ENVIRONMENT
-      tf_plan "$2" true
-      ;;
-  tf_plan_certs)
-      check_env
-      dojo -c Dojofile-infra "./tasks _tf_plan_certs $2"
-      ;;
-  _tf_apply)
-      _assume_environment_role $NHS_ENVIRONMENT
-      tf_apply
-      ;;
-  tf_apply)
-      check_env
-      dojo -c Dojofile-infra "./tasks _tf_apply"
       ;;
   _tf_apply_db_roles)
       _assume_environment_role $NHS_ENVIRONMENT
