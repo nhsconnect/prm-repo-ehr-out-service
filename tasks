@@ -203,19 +203,12 @@ function tf_init {
 
 function tf_plan {
   operation=$1
-  certs=$2
   set_image_tag
-  TARGET=""
-
-
-  if [[ "${certs}" == "true" ]]; then
-    TARGET="-target=aws_acm_certificate.repo-to-gp-cert"
-  fi
 
   tf_init
   terraform get # modules
   if [[ "${operation}" == "create" ]]; then
-    terraform plan -var task_image_tag=$IMAGE_TAG -var-file=$NHS_ENVIRONMENT.tfvars $TARGET -out="nhs_deployment.tfplan"
+    terraform plan -var task_image_tag=$IMAGE_TAG -var-file=$NHS_ENVIRONMENT.tfvars -out="nhs_deployment.tfplan"
   elif [[ "${operation}" == "destroy" ]]; then
     terraform plan -var task_image_tag=$IMAGE_TAG -var-file=$NHS_ENVIRONMENT.tfvars -out="nhs_deployment.tfplan" -destroy
   else
@@ -223,6 +216,14 @@ function tf_plan {
     exit 1
   fi
 }
+
+function tf_apply {
+  tf_init
+  terraform get # modules
+  terraform apply nhs_deployment.tfplan
+  terraform output -json > tf-out.json
+}
+
 
 function tf_init_db_roles {
   check_env
@@ -458,6 +459,14 @@ case "${command}" in
   tf_plan_db_roles)
       check_env
       dojo -c Dojofile-infra "./tasks _tf_plan_db_roles $2"
+      ;;
+  _tf_apply)
+      _assume_environment_role $NHS_ENVIRONMENT
+      tf_apply
+      ;;
+  tf_apply)
+      check_env
+      dojo -c Dojofile-infra "./tasks _tf_apply"
       ;;
   _tf_apply_db_roles)
       _assume_environment_role $NHS_ENVIRONMENT
