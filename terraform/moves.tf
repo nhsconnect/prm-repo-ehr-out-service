@@ -1,9 +1,4 @@
 moved {
-  from = aws_ssm_parameter.service_to_repo_to_gp
-  to   = aws_ssm_parameter.sg_id_from_other_services
-}
-
-moved {
   from = aws_sqs_queue.ehr-out-service-incoming
   to   = aws_sqs_queue.service_incoming
 }
@@ -11,11 +6,6 @@ moved {
 moved {
   from = aws_security_group.repo_to_gp_alb
   to   = aws_security_group.service_from_alb
-}
-
-moved {
-  from = aws_security_group.service_to_repo_to_gp
-  to   = aws_security_group.access_from_other_services
 }
 
 moved {

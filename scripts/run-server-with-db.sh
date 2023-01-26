@@ -4,7 +4,7 @@
 # It runs the DB migration and then starts node.js server
 
 #Structured logging
-NHS_SERVICE=repo-to-gp
+NHS_SERVICE=ehr-out-service
 
 timestamp() {
   date +"%Y-%m-%d %H:%M:%S"

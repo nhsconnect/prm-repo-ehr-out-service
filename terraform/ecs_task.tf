@@ -5,7 +5,7 @@ locals {
   task_log_group               = "/nhs/deductions/${var.environment}-${data.aws_caller_identity.current.account_id}/${var.component_name}"
   environment_variables        = [
     { name = "NHS_ENVIRONMENT", value = var.environment },
-    { name = "SERVICE_URL", value = "https://repo-to-gp.${var.environment}.non-prod.patient-deductions.nhs.uk" },
+    { name = "SERVICE_URL", value = "https://${var.component_name}.${var.environment}.non-prod.patient-deductions.nhs.uk" },
     {
       name  = "GP2GP_ADAPTOR_SERVICE_URL",
       value = "https://gp2gp-messenger.${var.environment}.non-prod.patient-deductions.nhs.uk"
@@ -128,7 +128,7 @@ resource "aws_security_group_rule" "app_to_ehr_repo" {
 resource "aws_security_group" "vpn_to_service_ecs" {
   count       = var.allow_vpn_to_ecs_tasks ? 1 : 0
   name        = "${var.environment}-vpn-to-${var.component_name}-ecs"
-  description = "Controls access from vpn to repo-to-gp ecs"
+  description = "Controls access from vpn to ecs"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   ingress {

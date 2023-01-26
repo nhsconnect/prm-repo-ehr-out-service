@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NHS_SERVICE=repo-to-gp
+NHS_SERVICE=ehr-out-service
 DB_CONNECTION_TIMEOUT=30
 
 timestamp() {

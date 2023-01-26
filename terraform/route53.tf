@@ -60,7 +60,7 @@ resource "aws_acm_certificate_validation" "service_cert_validation" {
 }
 
 resource "aws_ssm_parameter" "service_url" {
-  name  = "/repo/${var.environment}/output/${var.repo_name}/repo-to-gp-service-url"
+  name  = "/repo/${var.environment}/output/${var.repo_name}/${var.component_name}-service-url"
   type  = "String"
   value = "https://${var.component_name}.${data.aws_route53_zone.environment_public_zone.name}"
 }

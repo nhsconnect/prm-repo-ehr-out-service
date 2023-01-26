@@ -33,11 +33,11 @@ data "aws_ssm_parameter" "environment_public_zone_id" {
 }
 
 data "aws_ssm_parameter" "db-username" {
-  name = "/repo/${var.environment}/user-input/repo-to-gp-db-username"
+  name = "/repo/${var.environment}/user-input/${var.component_name}-db-username"
 }
 
 data "aws_ssm_parameter" "db-password" {
-  name = "/repo/${var.environment}/user-input/repo-to-gp-db-password"
+  name = "/repo/${var.environment}/user-input/${var.component_name}-db-password"
 }
 
 data "aws_ssm_parameter" "deductions_private_db_subnets" {

@@ -1,6 +1,6 @@
 #!/bin/bash
 AWS_DEFAULT_REGION=eu-west-2
-NHS_SERVICE=repo-to-gp
+NHS_SERVICE=ehr-out-service
 
 echo fetching api keys
 

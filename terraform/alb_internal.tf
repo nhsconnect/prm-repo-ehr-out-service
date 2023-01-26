@@ -9,7 +9,6 @@ resource "aws_alb" "alb_internal" {
   security_groups = [
     aws_security_group.service_from_alb.id,
     aws_security_group.alb_to_app_ecs.id,
-    aws_security_group.access_from_other_services.id,
     aws_security_group.vpn_to_service_alb.id,
     aws_security_group.gocd_to_service_alb.id
   ]
@@ -24,7 +23,7 @@ resource "aws_alb" "alb_internal" {
 
 resource "aws_security_group" "service_from_alb" {
   name        = "${var.environment}-alb-${var.component_name}"
-  description = "Repo-to-gp ALB security group"
+  description = "Service from ALB security group"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   tags = {
@@ -164,28 +163,6 @@ resource "aws_security_group" "alb_to_app_ecs" {
   }
 }
 
-resource "aws_security_group" "access_from_other_services" {
-  name        = "${var.environment}-service-to-${var.component_name}"
-  description = "Controls access from repo services to repo-to-gp"
-  vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
-
-  tags = {
-    Name = "${var.environment}-service-to-${var.component_name}-sg"
-    CreatedBy   = var.repo_name
-    Environment = var.environment
-  }
-}
-
-resource "aws_ssm_parameter" "sg_id_from_other_services" {
-  name = "/repo/${var.environment}/output/${var.repo_name}/service-to-repo-to-gp-sg-id"
-  type = "String"
-  value = aws_security_group.access_from_other_services.id
-  tags = {
-    CreatedBy   = var.repo_name
-    Environment = var.environment
-  }
-}
-
 resource "aws_security_group" "vpn_to_service_alb" {
   name        = "${var.environment}-vpn-to-${var.component_name}"
   description = "Controls access from vpn to repo-to-gp"
@@ -201,7 +178,7 @@ resource "aws_security_group" "vpn_to_service_alb" {
 resource "aws_security_group_rule" "vpn_to_service_alb" {
   count       = var.grant_access_through_vpn ? 1 : 0
   type        = "ingress"
-  description = "Allow vpn to access repo-to-gp ALB"
+  description = "Allow vpn to access service ALB"
   protocol    = "tcp"
   from_port   = 443
   to_port     = 443
@@ -211,11 +188,11 @@ resource "aws_security_group_rule" "vpn_to_service_alb" {
 
 resource "aws_security_group" "gocd_to_service_alb" {
   name        = "${var.environment}-gocd-to-${var.component_name}"
-  description = "Controls access from gocd to repo-to-gp"
+  description = "Controls access from gocd to service"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   ingress {
-    description = "Allow gocd to access repo-to-gp ALB"
+    description = "Allow gocd to access ehr-out-service ALB"
     protocol    = "tcp"
     from_port   = 443
     to_port     = 443

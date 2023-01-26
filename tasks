@@ -7,9 +7,16 @@ set -Eeo pipefail
 ###########################
 
 AWS_DEFAULT_REGION=eu-west-2
+
+# used for docker push and promotion, but beware ecs tasks managed by terraform var.component+name
 IMAGE_REPO_NAME=deductions/repo-to-gp
+
+# used to identify ssm param names
 GIT_REPO_NAME=prm-repo-ehr-out-service
+
+# NB change of this will change state file name (need to use -migrate-state on inits) as well as expected ecs-cluster names in this file
 export NHS_SERVICE=repo-to-gp
+
 AWS_HELPERS_VERSION=0.2.17
 echo "AWS helper scripts version: $AWS_HELPERS_VERSION"
 
@@ -266,8 +273,8 @@ function tf_apply_db_roles {
 
 function grab_db_params_from_ssm() {
   db_host=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/${GIT_REPO_NAME}/db-host")
-  db_username=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-username")
-  db_password=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-password")
+  db_username=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/ehr-out-service-db-username")
+  db_password=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/ehr-out-service-db-password")
   db_name=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/${GIT_REPO_NAME}/db-name")
 }
 
@@ -489,8 +496,8 @@ case "${command}" in
       ;;
   _create_secrets)
       _assume_environment_role $NHS_ENVIRONMENT
-      generate_username_ssm_param "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-username"
-      generate_secret_ssm_param "/repo/${NHS_ENVIRONMENT}/user-input/repo-to-gp-db-password"
+      generate_username_ssm_param "/repo/${NHS_ENVIRONMENT}/user-input/ehr-out-service-db-username"
+      generate_secret_ssm_param "/repo/${NHS_ENVIRONMENT}/user-input/ehr-out-service-db-password"
       ;;
   create_secrets)
       check_env
