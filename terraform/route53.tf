@@ -23,13 +23,17 @@ data "aws_route53_zone" "environment_public_zone" {
 }
 
 resource "aws_acm_certificate" "service_cert" {
-  domain_name       = "${var.component_name}.${data.aws_route53_zone.environment_public_zone.name}"
+  domain_name               = "${var.component_name}.${data.aws_route53_zone.environment_public_zone.name}"
   subject_alternative_names = ["${var.alias_dns_name}.${data.aws_route53_zone.environment_public_zone.name}"]
-  validation_method = "DNS"
+  validation_method         = "DNS"
 
   tags = {
     CreatedBy   = var.repo_name
     Environment = var.environment
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -51,7 +55,7 @@ resource "aws_route53_record" "service_cert_validation_record" {
 }
 
 resource "aws_acm_certificate_validation" "service_cert_validation" {
-  certificate_arn = aws_acm_certificate.service_cert.arn
+  certificate_arn         = aws_acm_certificate.service_cert.arn
   validation_record_fqdns = [for record in aws_route53_record.service_cert_validation_record : record.fqdn]
 }
 
