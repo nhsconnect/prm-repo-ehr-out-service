@@ -84,6 +84,10 @@ resource "aws_security_group" "repo_to_gp_db_sg" {
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group" "gocd_to_db_sg" {
@@ -103,6 +107,10 @@ resource "aws_security_group" "gocd_to_db_sg" {
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group" "vpn_to_db_sg" {
@@ -113,6 +121,10 @@ resource "aws_security_group" "vpn_to_db_sg" {
     Name = "${var.environment}-vpn-to-${var.component_name}-db-sg"
     CreatedBy   = var.repo_name
     Environment = var.environment
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 

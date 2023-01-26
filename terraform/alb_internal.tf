@@ -31,6 +31,10 @@ resource "aws_security_group" "service_from_alb" {
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_alb_listener" "int_alb_listener_http" {
@@ -173,6 +177,10 @@ resource "aws_security_group" "vpn_to_service_alb" {
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group_rule" "vpn_to_service_alb" {
@@ -203,6 +211,10 @@ resource "aws_security_group" "gocd_to_service_alb" {
     Name = "${var.environment}-gocd-to-${var.component_name}-sg"
     CreatedBy   = var.repo_name
     Environment = var.environment
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 

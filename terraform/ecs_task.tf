@@ -104,6 +104,10 @@ resource "aws_security_group" "ecs_tasks_sg" {
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group_rule" "app_to_gp2gp_messenger" {
@@ -142,6 +146,10 @@ resource "aws_security_group" "vpn_to_service_ecs" {
     Name        = "${var.environment}-vpn-to-${var.component_name}-sg"
     CreatedBy   = var.repo_name
     Environment = var.environment
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
