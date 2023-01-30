@@ -113,4 +113,24 @@ moved {
   to   = aws_security_group.alb_to_app_ecs
 }
 
+moved {
+  from = aws_rds_cluster.ehr_out_service_db_cluster
+  to   = aws_rds_cluster.ehr_out_service_db_cluster
+}
+
+moved {
+  from = aws_kms_key.repo_to_gp_key
+  to   = aws_kms_key.ehr_out_service_db_key
+}
+
+moved {
+  from = aws_db_subnet_group.repo_to_gp_db_cluster_subnet_group
+  to   = aws_db_subnet_group.ehr_out_service_db_cluster_subnet_group
+}
+
+
+moved {
+  from = aws_rds_cluster_instance.repo_to_gp_db_instances
+  to   = aws_rds_cluster_instance.ehr_out_service_db_instances
+}
 

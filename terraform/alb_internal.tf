@@ -169,7 +169,7 @@ resource "aws_security_group" "alb_to_app_ecs" {
 
 resource "aws_security_group" "vpn_to_service_alb" {
   name        = "${var.environment}-vpn-to-${var.component_name}"
-  description = "Controls access from vpn to repo-to-gp"
+  description = "Controls access from vpn to service"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   tags = {

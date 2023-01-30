@@ -15,11 +15,13 @@ variable "db_port" {
 
 variable "component_name" {
   type = string
-  default = "repo-to-gp"
+  default = "ehr-out-service"
 }
 
 variable "environment" {}
-variable "db_name" {}
+variable "db_name" {
+  default = "repo-to-gp"
+}
 variable "db_host" {}
 variable "db_username" {}
 variable "db_password" {}

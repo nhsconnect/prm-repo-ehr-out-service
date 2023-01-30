@@ -9,7 +9,7 @@ set -Eeo pipefail
 AWS_DEFAULT_REGION=eu-west-2
 
 # used for docker push and promotion, but beware ecs tasks managed by terraform var.component+name
-IMAGE_REPO_NAME=deductions/repo-to-gp
+IMAGE_REPO_NAME=deductions/ehr-out-service
 
 # used to identify ssm param names
 GIT_REPO_NAME=prm-repo-ehr-out-service

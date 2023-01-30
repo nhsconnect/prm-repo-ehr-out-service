@@ -13,11 +13,11 @@ data "aws_ssm_parameter" "deductions_core_vpc_id" {
 }
 
 data "aws_ssm_parameter" "gp2gp_messenger_authorization_keys" {
-  name = "/repo/${var.environment}/user-input/api-keys/gp2gp-messenger/repo-to-gp"
+  name = "/repo/${var.environment}/user-input/api-keys/gp2gp-messenger/${var.component_name}"
 }
 
 data "aws_ssm_parameter" "ehr_repo_authorization_keys" {
-  name = "/repo/${var.environment}/user-input/api-keys/ehr-repo/repo-to-gp"
+  name = "/repo/${var.environment}/user-input/api-keys/ehr-repo/${var.component_name}"
 }
 
 data "aws_ssm_parameter" "private_zone_id" {
