@@ -15,10 +15,10 @@ variable "db_name" {
 
 variable "environment" {}
 variable "component_name" {
-  default = "repo-to-gp"
+  default = "ehr-out-service"
 }
 variable "alias_dns_name" {
-  default = "ehr-out-service"
+  default = "repo-to-gp"
 }
 variable "task_image_tag" {}
 variable "task_cpu" {

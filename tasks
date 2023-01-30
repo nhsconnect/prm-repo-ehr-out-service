@@ -15,7 +15,8 @@ IMAGE_REPO_NAME=deductions/repo-to-gp
 GIT_REPO_NAME=prm-repo-ehr-out-service
 
 # NB change of this will change state file name (need to use -migrate-state on inits) as well as expected ecs-cluster names in this file
-export NHS_SERVICE=repo-to-gp
+export OLD_SERVICE=repo-to-gp
+export NHS_SERVICE=ehr-out-service
 
 AWS_HELPERS_VERSION=0.2.17
 echo "AWS helper scripts version: $AWS_HELPERS_VERSION"
@@ -198,15 +199,53 @@ function die_repo_in_perf_die {
 # Terraform Functions #
 #######################
 
+export TF_BUCKET="prm-deductions-${NHS_ENVIRONMENT}-terraform-state"
+function tf_init_with_options {
+  local state_key=$1
+  local tf_options=$2
+
+  terraform init $tf_options \
+    -backend-config key="${state_key}" \
+    -backend-config bucket="${TF_BUCKET}" \
+    -backend-config dynamodb_table="prm-deductions-${NHS_ENVIRONMENT}-terraform-table" \
+    -backend-config region=${AWS_DEFAULT_REGION}
+}
+
+function tf_init_or_rename {
+  local state_key_suffix=$1
+
+  echo checking state file exists
+  set +e
+  aws s3 ls ${TF_BUCKET}/$NHS_SERVICE-${state_key_suffix}
+  local state_file_exists=$?
+  if [ $state_file_exists -ne 0 ]; then
+    echo cannot find state file so assuming rename
+    local RENAME_STATE=true
+  else
+    echo state file exists
+  fi
+  set -e
+
+  if [ -z "${RENAME_STATE}" ]; then
+    tf_init_with_options $NHS_SERVICE-${state_key_suffix} -reconfigure
+  else
+    echo doing one-time renaming of state file
+    if [ -z "${OLD_SERVICE}" ]; then
+      echo OLD_SERVICE needs to be set if RENAME_STATE being used
+      exit 88
+    fi
+    tf_init_with_options $OLD_SERVICE-${state_key_suffix} -reconfigure
+
+    tf_init_with_options $NHS_SERVICE-${state_key_suffix} '-migrate-state -force-copy'
+  fi
+}
+
+
 function tf_init {
   check_env
   cd terraform
 
-  terraform init -reconfigure \
-    -backend-config key="${NHS_SERVICE}-${NHS_ENVIRONMENT}/terraform.tfstate" \
-    -backend-config bucket="prm-deductions-${NHS_ENVIRONMENT}-terraform-state" \
-    -backend-config dynamodb_table="prm-deductions-${NHS_ENVIRONMENT}-terraform-table" \
-    -backend-config region=${AWS_DEFAULT_REGION}
+  tf_init_or_rename ${NHS_ENVIRONMENT}/terraform.tfstate
 }
 
 function tf_plan {
@@ -237,11 +276,7 @@ function tf_init_db_roles {
   check_env
   cd terraform-db-roles
 
-  terraform init -reconfigure \
-    -backend-config key="${NHS_SERVICE}-${NHS_ENVIRONMENT}-db-roles/terraform.tfstate" \
-    -backend-config bucket="prm-deductions-${NHS_ENVIRONMENT}-terraform-state" \
-    -backend-config dynamodb_table="prm-deductions-${NHS_ENVIRONMENT}-terraform-table" \
-    -backend-config region=${AWS_DEFAULT_REGION}
+  tf_init_or_rename ${NHS_ENVIRONMENT}-db-roles/terraform.tfstate
 }
 
 function tf_plan_db_roles {
