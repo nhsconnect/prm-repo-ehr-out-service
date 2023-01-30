@@ -114,7 +114,7 @@ moved {
 }
 
 moved {
-  from = aws_rds_cluster.ehr_out_service_db_cluster
+  from = aws_rds_cluster.repo_to_gp_db_cluster
   to   = aws_rds_cluster.ehr_out_service_db_cluster
 }
 
