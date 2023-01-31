@@ -11,8 +11,8 @@ locals {
       value = "https://gp2gp-messenger.${var.environment}.non-prod.patient-deductions.nhs.uk"
     },
     { name = "EHR_REPO_SERVICE_URL", value = "https://ehr-repo.${var.environment}.non-prod.patient-deductions.nhs.uk" },
-    { name = "DATABASE_NAME", value = aws_rds_cluster.ehr_out_service_db_cluster.database_name },
-    { name = "DATABASE_HOST", value = aws_rds_cluster.ehr_out_service_db_cluster.endpoint },
+    { name = "DATABASE_NAME", value = aws_rds_cluster.ehr_out_service.database_name },
+    { name = "DATABASE_HOST", value = aws_rds_cluster.ehr_out_service.endpoint },
     { name = "DATABASE_USER", value = var.application_database_user },
     { name = "REPO_TO_GP_USE_AWS_RDS_CREDENTIALS", value = "true" },
     { name = "AWS_REGION", value = var.region },

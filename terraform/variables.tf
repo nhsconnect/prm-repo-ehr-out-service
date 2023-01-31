@@ -10,7 +10,7 @@ variable "repo_name" {
 
 variable "db_name" {
   type = string
-  default = "repotogpdb"
+  default = "ehroutdb"
 }
 
 variable "environment" {}
