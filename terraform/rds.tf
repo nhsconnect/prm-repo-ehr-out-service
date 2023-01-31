@@ -102,7 +102,7 @@ resource "aws_rds_cluster_instance" "ehr_out_service_db_instances" {
   cluster_identifier    = aws_rds_cluster.ehr_out_service.id
   instance_class        = "db.t3.medium"
   engine                = "aurora-postgresql"
-  db_subnet_group_name  = aws_db_subnet_group.ehr_out_service_db_cluster_subnet_group.name
+  db_subnet_group_name  = aws_db_subnet_group.ehr_out_service_db.name
 
   tags = {
     CreatedBy   = var.repo_name
