@@ -64,12 +64,18 @@ resource "aws_ssm_parameter" "db_name" {
 }
 
 resource "aws_kms_key" "ehr_out_service_db_key" {
+
   description = "${var.component_name} DB KMS key in ${var.environment} environment"
   tags = {
-    Name = "${var.environment}-ehr-out-service-db"
+    Name = "${var.environment}-ehr-out-service-db-key"
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
+}
+
+resource "aws_kms_alias" "ehr_out_service_db_key" {
+  name          = "alias/ehr-out-service-db-key"
+  target_key_id = aws_kms_key.ehr_out_service_db_key.id
 }
 
 # TBD

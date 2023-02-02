@@ -22,10 +22,15 @@ resource "aws_kms_key" "service_incoming" {
   enable_key_rotation = true
 
   tags = {
-    Name        = "${local.ehr-out-service-incoming-queue-name}-kms-key"
+    Name        = "${local.ehr-out-service-incoming-queue-name}-queue-key"
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
+}
+
+resource "aws_kms_alias" "service_incoming_queue_key" {
+  name          = "alias/${local.ehr-out-service-incoming-queue-name}-queue-key"
+  target_key_id = aws_kms_key.service_incoming.id
 }
 
 data "aws_iam_policy_document" "kms_key_policy_doc" {
