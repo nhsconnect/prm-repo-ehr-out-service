@@ -27,6 +27,18 @@ resource "aws_rds_cluster" "ehr_out_service_db_cluster" {
     Environment = var.environment
   }
 }
+# TBD used by old cluster with snapshots
+resource "aws_db_subnet_group" "ehr_out_service_db_cluster_subnet_group" {
+  name       = "${var.environment}-repo-to-gp-db-subnet-group"
+  subnet_ids = split(",", data.aws_ssm_parameter.deductions_private_db_subnets.value)
+
+  tags = {
+    Name = "${var.environment}-ehr-out-service-db-subnet-group"
+    CreatedBy   = var.repo_name
+    Environment = var.environment
+  }
+}
+
 
 resource "aws_rds_cluster" "ehr_out_service" {
   cluster_identifier      = "${var.environment}-${var.component_name}-cluster"
@@ -78,18 +90,6 @@ resource "aws_kms_alias" "ehr_out_service_db_key" {
   target_key_id = aws_kms_key.ehr_out_service_db_key.id
 }
 
-# TBD
-resource "aws_db_subnet_group" "ehr_out_service_db_cluster_subnet_group" {
-  name       = "${var.environment}-repo-to-gp-db-subnet-group"
-  subnet_ids = split(",", data.aws_ssm_parameter.deductions_private_db_subnets.value)
-
-  tags = {
-    Name = "${var.environment}-ehr-out-service-db-subnet-group"
-    CreatedBy   = var.repo_name
-    Environment = var.environment
-  }
-}
-
 resource "aws_db_subnet_group" "ehr_out_service_db" {
   name       = "${var.environment}-${var.component_name}-db-subnet-group"
   subnet_ids = split(",", data.aws_ssm_parameter.deductions_private_db_subnets.value)
@@ -112,30 +112,6 @@ resource "aws_rds_cluster_instance" "ehr_out_service_db_instances" {
   tags = {
     CreatedBy   = var.repo_name
     Environment = var.environment
-  }
-}
-
-#TBD
-resource "aws_security_group" "repo_to_gp_db_sg" {
-  name        = "${var.environment}-repo-to-gp-db-sg"
-  vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
-
-  ingress {
-    description     = "Allow traffic from repo-to-gp to the db"
-    protocol        = "tcp"
-    from_port       = "5432"
-    to_port         = "5432"
-    security_groups = [aws_security_group.ecs_tasks_sg.id]
-  }
-
-  tags = {
-    Name = "${var.environment}-state-db-sg"
-    CreatedBy   = var.repo_name
-    Environment = var.environment
-  }
-
-  lifecycle {
-    create_before_destroy = true
   }
 }
 

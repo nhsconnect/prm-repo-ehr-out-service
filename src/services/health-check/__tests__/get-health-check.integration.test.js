@@ -15,7 +15,7 @@ describe('getHealthCheck', () => {
   it('should return static health check object', async () => {
     const expected = {
       version: '1',
-      description: 'Health of Repo To GP service',
+      description: 'Health of ehr-out-service',
       nhsEnvironment: config.nhsEnvironment,
       details: {
         database: {

@@ -17,7 +17,7 @@ describe('GET /health', () => {
   it('should return 200 and the response from getHealthCheck', async () => {
     const expectedHealthCheckResponse = {
       version: '1',
-      description: 'Health of Repo To GP service',
+      description: 'Health of ehr-out-service',
       nhsEnvironment: config.nhsEnvironment,
       details: {
         database: {
@@ -115,7 +115,7 @@ describe('POST /registration-requests/', () => {
   const nhsNumber = '1234567890';
   const odsCode = 'A12345';
   const ehrRequestId = v4();
-  const repoToGpUrl = 'http://ehr-out-service';
+  const serviceUrl = 'http://ehr-out-service';
   const coreMessageUrl = 'fake-url';
   const fragmentMessageIds = [];
   const ehrHeaders = { reqheaders: { Authorization: fakeAuth } };
@@ -144,7 +144,7 @@ describe('POST /registration-requests/', () => {
   beforeEach(() => {
     logger.add(transportSpy);
 
-    process.env.SERVICE_URL = repoToGpUrl;
+    process.env.SERVICE_URL = serviceUrl;
     process.env.API_KEY_FOR_TEST = fakeAuth;
     process.env.GP2GP_ADAPTOR_SERVICE_URL = localhostUrl;
     process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS = fakeAuth;
@@ -185,7 +185,7 @@ describe('POST /registration-requests/', () => {
       .send(body);
 
     expect(res.header[`location`]).toEqual(
-      `${repoToGpUrl}/registration-requests/${conversationId}`
+      `${serviceUrl}/registration-requests/${conversationId}`
     );
     expect(res.statusCode).toBe(204);
 

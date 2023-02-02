@@ -1,6 +1,5 @@
 locals {
   domain = trimsuffix("${var.component_name}.${data.aws_route53_zone.environment_public_zone.name}", ".")
-  alias_domain = trimsuffix("${var.alias_dns_name}.${data.aws_route53_zone.environment_public_zone.name}", ".")
 }
 
 resource "aws_alb" "alb_internal" {
@@ -34,19 +33,6 @@ resource "aws_security_group" "service_from_alb" {
 
   lifecycle {
     create_before_destroy = true
-  }
-}
-
-#TBD
-resource "aws_security_group" "repo_to_gp_alb" {
-  name        = "${var.environment}-alb-repo-to-gp"
-  description = "Repo-to-gp ALB security group"
-  vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
-
-  tags = {
-    Name = "${var.environment}-alb-${var.component_name}"
-    CreatedBy   = var.repo_name
-    Environment = var.environment
   }
 }
 
@@ -180,20 +166,6 @@ resource "aws_security_group" "alb_to_app_ecs" {
   }
 }
 
-#TBD
-resource "aws_security_group" "alb_to_repo_to_gp_ecs" {
-  name        = "${var.environment}-alb-to-repo-to-gp-ecr"
-  description = "Allows repo-to-gp ALB connections to repo-to-gp component task"
-  vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
-
-  tags = {
-    Name = "${var.environment}-alb-to-${var.component_name}-ecs"
-    CreatedBy   = var.repo_name
-    Environment = var.environment
-  }
-}
-
-
 resource "aws_security_group" "vpn_to_service_alb" {
   name        = "${var.environment}-vpn-to-${var.component_name}"
   description = "Controls access from vpn to service"
@@ -207,19 +179,6 @@ resource "aws_security_group" "vpn_to_service_alb" {
 
   lifecycle {
     create_before_destroy = true
-  }
-}
-
-#TBD
-resource "aws_security_group" "vpn_to_repo_to_gp" {
-  name        = "${var.environment}-vpn-to-repo-to-gp"
-  description = "Controls access from vpn to repo-to-gp"
-  vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
-
-  tags = {
-    Name = "${var.environment}-vpn-to-${var.component_name}-sg"
-    CreatedBy   = var.repo_name
-    Environment = var.environment
   }
 }
 
@@ -255,19 +214,6 @@ resource "aws_security_group" "gocd_to_service_alb" {
 
   lifecycle {
     create_before_destroy = true
-  }
-}
-
-#TBD
-resource "aws_security_group" "gocd_to_repo_to_gp" {
-  name        = "${var.environment}-gocd-to-repo-to-gp"
-  description = "Controls access from gocd to repo-to-gp"
-  vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
-
-  tags = {
-    Name = "${var.environment}-gocd-to-${var.component_name}-sg"
-    CreatedBy   = var.repo_name
-    Environment = var.environment
   }
 }
 

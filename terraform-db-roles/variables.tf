@@ -20,7 +20,8 @@ variable "component_name" {
 
 variable "environment" {}
 variable "db_name" {
-  default = "repo-to-gp"
+  type = string
+  default = "ehroutdb"
 }
 variable "db_host" {}
 variable "db_username" {}

@@ -45,7 +45,7 @@ common:
           arguments:
             - -c
             - ./tasks run_db_migrations
-      # Applies permissions for application_role for tables created during migration
+      # Applies permissions for application_role frolesor tables created during migration
       - exec:
           command: /bin/bash
           arguments:

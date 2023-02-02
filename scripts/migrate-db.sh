@@ -11,8 +11,8 @@ function jsonPrettify {
   echo "{message: $1, level: $2, timestamp: `timestamp`, service: ${NHS_SERVICE}, environment: ${NHS_ENVIRONMENT} } "
 }
 
-if [ "${REPO_TO_GP_SKIP_MIGRATION}" == "true" ]; then
-  jsonPrettify "REPO_TO_GP_SKIP_MIGRATION is set to true. Skipping DB migration" INFO
+if [ "${DB_SKIP_MIGRATION}" == "true" ]; then
+  jsonPrettify "DB_SKIP_MIGRATION is set to true. Skipping DB migration" INFO
 else
   jsonPrettify "Waiting for DB port to become open 5432" INFO
   count=0

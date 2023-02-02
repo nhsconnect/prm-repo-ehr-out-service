@@ -1,9 +1,9 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "Repo to GP Component to handle the registration requests",
+    "description": "ehr-out-service to handle the EHR transfers out from the repository",
     "version": "1.0.0",
-    "title": "Repo to GP"
+    "title": "ehr-out-service"
   },
   "paths": {
     "/health": {
@@ -36,7 +36,7 @@
         "tags": [
           "/registration-requests"
         ],
-        "summary": "Responsible for the registration request. Retrieves patient's health record and sends it out",
+        "summary": "Responsible for the EHR out transfer (aka registration request). Retrieves patient's health record and sends it out",
         "parameters": [
           {
             "in": "body",
@@ -76,7 +76,7 @@
         "tags": [
           "/registration-requests/{conversationId}"
         ],
-        "summary": "Retrieves the status and details of a given registration request",
+        "summary": "Retrieves the status and details of a given EHR out transfer (aka registration request)",
         "parameters": [
           {
             "in": "path",

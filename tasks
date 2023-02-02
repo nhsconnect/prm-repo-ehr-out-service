@@ -115,7 +115,7 @@ function configure_local_envs {
   export EHR_REPO_AUTHORIZATION_KEYS=auth-key-2
   export GP2GP_ADAPTOR_SERVICE_URL="www.notreal.com"
   export EHR_REPO_SERVICE_URL="www.alsonotreal.com"
-  export REPO_TO_GP_SKIP_MIGRATION=false
+  export DB_SKIP_MIGRATION=false
   export REPOSITORY_URI=$IMAGE_REPO_NAME
   export LOCALSTACK_URL="http://localstack:4566"
   export AWS_REGION=${AWS_DEFAULT_REGION}
@@ -124,7 +124,7 @@ function configure_local_envs {
 }
 
 function configure_db_migration_envs {
-  export REPO_TO_GP_SKIP_MIGRATION=false
+  export DB_SKIP_MIGRATION=false
   export DATABASE_HOST=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/${GIT_REPO_NAME}/db-host")
   export DATABASE_USER=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/${GIT_REPO_NAME}/db-migration-user")
   export DATABASE_NAME=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/${GIT_REPO_NAME}/db-name")

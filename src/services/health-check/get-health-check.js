@@ -7,7 +7,7 @@ export const getHealthCheck = async () => {
 
   return {
     version: '1',
-    description: 'Health of Repo To GP service',
+    description: 'Health of ehr-out-service',
     nhsEnvironment: config.nhsEnvironment,
     details: {
       database: dbHealthCheck
