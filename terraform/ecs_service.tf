@@ -7,7 +7,7 @@ locals {
 }
 
 resource "aws_ecs_service" "ecs_service" {
-  name            = "${var.environment}-${var.component_name}-service"
+  name            = "${var.environment}-${var.component_name}"
   cluster         = local.ecs_cluster_id
   task_definition = aws_ecs_task_definition.task.arn
   desired_count   = var.service_desired_count
@@ -32,7 +32,7 @@ resource "aws_ecs_service" "ecs_service" {
 }
 
 resource "aws_ecs_cluster" "ecs_cluster" {
-  name = "${var.environment}-${var.component_name}-ecs-cluster"
+  name = "${var.environment}-${var.component_name}"
 
   tags = {
     CreatedBy   = var.repo_name
