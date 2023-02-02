@@ -25,9 +25,9 @@ They can be found `utils` directory after running any task from `tasks` file.
 ## Directories
 
 | Directory         | Description                                       |
-| :---------------- | :------------------------------------------------ |
+| :---------------- |:--------------------------------------------------|
 | /test/docker      | Contains smoke test for docker                    |
-| /test/functional  | Contains end-to-end tests                         |
+| /test/functional  | Contains tests against deployed service           |
 | /gocd             | Contains the GoCD pipeline files                  |
 | /src              | The source code                                   |
 | /terraform        | Terraform to deploy app as a Fargate task in AWS  |

@@ -35,6 +35,7 @@ coverage
 
 # Imported utilities
 /utils/*
+/utils/*/*
 
 #MacOS system files
 .DS_Store

@@ -18,17 +18,34 @@ GIT_REPO_NAME=prm-repo-ehr-out-service
 export OLD_SERVICE=repo-to-gp
 export NHS_SERVICE=ehr-out-service
 
-AWS_HELPERS_VERSION=0.2.17
+AWS_HELPERS_VERSION=0.2.27
 echo "AWS helper scripts version: $AWS_HELPERS_VERSION"
 
-# Do not change the file name as the aws helper scripts depend on it
-AWS_HELPERS_FILE="utils/$AWS_HELPERS_VERSION/aws-helpers"
+###########################
+# Shared utils            #
+###########################
 
-mkdir -p "utils/$AWS_HELPERS_VERSION"
-if [[ ! -f $AWS_HELPERS_FILE ]];then
-  wget --quiet -O $AWS_HELPERS_FILE https://github.com/nhsconnect/prm-deductions-support-infra/releases/download/${AWS_HELPERS_VERSION}/aws-helpers
-fi
-chmod +x $AWS_HELPERS_FILE
+function download_util() {
+  local UTIL_VERSION=$1
+  local UTIL_FILENAME=$2
+
+  local UTIL_FILEPATH="utils/$UTIL_VERSION/$UTIL_FILENAME"
+
+  mkdir -p "utils/$UTIL_VERSION"
+  if [[ ! -f $UTIL_FILEPATH ]];then
+    wget --quiet -O $UTIL_FILEPATH https://github.com/nhsconnect/prm-deductions-support-infra/releases/download/${UTIL_VERSION}/${UTIL_FILENAME}
+  fi
+  chmod +x $UTIL_FILEPATH
+
+  echo "$UTIL_FILEPATH"
+}
+
+function fetch_redaction_utils() {
+  download_util $AWS_HELPERS_VERSION run-with-redaction.sh
+  download_util $AWS_HELPERS_VERSION redactor
+}
+
+AWS_HELPERS_FILE=$(download_util $AWS_HELPERS_VERSION aws-helpers)
 source $AWS_HELPERS_FILE
 
 ####################################
@@ -455,12 +472,17 @@ case "${command}" in
   build)
       dojo "./tasks _build"
       ;;
+  fetch_utils)
+      fetch_redaction_utils
+      ;;
   build_docker_local)
       configure_local_envs
+      fetch_redaction_utils
       build_docker_image
       ;;
   build_docker)
       configure_docker_repository_uri
+      fetch_redaction_utils
       build_docker_image
       echo "Pushing the Docker image... $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG"
       docker push $REPOSITORY_URI:$IMAGE_TAG
