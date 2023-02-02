@@ -13,3 +13,8 @@ moved {
   from = aws_rds_cluster.repo_to_gp_db_cluster
   to   = aws_rds_cluster.ehr_out_service_db_cluster
 }
+
+moved {
+  from = aws_db_subnet_group.repo_to_gp_db_cluster_subnet_group
+  to   = aws_db_subnet_group.ehr_out_service_db_cluster_subnet_group
+}
