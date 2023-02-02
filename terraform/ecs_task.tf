@@ -110,6 +110,18 @@ resource "aws_security_group" "ecs_tasks_sg" {
   }
 }
 
+#TBD
+resource "aws_security_group" "ecs-tasks-sg" {
+  name   = "${var.environment}-repo-to-gp-ecs-tasks-sg"
+  vpc_id = data.aws_ssm_parameter.deductions_private_vpc_id.value
+
+  tags = {
+    Name        = "${var.environment}-${var.component_name}-ecs-tasks-sg"
+    CreatedBy   = var.repo_name
+    Environment = var.environment
+  }
+}
+
 resource "aws_security_group_rule" "app_to_gp2gp_messenger" {
   type                     = "ingress"
   protocol                 = "TCP"
@@ -150,6 +162,20 @@ resource "aws_security_group" "vpn_to_service_ecs" {
 
   lifecycle {
     create_before_destroy = true
+  }
+}
+
+#TBD
+resource "aws_security_group" "vpn_to_repo_to_gp_ecs" {
+  count       = var.allow_vpn_to_ecs_tasks ? 1 : 0
+  name        = "${var.environment}-vpn-to-repo-to-gp-ecs"
+  description = "Controls access from vpn to repo-to-gp ecs"
+  vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
+
+  tags = {
+    Name        = "${var.environment}-vpn-to-${var.component_name}-sg"
+    CreatedBy   = var.repo_name
+    Environment = var.environment
   }
 }
 

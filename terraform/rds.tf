@@ -1,3 +1,4 @@
+# TBD holds previous snapshots
 resource "aws_rds_cluster" "ehr_out_service_db_cluster" {
   cluster_identifier      = "${var.environment}-repo-to-gp-db-cluster"
   engine                  = "aurora-postgresql"
@@ -55,8 +56,6 @@ resource "aws_rds_cluster" "ehr_out_service" {
     Environment = var.environment
   }
 }
-
-
 
 resource "aws_ssm_parameter" "db_name" {
   name =  "/repo/${var.environment}/output/${var.repo_name}/db-name"
