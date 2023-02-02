@@ -212,7 +212,7 @@ resource "aws_security_group" "vpn_to_service_alb" {
 
 #TBD
 resource "aws_security_group" "vpn_to_repo_to_gp" {
-  name        = "${var.environment}-vpn-to-${var.component_name}"
+  name        = "${var.environment}-vpn-to-repo-to-gp"
   description = "Controls access from vpn to repo-to-gp"
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
