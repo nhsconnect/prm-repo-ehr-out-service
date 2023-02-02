@@ -68,7 +68,6 @@ common:
                 - -c
                 - ./tasks promote_docker_image
     - deploy:
-        approval: manual
         clean_workspace: true
         jobs:
           deploy: *deploy_job
