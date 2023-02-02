@@ -111,8 +111,7 @@ resource "aws_alb_listener_rule" "int_alb_http_listener_rule" {
   condition {
     host_header {
       values = [
-        local.domain,
-        local.alias_domain
+        local.domain
       ]
     }
   }
@@ -130,8 +129,7 @@ resource "aws_alb_listener_rule" "int_alb_https_listener_rule" {
   condition {
     host_header {
       values = [
-        local.domain,
-        local.alias_domain
+        local.domain
       ]
     }
   }
