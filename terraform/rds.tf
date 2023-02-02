@@ -19,7 +19,7 @@ resource "aws_rds_cluster" "ehr_out_service_db_cluster" {
   storage_encrypted       = true
   kms_key_id              = aws_kms_key.ehr_out_service_db_key.arn
   iam_database_authentication_enabled  = true
-  deletion_protection = var.enable_rds_cluster_deletion_protection
+  deletion_protection = false
   db_cluster_parameter_group_name = data.aws_ssm_parameter.repo_databases_parameter_group_name.value
 
   tags = {
