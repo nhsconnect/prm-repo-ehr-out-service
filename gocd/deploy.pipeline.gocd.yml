@@ -78,6 +78,24 @@ common:
                   arguments:
                     - -c
                     - ./tasks test_functional
+  prod_stages: &prod_stages
+    - promote_docker_image:
+        resources:
+          - docker
+        clean_workspace: true
+        tasks:
+          - exec:
+              command: /bin/bash
+              arguments:
+                - -c
+                - ./tasks promote_docker_image
+    - deploy:
+        approval:
+          type: manual
+          allow_only_on_success: true
+        clean_workspace: true
+        jobs:
+          deploy: *deploy_job
 pipelines:
   ehr-out-service.dev:
     group: repository
@@ -170,3 +188,20 @@ pipelines:
     environment_variables:
       NHS_ENVIRONMENT: pre-prod
     stages: *common_stages
+  ehr-out-service.prod:
+    group: repository
+    label_template: '${COUNT}-${git[:8]}'
+    materials:
+      git:
+        type: configrepo
+        ignore:
+          - docs/**/*.*
+      app:
+        pipeline: ehr-out-service
+        stage: test_docker
+      pre_prod_env:
+        pipeline: ehr-out-service.pre-prod
+        stage: functional
+    environment_variables:
+      NHS_ENVIRONMENT: prod
+    stages: *prod_stages
