@@ -1,7 +1,7 @@
 resource "aws_rds_cluster" "ehr_out_service" {
   cluster_identifier      = "${var.environment}-${var.component_name}-cluster"
   engine                  = "aurora-postgresql"
-  engine_version          = "11.16"
+  engine_version          = "11.18"
   database_name           = var.db_name
   master_username         = data.aws_ssm_parameter.db-username.value
   master_password         = data.aws_ssm_parameter.db-password.value
@@ -24,6 +24,12 @@ resource "aws_rds_cluster" "ehr_out_service" {
   tags = {
     CreatedBy   = var.repo_name
     Environment = var.environment
+  }
+
+  lifecycle {
+    ignore_changes = [
+      engine_version
+    ]
   }
 }
 
