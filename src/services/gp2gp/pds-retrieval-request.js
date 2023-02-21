@@ -4,9 +4,9 @@ import { logError, logInfo } from '../../middleware/logging';
 
 export const getPdsOdsCode = async nhsNumber => {
   const config = initializeConfig();
-  const url = `${config.gp2gpAdaptorServiceUrl}/patient-demographics/${nhsNumber}`;
+  const url = `${config.gp2gpMessengerServiceUrl}/patient-demographics/${nhsNumber}`;
   try {
-    const res = await axios.get(url, { headers: { Authorization: config.gp2gpAdaptorAuthKeys } });
+    const res = await axios.get(url, { headers: { Authorization: config.gp2gpMessengerAuthKeys } });
     logInfo('Successfully retrieved patient from PDS');
 
     return res.data.data.odsCode;

@@ -146,16 +146,16 @@ describe('POST /registration-requests/', () => {
 
     process.env.SERVICE_URL = serviceUrl;
     process.env.API_KEY_FOR_TEST = fakeAuth;
-    process.env.GP2GP_ADAPTOR_SERVICE_URL = localhostUrl;
-    process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS = fakeAuth;
+    process.env.GP2GP_MESSENGER_SERVICE_URL = localhostUrl;
+    process.env.GP2GP_MESSENGER_AUTHORIZATION_KEYS = fakeAuth;
     process.env.EHR_REPO_SERVICE_URL = localhostUrl;
     process.env.EHR_REPO_AUTHORIZATION_KEYS = fakeAuth;
   });
 
   afterEach(() => {
     delete process.env.API_KEY_FOR_TEST;
-    delete process.env.GP2GP_ADAPTOR_SERVICE_URL;
-    delete process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS;
+    delete process.env.GP2GP_MESSENGER_SERVICE_URL;
+    delete process.env.GP2GP_MESSENGER_AUTHORIZATION_KEYS;
     delete process.env.EHR_REPO_SERVICE_URL;
     delete process.env.EHR_REPO_AUTHORIZATION_KEYS;
   });

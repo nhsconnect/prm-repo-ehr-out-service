@@ -23,8 +23,13 @@ data "aws_ssm_parameter" "ehr_repo_authorization_keys" {
 data "aws_ssm_parameter" "private_zone_id" {
   name = "/repo/${var.environment}/output/prm-deductions-infra/private-root-zone-id"
 }
+
 data "aws_ssm_parameter" "environment_private_zone_id" {
   name = "/repo/${var.environment}/output/prm-deductions-infra/environment-private-zone-id"
+}
+
+data "aws_ssm_parameter" "environment_domain_name" {
+  name = "/repo/${var.environment}/output/prm-deductions-infra/environment-domain-name"
 }
 
 data "aws_ssm_parameter" "environment_public_zone_id" {

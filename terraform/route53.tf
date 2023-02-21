@@ -1,7 +1,3 @@
-locals {
-  private_zone_id = data.aws_ssm_parameter.private_zone_id.value
-}
-
 resource "aws_route53_record" "service" {
   zone_id = data.aws_ssm_parameter.environment_private_zone_id.value
   name    = var.component_name
@@ -15,8 +11,8 @@ data "aws_route53_zone" "environment_public_zone" {
 }
 
 resource "aws_acm_certificate" "service_cert" {
-  domain_name               = "${var.component_name}.${data.aws_route53_zone.environment_public_zone.name}"
-  validation_method         = "DNS"
+  domain_name       = "${var.component_name}.${data.aws_route53_zone.environment_public_zone.name}"
+  validation_method = "DNS"
 
   tags = {
     CreatedBy   = var.repo_name
@@ -48,10 +44,4 @@ resource "aws_route53_record" "service_cert_validation_record" {
 resource "aws_acm_certificate_validation" "service_cert_validation" {
   certificate_arn         = aws_acm_certificate.service_cert.arn
   validation_record_fqdns = [for record in aws_route53_record.service_cert_validation_record : record.fqdn]
-}
-
-resource "aws_ssm_parameter" "service_url" {
-  name  = "/repo/${var.environment}/output/${var.repo_name}/${var.component_name}-service-url"
-  type  = "String"
-  value = "https://${var.component_name}.${data.aws_route53_zone.environment_public_zone.name}"
 }

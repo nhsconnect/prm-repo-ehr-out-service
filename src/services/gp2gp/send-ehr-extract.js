@@ -4,7 +4,7 @@ import { logError, logInfo } from '../../middleware/logging';
 
 export const sendEhrExtract = async (conversationId, odsCode, ehrRequestId, currentEhrUrl) => {
   const config = initializeConfig();
-  const url = `${config.gp2gpAdaptorServiceUrl}/health-record-transfers`;
+  const url = `${config.gp2gpMessengerServiceUrl}/health-record-transfers`;
   const requestBody = {
     data: {
       type: 'health-record-transfers',
@@ -20,7 +20,7 @@ export const sendEhrExtract = async (conversationId, odsCode, ehrRequestId, curr
   };
 
   try {
-    await axios.post(url, requestBody, { headers: { Authorization: config.gp2gpAdaptorAuthKeys } });
+    await axios.post(url, requestBody, { headers: { Authorization: config.gp2gpMessengerAuthKeys } });
     logInfo(`Successfully sent ehr with conversationId: ${conversationId}`);
   } catch (err) {
     logError('Failed while trying to send ehr', err);

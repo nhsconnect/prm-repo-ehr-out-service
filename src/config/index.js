@@ -5,8 +5,8 @@ export const portNumber = 3000;
 export const initializeConfig = () => ({
   nhsEnvironment: process.env.NHS_ENVIRONMENT || 'local',
   repoToGpServiceUrl: process.env.SERVICE_URL || `http://127.0.0.1:${portNumber}`,
-  gp2gpAdaptorServiceUrl: process.env.GP2GP_ADAPTOR_SERVICE_URL,
-  gp2gpAdaptorAuthKeys: process.env.GP2GP_ADAPTOR_AUTHORIZATION_KEYS,
+  gp2gpMessengerServiceUrl: process.env.GP2GP_MESSENGER_SERVICE_URL,
+  gp2gpMessengerAuthKeys: process.env.GP2GP_MESSENGER_AUTHORIZATION_KEYS,
   ehrRepoServiceUrl: process.env.EHR_REPO_SERVICE_URL,
   ehrRepoAuthKeys: process.env.EHR_REPO_AUTHORIZATION_KEYS,
   sequelize: databaseConfig,

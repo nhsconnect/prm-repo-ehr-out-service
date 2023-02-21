@@ -128,9 +128,9 @@ function configure_local_envs {
   export DATABASE_PASSWORD=secret
   export DATABASE_NAME=deductions_test
   export DATABASE_HOST=db
-  export GP2GP_ADAPTOR_AUTHORIZATION_KEYS=auth-key-1
+  export GP2GP_MESSENGER_AUTHORIZATION_KEYS=auth-key-1
   export EHR_REPO_AUTHORIZATION_KEYS=auth-key-2
-  export GP2GP_ADAPTOR_SERVICE_URL="www.notreal.com"
+  export GP2GP_MESSENGER_SERVICE_URL="www.notreal.com"
   export EHR_REPO_SERVICE_URL="www.alsonotreal.com"
   export DB_SKIP_MIGRATION=false
   export REPOSITORY_URI=$IMAGE_REPO_NAME

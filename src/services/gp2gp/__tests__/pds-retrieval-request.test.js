@@ -5,15 +5,15 @@ import { logError, logInfo } from '../../../middleware/logging';
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({
-    gp2gpAdaptorAuthKeys: 'fake-keys',
-    gp2gpAdaptorServiceUrl: 'http://localhost'
+    gp2gpMessengerAuthKeys: 'fake-keys',
+    gp2gpMessengerServiceUrl: 'http://localhost'
   })
 }));
 
 describe('sendPdsRetrievalRequest', () => {
-  const mockGp2gpAdaptorServiceUrl = 'http://localhost';
-  const mockGp2gpAdaptorAuthKeys = 'fake-keys';
-  const headers = { reqheaders: { Authorization: `${mockGp2gpAdaptorAuthKeys}` } };
+  const mockGp2gpMessengerServiceUrl = 'http://localhost';
+  const mockgp2gpMessengerAuthKeys = 'fake-keys';
+  const headers = { reqheaders: { Authorization: `${mockgp2gpMessengerAuthKeys}` } };
   const nhsNumber = '1234567890';
   const serialChangeNumber = '123';
   const pdsId = 'chs';
@@ -21,7 +21,7 @@ describe('sendPdsRetrievalRequest', () => {
 
   it('should retrieve patient and return 200 with odsCode, pdsId and serialChangeNumber', async () => {
     const mockBody = { data: { serialChangeNumber, pdsId, odsCode } };
-    const scope = nock(mockGp2gpAdaptorServiceUrl, headers)
+    const scope = nock(mockGp2gpMessengerServiceUrl, headers)
       .get(`/patient-demographics/${nhsNumber}`)
       .reply(200, mockBody);
 
@@ -35,7 +35,7 @@ describe('sendPdsRetrievalRequest', () => {
   it('should log and throw error when pds retrieval returns 500', async () => {
     let error = null;
     const expectedError = new Error('Request failed with status code 500');
-    nock(mockGp2gpAdaptorServiceUrl, headers).get(`/patient-demographics/${nhsNumber}`).reply(500);
+    nock(mockGp2gpMessengerServiceUrl, headers).get(`/patient-demographics/${nhsNumber}`).reply(500);
 
     try {
       await getPdsOdsCode(nhsNumber);

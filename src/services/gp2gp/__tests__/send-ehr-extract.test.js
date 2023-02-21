@@ -5,15 +5,15 @@ import { logError, logInfo } from '../../../middleware/logging';
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({
-    gp2gpAdaptorAuthKeys: 'fake-keys',
-    gp2gpAdaptorServiceUrl: 'http://localhost'
+    gp2gpMessengerAuthKeys: 'fake-keys',
+    gp2gpMessengerServiceUrl: 'http://localhost'
   })
 }));
 
 describe('sendEhrExtract', () => {
-  const mockGp2gpAdaptorServiceUrl = 'http://localhost';
-  const mockGp2gpAdaptorAuthKeys = 'fake-keys';
-  const headers = { reqheaders: { Authorization: `${mockGp2gpAdaptorAuthKeys}` } };
+  const mockgp2gpMessengerServiceUrl = 'http://localhost';
+  const mockgp2gpMessengerAuthKeys = 'fake-keys';
+  const headers = { reqheaders: { Authorization: `${mockgp2gpMessengerAuthKeys}` } };
   let conversationId = '41291044-8259-4d83-ae2b-93b7bfcabe73';
   let odsCode = 'B1234';
   let ehrRequestId = '26a541ce-a5ab-4713-99a4-150ec3da25c6';
@@ -33,7 +33,7 @@ describe('sendEhrExtract', () => {
   };
 
   it('should call sendEhr and return 204', async () => {
-    const scope = nock(mockGp2gpAdaptorServiceUrl, headers)
+    const scope = nock(mockgp2gpMessengerServiceUrl, headers)
       .post(`/health-record-transfers`, requestBody)
       .reply(204);
 
@@ -47,7 +47,7 @@ describe('sendEhrExtract', () => {
   it('should log and throw error when returns 500', async () => {
     let error = null;
     const expectedError = new Error('Request failed with status code 500');
-    nock(mockGp2gpAdaptorServiceUrl, headers)
+    nock(mockgp2gpMessengerServiceUrl, headers)
       .post(`/health-record-transfers`, requestBody)
       .reply(500);
 

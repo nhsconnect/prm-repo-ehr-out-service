@@ -3,14 +3,21 @@ locals {
   task_execution_role          = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.environment}-${var.component_name}-EcsTaskRole"
   task_ecr_url                 = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com"
   task_log_group               = "/nhs/deductions/${var.environment}-${data.aws_caller_identity.current.account_id}/${var.component_name}"
+  environment_domain_name      = data.aws_ssm_parameter.environment_domain_name.value
   environment_variables        = [
     { name = "NHS_ENVIRONMENT", value = var.environment },
-    { name = "SERVICE_URL", value = "https://${var.component_name}.${var.environment}.non-prod.patient-deductions.nhs.uk" },
     {
-      name  = "GP2GP_ADAPTOR_SERVICE_URL",
-      value = "https://gp2gp-messenger.${var.environment}.non-prod.patient-deductions.nhs.uk"
+      name = "SERVICE_URL",
+      value = "https://${var.component_name}.${local.environment_domain_name}"
     },
-    { name = "EHR_REPO_SERVICE_URL", value = "https://ehr-repo.${var.environment}.non-prod.patient-deductions.nhs.uk" },
+    {
+      name  = "GP2GP_MESSENGER_SERVICE_URL",
+      value = "https://gp2gp-messenger.${local.environment_domain_name}"
+    },
+    {
+      name = "EHR_REPO_SERVICE_URL",
+      value = "https://ehr-repo.${local.environment_domain_name}"
+    },
     { name = "DATABASE_NAME", value = aws_rds_cluster.ehr_out_service.database_name },
     { name = "DATABASE_HOST", value = aws_rds_cluster.ehr_out_service.endpoint },
     { name = "DATABASE_USER", value = var.application_database_user },
@@ -22,7 +29,7 @@ locals {
     { name = "SQS_EHR_OUT_INCOMING_QUEUE_URL", value = aws_sqs_queue.service_incoming.id }
   ]
   secret_environment_variables = [
-    { name      = "GP2GP_ADAPTOR_AUTHORIZATION_KEYS",
+    { name      = "GP2GP_MESSENGER_AUTHORIZATION_KEYS",
       valueFrom = data.aws_ssm_parameter.gp2gp_messenger_authorization_keys.arn
     },
     { name = "EHR_REPO_AUTHORIZATION_KEYS", valueFrom = data.aws_ssm_parameter.ehr_repo_authorization_keys.arn }
