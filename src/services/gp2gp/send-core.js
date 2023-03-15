@@ -13,21 +13,6 @@ export const sendCore = async (conversationId, odsCode, coreEhr, ehrRequestId) =
     ehrRequestId: ehrRequestId
   };
 
-
-  // const requestBody = {
-  //   data: {
-  //     type: 'health-record-transfers',
-  //     id: conversationId,
-  //     attributes: {
-  //       odsCode,
-  //       ehrRequestId
-  //     },
-  //     links: {
-  //       currentEhrUrl
-  //     }
-  //   }
-  // };
-
   try {
     await axios.post(url, requestBody, { headers: { Authorization: config.gp2gpMessengerAuthKeys } });
     logInfo('Successfully sent ehr');

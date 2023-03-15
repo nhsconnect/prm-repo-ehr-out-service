@@ -1,12 +1,13 @@
 import { initializeConfig } from "../../config";
 import axios from "axios";
 import { logError, logInfo } from "../../middleware/logging";
+import { EhrUrlNotFoundError, EhrDownloadError } from "../../errors/errors";
 
-export const getEhrCoreFromRepo = async (nhsNumber, conversationId, description) => {
+export const getEhrCoreFromRepo = async (nhsNumber, conversationId) => {
   const coreMessageUrl = await retrievePresignedUrlFromRepo(nhsNumber, conversationId);
-  logInfo(`Successfully retrieved presigned URL for ${description}`);
-  const ehrCore = await downloadEhrFromUrl(coreMessageUrl, description);
-  logInfo(`Successfully retrieved ehr for ${description}`);
+  logInfo(`Successfully retrieved presigned URL`);
+  const ehrCore = await downloadEhrFromUrl(coreMessageUrl);
+  logInfo(`Successfully retrieved EHR`);
   return ehrCore;
 };
 
@@ -21,21 +22,28 @@ const retrievePresignedUrlFromRepo = async (nhsNumber, conversationId) => {
     .catch(error => handleGetUrlError(error));
 };
 
-const downloadEhrFromUrl = async (messageUrl, description) => {
+const downloadEhrFromUrl = async (messageUrl) => {
   return await axios.get(messageUrl)
     .then(response => response.data)
-    .catch(error => handleDownloadError(error, description));
+    .catch(error => handleDownloadError(error));
 };
 
 const handleGetUrlError = (error) => {
-  const errorMessage = error.response?.status === 404
-    ? 'Cannot find complete patient health record'
-    : 'Error retrieving health record';
+  let errorMessage;
+
+  if (error.response?.status === 404) {
+    errorMessage = 'Cannot find complete patient health record';
+    logError(errorMessage, error);
+    throw new EhrUrlNotFoundError(errorMessage);
+  }
+
+  errorMessage = 'Error retrieving health record';
   logError(errorMessage, error);
   throw error;
 };
 
-const handleDownloadError = (error, description) => {
-  logError(`Cannot retrieve ${description}`, error);
-  throw error;
+const handleDownloadError = (error) => {
+  const errorMessage = 'Cannot retrieve EHR from presigned URL';
+  logError(errorMessage, error);
+  throw new EhrDownloadError(errorMessage);
 };
