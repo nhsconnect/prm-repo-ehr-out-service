@@ -28,14 +28,9 @@ const downloadEhrFromUrl = async (messageUrl, description) => {
 };
 
 const handleGetUrlError = (error) => {
-
-  if (error.response?.status === 404) {
-    const errorMessage = "Cannot find complete patient health record";
-    logError(errorMessage, error);
-    return null;
-  }
-
-  const errorMessage = `Error retrieving health record`;
+  const errorMessage = error.response?.status === 404
+    ? 'Cannot find complete patient health record'
+    : 'Error retrieving health record';
   logError(errorMessage, error);
   throw error;
 };
