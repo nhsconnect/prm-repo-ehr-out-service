@@ -1,6 +1,6 @@
-import axios from 'axios';
-import { initializeConfig } from '../../config';
-import { logError } from '../../middleware/logging';
+import axios from "axios";
+import { initializeConfig } from "../../config";
+import { logError } from "../../middleware/logging";
 
 export const getPatientHealthRecordFromRepo = async (nhsNumber, conversationId) => {
   const config = initializeConfig();

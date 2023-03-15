@@ -40,6 +40,8 @@ describe('getPatientHealthRecordFromRepo', () => {
       expect(res).toEqual({ coreMessageUrl: coreMessageUrl });
     });
 
+
+
     it('should return null when gets a 404 and patients health record was not found in repo', async () => {
       const expectedError = new Error('Request failed with status code 404');
       const scope = nock(mockEhrRepoServiceUrl, headers).get(`/patients/${nhsNumber}`).reply(404);
