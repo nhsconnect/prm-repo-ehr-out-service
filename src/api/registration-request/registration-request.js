@@ -3,6 +3,7 @@ import { logInfo } from '../../middleware/logging';
 import { initializeConfig } from '../../config';
 import { transferOutEhr } from '../../services/transfer/transfer-out-ehr';
 import { setCurrentSpanAttributes } from '../../config/tracing';
+import { transferOutEhrCore } from "../../services/transfer/transfer-out-ehr-core";
 
 export const registrationRequestValidationRules = [
   body('data.type').equals('registration-requests'),
@@ -26,6 +27,7 @@ export const registrationRequest = async (req, res) => {
   logInfo('Create registration request received');
 
   const result = await transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRequestId });
+
   if (result.inProgress) {
     res.status(409).json({
       error: `EHR out transfer with this conversation ID is already in progress`

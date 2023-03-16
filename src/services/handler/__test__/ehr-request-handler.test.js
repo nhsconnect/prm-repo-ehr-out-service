@@ -12,15 +12,15 @@ describe('ehrRequestHandler', () => {
       odsCode: 'A91720'
     };
 
-    const transferOutEhr = jest.fn();
-    transferOutEhr.mockResolvedValue({
+    const transferOutEhrCore = jest.fn();
+    transferOutEhrCore.mockResolvedValue({
       inProgress: false,
       hasFailed: false
     });
 
-    await ehrRequestHandler(ehrRequest, { transferOutEhr });
+    await ehrRequestHandler(ehrRequest, { transferOutEhrCore });
 
-    await expect(transferOutEhr).toHaveBeenCalledWith(ehrRequest);
+    await expect(transferOutEhrCore).toHaveBeenCalledWith(ehrRequest);
   });
 
   it('should log when transfer has been started', async () => {
@@ -31,15 +31,15 @@ describe('ehrRequestHandler', () => {
       odsCode: 'BBGUN1'
     };
 
-    const transferOutEhr = jest.fn();
-    transferOutEhr.mockResolvedValue({
+    const transferOutEhrCore = jest.fn();
+    transferOutEhrCore.mockResolvedValue({
       inProgress: false,
       hasFailed: false
     });
 
-    await ehrRequestHandler(ehrRequest, { transferOutEhr });
+    await ehrRequestHandler(ehrRequest, { transferOutEhrCore });
 
-    await expect(transferOutEhr).toHaveBeenCalledWith(ehrRequest);
+    await expect(transferOutEhrCore).toHaveBeenCalledWith(ehrRequest);
     await expect(logInfo).toHaveBeenCalledWith('EHR transfer out started');
   });
 
@@ -51,15 +51,15 @@ describe('ehrRequestHandler', () => {
       odsCode: 'BBGUN1'
     };
 
-    const transferOutEhr = jest.fn();
-    transferOutEhr.mockResolvedValue({
+    const transferOutEhrCore = jest.fn();
+    transferOutEhrCore.mockResolvedValue({
       inProgress: true,
       hasFailed: false
     });
 
-    await ehrRequestHandler(ehrRequest, { transferOutEhr });
+    await ehrRequestHandler(ehrRequest, { transferOutEhrCore });
 
-    await expect(transferOutEhr).toHaveBeenCalledWith(ehrRequest);
+    await expect(transferOutEhrCore).toHaveBeenCalledWith(ehrRequest);
     await expect(logWarning).toHaveBeenCalledWith(
       'EHR out transfer with this conversation ID is already in progress'
     );
@@ -73,16 +73,16 @@ describe('ehrRequestHandler', () => {
       odsCode: 'BBGUN1'
     };
 
-    const transferOutEhr = jest.fn();
-    transferOutEhr.mockResolvedValue({
+    const transferOutEhrCore = jest.fn();
+    transferOutEhrCore.mockResolvedValue({
       inProgress: false,
       hasFailed: true,
       error: 'some error'
     });
 
-    await ehrRequestHandler(ehrRequest, { transferOutEhr });
+    await ehrRequestHandler(ehrRequest, { transferOutEhrCore });
 
-    await expect(transferOutEhr).toHaveBeenCalledWith(ehrRequest);
+    await expect(transferOutEhrCore).toHaveBeenCalledWith(ehrRequest);
     await expect(logError).toHaveBeenCalledWith('EHR out transfer failed due to error: some error');
   });
 });
