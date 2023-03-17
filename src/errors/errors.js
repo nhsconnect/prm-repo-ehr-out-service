@@ -5,7 +5,7 @@ export class EhrUrlNotFoundError extends Error {
   }
 }
 
-export class EhrDownloadError extends Error {
+export class DownloadError extends Error {
   constructor(message) {
     super(message);
     this.name = "EhrDownloadError";

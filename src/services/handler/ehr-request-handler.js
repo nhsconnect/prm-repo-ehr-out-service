@@ -5,7 +5,7 @@ import { transferOutEhrCore } from "../transfer/transfer-out-ehr-core";
 
 export default async function ehrRequestHandler(ehrRequest, overrides) {
   const { conversationId } = ehrRequest;
-  setCurrentSpanAttributes({ conversationId: conversationId });
+  setCurrentSpanAttributes({ conversationId });
 
   // TODO [PRMT-2728] The below linee are the old version which retrieves a presigned URL
   // const options = Object.assign({ transferOutEhr }, overrides);

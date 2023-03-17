@@ -3,7 +3,7 @@ import { logError } from '../../../middleware/logging';
 import { getPatientHealthRecordFromRepo } from '../get-health-record';
 import { initializeConfig } from '../../../config';
 import { getEhrCoreFromRepo } from "../get-ehr";
-import { EhrUrlNotFoundError, EhrDownloadError} from "../../../errors/errors";
+import { EhrUrlNotFoundError, DownloadError} from "../../../errors/errors";
 
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config');
@@ -87,7 +87,7 @@ describe('getEhrCoreFromRepo', () => {
         .reply(500);
 
       await expect(() => getEhrCoreFromRepo(nhsNumber, conversationId))
-        .rejects.toThrow(EhrDownloadError);
+        .rejects.toThrow(DownloadError);
 
       expect(urlScope.isDone()).toBe(true);
       expect(ehrScope.isDone()).toBe(true);

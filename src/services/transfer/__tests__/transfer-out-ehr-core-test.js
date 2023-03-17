@@ -11,7 +11,7 @@ import { getPdsOdsCode } from '../../gp2gp/pds-retrieval-request';
 import { createRegistrationRequest } from '../../database/create-registration-request';
 import expect from "expect";
 import { sendCore } from "../../gp2gp/send-core";
-import {EhrUrlNotFoundError, EhrDownloadError} from "../../../errors/errors";
+import {EhrUrlNotFoundError, DownloadError} from "../../../errors/errors";
 
 jest.mock('../../../services/database/create-registration-request');
 jest.mock('../../gp2gp/send-core');
@@ -68,7 +68,7 @@ describe('transferOutEhrCore', () => {
 
     it('should validate a failed download of the EHR from a presigned URL', async () => {
       getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
-      getEhrCoreFromRepo.mockRejectedValueOnce(new EhrDownloadError());
+      getEhrCoreFromRepo.mockRejectedValueOnce(new DownloadError());
 
       const result = await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 

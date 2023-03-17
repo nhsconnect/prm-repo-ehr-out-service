@@ -8,7 +8,7 @@ import { setCurrentSpanAttributes } from '../../config/tracing';
 import { createRegistrationRequest } from '../database/create-registration-request';
 import { Status } from '../../models/registration-request';
 import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
-import { EhrUrlNotFoundError, EhrDownloadError } from "../../errors/errors";
+import { EhrUrlNotFoundError, DownloadError } from "../../errors/errors";
 import { getEhrCoreFromRepo } from "../ehr-repo/get-ehr";
 import { sendCore } from "../gp2gp/send-core";
 
@@ -57,7 +57,7 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
       await updateStatus(conversationId, Status.MISSING_FROM_REPO);
       return defaultResult;
     }
-    if (err instanceof EhrDownloadError) {
+    if (err instanceof DownloadError) {
       await updateStatus(conversationId, Status.EHR_DOWNLOAD_FAILED);
       return defaultResult;
     }
