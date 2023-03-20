@@ -11,5 +11,5 @@ export const sendFragment = async (conversationId, odsCode, fragmentMessage, mes
 
   await axios.post(url, requestBody, { headers: { Authorization: gp2gpMessengerAuthKeys } })
     .then(() => logInfo('Successfully sent message fragment'))
-    .catch(error => throw new SendFragmentError('Failed while trying to send message fragment', error));
+    .catch(error => { throw new SendFragmentError(error) });
 }
