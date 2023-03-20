@@ -1,6 +1,10 @@
 import axios from "axios";
-import { logError } from "../../middleware/logging";
+import { logError, logInfo } from "../../middleware/logging";
 import { DownloadError, EhrUrlNotFoundError } from "../../errors/errors";
+import { getPdsOdsCode } from "../gp2gp/pds-retrieval-request";
+import { Status } from "../../models/registration-request";
+import { initializeConfig } from "../../config";
+import { updateRegistrationRequestStatus } from "../database/registration-request-repository";
 
 export const downloadFromUrl = async (messageUrl) => {
   return await axios.get(messageUrl)
@@ -27,3 +31,9 @@ export const handleGetUrlNotFoundError = (error, messageType) => {
   logError(errorMessage, error);
   throw error;
 };
+
+export const patientAndPracticeOdsCodesMatch = async (nhsNumber, odsCode) => {
+  logInfo('Getting patient current ODS code');
+  const pdsOdsCode = await getPdsOdsCode(nhsNumber);
+  return pdsOdsCode === odsCode;
+}

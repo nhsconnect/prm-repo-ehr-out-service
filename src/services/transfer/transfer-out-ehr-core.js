@@ -7,10 +7,10 @@ import { logError, logInfo } from '../../middleware/logging';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { createRegistrationRequest } from '../database/create-registration-request';
 import { Status } from '../../models/registration-request';
-import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
 import { EhrUrlNotFoundError, DownloadError } from "../../errors/errors";
 import { getEhrCoreFromRepo } from "../ehr-repo/get-ehr";
 import { sendCore } from "../gp2gp/send-core";
+import { patientAndPracticeOdsCodesMatch } from "./transfer-out-util";
 
 export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
   setCurrentSpanAttributes({ conversationId: conversationId });
@@ -36,9 +36,7 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
     logInfo('Getting patient health record from EHR repo');
     const ehrCore = await getEhrCoreFromRepo(nhsNumber, conversationId);
 
-    logInfo('Getting patient current ODS code');
-    const pdsOdsCode = await getPdsOdsCode(nhsNumber);
-    if (pdsOdsCode !== odsCode) {
+    if (await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode)) {
       logs = 'Patients ODS Code in PDS does not match requesting practices ODS Code';
       await updateStatus(conversationId, Status.INCORRECT_ODS_CODE, logs);
       return defaultResult;

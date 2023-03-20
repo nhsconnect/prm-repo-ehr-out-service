@@ -4,6 +4,7 @@ import { initializeConfig } from "../../config";
 import axios from "axios";
 
 export const getFragmentFromRepo = async (nhsNumber, messageId) => {
+  logInfo('Getting message fragment from EHR repo');
   const fragmentMessageUrl = await retrievePresignedUrlFromRepo(nhsNumber, messageId);
   logInfo('Successfully retrieved presigned URL for fragment');
   const fragment = await downloadFromUrl(fragmentMessageUrl);

@@ -9,7 +9,9 @@ export default async function continueRequestHandler(parsedMessage) {
   const { conversationId } = parsedMessage;
   setCurrentSpanAttributes({ conversationId: conversationId });
 
-  logInfo('Trying to handle continue request')
+  logInfo('Trying to handle continue request');
+
+  // [4] TODO figure out if we need to check if the ODS code matches - Might as well reuse
 
   // TODO [PRMT-2728] update conversation status to say fragments are being retrieved
 
