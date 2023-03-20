@@ -1,5 +1,5 @@
 import { runWithinTransaction } from './helper';
-import { logInfo } from '../../middleware/logging';
+import { logError, logInfo } from "../../middleware/logging";
 import ModelFactory from '../../models';
 import { modelName, Status } from '../../models/fragments-trace';
 
@@ -15,6 +15,6 @@ export const createFragmentsTrace = (messageId, conversationId) =>
       },
       transaction
     )
-      .then(requests => requests[0])
       .then(() => logInfo('Fragments trace has been stored'))
+      .catch(error => logError(error))
   );
