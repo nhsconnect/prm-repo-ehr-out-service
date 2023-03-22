@@ -3,32 +3,34 @@ import { setCurrentSpanAttributes } from "../../config/tracing";
 import { getFragmentFromRepo } from "../ehr-repo/get-fragment";
 import { sendFragment } from "../gp2gp/send-fragment";
 import { TransferOutFragmentError } from "../../errors/errors";
+import { getFragmentsTraceStatusByMessageId } from "../database/fragments-trace-repository";
+import { Status } from "../../models/registration-request";
 
-export async function transferOutFragment(parsedMessage) {
+export async function transferOutFragment(conversationId, messageId, nhsNumber) {
   setCurrentSpanAttributes({ conversationId, messageId })
-
   logInfo('EHR transfer out fragment received');
 
   try {
-    // [1] Check for a duplicate transfer out request
-    if (await isTransferRequestDuplicated()) return;
+    if (await isTransferRequestDuplicated(messageId)) return;
 
-    // [2] TODO figure out if we need to create a transfer request (similar to line 34 of transfer-out-ehr-core.js) - X
-    // [3] Get the fragment from the repo
     const fragment = await getFragmentFromRepo(nhsNumber, messageId);
-    // [4] TODO figure out if we need to update the 'registration request code status' - X
-    await sendFragment(fragment);
+    return await sendFragment(fragment);
+    // TODO [PRMT-2728] update the fragment trace status to succeeded
+    logInfo('Fragments have been successfully sent');
+    await updateFragmentStatus(conversationId, messageId,  Status.SENT_FRAGMENTS);
+
   } catch (error) {
     logError(`Message fragment transfer failed due to error: ${error}`);
+    // TODO [PRMT-2728] update the fragment trace status to failed
     throw new TransferOutFragmentError(error);
   }
 }
 
-const isTransferRequestDuplicated = async () => {
+export const isTransferRequestDuplicated = async (messageId) => {
   // TODO [PRMT-2728] work out what we're doing with a continue request database table - Are we wanting to store this in memory?
-  const previousFragmentOut = await getContinueRequestStatusByMessageId();
+  const previousFragmentOut = await getFragmentsTraceStatusByMessageId(messageId);
   if (previousFragmentOut !== null) {
-    logWarning('EHR message fragment with this message ID is already in progress');
+    logWarning('EHR message fragment with this message ID is already in progress')
     return true;
   }
   return false;

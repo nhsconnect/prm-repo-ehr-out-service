@@ -11,6 +11,7 @@ import { Status } from '../../models/registration-request';
 import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
 import { sendEhrExtract } from '../gp2gp/send-ehr-extract';
 
+// TODO [PRMT-2728] DEPRECATED - remove this & any associated test class
 export async function transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
   setCurrentSpanAttributes({ conversationId: conversationId });
   logInfo('EHR transfer out request received');
@@ -48,7 +49,7 @@ export async function transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRe
       return defaultResult;
     }
 
-    await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
+    await updateRegistrationRequestStatus(conversationId, Status.ODS_VALIDATION_CHECKS_PASSED);
 
     logInfo('Sending EHR extract');
     await sendEhrExtract(conversationId, odsCode, ehrRequestId, patientHealthRecord.coreMessageUrl);

@@ -119,7 +119,7 @@ describe('transferOutEhrCore', () => {
     expect(getEhrCoreFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
       conversationId,
-      Status.VALIDATION_CHECKS_PASSED
+      Status.ODS_VALIDATION_CHECKS_PASSED
     );
     expect(initializeConfig).toHaveBeenCalled();
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.SENT_EHR);

@@ -1,18 +1,20 @@
 import axios from 'axios';
 import { initializeConfig } from '../../config';
-import { logError, logInfo } from '../../middleware/logging';
+import { logInfo } from '../../middleware/logging';
+import { GetPdsCodeError } from "../../errors/errors";
 
 export const getPdsOdsCode = async nhsNumber => {
-  const config = initializeConfig();
-  const url = `${config.gp2gpMessengerServiceUrl}/patient-demographics/${nhsNumber}`;
-  try {
-    const res = await axios.get(url, { headers: { Authorization: config.gp2gpMessengerAuthKeys } });
-    logInfo('Successfully retrieved patient from PDS');
+  const { gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl } = initializeConfig();
+  const url = `${gp2gpMessengerServiceUrl}/patient-demographics/${nhsNumber}`;
 
-    return res.data.data.odsCode;
-  } catch (err) {
-    const errorMessage = 'Unable to retrieve patient from PDS';
-    logError(errorMessage, err);
-    throw errorMessage;
-  }
+  return await axios
+    .get(url, { headers: { Authorization: gp2gpMessengerAuthKeys } })
+    .then(response => {
+      logInfo('Successfully retrieved patient from PDS');
+      return response.data.data.odsCode;
+    })
+    .catch(error => {
+      console.log(error, "<------ this error")
+      throw new GetPdsCodeError(error);
+    });
 };

@@ -1,6 +1,5 @@
 import nock from 'nock';
 import { logError } from '../../../middleware/logging';
-import { getPatientHealthRecordFromRepo } from '../get-health-record';
 import { initializeConfig } from '../../../config';
 import { getEhrCoreFromRepo } from "../get-ehr";
 import { EhrUrlNotFoundError, DownloadError} from "../../../errors/errors";
@@ -77,11 +76,12 @@ describe('getEhrCoreFromRepo', () => {
     });
 
     it('should throw an error when failing to retrieve ehr core from presigned url', async () => {
+      const expectedError = new Error('Request failed with status code 500');
+
       const urlScope = nock(mockEhrRepoServiceUrl, headers)
         .get(`/patients/${nhsNumber}`)
         .reply(200, ehrIsPresentEhrRepoUrlResponse);
 
-      const expectedError = new Error('Request failed with status code 500');
       const ehrScope = nock(coreMessageUrl)
         .get("/")
         .reply(500);

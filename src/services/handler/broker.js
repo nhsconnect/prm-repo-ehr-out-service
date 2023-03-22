@@ -2,7 +2,7 @@ import { INTERACTION_IDS } from '../../constants/interaction-ids';
 import { logError, logInfo } from '../../middleware/logging';
 import ehrRequestHandler from './ehr-request-handler';
 import {setCurrentSpanAttributes} from "../../config/tracing";
-import continueRequestHandler from "./continue-request-handler";
+import continueMessageHandler from "./continue-message-handler";
 
 export default async function sendMessageToCorrespondingHandler(parsedMessage) {
   const { conversationId } = parsedMessage;
@@ -15,7 +15,7 @@ export default async function sendMessageToCorrespondingHandler(parsedMessage) {
       break;
     case INTERACTION_IDS.CONTINUE_REQUEST_INTERACTION_ID:
       logInfo('Message Type: EHR CONTINUE REQUEST')
-      await continueRequestHandler(parsedMessage);
+      await continueMessageHandler(parsedMessage);
       break;
     case INTERACTION_IDS.CONTINUE_FRAGMENT_INTERACTION_ID:
       // TODO Code

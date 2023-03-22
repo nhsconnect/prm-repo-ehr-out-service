@@ -20,15 +20,25 @@ describe('sendPdsRetrievalRequest', () => {
   const odsCode = 'C12345';
 
   it('should retrieve patient and return 200 with odsCode, pdsId and serialChangeNumber', async () => {
-    const mockBody = { data: { serialChangeNumber, pdsId, odsCode } };
-    const scope = nock(mockGp2gpMessengerServiceUrl, headers)
+    // given
+    const expectedResponseBody = {
+      data: {
+        serialChangeNumber,
+        pdsId,
+        odsCode
+      }
+    };
+
+    // when
+    const urlScope = nock(mockGp2gpMessengerServiceUrl, headers)
       .get(`/patient-demographics/${nhsNumber}`)
-      .reply(200, mockBody);
+      .reply(200, expectedResponseBody);
 
     const res = await getPdsOdsCode(nhsNumber);
-    expect(scope.isDone()).toBe(true);
-    expect(logInfo).toHaveBeenCalledWith('Successfully retrieved patient from PDS');
 
+    // then
+    expect(urlScope.isDone()).toBe(true);
+    expect(logInfo).toHaveBeenCalledWith('Successfully retrieved patient from PDS');
     expect(res).toEqual(odsCode);
   });
 

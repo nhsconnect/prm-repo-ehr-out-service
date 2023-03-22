@@ -38,25 +38,24 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
 
     if (await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode)) {
       logs = 'Patients ODS Code in PDS does not match requesting practices ODS Code';
-      await updateStatus(conversationId, Status.INCORRECT_ODS_CODE, logs);
+      await updateConversationStatus(conversationId, Status.INCORRECT_ODS_CODE, logs);
       return defaultResult;
     }
 
-    await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
+    await updateRegistrationRequestStatus(conversationId, Status.ODS_VALIDATION_CHECKS_PASSED);
 
     logInfo('Sending EHR core');
     await sendCore(conversationId, odsCode, ehrCore, ehrRequestId);
 
-    logInfo('Updating status');
-    await updateStatus(conversationId, Status.SENT_EHR, logs);
+    await updateConversationStatus(conversationId, Status.SENT_EHR, logs);
     return defaultResult;
   } catch (err) {
     if (err instanceof EhrUrlNotFoundError) {
-      await updateStatus(conversationId, Status.MISSING_FROM_REPO);
+      await updateConversationStatus(conversationId, Status.MISSING_FROM_REPO);
       return defaultResult;
     }
     if (err instanceof DownloadError) {
-      await updateStatus(conversationId, Status.EHR_DOWNLOAD_FAILED);
+      await updateConversationStatus(conversationId, Status.EHR_DOWNLOAD_FAILED);
       return defaultResult;
     }
     logError('EHR transfer out request failed', err);
@@ -66,12 +65,3 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
     };
   }
 }
-
-const updateStatus = async (conversationId, status, logs) => {
-  initializeConfig();
-  await updateRegistrationRequestStatus(conversationId, status);
-
-  if (logs) {
-    logInfo(logs);
-  }
-};

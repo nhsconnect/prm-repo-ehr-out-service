@@ -9,7 +9,7 @@ export default async function ehrRequestHandler(ehrRequest, overrides) {
 
   // TODO [PRMT-2728] The below linee are the old version which retrieves a presigned URL
   // const options = Object.assign({ transferOutEhr }, overrides);
-  // const doTransfer = options.transferOutEhr;const options = Object.assign({ transferOutEhr }, overrides);
+  // const doTransfer = options.transferOutEhr;
 
   const options = Object.assign({ transferOutEhrCore }, overrides);
   const doTransfer = options.transferOutEhrCore;
