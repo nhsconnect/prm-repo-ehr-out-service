@@ -1,14 +1,24 @@
 import nock from "nock";
-import { downloadFromUrl, patientAndPracticeOdsCodesMatch, updateConversationStatus } from "../transfer-out-util";
-import { logError } from "../../../middleware/logging";
-import { errorMessages } from "../../../errors/errors";
+import {
+  downloadFromUrl,
+  patientAndPracticeOdsCodesMatch,
+  updateConversationStatus,
+  updateFragmentStatus
+} from "../transfer-out-util";
+import { logError, logInfo } from "../../../middleware/logging";
+import { errorMessages, StatusUpdateError } from "../../../errors/errors";
 import { getPdsOdsCode } from "../../gp2gp/pds-retrieval-request";
 import { Status } from "../../../models/fragments-trace";
 import { updateRegistrationRequestStatus } from "../../database/registration-request-repository";
+import { setCurrentSpanAttributes } from "../../../config/tracing";
+import { updateFragmentsTraceStatus } from "../../database/fragments-trace-repository";
 
 // Mocking
 jest.mock('../../../middleware/logging');
 jest.mock('../../gp2gp/pds-retrieval-request');
+jest.mock('../../database/registration-request-repository');
+jest.mock('../../database/fragments-trace-repository');
+jest.mock('../../../config/tracing');
 
 describe('testTransferOutUtil', () => {
 
@@ -84,31 +94,70 @@ describe('testTransferOutUtil', () => {
     });
   });
 
-  // // TODO: Add tests for at least 1 passing and failing case.
-  // describe('updateConversationStatus', () => {
-  //   // ============ COMMON PROPERTIES ============
-  //   const CONVERSATION_ID = '171e1469-38ea-4532-b18d-34332f2083c2';
-  //   const STATUS = Status.FRAGMENT_REQUEST_RECEIVED;
-  //   // =================== END ===================
-  //
-  //
-  //   it('should update the conversation status successfully', async () => {
-  //
-  //     // when
-  //     updateRegistrationRequestStatus.mockReturnValueOnce();
-  //     const response = await updateConversationStatus(CONVERSATION_ID, STATUS);
-  //
-  //     // then
-  //     expect(response.isDone()).toEqual(true);
-  //   });
-  //
-  //   it('should fail to update the conversation and throw an error', async () => {
-  //     // given
-  //     // when
-  //     // then
-  //   });
-  // });
-  //
-  // // TODO: Add tests for at least 1 pasing and failing case.
-  // describe('updateFragmentStatus', () => {});
+  describe('updateConversationStatus', () => {
+    // ============ COMMON PROPERTIES ============
+    const CONVERSATION_ID = '171e1469-38ea-4532-b18d-34332f2083c2';
+    const STATUS = Status.FRAGMENT_REQUEST_RECEIVED;
+    const LOG_MESSAGE = 'This is an example log message';
+    // =================== END ===================
+
+    it('should update the conversation status successfully', async () => {
+      // when
+      setCurrentSpanAttributes.mockReturnValueOnce(undefined);
+      updateRegistrationRequestStatus.mockResolvedValueOnce(undefined);
+      await updateConversationStatus(CONVERSATION_ID, STATUS);
+
+      // then
+      expect(setCurrentSpanAttributes).toBeCalledTimes(1);
+      expect(setCurrentSpanAttributes).toBeCalledWith({ conversationId: CONVERSATION_ID });
+      expect(updateRegistrationRequestStatus).toBeCalledTimes(1);
+      expect(logInfo).toBeCalledTimes(1);
+      expect(logInfo).toBeCalledWith(`Updating conversation with status: ${STATUS}`);
+    });
+
+    // TODO
+    it('should log the provided message successfully', async () => {
+      // when
+      updateRegistrationRequestStatus.mockResolvedValueOnce(undefined);
+      await updateConversationStatus(CONVERSATION_ID, STATUS, LOG_MESSAGE);
+
+      // then
+      expect(logInfo).toBeCalledTimes(2);
+      expect(logInfo).toBeCalledWith(`Updating conversation with status: ${STATUS}`);
+      expect(logInfo).toBeCalledWith(LOG_MESSAGE);
+    });
+  });
+
+  describe('updateFragmentStatus', () => {
+    // ============ COMMON PROPERTIES ============
+    const CONVERSATION_ID = '7fbeaba2-ca21-4af7-8f88-29d805b28411';
+    const MESSAGE_ID = '2c1edc4d-052f-42b6-a03f-4470ff88ef05';
+    const STATUS = Status.INCORRECT_ODS_CODE;
+    const LOG_MESSAGE = 'This is an example log message';
+    // =================== END ===================
+
+    it('should update the fragment status successfully', async () => {
+      // when
+      setCurrentSpanAttributes.mockReturnValueOnce(undefined);
+      updateFragmentsTraceStatus.mockResolvedValueOnce(undefined);
+      await updateFragmentStatus(CONVERSATION_ID, MESSAGE_ID, STATUS);
+
+      // then
+      expect(setCurrentSpanAttributes).toBeCalledTimes(1);
+      expect(setCurrentSpanAttributes).toBeCalledWith({  conversationId: CONVERSATION_ID, messageId: MESSAGE_ID });
+      expect(updateFragmentsTraceStatus).toBeCalledTimes(1);
+      expect(logInfo).toBeCalledTimes(1);
+      expect(logInfo).toBeCalledWith(`Updating fragment with status ${STATUS}`);
+    });
+
+    it('should throw a StatusUpdateError error', async () => {
+      // when
+      updateFragmentsTraceStatus.mockRejectedValueOnce(undefined);
+
+      // then
+      await expect(() => updateFragmentStatus(CONVERSATION_ID, MESSAGE_ID, STATUS))
+        .rejects
+        .toThrowError(StatusUpdateError);
+    });
+  });
 });

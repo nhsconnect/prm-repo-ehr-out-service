@@ -20,7 +20,6 @@ export default async function continueMessageHandler(parsedMessage) {
   }
 
   await updateConversationStatus(conversationId, Status.CONTINUE_REQUEST_RECEIVED);
-  
   // TODO [PRMT-2728] extract the fragments from the parsed message
   const gp2gpFragments = [];
 

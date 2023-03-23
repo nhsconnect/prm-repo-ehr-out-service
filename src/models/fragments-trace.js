@@ -12,6 +12,7 @@ export const Status = {
     // ERRONEOUS
     INCORRECT_ODS_CODE: 'incorrect_ods_code',
     MISSING_FROM_REPO: 'missing_from_repo',
+    FRAGMENT_SENDING_FAILED: 'fragment_sending_failed'
 };
 
 Object.freeze(Status);
@@ -26,7 +27,6 @@ const model = dataType => ({
     conversationId: {
         field: 'conversation_id',
         type: dataType.UUID,
-        foreignKey: true, // Look into delete cascading options etc...
         defaultValue: dataType.UUIDV4
     },
     status: {

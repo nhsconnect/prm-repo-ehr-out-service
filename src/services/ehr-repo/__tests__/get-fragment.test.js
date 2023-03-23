@@ -2,7 +2,7 @@ import nock from 'nock';
 import { logError, logInfo } from '../../../middleware/logging';
 import { getFragmentFromRepo } from "../get-fragment";
 import { downloadFromUrl } from "../../transfer/transfer-out-util";
-import {EhrUrlNotFoundError} from "../../../errors/errors";
+import { EhrUrlNotFoundError, errorMessages, PatientRecordNotFoundError } from "../../../errors/errors";
 
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
@@ -22,7 +22,7 @@ describe('getFragmentFromRepo', () => {
     const mockEhrRepoServiceUrl = 'http://fake-ehr-repo-url';
 
     const nhsNumber = '1234567890';
-    const ehrInConversationId = 'fake-ehr-in-conversation-id'
+    const conversationIdFromEhrIn = 'fake-conversation-id'
     const messageId = 'fake-messageId';
     const headers = {
       reqheaders: { Authorization: `${mockEhrRepoAuthKeys}`}
@@ -39,12 +39,12 @@ describe('getFragmentFromRepo', () => {
       const repoScope = nock(mockEhrRepoServiceUrl, headers)
         .get(`/patients/${nhsNumber}`)
         .reply(200, {
-          "conversationIdFromEhrIn": ehrInConversationId
+          "conversationIdFromEhrIn": conversationIdFromEhrIn
         });
 
       const repoScope2 = nock(mockEhrRepoServiceUrl, headers)
         // TODO: currently this endpoint of ehr-repo doesn't work as expect. we might need to change this endpoint
-        .get(`/messages/${ehrInConversationId}/${messageId}`)
+        .get(`/messages/${conversationIdFromEhrIn}/${messageId}`)
         .reply(200, fragmentPresignedUrl);
 
 
@@ -63,29 +63,55 @@ describe('getFragmentFromRepo', () => {
       expect(logInfo).toHaveBeenCalledWith('Successfully retrieved fragment');
     });
 
-    it('should raise an url not found error if fail to get a presigned url', async () => {
+
+    it('should throw an PatientRecordNotFoundError if the given nhs number is not stored in ehr-repo', async () => {
+      const repoScope = nock(mockEhrRepoServiceUrl, headers)
+        .get(`/patients/${nhsNumber}`)
+        .reply(404);
+
+      const axios404Error = new Error('Request failed with status code 404');
+
+      await expect(getFragmentFromRepo(nhsNumber, messageId)).rejects.toThrow(PatientRecordNotFoundError)
+
+      expect(repoScope.isDone()).toBe(true);
+      expect(logError).toHaveBeenCalledWith(errorMessages.PATIENT_RECORD_NOT_FOUND, axios404Error);
+    })
+
+
+    it('should throw an generic error if ehr-repo responded with non-404 error', async () => {
+      const repoScope = nock(mockEhrRepoServiceUrl, headers)
+        .get(`/patients/${nhsNumber}`)
+        .reply(500);
+
+      await expect(getFragmentFromRepo(nhsNumber, messageId)).rejects.toThrow(new Error('Request failed with status code 500'))
+
+      expect(repoScope.isDone()).toBe(true);
+      expect(logError).toHaveBeenCalledWith('Failed to retrieve conversationIdFromEhrIn from ehr-repo');
+
+    })
+
+
+    it('should throw an EhrUrlNotFoundError if failed to get a presigned url for the fragment', async () => {
       const repoScope = nock(mockEhrRepoServiceUrl, headers)
         .get(`/patients/${nhsNumber}`)
         .reply(200, {
-          "conversationIdFromEhrIn": ehrInConversationId
+          "conversationIdFromEhrIn": conversationIdFromEhrIn
         });
 
       const repoScope2 = nock(mockEhrRepoServiceUrl, headers)
         // TODO: currently this endpoint of ehr-repo doesn't work as expect. we might need to change this endpoint
-        .get(`/messages/${ehrInConversationId}/${messageId}`)
+        .get(`/messages/${conversationIdFromEhrIn}/${messageId}`)
         .reply(404);
 
-      expect(getFragmentFromRepo(nhsNumber, messageId)).rejects().toThrow(EhrUrlNotFoundError)
-      // })
-      // try {
-      //   await getFragmentFromRepo(nhsNumber, messageId);
-      // } catch (error) {
-      //   expect(error).toBeInstanceOf(EhrUrlNotFoundError);
-      // }
+      const axios404Error = new Error('Request failed with status code 404');
+
+      await expect(getFragmentFromRepo(nhsNumber, messageId)).rejects.toThrow(EhrUrlNotFoundError)
 
       expect(repoScope.isDone()).toBe(true);
       expect(repoScope2.isDone()).toBe(true);
 
+      expect(logError).toHaveBeenCalledWith(errorMessages.EHR_URL_NOT_FOUND_ERROR, axios404Error);
     })
+
   });
 })

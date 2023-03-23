@@ -10,7 +10,7 @@ import { Status } from '../../models/registration-request';
 import { EhrUrlNotFoundError, DownloadError } from "../../errors/errors";
 import { getEhrCoreFromRepo } from "../ehr-repo/get-ehr";
 import { sendCore } from "../gp2gp/send-core";
-import { patientAndPracticeOdsCodesMatch } from "./transfer-out-util";
+import { patientAndPracticeOdsCodesMatch, updateConversationStatus } from "./transfer-out-util";
 
 export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
   setCurrentSpanAttributes({ conversationId: conversationId });

@@ -2,9 +2,10 @@ import { logError, logInfo, logWarning } from "../../middleware/logging";
 import { setCurrentSpanAttributes } from "../../config/tracing";
 import { getFragmentFromRepo } from "../ehr-repo/get-fragment";
 import { sendFragment } from "../gp2gp/send-fragment";
-import { TransferOutFragmentError } from "../../errors/errors";
 import { getFragmentsTraceStatusByMessageId } from "../database/fragments-trace-repository";
-import { Status } from "../../models/registration-request";
+import { Status } from "../../models/fragments-trace";
+import { updateFragmentStatus } from "./transfer-out-util";
+
 
 export async function transferOutFragment(conversationId, messageId, nhsNumber) {
   setCurrentSpanAttributes({ conversationId, messageId })
@@ -14,19 +15,16 @@ export async function transferOutFragment(conversationId, messageId, nhsNumber) 
     if (await isTransferRequestDuplicated(messageId)) return;
 
     const fragment = await getFragmentFromRepo(nhsNumber, messageId);
-    return await sendFragment(fragment);
-    // TODO [PRMT-2728] update the fragment trace status to succeeded
-    logInfo('Fragments have been successfully sent');
-    await updateFragmentStatus(conversationId, messageId,  Status.SENT_FRAGMENTS);
-
+    await sendFragment(fragment);
+    await updateFragmentStatus(conversationId, messageId, Status.SENT_FRAGMENT);
   } catch (error) {
     logError(`Message fragment transfer failed due to error: ${error}`);
-    // TODO [PRMT-2728] update the fragment trace status to failed
-    throw new TransferOutFragmentError(error);
+    await updateFragmentStatus(conversationId, messageId, Status.FRAGMENT_SENDING_FAILED);
+    throw error;
   }
 }
 
-export const isTransferRequestDuplicated = async (messageId) => {
+const isTransferRequestDuplicated = async (messageId) => {
   // TODO [PRMT-2728] work out what we're doing with a continue request database table - Are we wanting to store this in memory?
   const previousFragmentOut = await getFragmentsTraceStatusByMessageId(messageId);
   if (previousFragmentOut !== null) {
