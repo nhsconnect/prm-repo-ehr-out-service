@@ -31,7 +31,7 @@ export const updateConversationStatus = async (conversationId, status, logMessag
 
 export const updateFragmentStatus = async (conversationId, messageId, status, logMessage) => {
   setCurrentSpanAttributes({ conversationId, messageId });
-  logInfo(`Updating fragment with status ${status}`);
+  logInfo(`Updating fragment with status: ${status}`);
 
   await updateFragmentsTraceStatus(messageId, status)
     .then()

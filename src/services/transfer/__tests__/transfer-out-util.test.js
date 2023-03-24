@@ -21,7 +21,6 @@ jest.mock('../../database/fragments-trace-repository');
 jest.mock('../../../config/tracing');
 
 describe('testTransferOutUtil', () => {
-
   describe('downloadFromUrl', () => {
     // ============ COMMON PROPERTIES ============
     const REQUEST_BASE_URL = 'https://example.com';
@@ -103,7 +102,6 @@ describe('testTransferOutUtil', () => {
 
     it('should update the conversation status successfully', async () => {
       // when
-      setCurrentSpanAttributes.mockReturnValueOnce(undefined);
       updateRegistrationRequestStatus.mockResolvedValueOnce(undefined);
       await updateConversationStatus(CONVERSATION_ID, STATUS);
 
@@ -115,16 +113,27 @@ describe('testTransferOutUtil', () => {
       expect(logInfo).toBeCalledWith(`Updating conversation with status: ${STATUS}`);
     });
 
-    // TODO
     it('should log the provided message successfully', async () => {
       // when
       updateRegistrationRequestStatus.mockResolvedValueOnce(undefined);
       await updateConversationStatus(CONVERSATION_ID, STATUS, LOG_MESSAGE);
 
       // then
+      expect(setCurrentSpanAttributes).toBeCalledTimes(1);
+      expect(setCurrentSpanAttributes).toBeCalledWith({  conversationId: CONVERSATION_ID });
       expect(logInfo).toBeCalledTimes(2);
       expect(logInfo).toBeCalledWith(`Updating conversation with status: ${STATUS}`);
       expect(logInfo).toBeCalledWith(LOG_MESSAGE);
+    });
+
+    it('should throw a StatusUpdateError error', async () => {
+      // when
+      updateRegistrationRequestStatus.mockRejectedValueOnce(undefined);
+
+      // then
+      await expect(() => updateConversationStatus(CONVERSATION_ID, STATUS, LOG_MESSAGE))
+        .rejects
+        .toThrowError(StatusUpdateError);
     });
   });
 
@@ -138,16 +147,26 @@ describe('testTransferOutUtil', () => {
 
     it('should update the fragment status successfully', async () => {
       // when
-      setCurrentSpanAttributes.mockReturnValueOnce(undefined);
       updateFragmentsTraceStatus.mockResolvedValueOnce(undefined);
       await updateFragmentStatus(CONVERSATION_ID, MESSAGE_ID, STATUS);
 
       // then
-      expect(setCurrentSpanAttributes).toBeCalledTimes(1);
-      expect(setCurrentSpanAttributes).toBeCalledWith({  conversationId: CONVERSATION_ID, messageId: MESSAGE_ID });
       expect(updateFragmentsTraceStatus).toBeCalledTimes(1);
       expect(logInfo).toBeCalledTimes(1);
-      expect(logInfo).toBeCalledWith(`Updating fragment with status ${STATUS}`);
+      expect(logInfo).toBeCalledWith(`Updating fragment with status: ${STATUS}`);
+    });
+
+    it('should log the provided log message successfully', async () => {
+      // given
+      updateFragmentsTraceStatus.mockResolvedValueOnce(undefined);
+      await updateFragmentStatus(CONVERSATION_ID, MESSAGE_ID, STATUS, LOG_MESSAGE);
+
+      // then
+      expect(setCurrentSpanAttributes).toBeCalledTimes(1);
+      expect(setCurrentSpanAttributes).toBeCalledWith({  conversationId: CONVERSATION_ID, messageId: MESSAGE_ID });
+      expect(logInfo).toBeCalledTimes(2);
+      expect(logInfo).toBeCalledWith(`Updating fragment with status: ${STATUS}`);
+      expect(logInfo).toBeCalledWith(LOG_MESSAGE);
     });
 
     it('should throw a StatusUpdateError error', async () => {
