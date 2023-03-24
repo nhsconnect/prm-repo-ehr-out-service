@@ -1,6 +1,6 @@
 import nock from 'nock';
 import { logError } from '../../../middleware/logging';
-import { initializeConfig } from '../../../config';
+import { config } from '../../../config';
 import { getEhrCoreFromRepo } from "../get-ehr";
 import { EhrUrlNotFoundError, DownloadError} from "../../../errors/errors";
 
@@ -10,7 +10,7 @@ jest.mock('../../../config');
 describe('getEhrCoreFromRepo', () => {
   describe('new ehr repo api', () => {
     beforeEach(() => {
-      initializeConfig.mockReturnValue({
+      config.mockReturnValue({
         ehrRepoAuthKeys: 'fake-keys',
         ehrRepoServiceUrl: 'http://localhost'
       });

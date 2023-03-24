@@ -1,4 +1,3 @@
-import { initializeConfig } from '../../config';
 import {
   getRegistrationRequestStatusByConversationId,
   updateRegistrationRequestStatus
@@ -13,7 +12,7 @@ import { sendCore } from "../gp2gp/send-core";
 import { patientAndPracticeOdsCodesMatch, updateConversationStatus } from "./transfer-out-util";
 
 export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
-  setCurrentSpanAttributes({ conversationId: conversationId });
+setCurrentSpanAttributes({ conversationId: conversationId });
   logInfo('EHR transfer out request received');
 
   let logs = 'EHR has been successfully sent';
@@ -36,7 +35,7 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
     logInfo('Getting patient health record from EHR repo');
     const ehrCore = await getEhrCoreFromRepo(nhsNumber, conversationId);
 
-    if (await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode)) {
+    if (!await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode)) {
       logs = 'Patients ODS Code in PDS does not match requesting practices ODS Code';
       await updateConversationStatus(conversationId, Status.INCORRECT_ODS_CODE, logs);
       return defaultResult;

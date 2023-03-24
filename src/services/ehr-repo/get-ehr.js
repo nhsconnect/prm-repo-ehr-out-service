@@ -1,4 +1,4 @@
-import { initializeConfig } from "../../config";
+import { config } from "../../config";
 import axios from "axios";
 import { logInfo } from "../../middleware/logging";
 import { downloadFromUrl } from "../transfer/transfer-out-util";
@@ -13,7 +13,7 @@ export const getEhrCoreFromRepo = async (nhsNumber, conversationId) => {
 };
 
 const retrievePresignedUrlFromRepo = async (nhsNumber, conversationId) => {
-  const config = initializeConfig();
+  const config = config();
   const repoUrl = `${config.ehrRepoServiceUrl}/patients/${nhsNumber}`;
 
   return await axios.get(repoUrl, {

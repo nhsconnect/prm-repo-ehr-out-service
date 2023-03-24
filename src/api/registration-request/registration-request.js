@@ -1,6 +1,6 @@
 import { body } from 'express-validator';
 import { logInfo } from '../../middleware/logging';
-import { initializeConfig } from '../../config';
+import { config } from '../../config';
 import { transferOutEhr } from '../../services/transfer/transfer-out-ehr';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { transferOutEhrCore } from "../../services/transfer/transfer-out-ehr-core";
@@ -42,7 +42,7 @@ export const registrationRequest = async (req, res) => {
 };
 
 const respondWithItsFineGoLookAtTheStatus = (res, conversationId) => {
-  const config = initializeConfig();
+  const config = config();
   const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
   res.set('Location', statusEndpoint).sendStatus(204);
 };

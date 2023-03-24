@@ -21,13 +21,18 @@ const model = dataType => ({
     messageId: {
         field: 'message_id',
         type: dataType.UUID,
-        primaryKey: true,
-        defaultValue: dataType.UUIDV4
+        primaryKey: true
     },
     conversationId: {
         field: 'conversation_id',
         type: dataType.UUID,
-        defaultValue: dataType.UUIDV4
+        references: {
+            model: {
+                tableName: 'registration_requests'
+            },
+            key: 'conversation_id'
+        },
+        allowNull: false
     },
     status: {
         field: 'status',

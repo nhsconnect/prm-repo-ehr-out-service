@@ -1,5 +1,5 @@
 import axios from "axios";
-import { logError, logInfo } from "../../middleware/logging";
+import { logInfo } from "../../middleware/logging";
 import { DownloadError, StatusUpdateError } from "../../errors/errors";
 import { getPdsOdsCode } from "../gp2gp/pds-retrieval-request";
 import { updateRegistrationRequestStatus } from "../database/registration-request-repository";

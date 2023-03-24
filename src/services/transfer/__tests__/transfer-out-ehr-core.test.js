@@ -1,4 +1,3 @@
-import { initializeConfig } from '../../../config';
 import {
   getRegistrationRequestStatusByConversationId,
   updateRegistrationRequestStatus
@@ -17,10 +16,7 @@ jest.mock('../../../services/database/create-registration-request');
 jest.mock('../../gp2gp/send-core');
 jest.mock('../../gp2gp/pds-retrieval-request');
 jest.mock('../../ehr-repo/get-ehr');
-jest.mock('../../../services/database/registration-request-repository');
-jest.mock('../../../config', () => ({
-  initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
-}));
+jest.mock('../../database/registration-request-repository');
 jest.mock('../../../middleware/logging');
 
 describe('transferOutEhrCore', () => {
@@ -33,6 +29,7 @@ describe('transferOutEhrCore', () => {
     attachments: ["attachment 1", "attachment 2"],
     external_attachments: ["ext attachment 1", "ext attachment 2"]
   }
+  updateRegistrationRequestStatus.mockResolvedValue(undefined);
 
   describe('transfer request validation checks', () => {
     it('should validate duplicate transfer out requests', async () => {
@@ -49,18 +46,19 @@ describe('transferOutEhrCore', () => {
       expect(sendCore).not.toHaveBeenCalled();
     });
 
-
     it('should validate incomplete EHR where failed to retrieve EHR URL', async () => {
+      // when
       getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
       getEhrCoreFromRepo.mockRejectedValueOnce(new EhrUrlNotFoundError());
+      // updateRegistrationRequestStatus.mockResolvedValueOnce(undefined);
 
       const result = await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
+      // then
       expect(result.inProgress).toBe(false);
       expect(result.hasFailed).toBe(false);
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
       expect(getEhrCoreFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
-      expect(initializeConfig).toHaveBeenCalled();
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.MISSING_FROM_REPO);
       expect(logInfo).toHaveBeenCalledWith(`Getting patient health record from EHR repo`);
       expect(sendCore).not.toHaveBeenCalled();
@@ -76,7 +74,6 @@ describe('transferOutEhrCore', () => {
       expect(result.hasFailed).toBe(false);
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
       expect(getEhrCoreFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
-      expect(initializeConfig).toHaveBeenCalled();
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.EHR_DOWNLOAD_FAILED);
       expect(logInfo).toHaveBeenCalledWith(`Getting patient health record from EHR repo`);
       expect(sendCore).not.toHaveBeenCalled();
@@ -85,7 +82,7 @@ describe('transferOutEhrCore', () => {
     it('should validate ODS code in PDS', async () => {
       getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
       getEhrCoreFromRepo.mockResolvedValueOnce({});
-      getPdsOdsCode.mockResolvedValueOnce('B1234');
+      getPdsOdsCode.mockResolvedValueOnce('invalid-ods-code');
 
       const result = await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
@@ -93,7 +90,6 @@ describe('transferOutEhrCore', () => {
       expect(result.hasFailed).toBe(false);
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
       expect(getEhrCoreFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
-      expect(initializeConfig).toHaveBeenCalled();
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
         conversationId,
         Status.INCORRECT_ODS_CODE
@@ -121,7 +117,6 @@ describe('transferOutEhrCore', () => {
       conversationId,
       Status.ODS_VALIDATION_CHECKS_PASSED
     );
-    expect(initializeConfig).toHaveBeenCalled();
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.SENT_EHR);
     expect(logInfo).toHaveBeenCalledWith(`Sending EHR core`);
     expect(sendCore).toHaveBeenCalledWith(

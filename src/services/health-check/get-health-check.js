@@ -1,8 +1,8 @@
-import { initializeConfig } from '../../config';
+import { config } from '../../config';
 import { checkDbHealth } from '../database/check-db-health';
 
 export const getHealthCheck = async () => {
-  const config = initializeConfig();
+  const config = config();
   const dbHealthCheck = await checkDbHealth();
 
   return {

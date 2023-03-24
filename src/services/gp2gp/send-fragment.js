@@ -1,10 +1,10 @@
 import { logError, logInfo } from "../../middleware/logging";
-import { initializeConfig } from "../../config";
+import { config } from "../../config";
 import axios from "axios";
 import { SendFragmentError } from "../../errors/errors";
 
 export const sendFragment = async (conversationId, odsCode, fragmentMessage, messageId) => {
-  const { gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl } = initializeConfig();
+  const { gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl } = config();
   const url = `${gp2gpMessengerServiceUrl}/ehr-out-transfers/fragment`;
 
   const requestBody = { conversationId, odsCode, fragmentMessage, messageId };

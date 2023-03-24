@@ -9,7 +9,7 @@ import {
 import { getPdsOdsCode } from '../../../services/gp2gp/pds-retrieval-request';
 import { getPatientHealthRecordFromRepo } from '../../../services/ehr-repo/get-health-record';
 import { Status } from '../../../models/registration-request';
-import { initializeConfig } from '../../../config';
+import { config } from '../../../config';
 import { registrationRequests } from '../index';
 import { sendEhrExtract } from '../../../services/gp2gp/send-ehr-extract';
 
@@ -23,9 +23,10 @@ jest.mock('../../../config', () => ({
   initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
 }));
 
+// TODO remove these references to the now deprecated API
 describe('POST /registration-requests/', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
-  initializeConfig.mockReturnValue({
+  config.mockReturnValue({
     repoToGpServiceUrl: 'test-url',
     consumerApiKeys: { TEST: 'correct-key' }
   });

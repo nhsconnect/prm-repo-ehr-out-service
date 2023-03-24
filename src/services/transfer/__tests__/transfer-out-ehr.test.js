@@ -1,4 +1,4 @@
-import { initializeConfig } from '../../../config';
+import { config } from '../../../config';
 import {
   getRegistrationRequestStatusByConversationId,
   updateRegistrationRequestStatus
@@ -53,7 +53,7 @@ describe('transferOutEhr', () => {
       expect(result.hasFailed).toBe(false);
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
       expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
-      expect(initializeConfig).toHaveBeenCalled();
+      expect(config).toHaveBeenCalled();
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
         conversationId,
         Status.MISSING_FROM_REPO
@@ -76,7 +76,7 @@ describe('transferOutEhr', () => {
       expect(result.hasFailed).toBe(false);
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
       expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
-      expect(initializeConfig).toHaveBeenCalled();
+      expect(config).toHaveBeenCalled();
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
         conversationId,
         Status.INCORRECT_ODS_CODE
@@ -104,7 +104,7 @@ describe('transferOutEhr', () => {
       conversationId,
       Status.ODS_VALIDATION_CHECKS_PASSED
     );
-    expect(initializeConfig).toHaveBeenCalled();
+    expect(config).toHaveBeenCalled();
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.SENT_EHR);
     expect(logInfo).toHaveBeenCalledWith(`Sending EHR extract`);
     expect(sendEhrExtract).toHaveBeenCalledWith(

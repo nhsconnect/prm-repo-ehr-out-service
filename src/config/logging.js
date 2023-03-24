@@ -1,7 +1,7 @@
 import { createLogger, format, transports } from 'winston';
 import traverse from 'traverse';
 import cloneDeep from 'lodash.clonedeep';
-import { initializeConfig } from './index';
+import { config } from './index';
 import { getCurrentSpanAttributes } from './tracing';
 
 export const obfuscateSecrets = format(info => {
@@ -15,7 +15,7 @@ export const obfuscateSecrets = format(info => {
 });
 
 export const addCommonFields = format(info => {
-  const config = initializeConfig();
+  const config = config();
   const nhsEnvironment = config.nhsEnvironment;
   const updated = cloneDeep(info);
   const attributes = getCurrentSpanAttributes();

@@ -1,10 +1,10 @@
 import axios from "axios";
-import { initializeConfig } from "../../config";
+import { config } from "../../config";
 import { logError } from "../../middleware/logging";
 
 // TODO [PRMT-2728] DEPRECATED - remove this & any associated test class
 export const getPatientHealthRecordFromRepo = async (nhsNumber, conversationId) => {
-  const config = initializeConfig();
+  const config = config();
   try {
     const url = `${config.ehrRepoServiceUrl}/patients/${nhsNumber}`;
     const res = await axios.get(url, {

@@ -47,16 +47,19 @@ describe('transferOutFragment', () => {
     });
 
     it('should send fragment on success', async () => {
+      // when
       getFragmentsTraceStatusByMessageId.mockResolvedValueOnce(null);
       getFragmentFromRepo.mockResolvedValueOnce(fragment);
 
-      const result = await transferOutFragment({ conversationId, messageId, nhsNumber });
+      const result = await transferOutFragment(conversationId, messageId, nhsNumber);
 
+      // then
       expect(result).toBe(undefined);
       expect(getFragmentFromRepo).toHaveBeenCalledWith(nhsNumber, messageId);
       expect(updateFragmentStatus).toHaveBeenCalledWith(conversationId, messageId, Status.SENT_FRAGMENT);
       expect(updateFragmentStatus).not.toHaveBeenCalledWith(conversationId, messageId, Status.FRAGMENT_SENDING_FAILED);
-      expect(logInfo).toHaveBeenCalledWith(`Sending fragment`);
+      expect(logInfo).toHaveBeenCalledWith('EHR transfer out fragment received');
+      expect(logInfo).toHaveBeenCalledWith('Fragment transfer completed');
       expect(logError).not.toHaveBeenCalled();
     });
 
@@ -65,7 +68,7 @@ describe('transferOutFragment', () => {
       const error = new Error('test error message');
       sendFragment.mockRejectedValueOnce(error);
       // when
-      const result = await transferOutFragment({ conversationId, nhsNumber, messageId });
+      const result = await transferOutFragment( conversationId, nhsNumber, messageId );
       // then
       expect(logError).toHaveBeenCalledWith(`Message fragment transfer failed due to error: ${error}`);
       expect(updateFragmentStatus).not.toHaveBeenCalled();

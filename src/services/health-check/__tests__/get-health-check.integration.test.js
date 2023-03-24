@@ -1,9 +1,9 @@
 import { getHealthCheck } from '../get-health-check';
 import ModelFactory from '../../../models';
-import { initializeConfig } from '../../../config';
+import { config } from '../../../config';
 
 describe('getHealthCheck', () => {
-  const config = initializeConfig();
+  const config = config();
   beforeEach(() => {
     ModelFactory._resetConfig();
   });

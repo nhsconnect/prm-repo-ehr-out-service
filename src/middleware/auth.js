@@ -1,8 +1,8 @@
-import { initializeConfig } from '../config';
+import { config } from '../config';
 import { logInfo, logWarning } from './logging';
 
 export const authenticateRequest = (req, res, next) => {
-  const { consumerApiKeys } = initializeConfig();
+  const { consumerApiKeys } = config();
   if (Object.keys(consumerApiKeys).length === 0) {
     res.status(412).json({
       error: `Server-side Authorization keys have not been set, cannot authenticate`

@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { initializeConfig } from '../../config';
+import { config } from '../../config';
 import { logError, logInfo } from '../../middleware/logging';
 
 // TODO [PRMT-2728] DEPRECATED - remove this & any associated test class
 export const sendEhrExtract = async (conversationId, odsCode, ehrRequestId, currentEhrUrl) => {
-  const config = initializeConfig();
+  const config = config();
   const url = `${config.gp2gpMessengerServiceUrl}/health-record-transfers`;
   const requestBody = {
     data: {

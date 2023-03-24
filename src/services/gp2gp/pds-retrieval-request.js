@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { initializeConfig } from '../../config';
+import { config } from '../../config';
 import { logInfo } from '../../middleware/logging';
 import { GetPdsCodeError } from "../../errors/errors";
 
 export const getPdsOdsCode = async nhsNumber => {
-  const { gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl } = initializeConfig();
+  const { gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl } = config();
   const url = `${gp2gpMessengerServiceUrl}/patient-demographics/${nhsNumber}`;
 
   return await axios

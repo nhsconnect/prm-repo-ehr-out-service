@@ -17,6 +17,7 @@ export async function transferOutFragment(conversationId, messageId, nhsNumber) 
     const fragment = await getFragmentFromRepo(nhsNumber, messageId);
     await sendFragment(fragment);
     await updateFragmentStatus(conversationId, messageId, Status.SENT_FRAGMENT);
+    logInfo('Fragment transfer completed');
   } catch (error) {
     logError(`Message fragment transfer failed due to error: ${error}`);
     await updateFragmentStatus(conversationId, messageId, Status.FRAGMENT_SENDING_FAILED);

@@ -1,7 +1,7 @@
 import nock from 'nock';
 import { logError } from '../../../middleware/logging';
 import { getPatientHealthRecordFromRepo } from '../get-health-record';
-import { initializeConfig } from '../../../config';
+import { config } from '../../../config';
 
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config');
@@ -9,7 +9,7 @@ jest.mock('../../../config');
 describe('getPatientHealthRecordFromRepo', () => {
   describe('new ehr repo api', () => {
     beforeEach(() => {
-      initializeConfig.mockReturnValue({
+      config.mockReturnValue({
         ehrRepoAuthKeys: 'fake-keys',
         ehrRepoServiceUrl: 'http://localhost'
       });

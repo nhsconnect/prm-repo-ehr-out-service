@@ -1,9 +1,9 @@
 import axios from 'axios';
 import adapter from 'axios/lib/adapters/http';
-import { initializeConfig } from '../../src/config';
+import { config } from '../../src/config';
 
 describe('/health', () => {
-  const config = initializeConfig();
+  const config = config();
   const healthUrl = `${config.repoToGpServiceUrl}/health`;
 
   it('should return 200', async () => {

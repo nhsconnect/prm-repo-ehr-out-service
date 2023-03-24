@@ -1,45 +1,3 @@
-// module.exports = {
-//   async up(queryInterface, Sequelize) {
-//     await queryInterface.createTable('FragmentsTraces', {
-//       id: {
-//         allowNull: false,
-//         autoIncrement: true,
-//         primaryKey: true,
-//         type: Sequelize.INTEGER
-//       },
-//       messageId: {
-//         type: Sequelize.UUID
-//       },
-//       conversationId: {
-//         type: Sequelize.UUID
-//       },
-//       status: {
-//         type: Sequelize.STRING
-//       },
-//       createdAt: {
-//         type: Sequelize.DATE
-//       },
-//       updatedAt: {
-//         type: Sequelize.DATE
-//       },
-//       deletedAt: {
-//         type: Sequelize.DATE
-//       },
-//       createdAt: {
-//         allowNull: false,
-//         type: Sequelize.DATE
-//       },
-//       updatedAt: {
-//         allowNull: false,
-//         type: Sequelize.DATE
-//       }
-//     });
-//   },
-//   async down(queryInterface, Sequelize) {
-//     await queryInterface.dropTable('FragmentsTraces');
-//   }
-// };
-
 'use strict';
 
 const tableName = 'fragments_trace';
@@ -49,13 +7,18 @@ const model = dataType => {
     messageId: {
       field: 'message_id',
       type: dataType.UUID,
-      primaryKey: true,
-      defaultValue: dataType.UUIDV4
+      primaryKey: true
     },
     conversationId: {
       field: 'conversation_id',
       type: dataType.UUID,
-      defaultValue: dataType.UUIDV4
+      references: {
+        model: {
+          tableName: 'registration_requests'
+        },
+        key: 'conversation_id'
+      },
+      allowNull: false
     },
     status: {
       field: 'status',

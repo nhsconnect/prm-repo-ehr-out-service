@@ -1,4 +1,4 @@
-import { initializeConfig } from '../../config';
+import { config } from '../../config';
 import {
   getRegistrationRequestStatusByConversationId,
   updateRegistrationRequestStatus
@@ -67,7 +67,7 @@ export async function transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRe
 }
 
 const updateStatus = async (conversationId, status, logs) => {
-  initializeConfig();
+  config();
   await updateRegistrationRequestStatus(conversationId, status);
   logInfo(logs);
 };
