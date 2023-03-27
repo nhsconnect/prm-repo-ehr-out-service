@@ -1,6 +1,6 @@
-import { logError, logInfo } from "../../middleware/logging";
-import { config } from "../../config";
 import axios from "axios";
+import { logInfo } from "../../middleware/logging";
+import { config } from "../../config";
 import { SendFragmentError } from "../../errors/errors";
 
 export const sendFragment = async (conversationId, odsCode, fragmentMessage, messageId) => {
@@ -11,5 +11,7 @@ export const sendFragment = async (conversationId, odsCode, fragmentMessage, mes
 
   await axios.post(url, requestBody, { headers: { Authorization: gp2gpMessengerAuthKeys } })
     .then(() => logInfo('Successfully sent message fragment'))
-    .catch(error => { throw new SendFragmentError(error) });
+    .catch(error => {
+      throw new SendFragmentError(error)
+    });
 }

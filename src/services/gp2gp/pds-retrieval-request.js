@@ -14,7 +14,6 @@ export const getPdsOdsCode = async nhsNumber => {
       return response.data.data.odsCode;
     })
     .catch(error => {
-      console.log(error, "<------ this error")
       throw new GetPdsCodeError(error);
     });
 };

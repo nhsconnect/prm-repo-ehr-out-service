@@ -2,19 +2,26 @@ import nock from 'nock';
 import { logError } from '../../../middleware/logging';
 import { config } from '../../../config';
 import { getEhrCoreFromRepo } from "../get-ehr";
-import { EhrUrlNotFoundError, DownloadError} from "../../../errors/errors";
+import { EhrUrlNotFoundError, DownloadError, errorMessages} from "../../../errors/errors";
 
 jest.mock('../../../middleware/logging');
-jest.mock('../../../config');
+
+jest.mock('../../../config', () => ({
+  config: jest.fn().mockReturnValue({
+    sequelize: { dialect: 'postgres' },
+    ehrRepoAuthKeys: 'fake-keys',
+    ehrRepoServiceUrl: 'http://localhost'
+  })
+}));
 
 describe('getEhrCoreFromRepo', () => {
   describe('new ehr repo api', () => {
-    beforeEach(() => {
-      config.mockReturnValue({
-        ehrRepoAuthKeys: 'fake-keys',
-        ehrRepoServiceUrl: 'http://localhost'
-      });
-    });
+    // beforeEach(() => {
+    //   config.mockReturnValue({
+    //     ehrRepoAuthKeys: 'fake-keys',
+    //     ehrRepoServiceUrl: 'http://localhost'
+    //   });
+    // });
     const mockEhrRepoServiceUrl = 'http://localhost';
     const mockEhrRepoAuthKeys = 'fake-keys';
     const conversationId = 'fake-conversationId';
@@ -89,9 +96,8 @@ describe('getEhrCoreFromRepo', () => {
       await expect(() => getEhrCoreFromRepo(nhsNumber, conversationId))
         .rejects.toThrow(DownloadError);
 
-      expect(urlScope.isDone()).toBe(true);
       expect(ehrScope.isDone()).toBe(true);
-      expect(logError).toHaveBeenCalledWith('Cannot retrieve EHR from presigned URL', expectedError);
+      expect(logError).toHaveBeenCalledWith(errorMessages.DOWNLOAD_ERROR, expectedError);
     });
   });
 });

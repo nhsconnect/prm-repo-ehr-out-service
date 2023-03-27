@@ -2,57 +2,60 @@ import nock from 'nock';
 import { getPdsOdsCode } from '../pds-retrieval-request';
 import { logError, logInfo } from '../../../middleware/logging';
 
+// Mocking
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
-  initializeConfig: jest.fn().mockReturnValue({
+  config: jest.fn().mockReturnValue({
     gp2gpMessengerAuthKeys: 'fake-keys',
     gp2gpMessengerServiceUrl: 'http://localhost'
   })
 }));
 
-describe('sendPdsRetrievalRequest', () => {
-  const mockGp2gpMessengerServiceUrl = 'http://localhost';
-  const mockgp2gpMessengerAuthKeys = 'fake-keys';
-  const headers = { reqheaders: { Authorization: `${mockgp2gpMessengerAuthKeys}` } };
-  const nhsNumber = '1234567890';
-  const serialChangeNumber = '123';
-  const pdsId = 'chs';
-  const odsCode = 'C12345';
+describe('getPdsOdsCode', () => {
+  // ============ COMMON PROPERTIES ============
+  const MOCK_GP2GP_MESSENGER_SERVICE_URL = 'http://localhost';
+  const MOCK_GP2GP_MESSENGER_AUTH_KEYS = 'fake-keys';
+  const HEADERS = { reqheaders: { Authorization: `${MOCK_GP2GP_MESSENGER_AUTH_KEYS}` } };
+  const NHS_NUMBER = '1234567890';
+  const SERIAL_CHANGE_NUMBER = '123';
+  const PDS_ID = 'chs';
+  const ODS_CODE = 'C12345';
+  // =================== END ===================
 
-  it('should retrieve patient and return 200 with odsCode, pdsId and serialChangeNumber', async () => {
+  it('should retrieve patient and return 200 with ODS_CODE, PDS_ID and SERIAL_CHANGE_NUMBER', async () => {
     // given
-    const expectedResponseBody = {
+    const expectedResponse = {
       data: {
-        serialChangeNumber,
-        pdsId,
-        odsCode
+        serialChangeNumber: SERIAL_CHANGE_NUMBER,
+        pdsId: PDS_ID,
+        odsCode: ODS_CODE
       }
     };
 
     // when
-    const urlScope = nock(mockGp2gpMessengerServiceUrl, headers)
-      .get(`/patient-demographics/${nhsNumber}`)
-      .reply(200, expectedResponseBody);
+    const urlScope = nock(MOCK_GP2GP_MESSENGER_SERVICE_URL, HEADERS)
+      .get(`/patient-demographics/${NHS_NUMBER}`)
+      .reply(200, expectedResponse);
 
-    const res = await getPdsOdsCode(nhsNumber);
+    const response = await getPdsOdsCode(NHS_NUMBER);
 
     // then
     expect(urlScope.isDone()).toBe(true);
     expect(logInfo).toHaveBeenCalledWith('Successfully retrieved patient from PDS');
-    expect(res).toEqual(odsCode);
+    expect(response).toEqual(ODS_CODE);
   });
 
   it('should log and throw error when pds retrieval returns 500', async () => {
-    let error = null;
+    // given
+    let error;
     const expectedError = new Error('Request failed with status code 500');
-    nock(mockGp2gpMessengerServiceUrl, headers).get(`/patient-demographics/${nhsNumber}`).reply(500);
 
-    try {
-      await getPdsOdsCode(nhsNumber);
-    } catch (err) {
-      error = err;
-    }
+    // when
+    nock(MOCK_GP2GP_MESSENGER_SERVICE_URL, HEADERS).get(`/patient-demographics/${NHS_NUMBER}`).reply(500);
+    try {await getPdsOdsCode(NHS_NUMBER);}
+    catch (err) {error = err;}
 
+    // then
     expect(error).not.toBeNull();
     expect(logError).toHaveBeenCalledWith('Unable to retrieve patient from PDS', expectedError);
   });

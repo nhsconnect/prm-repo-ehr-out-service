@@ -1,6 +1,6 @@
 import { setCurrentSpanAttributes } from "../../config/tracing";
 import { logInfo } from "../../middleware/logging";
-import { transferOutFragment } from "../transfer/transfer-out-fragment";
+import { transferOutFragments } from "../transfer/transfer-out-fragments";
 import { patientAndPracticeOdsCodesMatch, updateConversationStatus } from "../transfer/transfer-out-util";
 import { Status } from "../../models/registration-request";
 import { config } from "../../config";
@@ -20,13 +20,8 @@ export default async function continueMessageHandler(parsedMessage) {
   }
 
   await updateConversationStatus(conversationId, Status.CONTINUE_REQUEST_RECEIVED);
-  // TODO [PRMT-2728] extract the fragments from the parsed message
-  const gp2gpFragments = [];
 
-  // TODO [PRMT-2728]  we need to retrieve the messageIds from the EHR repo based on NHS number
-
-  const promises = gp2gpFragments.map(messageId => transferOutFragment(conversationId, nhsNumber, odsCode, messageId));
-  await Promise.all(promises)
+  await Promise.all(async () => await transferOutFragments(conversationId, nhsNumber))
     .then(async () => await updateConversationStatus(
         conversationId,
         Status.SENT_FRAGMENTS))

@@ -15,8 +15,7 @@ export const obfuscateSecrets = format(info => {
 });
 
 export const addCommonFields = format(info => {
-  const config = config();
-  const nhsEnvironment = config.nhsEnvironment;
+  const { nhsEnvironment } = config();
   const updated = cloneDeep(info);
   const attributes = getCurrentSpanAttributes();
 

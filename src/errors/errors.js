@@ -6,7 +6,8 @@ export const errorMessages = {
   SEND_FRAGMENT_ERROR: 'Failed while trying to send message fragment',
   GET_PDS_CODE_ERROR: 'Unable to retrieve patient from PDS',
   PATIENT_RECORD_NOT_FOUND: 'Cannot find the requested patient record from ehr-repo',
-  STATUS_ERROR: 'The status could not be updated'
+  STATUS_ERROR: 'The status could not be updated',
+  DUPLICATED_REQUEST: 'Got a duplicated request'
 };
 
 export class GetPdsCodeError extends Error {
@@ -48,5 +49,13 @@ export class StatusUpdateError extends Error {
   constructor(error) {
     super(errorMessages.STATUS_ERROR);
     logError(errorMessages.STATUS_ERROR, error);
+  }
+}
+
+
+export class DuplicatedRequestError extends Error {
+  constructor() {
+    super(errorMessages.DUPLICATED_REQUEST);
+    logError(errorMessages.DUPLICATED_REQUEST);
   }
 }

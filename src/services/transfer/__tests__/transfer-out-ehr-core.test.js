@@ -12,6 +12,7 @@ import expect from "expect";
 import { sendCore } from "../../gp2gp/send-core";
 import {EhrUrlNotFoundError, DownloadError} from "../../../errors/errors";
 
+// Mocking
 jest.mock('../../../services/database/create-registration-request');
 jest.mock('../../gp2gp/send-core');
 jest.mock('../../gp2gp/pds-retrieval-request');

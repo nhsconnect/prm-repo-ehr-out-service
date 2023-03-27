@@ -15,7 +15,7 @@ jest.mock('../../services/gp2gp/pds-retrieval-request');
 jest.mock('../../services/ehr-repo/get-health-record');
 jest.mock('../../middleware/logging');
 jest.mock('../../config', () => ({
-  initializeConfig: jest.fn().mockReturnValue({
+  config: jest.fn().mockReturnValue({
     sequelize: { dialect: 'postgres' },
     consumerApiKeys: {
       TEST_USER: 'correct-key',

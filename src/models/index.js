@@ -90,30 +90,6 @@ class ModelFactory {
       this.db[model.name] = model;
     }
 
-    // const RegistrationRequest = this.db.RegistrationRequest;
-    // const FragmentsTrace = this.db.FragmentsTrace;
-    // try  {
-    //   // console.log('1 before ======================================================')
-    //   // console.log('2 ' + FragmentsTrace.tableAttributes + '======================================================')
-    //
-    //   RegistrationRequest.hasMany(FragmentsTrace, {foreignKey: 'conversationId'});
-    //   FragmentsTrace.belongsTo(RegistrationRequest, {foreignKey: 'conversationId'});
-    //
-    //   // console.log('3 after ======================================================')
-    //   // console.log('4 ' + RegistrationRequest.tableAttributes + '======================================================')
-    //   // console.log('5 ' +RegistrationRequest.associations + '======================================================')
-    //   //
-    //   // console.log('6' + FragmentsTrace.tableAttributes + '======================================================')
-    //   // console.log('7' + FragmentsTrace.associations + '======================================================')
-    // } catch (err) {
-    //   console.log(err)
-    // }
-    // // console.log('8 if we see this, no error raised by hasMany ======================================================');
-    // // console.log(Object.keys(RegistrationRequest), "<-- what props does RegistrationRequest got")
-    // // console.log(Object.keys(FragmentsTrace), "<-- what props does FragmentsTrace got")
-    //
-    //
-
     Object.keys(this.db).forEach(modelName => {
       if (this.db[modelName].associate) {
         this.db[modelName].associate(this.db);
