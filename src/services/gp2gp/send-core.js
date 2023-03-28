@@ -9,11 +9,9 @@ export const sendCore = async (conversationId, odsCode, coreEhr, ehrRequestId) =
 
   const requestBody = { conversationId, odsCode, coreEhr, ehrRequestId };
 
-  try {
-    await axios.post(url, requestBody, { headers: { Authorization: gp2gpMessengerAuthKeys } });
-    logInfo('Successfully sent ehr');
-  } catch (err) {
-    logError('Failed while trying to send ehr', err);
-    throw err;
-  }
-};
+  await axios.post(url, requestBody, { headers: { Authorization: gp2gpMessengerAuthKeys } })
+    .then(() => logInfo('Successfully sent ehr core'))
+    .catch(error => {
+      throw new SendCoreError(error);
+    });
+}
