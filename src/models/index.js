@@ -12,7 +12,6 @@ class ModelFactory {
     this.db = {};
     this.sequelize = {};
     this.config = config().sequelize;
-
     this._resetConfig();
   }
 
@@ -91,6 +90,8 @@ class ModelFactory {
       this.db[model.name] = model;
     }
 
+    this.setupModelRelationship();
+
     Object.keys(this.db).forEach(modelName => {
       if (this.db[modelName].associate) {
         this.db[modelName].associate(this.db);
@@ -104,6 +105,18 @@ class ModelFactory {
   getByName(moduleName) {
     return this.db[moduleName];
   }
-}
+
+  setupModelRelationship() {
+    const RegistrationRequest = this.getByName(RegistrationRequest);
+    const FragmentsTrace = this.getByName(FragmentsTrace);
+    const foreignKeyProperties = {
+      name: 'conversationId', 
+      type: Sequelize.DataTypes.UUID, 
+      allowNull: false
+    };
+    RegistrationRequest.hasMany(FragmentsTrace, {foreignKey: foreignKeyProperties});
+    FragmentsTrace.belongsTo(RegistrationRequest, {foreignKey: foreignKeyProperties})
+
+
 
 export default new ModelFactory();

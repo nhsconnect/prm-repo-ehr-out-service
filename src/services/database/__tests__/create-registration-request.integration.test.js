@@ -12,8 +12,15 @@ describe('createRegistrationRequest', () => {
   const RegistrationRequest = ModelFactory.getByName(modelName);
 
   afterAll(async () => {
-    await RegistrationRequest.sequelize.sync({ force: true });
-    await ModelFactory.sequelize.close();
+    // keep this try catch block to detect any occurance of sync error in future
+    try {
+      await RegistrationRequest.sequelize.sync({ force: true });
+      await ModelFactory.sequelize.close();
+    } catch (err) {
+      console.log("got error when trying to call sequelize.sync()");
+      console.log(err);
+      throw err;
+    }
   });
 
   it('should create registration request with correct values', async () => {
