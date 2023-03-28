@@ -1,7 +1,6 @@
 import { logInfo, logError } from '../../../middleware/logging';
 import ModelFactory from '../../../models';
 import { modelName, Status } from '../../../models/fragments-trace';
-// import { modelName as registrationRequestsModelName  } from '../../../models/registration-request';
 import { createFragmentsTrace } from '../create-fragments-trace';
 import { createRegistrationRequest } from '../create-registration-request';
 import { runWithinTransaction } from '../helper';
@@ -10,7 +9,7 @@ jest.mock('../../../middleware/logging');
 
 describe('createFragmentsRequest', () => {
   const FragmentsTrace = ModelFactory.getByName(modelName);
-  const conversationId = '9ca400c5-4ba3-4cfa-9ae5-96887e4d81d2';
+  const conversationId = '40abdd36-6f86-455a-8135-4ab4c764cdd1';
 
   // clean the table before and after test to avoid affecting other test
   beforeAll(async () => {
