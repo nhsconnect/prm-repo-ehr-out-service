@@ -1,9 +1,11 @@
 import sendMessageToCorrespondingHandler from '../broker';
 import ehrRequestHandler from '../ehr-request-handler';
-import { logError } from '../../../middleware/logging';
+import { logError, logInfo } from "../../../middleware/logging";
 import { INTERACTION_IDS } from '../../../constants/interaction-ids';
+import continueMessageHandler from "../continue-message-handler";
 
 jest.mock('../ehr-request-handler');
+jest.mock('../continue-message-handler');
 jest.mock('../../../middleware/logging');
 
 describe('broker', () => {
@@ -19,6 +21,33 @@ describe('broker', () => {
     await sendMessageToCorrespondingHandler(ehrRequest);
 
     await expect(ehrRequestHandler).toHaveBeenCalledWith(ehrRequest);
+  });
+
+  it('should hand off to continue-message-handler if it is a continue request', async () => {
+    let continueRequest = {
+      interactionId: INTERACTION_IDS.CONTINUE_REQUEST_INTERACTION_ID,
+      conversationId: '27a757f2-f4d2-444e-a246-9cb77bef7f22',
+      nhsNumber: '8692842304',
+      odsCode: 'B91720'
+    };
+
+    await sendMessageToCorrespondingHandler(continueRequest);
+
+    await expect(continueMessageHandler).toHaveBeenCalledWith(continueRequest);
+  });
+
+  it('should log if it is an acknowledgement response', async () => {
+    let acknowledgementResponse = {
+      interactionId: INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID,
+      conversationId: '37a757f2-f4d2-444e-a246-9cb77bef7f22',
+      nhsNumber: '7692842304',
+      odsCode: 'C91720'
+    };
+
+    await sendMessageToCorrespondingHandler(acknowledgementResponse);
+
+    expect(logInfo).toHaveBeenCalledWith('Message Type: ACKNOWLEDGEMENT RESPONSE');
+
   });
 
   it('should throw an error when any other interaction id is passed', async () => {

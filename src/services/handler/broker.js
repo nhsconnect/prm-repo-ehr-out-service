@@ -14,12 +14,11 @@ export default async function sendMessageToCorrespondingHandler(parsedMessage) {
       await ehrRequestHandler(parsedMessage);
       break;
     case INTERACTION_IDS.CONTINUE_REQUEST_INTERACTION_ID:
-      logInfo('Message Type: EHR CONTINUE REQUEST')
+      logInfo('Message Type: EHR CONTINUE REQUEST');
       await continueMessageHandler(parsedMessage);
       break;
-    case INTERACTION_IDS.CONTINUE_FRAGMENT_INTERACTION_ID:
-      // TODO Code
-      logInfo('Message Type: EHR FRAGMENT CONTINUE')
+    case INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID:
+      logInfo('Message Type: ACKNOWLEDGEMENT RESPONSE');
       break;
     default:
       // eslint-disable-next-line no-case-declarations
