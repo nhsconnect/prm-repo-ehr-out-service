@@ -91,7 +91,7 @@ describe('getAllFragmentsFromRepo', () => {
       await expect(getAllFragmentsWithMessageIdsFromRepo(nhsNumber)).rejects.toThrow(PatientRecordNotFoundError)
 
       expect(repoScope.isDone()).toBe(true);
-      expect(logError).toHaveBeenCalledWith(errorMessages.PATIENT_RECORD_NOT_FOUND, axios404Error);
+      expect(logError).toHaveBeenCalledWith(errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR, axios404Error);
     })
 
 
