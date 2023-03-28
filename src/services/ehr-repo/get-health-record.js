@@ -4,11 +4,11 @@ import { logError } from "../../middleware/logging";
 
 // TODO [PRMT-2728] DEPRECATED - remove this & any associated test class
 export const getPatientHealthRecordFromRepo = async (nhsNumber, conversationId) => {
-  const config = config();
+  const {ehrRepoAuthKeys, ehrRepoServiceUrl} = config();
   try {
-    const url = `${config.ehrRepoServiceUrl}/patients/${nhsNumber}`;
+    const url = `${ehrRepoServiceUrl}/patients/${nhsNumber}`;
     const res = await axios.get(url, {
-      headers: { Authorization: config.ehrRepoAuthKeys, conversationId: conversationId }
+      headers: { Authorization: ehrRepoAuthKeys, conversationId: conversationId }
     });
     return { coreMessageUrl: res.data.coreMessageUrl };
   } catch (err) {

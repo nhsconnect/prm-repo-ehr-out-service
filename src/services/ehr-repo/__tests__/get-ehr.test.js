@@ -68,7 +68,7 @@ describe('getEhrCoreFromRepo', () => {
       await expect(() => getEhrCoreFromRepo(nhsNumber, conversationId))
         .rejects.toThrow(EhrUrlNotFoundError);
       expect(urlScope.isDone()).toBe(true);
-      expect(logError).toHaveBeenCalledWith('Cannot find complete patient health record', expectedError);
+      expect(logError).toHaveBeenCalledWith(errorMessages.EHR_URL_NOT_FOUND_ERROR, expectedError);
     });
 
     it('should throw an error when failing to retrieve a presigned url with non-404 response', async () => {

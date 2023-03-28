@@ -42,7 +42,7 @@ export const registrationRequest = async (req, res) => {
 };
 
 const respondWithItsFineGoLookAtTheStatus = (res, conversationId) => {
-  const config = config();
-  const statusEndpoint = `${config.repoToGpServiceUrl}/registration-requests/${conversationId}`;
+  const { repoToGpServiceUrl } = config();
+  const statusEndpoint = `${repoToGpServiceUrl}/registration-requests/${conversationId}`;
   res.set('Location', statusEndpoint).sendStatus(204);
 };

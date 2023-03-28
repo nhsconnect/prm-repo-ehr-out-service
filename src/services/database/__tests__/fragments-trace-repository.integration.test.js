@@ -16,7 +16,7 @@ describe('Fragments trace repository', () => {
   describe('getFragmentsTraceStatusByMessageId', () => {
     it('should retrieve the status of ehr fragment by message id', async () => {
       // given
-      const messageId = '52ED7576-C8CE-48BD-A8FD-C86ACF6A8C02';
+      const messageId = 'd3809b41-1996-46ff-a103-47aace310ecb';
       const conversationId = '22a748b2-fef6-412d-b93a-4f6c68f0f8dd';
       const status = Status.FRAGMENT_REQUEST_RECEIVED;
       await FragmentsTrace.create({

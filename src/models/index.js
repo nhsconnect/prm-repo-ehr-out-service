@@ -12,6 +12,7 @@ class ModelFactory {
     this.db = {};
     this.sequelize = {};
     this.config = config().sequelize;
+
     this._resetConfig();
   }
 

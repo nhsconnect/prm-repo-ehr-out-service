@@ -12,13 +12,13 @@ const localhostUrl = 'http://localhost';
 const fakeAuth = 'fake-keys';
 
 describe('GET /health', () => {
-  const config = config();
+  const { nhsEnvironment } = config();
 
   it('should return 200 and the response from getHealthCheck', async () => {
     const expectedHealthCheckResponse = {
       version: '1',
       description: 'Health of ehr-out-service',
-      nhsEnvironment: config.nhsEnvironment,
+      nhsEnvironment: nhsEnvironment,
       details: {
         database: {
           type: 'postgresql',

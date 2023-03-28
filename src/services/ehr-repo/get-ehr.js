@@ -1,6 +1,6 @@
 import { config } from "../../config";
 import axios from "axios";
-import { logInfo } from "../../middleware/logging";
+import { logInfo, logError } from "../../middleware/logging";
 import { downloadFromUrl } from "../transfer/transfer-out-util";
 import { EhrUrlNotFoundError } from "../../errors/errors";
 
@@ -20,5 +20,12 @@ const retrievePresignedUrlFromRepo = async (nhsNumber, conversationId) => {
     headers: { Authorization: configObject.ehrRepoAuthKeys, conversationId }
   })
     .then(response => response.data.coreMessageUrl)
-    .catch(error => { throw new EhrUrlNotFoundError(error); });
+    .catch(error => {
+      if (error?.response?.status === 404) {
+        throw new EhrUrlNotFoundError(error);
+      } else {
+        logError('Error retrieving health record', error);
+        throw error;
+      }
+    });
 };

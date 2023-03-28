@@ -20,7 +20,7 @@ jest.mock('../../../services/gp2gp/send-ehr-extract');
 jest.mock('../../../services/ehr-repo/get-health-record');
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
-  initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
+  config: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
 }));
 
 // TODO remove these references to the now deprecated API
