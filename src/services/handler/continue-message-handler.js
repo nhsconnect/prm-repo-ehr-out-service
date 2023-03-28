@@ -4,7 +4,6 @@ import { transferOutFragments } from "../transfer/transfer-out-fragments";
 import { patientAndPracticeOdsCodesMatch, updateConversationStatus } from "../transfer/transfer-out-util";
 import { Status } from "../../models/registration-request";
 import { config } from "../../config";
-import { updateRegistrationRequestStatus } from "../database/registration-request-repository";
 
 export default async function continueMessageHandler(parsedMessage) {
   // Set logging attributes.
