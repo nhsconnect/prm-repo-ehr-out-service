@@ -11,8 +11,8 @@ describe('createFragmentsRequest', () => {
   const FragmentsTrace = ModelFactory.getByName(modelName);
   const conversationId = '40abdd36-6f86-455a-8135-4ab4c764cdd1';
 
-  // clean the table before and after test to avoid affecting other test
   beforeAll(async () => {
+    // clean and sync the table before test
     await FragmentsTrace.truncate();
     await FragmentsTrace.sync({ force: true });
 
@@ -27,16 +27,13 @@ describe('createFragmentsRequest', () => {
   });
 
   it('should create fragments request with correct values', async () => {
-    
+    // Given
     const messageId = '22e30a14-213a-42f3-8cc0-64c62175da41';
 
-    try {
-      await createFragmentsTrace(messageId, conversationId);
-    } catch (err){
-      console.log(err);
-      throw err;
-    }
+    // When
+    await createFragmentsTrace(messageId, conversationId);
 
+    // Then
     const fragmentsTrace = await runWithinTransaction(transaction =>
       FragmentsTrace.findOne({
         where: {
@@ -52,17 +49,23 @@ describe('createFragmentsRequest', () => {
   });
 
   it('should log event if data persisted correctly', async () => {
+    // Given
     const messageId = '22e30a14-213a-42f3-8cc0-64c62175da42';
+
+    // When
     await createFragmentsTrace(messageId, conversationId);
 
+    // Then
     expect(logInfo).toHaveBeenCalled();
     expect(logInfo).toHaveBeenCalledWith('Fragments trace has been stored');
   });
 
   it('should log errors when messageId is invalid', async () => {
     try {
+      // When
       await createFragmentsTrace('invalid-message-id', conversationId);
     } catch (err) {
+      // Then
       expect(logError).toHaveBeenCalledTimes(1);
       expect(logError).toHaveBeenCalledWith(err);
       expect(err.message).toContain('invalid input syntax for type uuid: "invalid-message-id"');
@@ -70,11 +73,14 @@ describe('createFragmentsRequest', () => {
   });
 
   it('should log errors when conversationId is invalid', async () => {
+    // Given
     const messageId = '22e30a14-213a-42f3-8cc0-64c62175da44';
 
     try {
-      await createFragmentsTrace(messageId, 'invalid-conversation-id');
+      // When
+      await createFragmentsTrace(messageId, 'invalid-conversatioan-id');
     } catch (err) {
+      // Then
       expect(logError).toHaveBeenCalledTimes(1);
       expect(logError).toHaveBeenCalledWith(err);
       expect(err.message).toContain(
