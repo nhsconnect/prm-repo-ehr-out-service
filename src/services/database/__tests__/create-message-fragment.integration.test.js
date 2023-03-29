@@ -57,7 +57,7 @@ describe('createFragmentsRequest', () => {
 
     // Then
     expect(logInfo).toHaveBeenCalled();
-    expect(logInfo).toHaveBeenCalledWith('Fragments trace has been stored');
+    expect(logInfo).toHaveBeenCalledWith('Message fragment status has been updated');
   });
 
   it('should log errors when messageId is invalid', async () => {

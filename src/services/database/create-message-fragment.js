@@ -15,6 +15,6 @@ export const createMessageFragment = (messageId, conversationId) =>
       },
       transaction
     )
-      .then(() => logInfo('Fragments trace has been stored'))
+      .then(() => logInfo('Message fragment status has been updated'))
       .catch(error => logError(error))
   );
