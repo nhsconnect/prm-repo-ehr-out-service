@@ -459,6 +459,7 @@ case "${command}" in
       ;;
   test_coverage)
       configure_local_envs
+      use_fake_aws_creds_for_localstack
       die_postgres_die
       die_localstack_die
       die_repo_in_perf_die

@@ -22,10 +22,7 @@ export default async function continueMessageHandler(parsedMessage) {
   await updateConversationStatus(conversationId, Status.CONTINUE_REQUEST_RECEIVED);
 
   await transferOutFragments({conversationId, nhsNumber, odsCode})
-    .then(async () => await updateConversationStatus(
-        conversationId,
-        Status.SENT_FRAGMENTS,
-        'Fragments have successfully been transferred'))
+    .then(async () => await updateConversationStatus(conversationId, Status.SENT_FRAGMENTS))
     .catch(async () => await updateConversationStatus(
         conversationId,
         Status.FRAGMENTS_SENDING_FAILED,

@@ -3,7 +3,6 @@ import { transferOutFragments } from "../../transfer/transfer-out-fragments";
 import continueMessageHandler from "../continue-message-handler";
 import expect from "expect";
 import { Status } from "../../../models/registration-request";
-import { logInfo } from "../../../middleware/logging";
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -26,10 +25,24 @@ describe('continueMessageHandler', () => {
     // when
     patientAndPracticeOdsCodesMatch.mockReturnValueOnce(true);
     transferOutFragments.mockResolvedValueOnce(undefined);
+
     await continueMessageHandler(CONTINUE_REQUEST);
 
     // then
     expect(transferOutFragments).toHaveBeenCalledWith(CONTINUE_REQUEST);
+  });
+
+  it('should update conversation status to SENT_FRAGMENTS if all fragment out transfers succeed', async () => {
+    // when
+    patientAndPracticeOdsCodesMatch.mockReturnValueOnce(true);
+    updateConversationStatus.mockResolvedValueOnce(undefined);
+    transferOutFragments.mockResolvedValueOnce(undefined);
+
+    await continueMessageHandler(CONTINUE_REQUEST);
+
+    // then
+    expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, Status.CONTINUE_REQUEST_RECEIVED);
+    expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, Status.SENT_FRAGMENTS);
   });
 
   it('should update conversation status to FRAGMENTS_SENDING_FAILED if transferOutFragments failed', async () => {
@@ -40,10 +53,12 @@ describe('continueMessageHandler', () => {
     await continueMessageHandler(CONTINUE_REQUEST);
 
     // then
-    expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, Status.CONTINUE_REQUEST_RECEIVED)
-    expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, Status.FRAGMENTS_SENDING_FAILED, 'One or more fragments failed to send')
+    expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, Status.CONTINUE_REQUEST_RECEIVED);
+    expect(updateConversationStatus).toHaveBeenCalledWith(
+      CONVERSATION_ID,
+      Status.FRAGMENTS_SENDING_FAILED,
+      'One or more fragments failed to send');
   });
-
 
   it('should not send fragments if ods codes of the patient and GP practice does not match', async () => {
     // when
@@ -52,20 +67,10 @@ describe('continueMessageHandler', () => {
     await continueMessageHandler(CONTINUE_REQUEST);
 
     // then
-    expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, Status.INCORRECT_ODS_CODE, 'Patients ODS Code in PDS does not match requesting practices ODS Code')
-    expect(transferOutFragments).not.toBeCalled()
-  });
-
-  it('should log when transfer has been started', async () => {
-    // when
-    patientAndPracticeOdsCodesMatch.mockReturnValueOnce(true);
-    updateConversationStatus.mockResolvedValueOnce(undefined);
-    transferOutFragments.mockResolvedValueOnce(undefined);
-
-    await continueMessageHandler(CONTINUE_REQUEST);
-
-    // then
-    expect(logInfo).toHaveBeenCalledWith('Trying to handle continue request');
-    expect(logInfo).toBeCalledTimes(1);
+    expect(updateConversationStatus).toHaveBeenCalledWith(
+      CONVERSATION_ID,
+      Status.INCORRECT_ODS_CODE,
+      'Patients ODS Code in PDS does not match requesting practices ODS Code');
+    expect(transferOutFragments).not.toBeCalled();
   });
 });
