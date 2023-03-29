@@ -61,8 +61,8 @@ export class StatusUpdateError extends Error {
 }
 
 export class DuplicatedRequestError extends Error {
-  constructor() {
+  constructor(error) {
     super(errorMessages.DUPLICATED_REQUEST_ERROR);
-    logError(errorMessages.DUPLICATED_REQUEST_ERROR);
+    logError(errorMessages.DUPLICATED_REQUEST_ERROR, error);
   }
 }
