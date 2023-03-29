@@ -1,5 +1,5 @@
-import { pollQueueOnce } from '../sqs-consumer.js';
-import { logError, logWarning } from '../../../middleware/logging';
+import { logError, logWarning } from "../../../middleware/logging";
+import { pollQueueOnce } from "../sqs-consumer.js";
 import expect from "expect";
 
 // Mocking
@@ -7,19 +7,15 @@ jest.mock('../../parser/sqs-incoming-message-parser', () => ({ parse: jest.fn() 
 jest.mock('../../../middleware/logging');
 jest.mock('@aws-sdk/client-sqs');
 
-// TODO [PRMT-2728-SEND-FRAGMENTS] Add coverages for lines 24-27, 31-32, 54-59
-
 describe('sqs consumer', () => {
   // ============ COMMON PROPERTIES ============
   const EHR_REQUEST_INTERACTION_ID = 'RCMR_IN010000UK05';
   const SQS_CLIENT = { send: jest.fn() };
   const PARSER = jest.fn();
   const MESSAGE_BODY = {
-    ebXML: "I am the ebXML.",
-    payload: "I am the HL7v3 Payload.",
-    attachments: [
-      "I am an attachment."
-    ]
+    ebXML: '<soap:Envelope><soap:Header><eb:MessageHeader ></eb:MessageHeader></soap:Header><soap:Body></soap:Body></soap:Envelope>',
+    payload: '<RCMR_IN010000UK05 xmlns:xsi=\\"https://www.w3.org\\" xmlns:xs=\\"XMLSchema\\" type=\\"Message\\" xmlns=\\"urn:hl7-org:v3\\"></RCMR_IN010000UK05>',
+    attachments: []
   };
   // =================== END ===================
 

@@ -31,7 +31,7 @@ export const parse = async messageBody => {
 
 
       break;
-    case INTERACTION_IDS.CONTINUE_FRAGMENT_INTERACTION_ID:
+    case INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID:
       payloadData = await getPayloadData();
 
 
