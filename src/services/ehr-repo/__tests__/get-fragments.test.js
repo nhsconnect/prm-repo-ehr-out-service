@@ -14,7 +14,7 @@ jest.mock('../../../config', () => ({
     use_rds_credentials: false
   })
 }));
-jest.mock('../../database/fragments-trace-repository');
+jest.mock('../../database/message-fragment-repository');
 jest.mock('../../transfer/transfer-out-util');
 
 
