@@ -18,7 +18,7 @@ import expect from "expect";
 jest.mock('../../../middleware/logging');
 jest.mock('../../gp2gp/pds-retrieval-request');
 jest.mock('../../database/registration-request-repository');
-jest.mock('../../database/fragments-trace-repository');
+jest.mock('../../database/message-fragment-repository');
 jest.mock('../../../config/tracing');
 
 describe('testTransferOutUtil', () => {
