@@ -1,13 +1,13 @@
 import { runWithinTransaction } from './helper';
 import { logError, logInfo } from "../../middleware/logging";
 import ModelFactory from '../../models';
-import { modelName, Status } from '../../models/fragments-trace';
+import { modelName, Status } from '../../models/message-fragment';
 
-const FragmentsTrace = ModelFactory.getByName(modelName);
+const MessageFragment = ModelFactory.getByName(modelName);
 
-export const createFragmentsTrace = (messageId, conversationId) =>
+export const createMessageFragment = (messageId, conversationId) =>
   runWithinTransaction(transaction =>
-    FragmentsTrace.create(
+    MessageFragment.create(
       {
         messageId,
         conversationId,

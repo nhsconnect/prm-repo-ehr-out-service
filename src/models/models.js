@@ -1,7 +1,7 @@
 import HealthCheck from './health-check';
 import RegistrationRequest from './registration-request';
-import FragmentsTrace from "./fragments-trace";
+import MessageFragment from "./message-fragment";
 
 export { HealthCheck };
 export { RegistrationRequest };
-export { FragmentsTrace };
+export { MessageFragment };

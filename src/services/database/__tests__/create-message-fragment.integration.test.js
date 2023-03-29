@@ -1,28 +1,28 @@
 import { logInfo, logError } from '../../../middleware/logging';
 import ModelFactory from '../../../models';
-import { modelName, Status } from '../../../models/fragments-trace';
-import { createFragmentsTrace } from '../create-fragments-trace';
+import { modelName, Status } from '../../../models/message-fragment';
+import { createMessageFragment } from '../create-message-fragment';
 import { createRegistrationRequest } from '../create-registration-request';
 import { runWithinTransaction } from '../helper';
 
 jest.mock('../../../middleware/logging');
 
 describe('createFragmentsRequest', () => {
-  const FragmentsTrace = ModelFactory.getByName(modelName);
+  const MessageFragment = ModelFactory.getByName(modelName);
   const conversationId = '40abdd36-6f86-455a-8135-4ab4c764cdd1';
 
   beforeAll(async () => {
     // clean and sync the table before test
-    await FragmentsTrace.truncate();
-    await FragmentsTrace.sync({ force: true });
+    await MessageFragment.truncate();
+    await MessageFragment.sync({ force: true });
 
     // create a parent record of RegistrationRequest
     await createRegistrationRequest(conversationId, "1234567890", "fake-ods-code");
   })
   
   afterAll(async () => {
-    await FragmentsTrace.truncate();
-    await FragmentsTrace.sequelize.sync({ force: true });
+    await MessageFragment.truncate();
+    await MessageFragment.sequelize.sync({ force: true });
     await ModelFactory.sequelize.close();
   });
 
@@ -31,21 +31,21 @@ describe('createFragmentsRequest', () => {
     const messageId = '22e30a14-213a-42f3-8cc0-64c62175da41';
 
     // When
-    await createFragmentsTrace(messageId, conversationId);
+    await createMessageFragment(messageId, conversationId);
 
     // Then
-    const fragmentsTrace = await runWithinTransaction(transaction =>
-      FragmentsTrace.findOne({
+    const messageFragment = await runWithinTransaction(transaction =>
+      MessageFragment.findOne({
         where: {
           message_id: messageId
         },
         transaction: transaction
       })
     );
-    expect(fragmentsTrace).not.toBeNull();
-    expect(fragmentsTrace.get().conversationId).toBe(conversationId);
-    expect(fragmentsTrace.get().messageId).toBe(messageId);
-    expect(fragmentsTrace.get().status).toBe(Status.FRAGMENT_REQUEST_RECEIVED);
+    expect(messageFragment).not.toBeNull();
+    expect(messageFragment.get().conversationId).toBe(conversationId);
+    expect(messageFragment.get().messageId).toBe(messageId);
+    expect(messageFragment.get().status).toBe(Status.FRAGMENT_REQUEST_RECEIVED);
   });
 
   it('should log event if data persisted correctly', async () => {
@@ -53,7 +53,7 @@ describe('createFragmentsRequest', () => {
     const messageId = '22e30a14-213a-42f3-8cc0-64c62175da42';
 
     // When
-    await createFragmentsTrace(messageId, conversationId);
+    await createMessageFragment(messageId, conversationId);
 
     // Then
     expect(logInfo).toHaveBeenCalled();
@@ -63,7 +63,7 @@ describe('createFragmentsRequest', () => {
   it('should log errors when messageId is invalid', async () => {
     try {
       // When
-      await createFragmentsTrace('invalid-message-id', conversationId);
+      await createMessageFragment('invalid-message-id', conversationId);
     } catch (err) {
       // Then
       expect(logError).toHaveBeenCalledTimes(1);
@@ -78,7 +78,7 @@ describe('createFragmentsRequest', () => {
 
     try {
       // When
-      await createFragmentsTrace(messageId, 'invalid-conversatioan-id');
+      await createMessageFragment(messageId, 'invalid-conversatioan-id');
     } catch (err) {
       // Then
       expect(logError).toHaveBeenCalledTimes(1);

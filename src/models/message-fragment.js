@@ -1,7 +1,7 @@
 import { getParameters } from './parameters';
 
-export const modelName = 'FragmentsTrace';
-const tableName = 'fragments_trace';
+export const modelName = 'MessageFragment';
+const tableName = 'message_fragment';
 
 export const Status = {
     // PRIMARY PATH

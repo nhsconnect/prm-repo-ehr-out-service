@@ -1,6 +1,6 @@
 'use strict';
 
-const tableName = 'fragments_trace';
+const tableName = 'message_fragment';
 
 const model = dataType => {
   return {

@@ -2,9 +2,9 @@ import { logError, logInfo, logWarning } from "../../middleware/logging";
 import { setCurrentSpanAttributes } from "../../config/tracing";
 import { getAllFragmentsWithMessageIdsFromRepo } from "../ehr-repo/get-fragments";
 import { sendFragment } from "../gp2gp/send-fragment";
-import { Status } from "../../models/fragments-trace";
+import { Status } from "../../models/message-fragment";
 import { updateFragmentStatus } from "./transfer-out-util";
-import { getFragmentsTraceStatusByMessageId } from "../database/fragments-trace-repository";
+import { getMessageFragmentStatusByMessageId } from "../database/message-fragment-repository";
 
 export async function transferOutFragments({conversationId, nhsNumber, odsCode}) {
   setCurrentSpanAttributes({ conversationId })
@@ -42,7 +42,7 @@ const sendOneFragment = async (conversationId, odsCode, fragment, messageId) => 
 }
 
 const hasFragmentBeenSent = async (messageId) => {
-  const previousTransferOut = await getFragmentsTraceStatusByMessageId(messageId);
+  const previousTransferOut = await getMessageFragmentStatusByMessageId(messageId);
   if (previousTransferOut?.status === Status.SENT_FRAGMENT) {
     logWarning(`EHR message FRAGMENT with message ID ${messageId} has already been sent`);
     return true

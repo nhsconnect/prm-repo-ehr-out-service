@@ -1,9 +1,9 @@
-import { Status } from "../../../models/fragments-trace";
+import { Status } from "../../../models/message-fragment";
 import expect from "expect";
 import { logError, logInfo, logWarning } from "../../../middleware/logging";
 import {
-  getFragmentsTraceStatusByMessageId,
-} from "../../database/fragments-trace-repository";
+  getMessageFragmentStatusByMessageId,
+} from "../../database/message-fragment-repository";
 import { transferOutFragments } from "../transfer-out-fragments";
 import { sendFragment } from "../../gp2gp/send-fragment";
 import { updateFragmentStatus } from "../transfer-out-util";
@@ -33,7 +33,7 @@ describe('transferOutFragment', () => {
 
     it('should validate duplicate transfer out requests', async () => {
       // when
-      getFragmentsTraceStatusByMessageId.mockReturnValueOnce({
+      getMessageFragmentStatusByMessageId.mockReturnValueOnce({
         messageId: MESSAGE_ID,
         status: Status.SENT_FRAGMENT
       });
@@ -49,7 +49,7 @@ describe('transferOutFragment', () => {
 
     it('should send fragment on success', async () => {
       // when
-      getFragmentsTraceStatusByMessageId.mockResolvedValue(null);
+      getMessageFragmentStatusByMessageId.mockResolvedValue(null);
       getAllFragmentsWithMessageIdsFromRepo.mockResolvedValueOnce(FRAGMENT_WITH_MESSAGE_ID);
       sendFragment.mockResolvedValue(undefined);
 
@@ -67,7 +67,7 @@ describe('transferOutFragment', () => {
 
     it('should handle exceptions', async () => {
       // given
-      getFragmentsTraceStatusByMessageId.mockResolvedValue(null);
+      getMessageFragmentStatusByMessageId.mockResolvedValue(null);
       getAllFragmentsWithMessageIdsFromRepo.mockResolvedValueOnce(FRAGMENT_WITH_MESSAGE_ID);
 
       const error = new Error('test error message');

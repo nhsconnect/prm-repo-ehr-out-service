@@ -1,42 +1,42 @@
 import ModelFactory from '../../../models';
 import {
-  modelName as fragmentsTraceModel,
-  Status as fragmentTraceStatus
-} from '../../../models/fragments-trace';
+  modelName as messageFragmentModel,
+  Status as MessageFragmentStatus
+} from '../../../models/message-fragment';
 import {
   modelName as registrationRequestModel,
   Status as registrationRequestStatus
 } from '../../../models/registration-request';
 import {
-  getFragmentsTraceStatusByMessageId,
-  updateFragmentsTraceStatus
-} from '../../database/fragments-trace-repository';
+  getMessageFragmentStatusByMessageId,
+  updateMessageFragmentStatus
+} from '../message-fragment-repository';
 
-describe('fragments-trace-repository.js', () => {
+describe('message-fragment-repository.js', () => {
   // ============ COMMON PROPERTIES ============
-  const FragmentsTrace = ModelFactory.getByName(fragmentsTraceModel);
+  const MessageFragment = ModelFactory.getByName(messageFragmentModel);
   const RegistrationRequest = ModelFactory.getByName(registrationRequestModel);
   // =================== END ===================
 
   // Set Up
   beforeAll(async () => {
     // clean and sync the table before test
-    await FragmentsTrace.truncate();
-    await FragmentsTrace.sync({ force: true });
+    await MessageFragment.truncate();
+    await MessageFragment.sync({ force: true });
   })
 
   // Tear Down
   afterAll(async () => {
-    await FragmentsTrace.sequelize.sync({ force: true });
+    await MessageFragment.sequelize.sync({ force: true });
     await ModelFactory.sequelize.close();
   });
 
-  describe('getFragmentsTraceStatusByMessageId', () => {
+  describe('getMessageFragmentStatusByMessageId', () => {
     it('should retrieve the status of ehr fragment by message id', async () => {
       // given
       const messageId = 'd3809b41-1996-46ff-a103-47aace310ecb';
       const conversationId = '22a748b2-fef6-412d-b93a-4f6c68f0f8dd';
-      const status = fragmentTraceStatus.FRAGMENT_REQUEST_RECEIVED;
+      const status = MessageFragmentStatus.FRAGMENT_REQUEST_RECEIVED;
       const registrationStatus = registrationRequestStatus.REGISTRATION_REQUEST_RECEIVED;
       const nhsNumber = '1234567891';
       const odsCode = 'B0145B';
@@ -49,13 +49,13 @@ describe('fragments-trace-repository.js', () => {
       });
   
       // when
-      await FragmentsTrace.create({
+      await MessageFragment.create({
         messageId,
         conversationId,
         status
       });
   
-      const record = await getFragmentsTraceStatusByMessageId(messageId);
+      const record = await getMessageFragmentStatusByMessageId(messageId);
   
       // then
       expect(record.messageId).toBe(messageId);
@@ -66,18 +66,18 @@ describe('fragments-trace-repository.js', () => {
     it('should return null when it cannot find the message id in record', async () => {
       // when
       const messageId = '9dd61fbe-1958-4479-a6aa-14cb4aa9651a'; // Does not exist
-      const record = await getFragmentsTraceStatusByMessageId(messageId);
+      const record = await getMessageFragmentStatusByMessageId(messageId);
   
       // then
       expect(record).toBe(null);
     });
   });
 
-  describe('updateFragmentsTraceStatus', () => {
+  describe('updateMessageFragmentStatus', () => {
     // ============ COMMON PROPERTIES ============
     const registrationStatus = registrationRequestStatus.REGISTRATION_REQUEST_RECEIVED;
-    const initialStatus = fragmentTraceStatus.FRAGMENT_REQUEST_RECEIVED
-    const updatedStatus = fragmentTraceStatus.FRAGMENT_SENDING_FAILED;
+    const initialStatus = MessageFragmentStatus.FRAGMENT_REQUEST_RECEIVED
+    const updatedStatus = MessageFragmentStatus.FRAGMENT_SENDING_FAILED;
     const messageId = '9dd61fbe-1958-4479-a6aa-14cb4aa9651a';
     const conversationId = 'efec71f4-bc54-4a31-9453-f1300bf28cef';
     const nhsNumber = '1234567890';
@@ -92,15 +92,15 @@ describe('fragments-trace-repository.js', () => {
         odsCode,
         status: registrationStatus
       });
-      await FragmentsTrace.create({ // ... a fragment trace is created
+      await MessageFragment.create({ // ... a fragment trace is created
         messageId,
         conversationId,
         status: initialStatus
       });
 
-      await updateFragmentsTraceStatus(messageId, updatedStatus);
+      await updateMessageFragmentStatus(messageId, updatedStatus);
 
-      const record = await FragmentsTrace.findByPk(messageId);
+      const record = await MessageFragment.findByPk(messageId);
 
       // then
       expect(record.conversationId).toBe(conversationId);

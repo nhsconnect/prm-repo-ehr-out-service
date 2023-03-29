@@ -1,19 +1,19 @@
 import ModelFactory from '../../models';
-import { modelName } from '../../models/fragments-trace';
+import { modelName } from '../../models/message-fragment';
 import { runWithinTransaction } from './helper';
 import { logInfo, logWarning } from "../../middleware/logging";
 
-const FragmentsTrace = ModelFactory.getByName(modelName);
+const MessageFragment = ModelFactory.getByName(modelName);
 
-export const getFragmentsTraceStatusByMessageId = async messageId => {
-  return FragmentsTrace.findByPk(messageId);
+export const getMessageFragmentStatusByMessageId = async messageId => {
+  return MessageFragment.findByPk(messageId);
 };
 
-export const updateFragmentsTraceStatus = async (messageId, status) => {
+export const updateMessageFragmentStatus = async (messageId, status) => {
   logInfo(`Updating fragment trace status to ${status}`);
 
   await runWithinTransaction(async transaction => {
-    return await FragmentsTrace.update(
+    return await MessageFragment.update(
       { status },
       {
         where: { message_id: messageId },

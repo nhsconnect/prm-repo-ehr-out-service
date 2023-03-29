@@ -108,15 +108,15 @@ class ModelFactory {
 
   setupModelRelationship() {
     const RegistrationRequest = this.getByName("RegistrationRequest");
-    const FragmentsTrace = this.getByName("FragmentsTrace");
+    const MessageFragment = this.getByName("MessageFragment");
     const foreignKeyProperties = {
       name: 'conversationId', 
       foreignKeyConstraint: true,
       type: Sequelize.DataTypes.UUID, 
       allowNull: false
     };
-    RegistrationRequest.hasMany(FragmentsTrace, {foreignKey: foreignKeyProperties});
-    FragmentsTrace.belongsTo(RegistrationRequest, {foreignKey: foreignKeyProperties});
+    RegistrationRequest.hasMany(MessageFragment, {foreignKey: foreignKeyProperties});
+    MessageFragment.belongsTo(RegistrationRequest, {foreignKey: foreignKeyProperties});
   }
 }
 

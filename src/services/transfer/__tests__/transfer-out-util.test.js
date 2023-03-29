@@ -8,10 +8,11 @@ import {
 import { logError, logInfo } from "../../../middleware/logging";
 import { errorMessages, StatusUpdateError } from "../../../errors/errors";
 import { getPdsOdsCode } from "../../gp2gp/pds-retrieval-request";
-import { Status } from "../../../models/fragments-trace";
+import { Status } from "../../../models/message-fragment";
 import { updateRegistrationRequestStatus } from "../../database/registration-request-repository";
 import { setCurrentSpanAttributes } from "../../../config/tracing";
-import { updateFragmentsTraceStatus } from "../../database/fragments-trace-repository";
+import { updateMessageFragmentStatus } from "../../database/message-fragment-repository";
+import expect from "expect";
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -21,6 +22,11 @@ jest.mock('../../database/fragments-trace-repository');
 jest.mock('../../../config/tracing');
 
 describe('testTransferOutUtil', () => {
+  // ============ COMMON PROPERTIES ============
+  const CONVERSATION_ID = '7fbeaba2-ca21-4af7-8f88-29d805b28411';
+  const MESSAGE_ID = '2c1edc4d-052f-42b6-a03f-4470ff88ef05';
+  // =================== END ===================
+
   describe('downloadFromUrl', () => {
     // ============ COMMON PROPERTIES ============
     const REQUEST_BASE_URL = 'https://example.com';
@@ -95,7 +101,6 @@ describe('testTransferOutUtil', () => {
 
   describe('updateConversationStatus', () => {
     // ============ COMMON PROPERTIES ============
-    const CONVERSATION_ID = '171e1469-38ea-4532-b18d-34332f2083c2';
     const STATUS = Status.FRAGMENT_REQUEST_RECEIVED;
     const LOG_MESSAGE = 'This is an example log message';
     // =================== END ===================
@@ -139,26 +144,24 @@ describe('testTransferOutUtil', () => {
 
   describe('updateFragmentStatus', () => {
     // ============ COMMON PROPERTIES ============
-    const CONVERSATION_ID = '7fbeaba2-ca21-4af7-8f88-29d805b28411';
-    const MESSAGE_ID = '2c1edc4d-052f-42b6-a03f-4470ff88ef05';
     const STATUS = Status.INCORRECT_ODS_CODE;
     const LOG_MESSAGE = 'This is an example log message';
     // =================== END ===================
 
     it('should update the fragment status successfully', async () => {
       // when
-      updateFragmentsTraceStatus.mockResolvedValueOnce(undefined);
+      updateMessageFragmentStatus.mockResolvedValueOnce(undefined);
       await updateFragmentStatus(CONVERSATION_ID, MESSAGE_ID, STATUS);
 
       // then
-      expect(updateFragmentsTraceStatus).toBeCalledTimes(1);
+      expect(updateMessageFragmentStatus).toBeCalledTimes(1);
       expect(logInfo).toBeCalledTimes(1);
       expect(logInfo).toBeCalledWith(`Updating fragment with status: ${STATUS}`);
     });
 
     it('should log the provided log message successfully', async () => {
       // given
-      updateFragmentsTraceStatus.mockResolvedValueOnce(undefined);
+      updateMessageFragmentStatus.mockResolvedValueOnce(undefined);
       await updateFragmentStatus(CONVERSATION_ID, MESSAGE_ID, STATUS, LOG_MESSAGE);
 
       // then
@@ -171,7 +174,7 @@ describe('testTransferOutUtil', () => {
 
     it('should throw a StatusUpdateError error', async () => {
       // when
-      updateFragmentsTraceStatus.mockRejectedValueOnce(undefined);
+      updateMessageFragmentStatus.mockRejectedValueOnce(undefined);
 
       // then
       await expect(() => updateFragmentStatus(CONVERSATION_ID, MESSAGE_ID, STATUS))
