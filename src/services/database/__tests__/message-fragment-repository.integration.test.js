@@ -84,7 +84,7 @@ describe('message-fragment-repository.js', () => {
     const odsCode = 'B0145A';
     // =================== END ===================
 
-    it('should update fragment trace status successfully', async () => {
+    it('should update message fragment status successfully', async () => {
       // when ...
       await RegistrationRequest.create({
         conversationId,

@@ -10,7 +10,7 @@ export const getMessageFragmentStatusByMessageId = async messageId => {
 };
 
 export const updateMessageFragmentStatus = async (messageId, status) => {
-  logInfo(`Updating fragment trace status to ${status}`);
+  logInfo(`Updating message fragment status to ${status}`);
 
   await runWithinTransaction(async transaction => {
     return await MessageFragment.update(
