@@ -13,11 +13,11 @@ export const getEhrCoreFromRepo = async (nhsNumber, conversationId) => {
 };
 
 const retrievePresignedUrlFromRepo = async (nhsNumber, conversationId) => {
-  const configObject = config();
-  const repoUrl = `${configObject.ehrRepoServiceUrl}/patients/${nhsNumber}`;
+  const { ehrRepoAuthKeys, ehrRepoServiceUrl } = config();
+  const repoUrl = `${ehrRepoServiceUrl}/patients/${nhsNumber}`;
 
   return await axios.get(repoUrl, {
-    headers: { Authorization: configObject.ehrRepoAuthKeys, conversationId }
+    headers: { Authorization: ehrRepoAuthKeys, conversationId }
   })
     .then(response => response.data.coreMessageUrl)
     .catch(error => {

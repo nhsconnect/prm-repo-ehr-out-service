@@ -92,7 +92,7 @@ describe('message-fragment-repository.js', () => {
         odsCode,
         status: registrationStatus
       });
-      await MessageFragment.create({ // ... a fragment trace is created
+      await MessageFragment.create({
         messageId,
         conversationId,
         status: initialStatus

@@ -13,7 +13,7 @@ import { getAllFragmentsWithMessageIdsFromRepo } from "../../ehr-repo/get-fragme
 jest.mock('../transfer-out-util');
 jest.mock('../../gp2gp/send-fragment');
 jest.mock('../../ehr-repo/get-fragments');
-jest.mock('../../database/fragments-trace-repository');
+jest.mock('../../database/message-fragment-repository');
 jest.mock('../../../config', () => ({
   config: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
 }));
