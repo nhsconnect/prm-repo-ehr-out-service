@@ -51,7 +51,6 @@ describe('transferOutEhrCore', () => {
       // when
       getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
       getEhrCoreFromRepo.mockRejectedValueOnce(new EhrUrlNotFoundError());
-      // updateRegistrationRequestStatus.mockResolvedValueOnce(undefined);
 
       const result = await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
