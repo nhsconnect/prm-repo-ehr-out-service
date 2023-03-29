@@ -12,10 +12,10 @@ export const downloadFromUrl = async (messageUrl) => {
     .catch(error => { throw new DownloadError(error) });
 };
 
-export const patientAndPracticeOdsCodesMatch = async (patientNhsNumber, practiceOdsCode) => {
+export const patientAndPracticeOdsCodesMatch = async (patientNhsNumber, gpPracticeOdsCode) => {
   logInfo('Getting patient current ODS code');
   const patientOdsCode = await getPdsOdsCode(patientNhsNumber);
-  return patientOdsCode === practiceOdsCode;
+  return patientOdsCode === gpPracticeOdsCode;
 };
 
 export const updateConversationStatus = async (conversationId, status, logMessage) => {

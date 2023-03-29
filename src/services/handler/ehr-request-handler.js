@@ -1,5 +1,4 @@
 import { logError, logInfo, logWarning } from '../../middleware/logging';
-import { transferOutEhr } from '../transfer/transfer-out-ehr';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { transferOutEhrCore } from "../transfer/transfer-out-ehr-core";
 
@@ -17,6 +16,7 @@ export default async function ehrRequestHandler(ehrRequest, overrides) {
   logInfo('Trying to handle EHR request');
 
   let result = await doTransfer(ehrRequest);
+
   if (result.inProgress) {
     logWarning('EHR out transfer with this conversation ID is already in progress');
   } else if (result.hasFailed) {
