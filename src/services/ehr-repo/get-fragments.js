@@ -66,8 +66,6 @@ const retrieveFragmentPresignedUrlFromRepo = async (conversationIdFromEhrIn, mes
 
   return await axios.get(repoUrl, {
     headers: { Authorization: ehrRepoAuthKeys}
-  }).then(response => {
-    return response.data;
-  })
+  }).then(response => response.data)
     .catch(error => { throw new EhrUrlNotFoundError(error) });
 };
