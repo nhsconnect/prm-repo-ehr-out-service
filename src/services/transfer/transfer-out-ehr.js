@@ -1,4 +1,4 @@
-import { initializeConfig } from '../../config';
+import { config } from '../../config';
 import {
   getRegistrationRequestStatusByConversationId,
   updateRegistrationRequestStatus
@@ -10,6 +10,8 @@ import { getPatientHealthRecordFromRepo } from '../ehr-repo/get-health-record';
 import { Status } from '../../models/registration-request';
 import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
 import { sendEhrExtract } from '../gp2gp/send-ehr-extract';
+
+// TODO [PRMT-2728] DEPRECATED
 
 export async function transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
   setCurrentSpanAttributes({ conversationId: conversationId });
@@ -48,7 +50,7 @@ export async function transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRe
       return defaultResult;
     }
 
-    await updateRegistrationRequestStatus(conversationId, Status.VALIDATION_CHECKS_PASSED);
+    await updateRegistrationRequestStatus(conversationId, Status.ODS_VALIDATION_CHECKS_PASSED);
 
     logInfo('Sending EHR extract');
     await sendEhrExtract(conversationId, odsCode, ehrRequestId, patientHealthRecord.coreMessageUrl);
@@ -66,7 +68,7 @@ export async function transferOutEhr({ conversationId, nhsNumber, odsCode, ehrRe
 }
 
 const updateStatus = async (conversationId, status, logs) => {
-  initializeConfig();
+  config();
   await updateRegistrationRequestStatus(conversationId, status);
   logInfo(logs);
 };

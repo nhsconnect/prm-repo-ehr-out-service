@@ -1,9 +1,9 @@
 import { getHealthCheck } from '../get-health-check';
 import ModelFactory from '../../../models';
-import { initializeConfig } from '../../../config';
+import { config } from '../../../config';
 
 describe('getHealthCheck', () => {
-  const config = initializeConfig();
+  const { nhsEnvironment } = config();
   beforeEach(() => {
     ModelFactory._resetConfig();
   });
@@ -16,7 +16,7 @@ describe('getHealthCheck', () => {
     const expected = {
       version: '1',
       description: 'Health of ehr-out-service',
-      nhsEnvironment: config.nhsEnvironment,
+      nhsEnvironment: nhsEnvironment,
       details: {
         database: {
           type: 'postgresql',

@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import { initializeConfig } from '../config';
+import { config } from '../config';
 import * as models from './models';
 import AWS from 'aws-sdk';
 import { Signer } from 'aws-sdk/clients/rds';
@@ -11,7 +11,7 @@ class ModelFactory {
   constructor() {
     this.db = {};
     this.sequelize = {};
-    this.config = initializeConfig().sequelize;
+    this.config = config().sequelize;
     this._resetConfig();
   }
 
@@ -90,6 +90,8 @@ class ModelFactory {
       this.db[model.name] = model;
     }
 
+    this.setupModelRelationship();
+
     Object.keys(this.db).forEach(modelName => {
       if (this.db[modelName].associate) {
         this.db[modelName].associate(this.db);
@@ -102,6 +104,19 @@ class ModelFactory {
 
   getByName(moduleName) {
     return this.db[moduleName];
+  }
+
+  setupModelRelationship() {
+    const RegistrationRequest = this.getByName("RegistrationRequest");
+    const MessageFragment = this.getByName("MessageFragment");
+    const foreignKeyProperties = {
+      name: 'conversationId', 
+      foreignKeyConstraint: true,
+      type: Sequelize.DataTypes.UUID, 
+      allowNull: false
+    };
+    RegistrationRequest.hasMany(MessageFragment, {foreignKey: foreignKeyProperties});
+    MessageFragment.belongsTo(RegistrationRequest, {foreignKey: foreignKeyProperties});
   }
 }
 

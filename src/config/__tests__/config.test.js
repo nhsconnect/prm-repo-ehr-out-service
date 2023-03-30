@@ -1,4 +1,4 @@
-import { initializeConfig } from '..';
+import { config } from '..';
 
 describe('config', () => {
   let serviceUrl;
@@ -13,17 +13,17 @@ describe('config', () => {
 
   it('service url defaults to the correct value when environment variables not set', () => {
     if (process.env.SERVICE_URL) delete process.env.SERVICE_URL;
-    expect(initializeConfig().repoToGpServiceUrl).toEqual(`http://127.0.0.1:3000`);
+    expect(config().repoToGpServiceUrl).toEqual(`http://127.0.0.1:3000`);
   });
 
   it('service url is the correct value when environment variables are set', () => {
     process.env.SERVICE_URL = 'url';
-    expect(initializeConfig().repoToGpServiceUrl).toEqual(`url`);
+    expect(config().repoToGpServiceUrl).toEqual(`url`);
   });
 
   it('nhs Environment is the correct value when environment variables are set', () => {
     process.env.NHS_ENVIRONMENT = 'local';
-    expect(initializeConfig().nhsEnvironment).toEqual('local');
+    expect(config().nhsEnvironment).toEqual('local');
   });
 
   describe('api keys', () => {
@@ -35,7 +35,7 @@ describe('config', () => {
       process.env.NOT_AN_API_KEY_FOR_A_CONSUMER = 'not-a-key';
 
       const expectedConsumerApiKeys = { E2E_TEST: 'xyz', GP_TO_REPO: 'abc', USER_FOO: 'tuv' };
-      expect(initializeConfig().consumerApiKeys).toStrictEqual(expectedConsumerApiKeys);
+      expect(config().consumerApiKeys).toStrictEqual(expectedConsumerApiKeys);
     });
   });
 });

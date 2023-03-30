@@ -2,7 +2,7 @@ import request from 'supertest';
 import { v4 } from 'uuid';
 import nock from 'nock';
 import app from '../app';
-import { initializeConfig } from '../config';
+import { config } from '../config';
 import ModelFactory from '../models';
 import { modelName, Status } from '../models/registration-request';
 import { logger } from '../config/logging';
@@ -12,13 +12,13 @@ const localhostUrl = 'http://localhost';
 const fakeAuth = 'fake-keys';
 
 describe('GET /health', () => {
-  const config = initializeConfig();
+  const { nhsEnvironment } = config();
 
   it('should return 200 and the response from getHealthCheck', async () => {
     const expectedHealthCheckResponse = {
       version: '1',
       description: 'Health of ehr-out-service',
-      nhsEnvironment: config.nhsEnvironment,
+      nhsEnvironment: nhsEnvironment,
       details: {
         database: {
           type: 'postgresql',

@@ -8,7 +8,7 @@ import { registrationRequests } from '../index';
 jest.mock('../../../middleware/logging');
 jest.mock('../../../services/database/registration-request-repository');
 jest.mock('../../../config', () => ({
-  initializeConfig: jest
+  config: jest
     .fn()
     .mockReturnValue({ sequelize: { dialect: 'postgres' }, consumerApiKeys: { TEST: 'valid-key' } })
 }));

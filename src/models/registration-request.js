@@ -4,12 +4,18 @@ export const modelName = 'RegistrationRequest';
 const tableName = 'registration_requests';
 
 export const Status = {
+  // PRIMARY PATH
   REGISTRATION_REQUEST_RECEIVED: 'registration_request_received',
+  ODS_VALIDATION_CHECKS_PASSED: 'ods_validation_checks_passed',
+  SENT_EHR: 'sent_ehr',
+  CONTINUE_REQUEST_RECEIVED: 'continue_request_received',
+  SENT_FRAGMENTS: 'sent_fragments',
+
+  // ERRONEOUS
   INCORRECT_ODS_CODE: 'incorrect_ods_code',
   MISSING_FROM_REPO: 'missing_from_repo',
   EHR_DOWNLOAD_FAILED: 'ehr_download_failed',
-  VALIDATION_CHECKS_PASSED: 'validation_checks_passed',
-  SENT_EHR: 'sent_ehr'
+  FRAGMENTS_SENDING_FAILED: 'fragments_sending_failed',
 };
 
 Object.freeze(Status);

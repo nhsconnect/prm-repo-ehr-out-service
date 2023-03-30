@@ -1,4 +1,6 @@
-import { initializeConfig } from '../../../config';
+// TODO [PRMT-2728] DEPRECATED
+
+import { config } from '../../../config';
 import {
   getRegistrationRequestStatusByConversationId,
   updateRegistrationRequestStatus
@@ -17,7 +19,7 @@ jest.mock('../../gp2gp/pds-retrieval-request');
 jest.mock('../../ehr-repo/get-health-record');
 jest.mock('../../../services/database/registration-request-repository');
 jest.mock('../../../config', () => ({
-  initializeConfig: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
+  config: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
 }));
 jest.mock('../../../middleware/logging');
 
@@ -53,7 +55,7 @@ describe('transferOutEhr', () => {
       expect(result.hasFailed).toBe(false);
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
       expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
-      expect(initializeConfig).toHaveBeenCalled();
+      expect(config).toHaveBeenCalled();
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
         conversationId,
         Status.MISSING_FROM_REPO
@@ -76,7 +78,7 @@ describe('transferOutEhr', () => {
       expect(result.hasFailed).toBe(false);
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
       expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
-      expect(initializeConfig).toHaveBeenCalled();
+      expect(config).toHaveBeenCalled();
       expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
         conversationId,
         Status.INCORRECT_ODS_CODE
@@ -102,9 +104,9 @@ describe('transferOutEhr', () => {
     expect(getPatientHealthRecordFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(
       conversationId,
-      Status.VALIDATION_CHECKS_PASSED
+      Status.ODS_VALIDATION_CHECKS_PASSED
     );
-    expect(initializeConfig).toHaveBeenCalled();
+    expect(config).toHaveBeenCalled();
     expect(updateRegistrationRequestStatus).toHaveBeenCalledWith(conversationId, Status.SENT_EHR);
     expect(logInfo).toHaveBeenCalledWith(`Sending EHR extract`);
     expect(sendEhrExtract).toHaveBeenCalledWith(

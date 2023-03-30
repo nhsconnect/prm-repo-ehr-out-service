@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { v4 } from 'uuid';
-import { initializeConfig } from '../../config';
+import { config } from '../../config';
 import { createRegistrationRequest } from '../../services/database/create-registration-request';
 import { buildTestApp } from '../../__builders__/test-app';
 import { registrationRequests } from '../../api/registration-request';
@@ -15,7 +15,7 @@ jest.mock('../../services/gp2gp/pds-retrieval-request');
 jest.mock('../../services/ehr-repo/get-health-record');
 jest.mock('../../middleware/logging');
 jest.mock('../../config', () => ({
-  initializeConfig: jest.fn().mockReturnValue({
+  config: jest.fn().mockReturnValue({
     sequelize: { dialect: 'postgres' },
     consumerApiKeys: {
       TEST_USER: 'correct-key',
@@ -60,7 +60,7 @@ describe('auth', () => {
 
   describe('consumerApiKeys environment variables not provided', () => {
     it('should return 412 with an explicit error message if repoToGpAuthKeys have not been set', async () => {
-      initializeConfig.mockReturnValueOnce({ consumerApiKeys: {} });
+      config.mockReturnValueOnce({ consumerApiKeys: {} });
       const errorMessage = {
         error: 'Server-side Authorization keys have not been set, cannot authenticate'
       };

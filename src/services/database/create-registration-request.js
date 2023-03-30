@@ -1,5 +1,5 @@
 import { runWithinTransaction } from './helper';
-import { logInfo } from '../../middleware/logging';
+import { logError, logInfo } from "../../middleware/logging";
 import ModelFactory from '../../models';
 import { modelName, Status } from '../../models/registration-request';
 
@@ -16,6 +16,6 @@ export const createRegistrationRequest = (conversationId, nhsNumber, odsCode) =>
       },
       transaction
     )
-      .then(requests => requests[0])
       .then(() => logInfo('Registration request has been stored'))
+      .catch(error => logError(error))
   );

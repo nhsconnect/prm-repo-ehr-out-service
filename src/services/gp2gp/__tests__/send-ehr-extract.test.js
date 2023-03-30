@@ -1,14 +1,21 @@
+// TODO [PRMT-2728] DEPRECATED
+
 import nock from 'nock';
 import { sendEhrExtract } from '../send-ehr-extract';
 import { logError, logInfo } from '../../../middleware/logging';
+import { config } from "../../../config/index";
 
+// Mocking
 jest.mock('../../../middleware/logging');
-jest.mock('../../../config', () => ({
-  initializeConfig: jest.fn().mockReturnValue({
+jest.mock('../../../config');
+
+// Set Up
+beforeEach(() => {
+  config.mockReturnValue({
     gp2gpMessengerAuthKeys: 'fake-keys',
     gp2gpMessengerServiceUrl: 'http://localhost'
-  })
-}));
+  });
+});
 
 describe('sendEhrExtract', () => {
   const mockgp2gpMessengerServiceUrl = 'http://localhost';

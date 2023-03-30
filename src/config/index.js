@@ -2,7 +2,7 @@ import databaseConfig from './database';
 
 export const portNumber = 3000;
 
-export const initializeConfig = () => ({
+export const config = () => ({
   nhsEnvironment: process.env.NHS_ENVIRONMENT || 'local',
   repoToGpServiceUrl: process.env.SERVICE_URL || `http://127.0.0.1:${portNumber}`,
   gp2gpMessengerServiceUrl: process.env.GP2GP_MESSENGER_SERVICE_URL,

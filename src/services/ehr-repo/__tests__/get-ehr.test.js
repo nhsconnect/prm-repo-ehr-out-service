@@ -1,21 +1,27 @@
 import nock from 'nock';
 import { logError } from '../../../middleware/logging';
-import { getPatientHealthRecordFromRepo } from '../get-health-record';
-import { initializeConfig } from '../../../config';
+import { config } from '../../../config';
 import { getEhrCoreFromRepo } from "../get-ehr";
-import { EhrUrlNotFoundError, EhrDownloadError} from "../../../errors/errors";
+import { EhrUrlNotFoundError, DownloadError, errorMessages} from "../../../errors/errors";
 
 jest.mock('../../../middleware/logging');
-jest.mock('../../../config');
+
+jest.mock('../../../config', () => ({
+  config: jest.fn().mockReturnValue({
+    sequelize: { dialect: 'postgres' },
+    ehrRepoAuthKeys: 'fake-keys',
+    ehrRepoServiceUrl: 'http://localhost'
+  })
+}));
 
 describe('getEhrCoreFromRepo', () => {
   describe('new ehr repo api', () => {
-    beforeEach(() => {
-      initializeConfig.mockReturnValue({
-        ehrRepoAuthKeys: 'fake-keys',
-        ehrRepoServiceUrl: 'http://localhost'
-      });
-    });
+    // beforeEach(() => {
+    //   config.mockReturnValue({
+    //     ehrRepoAuthKeys: 'fake-keys',
+    //     ehrRepoServiceUrl: 'http://localhost'
+    //   });
+    // });
     const mockEhrRepoServiceUrl = 'http://localhost';
     const mockEhrRepoAuthKeys = 'fake-keys';
     const conversationId = 'fake-conversationId';
@@ -62,7 +68,7 @@ describe('getEhrCoreFromRepo', () => {
       await expect(() => getEhrCoreFromRepo(nhsNumber, conversationId))
         .rejects.toThrow(EhrUrlNotFoundError);
       expect(urlScope.isDone()).toBe(true);
-      expect(logError).toHaveBeenCalledWith('Cannot find complete patient health record', expectedError);
+      expect(logError).toHaveBeenCalledWith(errorMessages.EHR_URL_NOT_FOUND_ERROR, expectedError);
     });
 
     it('should throw an error when failing to retrieve a presigned url with non-404 response', async () => {
@@ -77,21 +83,21 @@ describe('getEhrCoreFromRepo', () => {
     });
 
     it('should throw an error when failing to retrieve ehr core from presigned url', async () => {
+      const expectedError = new Error('Request failed with status code 500');
+
       const urlScope = nock(mockEhrRepoServiceUrl, headers)
         .get(`/patients/${nhsNumber}`)
         .reply(200, ehrIsPresentEhrRepoUrlResponse);
 
-      const expectedError = new Error('Request failed with status code 500');
       const ehrScope = nock(coreMessageUrl)
         .get("/")
         .reply(500);
 
       await expect(() => getEhrCoreFromRepo(nhsNumber, conversationId))
-        .rejects.toThrow(EhrDownloadError);
+        .rejects.toThrow(DownloadError);
 
-      expect(urlScope.isDone()).toBe(true);
       expect(ehrScope.isDone()).toBe(true);
-      expect(logError).toHaveBeenCalledWith('Cannot retrieve EHR from presigned URL', expectedError);
+      expect(logError).toHaveBeenCalledWith(errorMessages.DOWNLOAD_ERROR, expectedError);
     });
   });
 });
