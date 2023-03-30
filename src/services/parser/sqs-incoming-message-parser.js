@@ -12,9 +12,7 @@ export const parse = async messageBody => {
 
   let ehrRequestId, nhsNumber, odsCode, payloadData;
 
-  // Check the interaction ID and handle logic accordingly.
-  switch (interactionId)
-  {
+  switch (interactionId) {
     case INTERACTION_IDS.EHR_REQUEST_INTERACTION_ID:
       payloadData = await getPayloadData(messageBody, interactionId);
       logInfo(`Received for ${interactionId}, payload data returned: ${JSON.stringify(payloadData)}`);
