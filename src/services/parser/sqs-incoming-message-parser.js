@@ -18,23 +18,17 @@ export const parse = async messageBody => {
     case INTERACTION_IDS.EHR_REQUEST_INTERACTION_ID:
       payloadData = await getPayloadData(messageBody, interactionId);
       logInfo(`Received for ${interactionId}, payload data returned: ${JSON.stringify(payloadData)}`);
-
       ehrRequestId = payloadData.ehrRequestId;
       nhsNumber = payloadData.nhsNumber;
       odsCode = payloadData.odsCode;
-
       logInfo('Successfully parsed payload');
       break;
     case INTERACTION_IDS.CONTINUE_REQUEST_INTERACTION_ID:
       payloadData = await getPayloadData(messageBody, interactionId);
       logInfo(`Received for ${interactionId}, payload data returned: ${JSON.stringify(payloadData)}`);
-
-
       break;
     case INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID:
       payloadData = await getPayloadData();
-
-
       break;
     default:
       const warning = new Error(`Invalid interaction ID: ${interactionId}`);
