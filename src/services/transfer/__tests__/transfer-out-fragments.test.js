@@ -21,16 +21,34 @@ jest.mock('../../../middleware/logging');
 jest.mock('../../gp2gp/pds-retrieval-request');
 
 describe('transferOutFragment', () => {
-  describe('transfer request validation checks', () => {
-    // ============ COMMON PROPERTIES ============
-    const CONVERSATION_ID = 'eef53f72-985c-423c-b1e4-087b702f4dd4';
-    const MESSAGE_ID = 'ae6f5feb-b546-4584-be37-1eee0b343811';
-    const NHS_NUMBER = '1111111112';
-    const ODS_CODE = 'fake-ods-code';
-    const FRAGMENTS = { nhsNumber: NHS_NUMBER, messageId: MESSAGE_ID };
-    const FRAGMENT_WITH_MESSAGE_ID = {[MESSAGE_ID] : FRAGMENTS}
-    // =================== END ===================
+  // ============ COMMON PROPERTIES ============
+  const CONVERSATION_ID = 'eef53f72-985c-423c-b1e4-087b702f4dd4';
+  const MESSAGE_ID = 'ae6f5feb-b546-4584-be37-1eee0b343811';
+  const NHS_NUMBER = '1111111112';
+  const ODS_CODE = 'fake-ods-code';
+  const FRAGMENTS = { nhsNumber: NHS_NUMBER, messageId: MESSAGE_ID };
+  const FRAGMENT_WITH_MESSAGE_ID = {[MESSAGE_ID] : FRAGMENTS}
+  // =================== END ===================
 
+  it('should send fragment on success', async () => {
+    // when
+    getMessageFragmentStatusByMessageId.mockResolvedValue(null);
+    getAllFragmentsWithMessageIdsFromRepo.mockResolvedValueOnce(FRAGMENT_WITH_MESSAGE_ID);
+    sendFragment.mockResolvedValue(undefined);
+
+    const result = await transferOutFragments({ conversationId: CONVERSATION_ID, nhsNumber: NHS_NUMBER, odsCode: ODS_CODE});
+
+    // then
+    expect(result).toBe(undefined);
+    expect(getAllFragmentsWithMessageIdsFromRepo).toHaveBeenCalledWith(NHS_NUMBER);
+    expect(updateFragmentStatus).toHaveBeenCalledWith(CONVERSATION_ID, MESSAGE_ID, Status.SENT_FRAGMENT);
+    expect(updateFragmentStatus).not.toHaveBeenCalledWith(CONVERSATION_ID, MESSAGE_ID, Status.FRAGMENT_SENDING_FAILED);
+    expect(logInfo).toHaveBeenCalledWith('EHR transfer out fragment received');
+    expect(logInfo).toHaveBeenCalledWith('Fragment transfer completed');
+    expect(logError).not.toHaveBeenCalled();
+  });
+
+  describe('transfer request validation and error checks', () => {
     it('should validate duplicate transfer out requests', async () => {
       // when
       getMessageFragmentStatusByMessageId.mockReturnValueOnce({
@@ -45,24 +63,6 @@ describe('transferOutFragment', () => {
       expect(logWarning).toHaveBeenCalledWith(`EHR message FRAGMENT with message ID ${MESSAGE_ID} has already been sent`);
       expect(updateFragmentStatus).not.toHaveBeenCalled();
       expect(sendFragment).not.toHaveBeenCalled();
-    });
-
-    it('should send fragment on success', async () => {
-      // when
-      getMessageFragmentStatusByMessageId.mockResolvedValue(null);
-      getAllFragmentsWithMessageIdsFromRepo.mockResolvedValueOnce(FRAGMENT_WITH_MESSAGE_ID);
-      sendFragment.mockResolvedValue(undefined);
-
-      const result = await transferOutFragments({ conversationId: CONVERSATION_ID, nhsNumber: NHS_NUMBER, odsCode: ODS_CODE});
-
-      // then
-      expect(result).toBe(undefined);
-      expect(getAllFragmentsWithMessageIdsFromRepo).toHaveBeenCalledWith(NHS_NUMBER);
-      expect(updateFragmentStatus).toHaveBeenCalledWith(CONVERSATION_ID, MESSAGE_ID, Status.SENT_FRAGMENT);
-      expect(updateFragmentStatus).not.toHaveBeenCalledWith(CONVERSATION_ID, MESSAGE_ID, Status.FRAGMENT_SENDING_FAILED);
-      expect(logInfo).toHaveBeenCalledWith('EHR transfer out fragment received');
-      expect(logInfo).toHaveBeenCalledWith('Fragment transfer completed');
-      expect(logError).not.toHaveBeenCalled();
     });
 
     it('should handle exceptions', async () => {

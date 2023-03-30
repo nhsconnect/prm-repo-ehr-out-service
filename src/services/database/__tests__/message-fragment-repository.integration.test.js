@@ -65,8 +65,8 @@ describe('message-fragment-repository.js', () => {
   
     it('should return null when it cannot find the message id in record', async () => {
       // when
-      const messageId = '9dd61fbe-1958-4479-a6aa-14cb4aa9651a'; // Does not exist
-      const record = await getMessageFragmentStatusByMessageId(messageId);
+      const nonExistentMessageId = '9dd61fbe-1958-4479-a6aa-14cb4aa9651a';
+      const record = await getMessageFragmentStatusByMessageId(nonExistentMessageId);
   
       // then
       expect(record).toBe(null);

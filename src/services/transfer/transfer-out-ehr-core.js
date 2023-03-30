@@ -12,7 +12,7 @@ import { sendCore } from "../gp2gp/send-core";
 import { patientAndPracticeOdsCodesMatch, updateConversationStatus } from "./transfer-out-util";
 
 export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
-setCurrentSpanAttributes({ conversationId: conversationId });
+  setCurrentSpanAttributes({ conversationId: conversationId });
   logInfo('EHR transfer out request received');
 
   let logs = 'EHR has been successfully sent';
