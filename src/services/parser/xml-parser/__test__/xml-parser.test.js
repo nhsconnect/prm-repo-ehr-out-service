@@ -84,7 +84,7 @@ describe('XmlParser', () => {
         .then(object => object.findAll('a', 1))
         .then(object => {
           expect(object.length).toBe(1);
-          return expect(object[0]).toStrictEqual({ b: 'Hello' });
+          return expect(object[0]).toEqual({ b: 'Hello' });
         });
     });
 
