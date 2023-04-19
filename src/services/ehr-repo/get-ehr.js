@@ -1,7 +1,7 @@
 import { config } from "../../config";
 import axios from "axios";
 import { logInfo, logError } from "../../middleware/logging";
-import { downloadFromUrl } from "../transfer/transfer-out-util";
+import { downloadFromUrl, updateMessageIdForEhrCore } from "../transfer/transfer-out-util";
 import { EhrUrlNotFoundError } from "../../errors/errors";
 
 export const getEhrCoreFromRepo = async (nhsNumber, conversationId) => {
@@ -9,7 +9,9 @@ export const getEhrCoreFromRepo = async (nhsNumber, conversationId) => {
   logInfo(`Successfully retrieved presigned URL`);
   const ehrCore = await downloadFromUrl(coreMessageUrl);
   logInfo(`Successfully retrieved EHR`);
-  return ehrCore;
+  const ehrCoreWithUpdatedMessageId = await updateMessageIdForEhrCore(ehrCore);
+  logInfo(`Successfully replaced message id`);
+  return ehrCoreWithUpdatedMessageId
 };
 
 const retrievePresignedUrlFromRepo = async (nhsNumber, conversationId) => {

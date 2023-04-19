@@ -3,7 +3,7 @@ import {
   downloadFromUrl,
   patientAndPracticeOdsCodesMatch,
   updateConversationStatus,
-  updateFragmentStatus
+  updateFragmentStatus, updateMessageIdForEhrCore
 } from "../transfer-out-util";
 import { logError, logInfo } from "../../../middleware/logging";
 import { errorMessages, StatusUpdateError } from "../../../errors/errors";
@@ -13,6 +13,9 @@ import { updateRegistrationRequestStatus } from "../../database/registration-req
 import { setCurrentSpanAttributes } from "../../../config/tracing";
 import { updateMessageFragmentStatus } from "../../database/message-fragment-repository";
 import expect from "expect";
+import {readFileSync} from "fs";
+import {extractEbXmlData} from "../../parser/extract-eb-xml-data";
+import {validate as uuidValidate } from 'uuid';
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -21,10 +24,14 @@ jest.mock('../../database/registration-request-repository');
 jest.mock('../../database/message-fragment-repository');
 jest.mock('../../../config/tracing');
 
+
 describe('testTransferOutUtil', () => {
   // ============ COMMON PROPERTIES ============
   const CONVERSATION_ID = '7fbeaba2-ca21-4af7-8f88-29d805b28411';
   const MESSAGE_ID = '2c1edc4d-052f-42b6-a03f-4470ff88ef05';
+  function getValidEhrCore() {
+    return readFileSync('src/__tests__/data/ehr_with_fragments/ehr-core', 'utf8');
+  }
   // =================== END ===================
 
   describe('downloadFromUrl', () => {
@@ -182,4 +189,22 @@ describe('testTransferOutUtil', () => {
         .toThrowError(StatusUpdateError);
     });
   });
+
+  describe('updateMessageIdForEhrCore', () => {
+    it('should update the message id of EHR core', async () => {
+      // given
+      const ehrCore = getValidEhrCore();
+
+      // when
+      const ehrCoreWithUpdatedMessageId = await updateMessageIdForEhrCore(ehrCore)
+
+      // then
+      const { messageId: oldMessageId } = await extractEbXmlData(JSON.parse(ehrCore).ebXML);
+      const { messageId: newMessageId } = await extractEbXmlData(JSON.parse(ehrCoreWithUpdatedMessageId).ebXML);
+
+      expect(newMessageId).not.toEqual(oldMessageId);
+      expect(uuidValidate(newMessageId)).toBe(true);
+
+    })
+  })
 });

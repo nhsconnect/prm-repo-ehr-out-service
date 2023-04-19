@@ -52,7 +52,10 @@ let validEbXmlAsJson = {
       Header: {
         MessageHeader: {
           Action: 'RCMR_IN010000UK05',
-          ConversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22'
+          ConversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22',
+          MessageData: {
+            MessageId: '2868A878-498D-4FCE-B3DD-6CB9FC4E4B9E'
+          }
         }
       }
     }

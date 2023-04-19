@@ -3,6 +3,7 @@ import { logError } from '../../../middleware/logging';
 import { config } from '../../../config';
 import { getEhrCoreFromRepo } from "../get-ehr";
 import { EhrUrlNotFoundError, DownloadError, errorMessages} from "../../../errors/errors";
+import * as transferOutUtil from "../../transfer/transfer-out-util";
 
 jest.mock('../../../middleware/logging');
 
@@ -16,12 +17,6 @@ jest.mock('../../../config', () => ({
 
 describe('getEhrCoreFromRepo', () => {
   describe('new ehr repo api', () => {
-    // beforeEach(() => {
-    //   config.mockReturnValue({
-    //     ehrRepoAuthKeys: 'fake-keys',
-    //     ehrRepoServiceUrl: 'http://localhost'
-    //   });
-    // });
     const mockEhrRepoServiceUrl = 'http://localhost';
     const mockEhrRepoAuthKeys = 'fake-keys';
     const conversationId = 'fake-conversationId';
@@ -44,6 +39,9 @@ describe('getEhrCoreFromRepo', () => {
     }
 
     it('should return the stored ehr core message when the patients health record is in repo', async () => {
+      jest.spyOn(transferOutUtil, 'updateMessageIdForEhrCore');
+      transferOutUtil.updateMessageIdForEhrCore.mockImplementationOnce(ehrCore => ehrCore)
+
       const urlScope = nock(mockEhrRepoServiceUrl, headers)
         .get(`/patients/${nhsNumber}`)
         .reply(200, ehrIsPresentEhrRepoUrlResponse);
