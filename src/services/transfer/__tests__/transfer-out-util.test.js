@@ -3,10 +3,10 @@ import {
   downloadFromUrl,
   patientAndPracticeOdsCodesMatch,
   updateConversationStatus,
-  updateFragmentStatus, updateMessageIdForEhrCore
+  updateFragmentStatus, updateMessageIdForEhrCore, updateReferencedFragmentIds
 } from "../transfer-out-util";
 import { logError, logInfo } from "../../../middleware/logging";
-import { errorMessages, StatusUpdateError } from "../../../errors/errors";
+import {errorMessages, MessageIdUpdateError, StatusUpdateError} from "../../../errors/errors";
 import { getPdsOdsCode } from "../../gp2gp/pds-retrieval-request";
 import { Status } from "../../../models/message-fragment";
 import { updateRegistrationRequestStatus } from "../../database/registration-request-repository";
@@ -14,7 +14,7 @@ import { setCurrentSpanAttributes } from "../../../config/tracing";
 import { updateMessageFragmentStatus } from "../../database/message-fragment-repository";
 import expect from "expect";
 import {readFileSync} from "fs";
-import {extractEbXmlData} from "../../parser/extract-eb-xml-data";
+import {extractEbXmlData, extractReferencedFragmentMessageIds} from "../../parser/extract-eb-xml-data";
 import {validate as uuidValidate } from 'uuid';
 
 // Mocking
@@ -205,6 +205,50 @@ describe('testTransferOutUtil', () => {
       expect(newMessageId).not.toEqual(oldMessageId);
       expect(uuidValidate(newMessageId)).toBe(true);
 
+    })
+
+    it('should throw an error when given an invalid ehrCore', async () => {
+      // given
+      const ehrCore = `{"ebXML": "<xml>some-invalid-xml</xml>"}`;
+
+      // when
+      await expect(updateMessageIdForEhrCore(ehrCore))
+        // then
+        .rejects.toThrowError(MessageIdUpdateError)
+    })
+  })
+
+
+  describe('updateReferencedFragmentIds', () => {
+    it('should update all referenced fragment ids in an EHR core', async () => {
+      // given
+      const ehrCore = getValidEhrCore();
+
+      // when
+      const ehrCoreWithUpdatedFragmentIds = await updateReferencedFragmentIds(ehrCore)
+
+      // then
+      const oldFragmentIdList = await extractReferencedFragmentMessageIds(JSON.parse(ehrCore).ebXML);
+      const newFragmentIdList = await extractReferencedFragmentMessageIds(JSON.parse(ehrCoreWithUpdatedFragmentIds).ebXML);
+
+      for (let newFragmentId of newFragmentIdList) {
+        expect(uuidValidate(newFragmentId)).toBe(true);
+
+        expect(oldFragmentIdList).not.toContain(newFragmentId);
+
+        const newFragmentIdIsUnique = newFragmentIdList.indexOf(newFragmentId) === newFragmentIdList.lastIndexOf(newFragmentId)
+        expect(newFragmentIdIsUnique).toBe(true)
+      }
+    })
+
+    it('should throw an error when given an invalid ehrCore', async () => {
+      // given
+      const ehrCore = `{"ebXML": "<xml>some-invalid-xml</xml>"}`;
+
+      // when
+      await expect(updateReferencedFragmentIds(ehrCore))
+        // then
+        .rejects.toThrowError(MessageIdUpdateError)
     })
   })
 });

@@ -1,6 +1,6 @@
 import { extractReferencedFragmentMessageIds } from '../extract-eb-xml-data';
 import { readFileSync } from 'fs';
-import { XmlParser } from '../xml-parser/xml-parser';
+import {ParseMessageError} from "../../../errors/errors";
 
 describe('test extract-eb-xml-data', () => {
   // ============ COMMON PROPERTIES ============
@@ -10,6 +10,10 @@ describe('test extract-eb-xml-data', () => {
 
   function getEhrCoreWithOnlyOneReference() {
     return readFileSync('src/__tests__/data/ehr_with_fragments/ehr-core-with-only-one-ref', 'utf8');
+  }
+
+  function getEhrCoreWithNoFragment() {
+    return readFileSync('src/__tests__/data/RCMR_IN010000UK06', 'utf8');
   }
 
   // =================== END ===================
@@ -46,6 +50,18 @@ describe('test extract-eb-xml-data', () => {
       expect(messageIds).toEqual(expectedMessageIds);
     });
 
+    it('should return an empty array if the ehrCore doesnt have any fragment', async () => {
+      // given
+      const ehrCore = getEhrCoreWithNoFragment();
+      const ebXml = JSON.parse(ehrCore).ebXML;
+
+      // when
+      const messageIds = await extractReferencedFragmentMessageIds(ebXml);
+
+      // then
+      expect(messageIds).toEqual([]);
+    });
+
     it('should throw an error if failed to parse the ebXML', async () => {
       // given
       const ehrCore = `{"ebXML": "<xml>some-invalid-xml</xml>"}`;
@@ -54,8 +70,7 @@ describe('test extract-eb-xml-data', () => {
       // when
       await expect(extractReferencedFragmentMessageIds(ebXml))
         // then
-        // TODO: set a custom error for parsing xml
-        .rejects.toThrow();
+        .rejects.toThrow(ParseMessageError);
     });
   });
 });

@@ -8,7 +8,9 @@ export const errorMessages = {
   GET_PDS_CODE_ERROR: 'Unable to retrieve patient from PDS',
   PATIENT_RECORD_NOT_FOUND_ERROR: 'Cannot find the requested patient record from ehr-repo',
   STATUS_ERROR: 'The status could not be updated',
-  DUPLICATED_REQUEST_ERROR: 'Got a duplicated request'
+  DUPLICATED_REQUEST_ERROR: 'Got a duplicated request',
+  PARSE_MESSAGE_ERROR: 'Failed while trying to parse ehr message',
+  MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to update message id to new ones'
 };
 
 export class GetPdsCodeError extends Error {
@@ -57,6 +59,20 @@ export class StatusUpdateError extends Error {
   constructor(error) {
     super(errorMessages.STATUS_ERROR);
     logError(errorMessages.STATUS_ERROR, error);
+  }
+}
+
+export class ParseMessageError extends Error {
+  constructor(error) {
+    super(errorMessages.PARSE_MESSAGE_ERROR);
+    logError(errorMessages.PARSE_MESSAGE_ERROR, error.message);
+  }
+}
+
+export class MessageIdUpdateError extends Error {
+  constructor(error) {
+    super(errorMessages.MESSAGE_ID_UPDATE_ERROR);
+    logError(errorMessages.MESSAGE_ID_UPDATE_ERROR, error.message);
   }
 }
 
