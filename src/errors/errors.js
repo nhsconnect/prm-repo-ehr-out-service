@@ -10,7 +10,9 @@ export const errorMessages = {
   STATUS_ERROR: 'The status could not be updated',
   DUPLICATED_REQUEST_ERROR: 'Got a duplicated request',
   PARSE_MESSAGE_ERROR: 'Failed while trying to parse ehr message',
-  MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to update message id to new ones'
+  MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to update message id to new ones',
+  MESSAGE_ID_RECORD_CREATION_ERROR: 'Failed to record the message ids replacement in database',
+  FRAGMENT_MESSAGE_ID_RECORD_NOT_FOUND_ERROR: 'Cannot find the the replaced fragment message id from database'
 };
 
 export class GetPdsCodeError extends Error {
@@ -73,6 +75,13 @@ export class MessageIdUpdateError extends Error {
   constructor(error) {
     super(errorMessages.MESSAGE_ID_UPDATE_ERROR);
     logError(errorMessages.MESSAGE_ID_UPDATE_ERROR, error.message);
+  }
+}
+
+export class FragmentMessageIdRecordNotFoundError extends Error {
+  constructor(oldMessageId) {
+    super(errorMessages.FRAGMENT_MESSAGE_ID_RECORD_NOT_FOUND_ERROR);
+    logError(`${errorMessages.FRAGMENT_MESSAGE_ID_RECORD_NOT_FOUND_ERROR}, related oldMessageId: ${oldMessageId}`);
   }
 }
 

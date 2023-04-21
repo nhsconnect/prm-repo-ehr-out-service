@@ -1,15 +1,18 @@
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
+
+import { setCurrentSpanAttributes } from '../../config/tracing';
 import { logInfo } from '../../middleware/logging';
-import {DownloadError, MessageIdUpdateError, StatusUpdateError} from '../../errors/errors';
+import { DownloadError, MessageIdUpdateError, StatusUpdateError } from '../../errors/errors';
 import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
 import { updateRegistrationRequestStatus } from '../database/registration-request-repository';
-import { setCurrentSpanAttributes } from '../../config/tracing';
 import { updateMessageFragmentStatus } from '../database/message-fragment-repository';
 import {
   extractEbXmlData,
   extractReferencedFragmentMessageIds
 } from '../parser/extract-eb-xml-data';
-import { v4 as uuidv4 } from 'uuid';
+import { getNewMessageIdByOldMessageId } from '../database/message-id-replacement-repository';
+import { createMessageIdReplacement } from '../database/create-message-id-replacement';
 
 export const downloadFromUrl = async messageUrl => {
   return axios
@@ -52,15 +55,15 @@ export const updateFragmentStatus = async (conversationId, messageId, status, lo
   if (logMessage) logInfo(logMessage);
 };
 
-export const updateCoreMessageIdAndReferencedFragmentIds = async (ehrCore) => {
+export const updateCoreMessageIdAndReferencedFragmentIds = async ehrCore => {
   const updatedEhrCore = updateMessageIdForEhrCore(ehrCore);
   return updateReferencedFragmentIds(updatedEhrCore);
 };
 
 export const updateMessageIdForEhrCore = async ehrCore => {
   try {
-    const {messageId} = await extractEbXmlData(JSON.parse(ehrCore).ebXML);
-    const newMessageId = uuidv4();
+    const { messageId } = await extractEbXmlData(JSON.parse(ehrCore).ebXML);
+    const newMessageId = uuidv4().toUpperCase();
 
     return ehrCore.replaceAll(messageId, newMessageId);
   } catch (error) {
@@ -70,14 +73,13 @@ export const updateMessageIdForEhrCore = async ehrCore => {
 
 export const updateReferencedFragmentIds = async ehrCore => {
   let updatedEhrCore = ehrCore;
+  const messageIdsDict = {};
 
   try {
     const fragmentMessageIds = await extractReferencedFragmentMessageIds(JSON.parse(ehrCore).ebXML);
 
-    const messageIdsDict = {};
-
     fragmentMessageIds.forEach(oldMessageId => {
-      const newMessageId = uuidv4();
+      const newMessageId = uuidv4().toUpperCase();
 
       updatedEhrCore = updatedEhrCore.replace(oldMessageId, newMessageId);
       messageIdsDict[oldMessageId] = newMessageId;
@@ -86,18 +88,15 @@ export const updateReferencedFragmentIds = async ehrCore => {
     throw new MessageIdUpdateError(error);
   }
 
-  // TODO: store the old & new message id pairs in database
-  // for (let [oldMessageId, newMessageId] of Object.entries(messageIdsDict)) {
-  //   doSomething(oldMessageId, newMessageId)
-  // }
+  for (let [oldMessageId, newMessageId] of Object.entries(messageIdsDict)) {
+    await createMessageIdReplacement(oldMessageId, newMessageId);
+  }
 
   return updatedEhrCore;
 };
 
-export const updateMessageIdForMessageFragment = async (fragment) => {
+export const updateMessageIdForMessageFragment = async fragment => {
   const { messageId } = await extractEbXmlData(JSON.parse(fragment).ebXML);
-
-  // TODO retrieve the new message ID from the database that was generated when handling the associated EHR core
-
-
+  const newMessageId = getNewMessageIdByOldMessageId(messageId);
+  return fragment.replace(messageId, newMessageId);
 };
