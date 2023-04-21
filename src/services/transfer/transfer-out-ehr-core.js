@@ -1,6 +1,5 @@
 import {
   getRegistrationRequestStatusByConversationId,
-  updateRegistrationRequestStatus
 } from '../database/registration-request-repository';
 import { logError, logInfo } from '../../middleware/logging';
 import { setCurrentSpanAttributes } from '../../config/tracing';
@@ -9,7 +8,11 @@ import { Status } from '../../models/registration-request';
 import { EhrUrlNotFoundError, DownloadError } from "../../errors/errors";
 import { getEhrCoreFromRepo } from "../ehr-repo/get-ehr";
 import { sendCore } from "../gp2gp/send-core";
-import { patientAndPracticeOdsCodesMatch, updateConversationStatus } from "./transfer-out-util";
+import {
+  patientAndPracticeOdsCodesMatch,
+  updateConversationStatus,
+  updateMessageIdForEhrCore
+} from "./transfer-out-util";
 
 export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
   setCurrentSpanAttributes({ conversationId: conversationId });
@@ -41,10 +44,13 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
       return defaultResult;
     }
 
-    await updateRegistrationRequestStatus(conversationId, Status.ODS_VALIDATION_CHECKS_PASSED);
+    await updateConversationStatus(conversationId, Status.ODS_VALIDATION_CHECKS_PASSED);
+
+    const ehrCoreWithUpdatedMessageId = await updateMessageIdForEhrCore(ehrCore);
+    logInfo(`Successfully replaced message id for ehrCore`);
 
     logInfo('Sending EHR core');
-    await sendCore(conversationId, odsCode, ehrCore, ehrRequestId);
+    await sendCore(conversationId, odsCode, ehrCoreWithUpdatedMessageId, ehrRequestId);
 
     await updateConversationStatus(conversationId, Status.SENT_EHR, logs);
     return defaultResult;

@@ -67,14 +67,14 @@ export class StatusUpdateError extends Error {
 export class ParseMessageError extends Error {
   constructor(error) {
     super(errorMessages.PARSE_MESSAGE_ERROR);
-    logError(errorMessages.PARSE_MESSAGE_ERROR, error.message);
+    logError(errorMessages.PARSE_MESSAGE_ERROR, error?.message);
   }
 }
 
 export class MessageIdUpdateError extends Error {
   constructor(error) {
     super(errorMessages.MESSAGE_ID_UPDATE_ERROR);
-    logError(errorMessages.MESSAGE_ID_UPDATE_ERROR, error.message);
+    logError(errorMessages.MESSAGE_ID_UPDATE_ERROR, error?.message);
   }
 }
 

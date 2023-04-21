@@ -9,9 +9,7 @@ export const getEhrCoreFromRepo = async (nhsNumber, conversationId) => {
   logInfo(`Successfully retrieved presigned URL`);
   const ehrCore = await downloadFromUrl(coreMessageUrl);
   logInfo(`Successfully retrieved EHR`);
-  const ehrCoreWithUpdatedMessageId = await updateMessageIdForEhrCore(ehrCore);
-  logInfo(`Successfully replaced message id`);
-  return ehrCoreWithUpdatedMessageId
+  return ehrCore;
 };
 
 const retrievePresignedUrlFromRepo = async (nhsNumber, conversationId) => {
