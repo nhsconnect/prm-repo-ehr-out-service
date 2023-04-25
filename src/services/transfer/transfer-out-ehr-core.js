@@ -1,18 +1,18 @@
-import {
-  getRegistrationRequestStatusByConversationId,
-} from '../database/registration-request-repository';
+import { getRegistrationRequestStatusByConversationId } from '../database/registration-request-repository';
 import { logError, logInfo } from '../../middleware/logging';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { createRegistrationRequest } from '../database/create-registration-request';
 import { Status } from '../../models/registration-request';
-import { EhrUrlNotFoundError, DownloadError } from "../../errors/errors";
-import { getEhrCoreFromRepo } from "../ehr-repo/get-ehr";
-import { sendCore } from "../gp2gp/send-core";
+import { EhrUrlNotFoundError, DownloadError } from '../../errors/errors';
+import { getEhrCoreAndFragmentIdsFromRepo } from '../ehr-repo/get-ehr';
+import { sendCore } from '../gp2gp/send-core';
 import {
+  createNewMessageIdsForAllFragments,
   patientAndPracticeOdsCodesMatch,
   updateConversationStatus,
-  updateMessageIdForEhrCore
-} from "./transfer-out-util";
+  updateMessageIdForEhrCore,
+  updateReferencedFragmentIds
+} from './transfer-out-util';
 
 export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
   setCurrentSpanAttributes({ conversationId: conversationId });
@@ -36,9 +36,12 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
     await createRegistrationRequest(conversationId, nhsNumber, odsCode);
 
     logInfo('Getting patient health record from EHR repo');
-    const ehrCore = await getEhrCoreFromRepo(nhsNumber, conversationId);
+    const { ehrCore, fragmentMessageIds } = await getEhrCoreAndFragmentIdsFromRepo(
+      nhsNumber,
+      conversationId
+    );
 
-    if (!await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode)) {
+    if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
       logs = 'Patients ODS Code in PDS does not match requesting practices ODS Code';
       await updateConversationStatus(conversationId, Status.INCORRECT_ODS_CODE, logs);
       return defaultResult;
@@ -46,8 +49,15 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
 
     await updateConversationStatus(conversationId, Status.ODS_VALIDATION_CHECKS_PASSED);
 
-    const ehrCoreWithUpdatedMessageId = await updateMessageIdForEhrCore(ehrCore);
+    let ehrCoreWithUpdatedMessageId = await updateMessageIdForEhrCore(ehrCore);
     logInfo(`Successfully replaced message id for ehrCore`);
+
+    if (fragmentMessageIds?.length > 0) {
+      await createNewMessageIdsForAllFragments(fragmentMessageIds);
+      logInfo(`Successfully created new message id for all fragments`);
+      ehrCoreWithUpdatedMessageId = await updateReferencedFragmentIds(ehrCoreWithUpdatedMessageId);
+      logInfo(`Successfully replaced fragment id reference in ehrCore`);
+    }
 
     logInfo('Sending EHR core');
     await sendCore(conversationId, odsCode, ehrCoreWithUpdatedMessageId, ehrRequestId);

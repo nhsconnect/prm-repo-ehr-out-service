@@ -8,16 +8,13 @@ const model = dataType => ({
     field: 'old_message_id',
     type: dataType.UUID,
     primaryKey: true,
-    validate: {
-      isUUID: 4
-    },
     allowNull: false
   },
   newMessageId: {
     field: 'new_message_id',
     type: dataType.UUID,
     validate: {
-      isUUID: 4,
+      isUppercase: true
     },
     allowNull: false
   },

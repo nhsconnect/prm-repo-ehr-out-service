@@ -1,6 +1,6 @@
 import { extractReferencedFragmentMessageIds } from '../extract-eb-xml-data';
 import { readFileSync } from 'fs';
-import {ParseMessageError} from "../../../errors/errors";
+import { ParseMessageError } from '../../../errors/errors';
 
 describe('test extract-eb-xml-data', () => {
   // ============ COMMON PROPERTIES ============
@@ -13,7 +13,7 @@ describe('test extract-eb-xml-data', () => {
   }
 
   function getEhrCoreWithNoFragment() {
-    return readFileSync('src/__tests__/data/RCMR_IN010000UK06', 'utf8');
+    return readFileSync('src/__tests__/data/RCMR_IN030000UK06', 'utf8');
   }
 
   // =================== END ===================
@@ -36,7 +36,7 @@ describe('test extract-eb-xml-data', () => {
       expect(messageIds).toEqual(expectedMessageIds);
     });
 
-    it('should be able to handle ehrCore with only one entry in reference block', async () => {
+    it('should be able to handle ehrCore with only one fragment in reference block', async () => {
       // given
       const ehrCore = getEhrCoreWithOnlyOneReference();
       const ebXml = JSON.parse(ehrCore).ebXML;

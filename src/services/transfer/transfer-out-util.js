@@ -55,48 +55,70 @@ export const updateFragmentStatus = async (conversationId, messageId, status, lo
   if (logMessage) logInfo(logMessage);
 };
 
-export const updateCoreMessageIdAndReferencedFragmentIds = async ehrCore => {
-  const updatedEhrCore = updateMessageIdForEhrCore(ehrCore);
-  return updateReferencedFragmentIds(updatedEhrCore);
+const replaceMessageIdInObject = (ehrMessage, oldMessageId, newMessageId) => {
+  // helper func to replace messageIds in an EHR core or EHR fragment parsed as a JS object
+
+  return JSON.parse(JSON.stringify(ehrMessage).replaceAll(oldMessageId, newMessageId));
 };
 
 export const updateMessageIdForEhrCore = async ehrCore => {
   try {
-    const { messageId } = await extractEbXmlData(JSON.parse(ehrCore).ebXML);
+    const { messageId } = await extractEbXmlData(ehrCore.ebXML);
     const newMessageId = uuidv4().toUpperCase();
 
-    return ehrCore.replaceAll(messageId, newMessageId);
+    return replaceMessageIdInObject(ehrCore, messageId, newMessageId);
   } catch (error) {
     throw new MessageIdUpdateError(error);
   }
 };
 
-export const updateReferencedFragmentIds = async ehrCore => {
-  let updatedEhrCore = ehrCore;
-  const messageIdsDict = {};
+export const createNewMessageIdsForAllFragments = async fragmentMessageIds => {
+  for (let oldMessageId of fragmentMessageIds) {
+    const newMessageId = uuidv4().toUpperCase();
+    await createMessageIdReplacement(oldMessageId, newMessageId);
+  }
+};
+
+export const updateReferencedFragmentIds = async ehrMessage => {
+  /*
+   This function take care of updating the message ids of referenced fragments.
+   It works for both an EHR core or a nested fragment message.
+   It doesn't update the main message id, which is to be taken care by other functions.
+   */
 
   try {
-    const fragmentMessageIds = await extractReferencedFragmentMessageIds(JSON.parse(ehrCore).ebXML);
+    const fragmentMessageIds = await extractReferencedFragmentMessageIds(ehrMessage.ebXML);
 
-    fragmentMessageIds.forEach(oldMessageId => {
-      const newMessageId = uuidv4().toUpperCase();
-
-      updatedEhrCore = updatedEhrCore.replace(oldMessageId, newMessageId);
-      messageIdsDict[oldMessageId] = newMessageId;
-    });
+    for (let oldMessageId of fragmentMessageIds) {
+      const newMessageId = await getNewMessageIdByOldMessageId(oldMessageId);
+      ehrMessage = replaceMessageIdInObject(ehrMessage, oldMessageId, newMessageId);
+    }
   } catch (error) {
     throw new MessageIdUpdateError(error);
   }
 
-  for (let [oldMessageId, newMessageId] of Object.entries(messageIdsDict)) {
-    await createMessageIdReplacement(oldMessageId, newMessageId);
-  }
+  return ehrMessage;
+};
 
-  return updatedEhrCore;
+export const updateAllFragmentsMessageIds = async fragments => {
+  const fragmentsWithUpdatedMessageIds = {};
+
+  for (let fragment of fragments) {
+    let { updatedFragment, newMessageId } = await updateMessageIdForMessageFragment(fragment);
+    updatedFragment = await updateReferencedFragmentIds(updatedFragment);
+    fragmentsWithUpdatedMessageIds[newMessageId] = updatedFragment;
+  }
+  logInfo('Successfully updated the message ids in all fragments');
+
+  return fragmentsWithUpdatedMessageIds;
 };
 
 export const updateMessageIdForMessageFragment = async fragment => {
-  const { messageId } = await extractEbXmlData(JSON.parse(fragment).ebXML);
-  const newMessageId = getNewMessageIdByOldMessageId(messageId);
-  return fragment.replace(messageId, newMessageId);
+  const { messageId } = await extractEbXmlData(fragment.ebXML);
+  const newMessageId = await getNewMessageIdByOldMessageId(messageId);
+  const updatedFragment = JSON.parse(JSON.stringify(fragment).replaceAll(messageId, newMessageId));
+  return {
+    updatedFragment,
+    newMessageId
+  };
 };

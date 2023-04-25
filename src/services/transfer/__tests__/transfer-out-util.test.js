@@ -1,12 +1,12 @@
 import { readFileSync } from 'fs';
 import expect from 'expect';
 import nock from 'nock';
-import { validate as uuidValidate } from 'uuid';
+import { validate as uuidValidate, v4 as uuidv4 } from 'uuid';
 
 import { setCurrentSpanAttributes } from '../../../config/tracing';
 import {
   errorMessages,
-  FragmentMessageIdRecordNotFoundError,
+  FragmentMessageIdReplacementRecordNotFoundError,
   MessageIdUpdateError,
   StatusUpdateError
 } from '../../../errors/errors';
@@ -22,8 +22,10 @@ import {
   extractReferencedFragmentMessageIds
 } from '../../parser/extract-eb-xml-data';
 import {
+  createNewMessageIdsForAllFragments,
   downloadFromUrl,
   patientAndPracticeOdsCodesMatch,
+  updateAllFragmentsMessageIds,
   updateConversationStatus,
   updateFragmentStatus,
   updateMessageIdForEhrCore,
@@ -53,11 +55,24 @@ describe('testTransferOutUtil', () => {
   }
 
   function getValidMessageFragment() {
-    return readFileSync(
-      'src/__tests__/data/ehr_with_fragments/dfba6ac0-ddc7-11ed-808b-ac162d1f16f0',
-      'utf8'
+    return readFileSync('src/__tests__/data/ehr_with_fragments/fragment-1', 'utf8');
+  }
+
+  function getArrayOfValidMessageFragments() {
+    const filenames = ['fragment-1', 'fragment-2', 'fragment-2-1', 'fragment-2-2'];
+
+    return filenames.map(filename =>
+      readFileSync(`src/__tests__/data/ehr_with_fragments/${filename}`, 'utf8')
     );
   }
+
+  function getValidNestedMessageFragment() {
+    return readFileSync('src/__tests__/data/ehr_with_fragments/fragment-2', 'utf8');
+  }
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
 
   // =================== END ===================
 
@@ -222,16 +237,14 @@ describe('testTransferOutUtil', () => {
   describe('updateMessageIdForEhrCore', () => {
     it('should update the message id of EHR core with upper case uuid', async () => {
       // given
-      const ehrCore = getValidEhrCore();
+      const ehrCore = JSON.parse(getValidEhrCore());
 
       // when
       const ehrCoreWithUpdatedMessageId = await updateMessageIdForEhrCore(ehrCore);
 
       // then
-      const { messageId: oldMessageId } = await extractEbXmlData(JSON.parse(ehrCore).ebXML);
-      const { messageId: newMessageId } = await extractEbXmlData(
-        JSON.parse(ehrCoreWithUpdatedMessageId).ebXML
-      );
+      const { messageId: oldMessageId } = await extractEbXmlData(ehrCore.ebXML);
+      const { messageId: newMessageId } = await extractEbXmlData(ehrCoreWithUpdatedMessageId.ebXML);
 
       expect(newMessageId).not.toEqual(oldMessageId);
       expect(uuidValidate(newMessageId)).toBe(true);
@@ -240,7 +253,7 @@ describe('testTransferOutUtil', () => {
 
     it('should throw an error when given an invalid ehrCore', async () => {
       // given
-      const ehrCore = `{"ebXML": "<xml>some-invalid-xml</xml>"}`;
+      const ehrCore = { ebXML: '<xml>some-invalid-xml</xml>' };
 
       // when
       await expect(updateMessageIdForEhrCore(ehrCore))
@@ -249,50 +262,74 @@ describe('testTransferOutUtil', () => {
     });
   });
 
-  describe('updateReferencedFragmentIds', () => {
-    it('should update all referenced fragment ids in an EHR core', async () => {
+  describe('createNewMessageIdsForAllFragments', () => {
+    it('should create new fragment message ids and store them in database', async () => {
       // given
-      const ehrCore = getValidEhrCore();
+      const oldFragmentMessageIds = [uuidv4(), uuidv4(), uuidv4()];
 
       // when
-      const ehrCoreWithUpdatedFragmentIds = await updateReferencedFragmentIds(ehrCore);
+      await createNewMessageIdsForAllFragments(oldFragmentMessageIds);
 
       // then
-      const oldFragmentIdList = await extractReferencedFragmentMessageIds(
-        JSON.parse(ehrCore).ebXML
-      );
-      const newFragmentIdList = await extractReferencedFragmentMessageIds(
-        JSON.parse(ehrCoreWithUpdatedFragmentIds).ebXML
-      );
-
-      for (let newFragmentId of newFragmentIdList) {
-        expect(uuidValidate(newFragmentId)).toBe(true);
-
-        expect(oldFragmentIdList).not.toContain(newFragmentId);
-
-        const newFragmentIdIsUnique =
-          newFragmentIdList.indexOf(newFragmentId) === newFragmentIdList.lastIndexOf(newFragmentId);
-        expect(newFragmentIdIsUnique).toBe(true);
-      }
-    });
-
-    it('should store the old and new message id pairs in database', async () => {
-      // given
-      const ehrCore = getValidEhrCore();
-
-      // when
-      const ehrCoreWithUpdatedFragmentIds = await updateReferencedFragmentIds(ehrCore);
-
-      // then
-      const oldFragmentIdList = await extractReferencedFragmentMessageIds(
-        JSON.parse(ehrCore).ebXML
-      );
-      for (let oldFragmentId of oldFragmentIdList) {
+      for (let oldFragmentId of oldFragmentMessageIds) {
         expect(createMessageIdReplacement).toHaveBeenCalledWith(
           oldFragmentId,
           expect.stringMatching(UUID_UPPERCASE_REGEX)
         );
       }
+    });
+
+    it('should throw an error when failed to store the old and new message id pairs in database', async () => {
+      // given
+      const oldFragmentMessageIds = [uuidv4(), uuidv4(), uuidv4()];
+      const expectedError = new Error('some database error');
+      createMessageIdReplacement.mockRejectedValueOnce(expectedError);
+
+      // when
+      await expect(createMessageIdReplacement(oldFragmentMessageIds))
+        // then
+        .rejects.toThrowError(expectedError);
+    });
+  });
+
+  describe('updateReferencedFragmentIds', () => {
+    const testItems = [
+      { ehrMessage: JSON.parse(getValidEhrCore()), messageType: 'ehrCore' },
+      { ehrMessage: JSON.parse(getValidNestedMessageFragment()), messageType: 'ehrNestedFragment' }
+    ];
+
+    it.each(testItems)(
+      'should update all referenced fragment ids in an $messageType',
+      async ({ ehrMessage }) => {
+        getNewMessageIdByOldMessageId.mockResolvedValueOnce('new-fragment-id-1');
+        getNewMessageIdByOldMessageId.mockResolvedValueOnce('new-fragment-id-2');
+
+        // when
+        const ehrMessageWithUpdatedFragmentIds = await updateReferencedFragmentIds(ehrMessage);
+
+        // then
+        const oldFragmentIdList = await extractReferencedFragmentMessageIds(ehrMessage.ebXML);
+        const newFragmentIdList = await extractReferencedFragmentMessageIds(
+          ehrMessageWithUpdatedFragmentIds.ebXML
+        );
+
+        expect(newFragmentIdList).toEqual(['new-fragment-id-1', 'new-fragment-id-2']);
+        for (let oldFragmentId of oldFragmentIdList) {
+          expect(ehrMessageWithUpdatedFragmentIds).not.toContain(oldFragmentId);
+        }
+      }
+    );
+
+    it('should return a fragment unchanged if no other fragment was referenced in it', async () => {
+      // given
+      const ehrFragment = JSON.parse(getValidMessageFragment());
+
+      // when
+      const returnedEhrFragment = await updateReferencedFragmentIds(ehrFragment);
+
+      // then
+      expect(returnedEhrFragment).toEqual(ehrFragment);
+      expect(getNewMessageIdByOldMessageId).not.toHaveBeenCalled();
     });
 
     it('should throw an error when given an invalid ehrCore', async () => {
@@ -305,22 +342,41 @@ describe('testTransferOutUtil', () => {
         .rejects.toThrowError(MessageIdUpdateError);
     });
 
-    it('should throw an error when failed to store the old and new message id pairs in database', async () => {
+    it('should throw an error when failed to retrieve the new message id pairs in database', async () => {
       // given
       const ehrCore = getValidEhrCore();
+      getNewMessageIdByOldMessageId.mockRejectedValueOnce(new Error('some error'));
 
       // when
-      const ehrCoreWithUpdatedFragmentIds = await updateReferencedFragmentIds(ehrCore);
+      await expect(updateReferencedFragmentIds(ehrCore))
+        // then
+        .rejects.toThrowError(MessageIdUpdateError);
+    });
+  });
+
+  describe('updateAllFragmentsMessageIds', () => {
+    it('should update all the message ids of given fragments', async () => {
+      // given
+      const fragments = getArrayOfValidMessageFragments().map(file => JSON.parse(file));
+      const extractMessageId = fragment => {
+        return extractEbXmlData(fragment.ebXML).then(extractedData => extractedData.messageId);
+      };
+      const oldMessageIds = await Promise.all(fragments.map(extractMessageId));
+      const newMessageIdsForMocking = oldMessageIds.map(() => uuidv4().toUpperCase());
+
+      // when
+      getNewMessageIdByOldMessageId.mockImplementation(key => {
+        return newMessageIdsForMocking[oldMessageIds.indexOf(key)];
+      });
+      const fragmentsWithUpdatedMessageIds = await updateAllFragmentsMessageIds(fragments);
 
       // then
-      const oldFragmentIdList = await extractReferencedFragmentMessageIds(
-        JSON.parse(ehrCore).ebXML
-      );
-      for (let oldFragmentId of oldFragmentIdList) {
-        expect(createMessageIdReplacement).toHaveBeenCalledWith(
-          oldFragmentId,
-          expect.stringMatching(UUID_UPPERCASE_REGEX)
-        );
+      for (let [newMessageId, updatedFragment] of Object.entries(fragmentsWithUpdatedMessageIds)) {
+        expect(newMessageIdsForMocking).toContain(newMessageId);
+        expect(oldMessageIds).not.toContain(newMessageId);
+
+        const actualMessageIdInUpdatedFragment = await extractMessageId(updatedFragment);
+        expect(actualMessageIdInUpdatedFragment).toEqual(newMessageId);
       }
     });
   });
@@ -328,34 +384,38 @@ describe('testTransferOutUtil', () => {
   describe('updateMessageIdForMessageFragment', () => {
     it('should update the message id of message fragment to the new id created during ehr core transfer', async () => {
       // given
-      const fragment = getValidMessageFragment();
+      const fragment = JSON.parse(getValidMessageFragment());
 
       // when
       getNewMessageIdByOldMessageId.mockReturnValueOnce(UPDATED_MESSAGE_ID);
-      const fragmentWithUpdatedMessageId = await updateMessageIdForMessageFragment(fragment);
+      const { updatedFragment, newMessageId } = await updateMessageIdForMessageFragment(fragment);
 
       // then
-      const { messageId: oldMessageId } = await extractEbXmlData(JSON.parse(fragment).ebXML);
-      const { messageId: newMessageId } = await extractEbXmlData(
-        JSON.parse(fragmentWithUpdatedMessageId).ebXML
+      const { messageId: oldMessageId } = await extractEbXmlData(fragment.ebXML);
+      const { messageId: messageIdInUpdatedFragment } = await extractEbXmlData(
+        updatedFragment.ebXML
       );
 
       expect(newMessageId).not.toEqual(oldMessageId);
+      expect(newMessageId).toEqual(UPDATED_MESSAGE_ID);
+      expect(messageIdInUpdatedFragment).toEqual(UPDATED_MESSAGE_ID);
+
       expect(uuidValidate(newMessageId)).toBe(true);
+      expect(updatedFragment).not.toContain(oldMessageId);
     });
   });
 
   it('should throw an error when not able to find the new message id for a fragment', async () => {
     // given
-    const fragment = getValidMessageFragment();
+    const fragment = JSON.parse(getValidMessageFragment());
 
     // when
     getNewMessageIdByOldMessageId.mockImplementation(() => {
-      throw new FragmentMessageIdRecordNotFoundError();
+      throw new FragmentMessageIdReplacementRecordNotFoundError();
     });
 
     await expect(updateMessageIdForMessageFragment(fragment))
       // then
-      .rejects.toThrowError(FragmentMessageIdRecordNotFoundError);
+      .rejects.toThrowError(FragmentMessageIdReplacementRecordNotFoundError);
   });
 });

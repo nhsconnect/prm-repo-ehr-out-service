@@ -11,6 +11,11 @@ import {
   getMessageFragmentStatusByMessageId,
   updateMessageFragmentStatus
 } from '../message-fragment-repository';
+import { v4 as uuidv4 } from 'uuid';
+import { logError, logInfo } from '../../../middleware/logging';
+import { errorMessages, FragmentMessageRecordNotFoundError } from '../../../errors/errors';
+
+jest.mock('../../../middleware/logging');
 
 describe('message-fragment-repository.js', () => {
   // ============ COMMON PROPERTIES ============
@@ -23,7 +28,7 @@ describe('message-fragment-repository.js', () => {
     // clean and sync the table before test
     await MessageFragment.truncate();
     await MessageFragment.sync({ force: true });
-  })
+  });
 
   // Tear Down
   afterAll(async () => {
@@ -47,27 +52,27 @@ describe('message-fragment-repository.js', () => {
         odsCode,
         status: registrationStatus
       });
-  
+
       // when
       await MessageFragment.create({
         messageId,
         conversationId,
         status
       });
-  
+
       const record = await getMessageFragmentStatusByMessageId(messageId);
-  
+
       // then
       expect(record.messageId).toBe(messageId);
       expect(record.conversationId).toBe(conversationId);
       expect(record.status).toBe(status);
     });
-  
+
     it('should return null when it cannot find the message id in record', async () => {
       // when
       const nonExistentMessageId = '9dd61fbe-1958-4479-a6aa-14cb4aa9651a';
       const record = await getMessageFragmentStatusByMessageId(nonExistentMessageId);
-  
+
       // then
       expect(record).toBe(null);
     });
@@ -76,7 +81,7 @@ describe('message-fragment-repository.js', () => {
   describe('updateMessageFragmentStatus', () => {
     // ============ COMMON PROPERTIES ============
     const registrationStatus = registrationRequestStatus.REGISTRATION_REQUEST_RECEIVED;
-    const initialStatus = MessageFragmentStatus.FRAGMENT_REQUEST_RECEIVED
+    const initialStatus = MessageFragmentStatus.FRAGMENT_REQUEST_RECEIVED;
     const updatedStatus = MessageFragmentStatus.FRAGMENT_SENDING_FAILED;
     const messageId = '9dd61fbe-1958-4479-a6aa-14cb4aa9651a';
     const conversationId = 'efec71f4-bc54-4a31-9453-f1300bf28cef';
@@ -106,6 +111,21 @@ describe('message-fragment-repository.js', () => {
       expect(record.conversationId).toBe(conversationId);
       expect(record.messageId).toBe(messageId);
       expect(record.status).toBe(updatedStatus);
+      expect(logInfo).toHaveBeenCalledWith('Updated message fragment status has been stored');
+    });
+
+    it('should throw an error when trying to update a non-existing message fragment', async () => {
+      // given
+      const nonExistMessageId = uuidv4().toUpperCase();
+
+      // when
+      await expect(updateMessageFragmentStatus(nonExistMessageId, updatedStatus))
+        // then
+        .rejects.toThrow(FragmentMessageRecordNotFoundError);
+
+      expect(logError).toHaveBeenCalledWith(
+        expect.stringContaining(errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR)
+      );
     });
   });
-})
+});

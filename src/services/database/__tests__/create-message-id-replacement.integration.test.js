@@ -4,12 +4,17 @@ import { modelName } from '../../../models/message-id-replacement';
 import { createMessageIdReplacement } from '../create-message-id-replacement';
 import { runWithinTransaction } from '../helper';
 import { v4 } from 'uuid';
-import { ValidationError, UniqueConstraintError } from 'sequelize';
-import { errorMessages } from "../../../errors/errors";
+import { UniqueConstraintError, DatabaseError } from 'sequelize';
+import { errorMessages } from '../../../errors/errors';
 
 jest.mock('../../../middleware/logging');
 
 describe('createMessageIdReplacement', () => {
+  afterAll(() => {
+    // close the db connection to avoid "Jest did not exit" warning messages
+    MessageIdReplacement.sequelize.close();
+  });
+
   const MessageIdReplacement = ModelFactory.getByName(modelName);
 
   const uuidv4 = () => v4().toUpperCase();
@@ -54,20 +59,18 @@ describe('createMessageIdReplacement', () => {
     // when
     await expect(createMessageIdReplacement('invalid-old-message-id', uuidv4()))
       // then
-      .rejects.toThrow('Validation error: Validation isUUID on oldMessageId failed');
+      .rejects.toThrow('invalid input syntax for type uuid');
 
     expect(logError).toHaveBeenCalledWith(errorMessages.MESSAGE_ID_RECORD_CREATION_ERROR);
-    expect(logError).toHaveBeenCalledWith(expect.any(ValidationError));
   });
 
   it('should throw an error when newMessageId is invalid', async () => {
     // when
-    await expect(createMessageIdReplacement(uuidv4(), 'invalid-new-message-id'))
+    await expect(createMessageIdReplacement(uuidv4(), 'INVALID-NEW-MESSAGE-ID'))
       // then
-      .rejects.toThrow('Validation error: Validation isUUID on newMessageId failed');
+      .rejects.toThrow('invalid input syntax for type uuid');
 
     expect(logError).toHaveBeenCalledWith(errorMessages.MESSAGE_ID_RECORD_CREATION_ERROR);
-    expect(logError).toHaveBeenCalledWith(expect.any(ValidationError));
   });
 
   it('should throw an error when try to register again with the same oldMessageId', async () => {
@@ -81,6 +84,5 @@ describe('createMessageIdReplacement', () => {
       .rejects.toThrow(UniqueConstraintError);
 
     expect(logError).toHaveBeenCalledWith(errorMessages.MESSAGE_ID_RECORD_CREATION_ERROR);
-
-  })
+  });
 });

@@ -1,4 +1,4 @@
-import { logError } from "../middleware/logging";
+import { logError } from '../middleware/logging';
 
 export const errorMessages = {
   DOWNLOAD_ERROR: 'Cannot retrieve message from presigned URL',
@@ -12,7 +12,10 @@ export const errorMessages = {
   PARSE_MESSAGE_ERROR: 'Failed while trying to parse ehr message',
   MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to update message id to new ones',
   MESSAGE_ID_RECORD_CREATION_ERROR: 'Failed to record the message ids replacement in database',
-  FRAGMENT_MESSAGE_ID_RECORD_NOT_FOUND_ERROR: 'Cannot find the the replaced fragment message id from database'
+  FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR:
+    'Cannot find the the fragment message record from database',
+  FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR:
+    'Cannot find the the replaced fragment message id from database'
 };
 
 export class GetPdsCodeError extends Error {
@@ -26,35 +29,35 @@ export class EhrUrlNotFoundError extends Error {
   constructor(error) {
     super(errorMessages.EHR_URL_NOT_FOUND_ERROR);
     logError(errorMessages.EHR_URL_NOT_FOUND_ERROR, error);
-  };
+  }
 }
 
 export class DownloadError extends Error {
   constructor(error) {
     super(errorMessages.DOWNLOAD_ERROR);
     logError(errorMessages.DOWNLOAD_ERROR, error);
-  };
+  }
 }
 
 export class SendCoreError extends Error {
   constructor(error) {
     super(errorMessages.SEND_CORE_ERROR);
     logError(errorMessages.SEND_CORE_ERROR, error);
-  };
+  }
 }
 
 export class SendFragmentError extends Error {
   constructor(error) {
     super(errorMessages.SEND_FRAGMENT_ERROR);
     logError(errorMessages.SEND_FRAGMENT_ERROR, error);
-  };
+  }
 }
 
 export class PatientRecordNotFoundError extends Error {
   constructor(error) {
     super(errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR);
     logError(errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR, error);
-  };
+  }
 }
 
 export class StatusUpdateError extends Error {
@@ -78,16 +81,20 @@ export class MessageIdUpdateError extends Error {
   }
 }
 
-export class FragmentMessageIdRecordNotFoundError extends Error {
-  constructor(oldMessageId) {
-    super(errorMessages.FRAGMENT_MESSAGE_ID_RECORD_NOT_FOUND_ERROR);
-    logError(`${errorMessages.FRAGMENT_MESSAGE_ID_RECORD_NOT_FOUND_ERROR}, related oldMessageId: ${oldMessageId}`);
+export class FragmentMessageRecordNotFoundError extends Error {
+  constructor(messageId) {
+    super(errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR);
+    logError(
+      `${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId: ${messageId}`
+    );
   }
 }
 
-export class DuplicatedRequestError extends Error {
-  constructor(error) {
-    super(errorMessages.DUPLICATED_REQUEST_ERROR);
-    logError(errorMessages.DUPLICATED_REQUEST_ERROR, error);
+export class FragmentMessageIdReplacementRecordNotFoundError extends Error {
+  constructor(oldMessageId) {
+    super(errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR);
+    logError(
+      `${errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR}, related oldMessageId: ${oldMessageId}`
+    );
   }
 }
