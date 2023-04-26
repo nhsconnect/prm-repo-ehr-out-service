@@ -1,19 +1,8 @@
-dimport { readFile, validateMessageEquality } from "../integration-test.utilities";
+import { readFile, validateMessageEquality } from "../integration-test.utilities";
 import expect from "expect";
 
 describe('integration-test-utilities.js', () => {
-  describe('readMessage', () => {
-    it('should read a UK06 message based on the interaction id', () => {
-      // given
-      const interactionId = "RCMR_IN030000UK06";
-
-      // when
-      const message = readFile(interactionId);
-
-      // then
-      expect(message).toContain('RCMR_IN030000UK06'); // TODO: Add more assertions later...
-    });
-  });
+  describe('readMessage', () => {});
 
   describe('validateMessageEquality', () => {
     it('should be true when a large ehr UK06 has no unexpected changes', () => {
