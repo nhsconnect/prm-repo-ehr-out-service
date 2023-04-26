@@ -1,4 +1,4 @@
-import { FileError } from '../../errors/errors';
+import { FileReadError } from '../../errors/errors';
 import { XMLParser } from 'fast-xml-parser';
 import isEqual from 'lodash.isequal';
 import { readFileSync } from 'fs';
@@ -12,7 +12,7 @@ export const readFile = (fileName, ...folderNames) => {
   try {
     return readFileSync(path.join(__dirname, "..", "data", ...folderNames, fileName), "utf-8");
   } catch (error) {
-    throw new FileError(error);
+    throw new FileReadError(error);
   }
 };
 
