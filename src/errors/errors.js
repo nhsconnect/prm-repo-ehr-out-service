@@ -8,7 +8,8 @@ export const errorMessages = {
   GET_PDS_CODE_ERROR: 'Unable to retrieve patient from PDS',
   PATIENT_RECORD_NOT_FOUND_ERROR: 'Cannot find the requested patient record from ehr-repo',
   STATUS_ERROR: 'The status could not be updated',
-  DUPLICATED_REQUEST_ERROR: 'Got a duplicated request'
+  DUPLICATED_REQUEST_ERROR: 'Got a duplicated request',
+  FILE_READ_ERROR: 'Failed to read file'
 };
 
 export class GetPdsCodeError extends Error {
@@ -64,5 +65,12 @@ export class DuplicatedRequestError extends Error {
   constructor(error) {
     super(errorMessages.DUPLICATED_REQUEST_ERROR);
     logError(errorMessages.DUPLICATED_REQUEST_ERROR, error);
+  }
+}
+
+export class FileReadError extends Error {
+  constructor(error) {
+    super(errorMessages.FILE_READ_ERROR);
+    logError(errorMessages.FILE_READ_ERROR, error);
   }
 }
