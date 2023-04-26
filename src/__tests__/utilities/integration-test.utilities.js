@@ -37,6 +37,9 @@ const validateEbXmlEquality = (original, modified) => {
     }
   }
 
+  // TODO: Figure out a way to delete the xlink href Message IDs for each occurrence in the ebXML manifest
+  // TODO: and then this should be good to go.
+
   return isEqual(ebXMLs.original, ebXMLs.modified);
 }
 
@@ -46,13 +49,16 @@ const validatePayloadEquality = (original, modified) => {
     modified: parser.parse(JSON.parse(modified).payload)
   };
 
-  // Removes references to message id in RCMR_IN030000UK06 -> ID Root and EHR Extract -> ID Root
   for (const key in payloads) {
     if (payloads.hasOwnProperty(key)) {
       delete payloads[key]['RCMR_IN030000UK06']['id']['@_root'];
       delete payloads[key]['RCMR_IN030000UK06']['ControlActEvent']['subject']['EhrExtract']['id']['@_root'];
     }
   }
+
+  // TODO: Differentiate between the UK06 and COPC, identify places where we
+  // TODO: expect changes to happen in those. Based on the interaction ID coming
+  // TODO: in, we want to extract different parts.
 
   return isEqual(payloads.original, payloads.modified);
 };
