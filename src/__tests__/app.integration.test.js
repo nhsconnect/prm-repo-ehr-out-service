@@ -277,10 +277,5 @@ describe('Ensure health record outbound XML is unchanged', () => {
     expect(validateMessageEquality(ORIGINAL_UK06, MODIFIED_UK06)).toBe(true);
   });
 
-  it('should verify that a large EHR and its fragments are unchanged by the xml changes', async () => {
-    // [1 ✔️] Assert that ODS_VALIDATION_CHECKS_PASSED status is set within the database.
-    // [2 ✔️] Assert that SENT_EHR status is set within the database.
-    // [3 🔍] Verify no unexpected XML changes are being done, in core AND fragments.
-    // [4 🥳] We're done with this test, hurrah - onto E2E - or GP2GP messenger IT?!
-  });
+  it('should verify that a large EHR and its fragments are unchanged by the xml changes', async () => {});
 });
