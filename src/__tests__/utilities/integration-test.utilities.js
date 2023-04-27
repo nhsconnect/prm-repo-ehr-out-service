@@ -4,6 +4,11 @@ import isEqual from 'lodash.isequal';
 import { readFileSync } from 'fs';
 import * as path from 'path';
 
+const INTERACTION_IDS = {
+  'UK06': 'RCMR_IN030000UK06',
+  'COPC': 'COPC_IN000001UK01'
+}
+
 const parser = new XMLParser({
   ignoreAttributes : false
 });
@@ -19,7 +24,9 @@ export const readFile = (fileName, ...folderNames) => {
 export const validateMessageEquality = (original, modified) => {
   const conditions = [
     validateEbXmlEquality(original, modified),
-    validatePayloadEquality(original, modified)
+    validatePayloadEquality(original, modified),
+    validateAttachmentEquality(original, modified),
+    validateExternalAttachmentEquality(original, modified)
   ];
 
   return conditions.every(test => test === true);
@@ -31,14 +38,22 @@ const validateEbXmlEquality = (original, modified) => {
     modified: parser.parse(JSON.parse(modified).ebXML)
   };
 
+  // Check original vs modified ebXML
   for (const key in ebXMLs) {
     if (ebXMLs.hasOwnProperty(key)) {
+      // Delete the Message ID attribute within MessageData -> MessageId
       delete ebXMLs[key]["soap:Envelope"]["soap:Header"]["eb:MessageHeader"]["eb:MessageData"]["eb:MessageId"];
+
+      // Delete inner manifest Message ID (i.e. mid) references
+      if(Array.isArray(ebXMLs[key]["soap:Envelope"]["soap:Body"]["eb:Manifest"]["eb:Reference"])) {
+        ebXMLs[key]["soap:Envelope"]["soap:Body"]["eb:Manifest"]["eb:Reference"].forEach(reference => {
+          if (reference["@_xlink:href"].includes('mid')) {
+            delete reference["@_xlink:href"];
+          }
+        });
+      }
     }
   }
-
-  // TODO: Figure out a way to delete the xlink href Message IDs for each occurrence in the ebXML manifest
-  // TODO: and then this should be good to go.
 
   return isEqual(ebXMLs.original, ebXMLs.modified);
 }
@@ -51,14 +66,20 @@ const validatePayloadEquality = (original, modified) => {
 
   for (const key in payloads) {
     if (payloads.hasOwnProperty(key)) {
-      delete payloads[key]['RCMR_IN030000UK06']['id']['@_root'];
-      delete payloads[key]['RCMR_IN030000UK06']['ControlActEvent']['subject']['EhrExtract']['id']['@_root'];
+      if(original.includes(INTERACTION_IDS.UK06) && modified.includes(INTERACTION_IDS.UK06)) {
+        // Remove Message ID references within the UK06 message
+        delete payloads[key][INTERACTION_IDS.UK06]['id']['@_root'];
+        delete payloads[key][INTERACTION_IDS.UK06]['ControlActEvent']['subject']['EhrExtract']['id']['@_root'];
+      }
+      else if (original.includes(INTERACTION_IDS.COPC) && modified.includes(INTERACTION_IDS.COPC)) {
+        // Remove Message ID references within the COPC message
+        delete payloads[key][INTERACTION_IDS.COPC]['id']['@_root'];
+        delete payloads[key][INTERACTION_IDS.COPC]['ControlActEvent']['subject']['PayloadInformation']['id']['@_root'];
+        delete payloads[key][INTERACTION_IDS.COPC]['ControlActEvent']['subject']['PayloadInformation']['value']['Gp2gpfragment']['message-id'];
+        delete payloads[key][INTERACTION_IDS.COPC]['ControlActEvent']['subject']['PayloadInformation']['pertinentInformation']['pertinentPayloadBody']['id']['@_root'];
+      }
     }
   }
-
-  // TODO: Differentiate between the UK06 and COPC, identify places where we
-  // TODO: expect changes to happen in those. Based on the interaction ID coming
-  // TODO: in, we want to extract different parts.
 
   return isEqual(payloads.original, payloads.modified);
 };
@@ -69,14 +90,20 @@ const validateAttachmentEquality = (original, modified) => {
     modified: parser.parse(JSON.parse(modified).attachments)
   };
 
-  return true;
+  return isEqual(attachments.original, attachments.modified);
 };
 
 const validateExternalAttachmentEquality = (original, modified) => {
-  const externalAttachments = {
-    original: parser.parse(JSON.parse(original).attachments),
-    modified: parser.parse(JSON.parse(modified).attachments)
-  };
+  if(original.includes('external_attachments') && modified.includes('external_attachments'))
+  {
+    const externalAttachments = {
+      original: parser.parse(JSON.parse(original).external_attachments),
+      modified: parser.parse(JSON.parse(modified).external_attachments)
+    };
 
+    return isEqual(externalAttachments.modified, externalAttachments.modified);
+  }
+
+  // No external attachments, skip
   return true;
 }
