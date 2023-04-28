@@ -96,5 +96,28 @@ describe('integration-test-utilities.js', () => {
       // then
       expect(result).toBe(false);
     });
+
+    it('should be true when a large ehr UK06 with external attachments has no unexpected changes', () => {
+      // given
+      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-with-external-attachments', 'original');
+
+      // when
+      const result = validateMessageEquality(originalMessage, originalMessage);
+
+      // then
+      expect(result).toBe(true);
+    });
+
+    it('should be false when a large ehr UK06 with external attachments has unexpected changes', () => {
+      // given
+      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-with-external-attachments', 'original');
+      const modifiedMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-with-external-attachments', 'modified');
+
+      // when
+      const result = validateMessageEquality(originalMessage, modifiedMessage);
+
+      // then
+      expect(result).toBe(false);
+    });
   });
 });

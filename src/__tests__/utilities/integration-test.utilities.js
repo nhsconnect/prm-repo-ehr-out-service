@@ -5,8 +5,8 @@ import { readFileSync } from 'fs';
 import * as path from 'path';
 
 const INTERACTION_IDS = {
-  'UK06': 'RCMR_IN030000UK06',
-  'COPC': 'COPC_IN000001UK01'
+  UK06: 'RCMR_IN030000UK06',
+  COPC: 'COPC_IN000001UK01'
 }
 
 const parser = new XMLParser({
@@ -66,7 +66,7 @@ const validatePayloadEquality = (original, modified) => {
 
   for (const key in payloads) {
     if (payloads.hasOwnProperty(key)) {
-      if(original.includes(INTERACTION_IDS.UK06) && modified.includes(INTERACTION_IDS.UK06)) {
+      if (original.includes(INTERACTION_IDS.UK06) && modified.includes(INTERACTION_IDS.UK06)) {
         // Remove Message ID references within the UK06 message
         delete payloads[key][INTERACTION_IDS.UK06]['id']['@_root'];
         delete payloads[key][INTERACTION_IDS.UK06]['ControlActEvent']['subject']['EhrExtract']['id']['@_root'];
@@ -94,14 +94,24 @@ const validateAttachmentEquality = (original, modified) => {
 };
 
 const validateExternalAttachmentEquality = (original, modified) => {
-  if(original.includes('external_attachments') && modified.includes('external_attachments'))
-  {
+  if (original.includes('external_attachments') && modified.includes('external_attachments')) {
     const externalAttachments = {
       original: parser.parse(JSON.parse(original).external_attachments),
       modified: parser.parse(JSON.parse(modified).external_attachments)
     };
 
-    return isEqual(externalAttachments.modified, externalAttachments.modified);
+    // Count number of objects in external attachments
+    // Then for every object, delete message id field
+
+    // TODO: Does an Empty Array of External Attachments break the code?
+
+    for (const key in externalAttachments) {
+      if (externalAttachments.hasOwnProperty(key)) {
+        delete externalAttachments[key]['message_id'];
+      }
+    }
+
+    return isEqual(externalAttachments.original, externalAttachments.modified);
   }
 
   // No external attachments, skip
