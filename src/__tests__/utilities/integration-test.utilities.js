@@ -1,3 +1,4 @@
+import { logError, logInfo } from "../../middleware/logging";
 import { FileReadError } from '../../errors/errors';
 import { XMLParser } from 'fast-xml-parser';
 import isEqual from 'lodash.isequal';
@@ -10,7 +11,9 @@ const INTERACTION_IDS = {
 }
 
 const parser = new XMLParser({
-  ignoreAttributes : false
+  ignoreAttributes : false,
+  removeNSPrefix: true,
+  ignoreDeclaration: true
 });
 
 export const readFile = (fileName, ...folderNames) => {
@@ -42,13 +45,13 @@ const validateEbXmlEquality = (original, modified) => {
   for (const key in ebXMLs) {
     if (ebXMLs.hasOwnProperty(key)) {
       // Delete the Message ID attribute within MessageData -> MessageId
-      delete ebXMLs[key]["soap:Envelope"]["soap:Header"]["eb:MessageHeader"]["eb:MessageData"]["eb:MessageId"];
+      delete ebXMLs[key]["Envelope"]["Header"]["MessageHeader"]["MessageData"]["MessageId"];
 
       // Delete inner manifest Message ID (i.e. mid) references
-      if(Array.isArray(ebXMLs[key]["soap:Envelope"]["soap:Body"]["eb:Manifest"]["eb:Reference"])) {
-        ebXMLs[key]["soap:Envelope"]["soap:Body"]["eb:Manifest"]["eb:Reference"].forEach(reference => {
-          if (reference["@_xlink:href"].includes('mid')) {
-            delete reference["@_xlink:href"];
+      if(Array.isArray(ebXMLs[key]["Envelope"]["Body"]["Manifest"]["Reference"])) {
+        ebXMLs[key]["Envelope"]["Body"]["Manifest"]["Reference"].forEach(reference => {
+          if (reference["@_href"].includes('mid')) {
+            delete reference["@_href"];
           }
         });
       }
@@ -78,6 +81,10 @@ const validatePayloadEquality = (original, modified) => {
         delete payloads[key][INTERACTION_IDS.COPC]['ControlActEvent']['subject']['PayloadInformation']['value']['Gp2gpfragment']['message-id'];
         delete payloads[key][INTERACTION_IDS.COPC]['ControlActEvent']['subject']['PayloadInformation']['pertinentInformation']['pertinentPayloadBody']['id']['@_root'];
       }
+      else {
+        logError('Unrecognised Interaction ID');
+        return false;
+      }
     }
   }
 
@@ -86,8 +93,8 @@ const validatePayloadEquality = (original, modified) => {
 
 const validateAttachmentEquality = (original, modified) => {
   const attachments = {
-    original: parser.parse(JSON.parse(original).attachments),
-    modified: parser.parse(JSON.parse(modified).attachments)
+    original: JSON.parse(original).attachments,
+    modified: JSON.parse(modified).attachments
   };
 
   return isEqual(attachments.original, attachments.modified);
@@ -96,24 +103,25 @@ const validateAttachmentEquality = (original, modified) => {
 const validateExternalAttachmentEquality = (original, modified) => {
   if (original.includes('external_attachments') && modified.includes('external_attachments')) {
     const externalAttachments = {
-      original: parser.parse(JSON.parse(original).external_attachments),
-      modified: parser.parse(JSON.parse(modified).external_attachments)
+      original: JSON.parse(original).external_attachments,
+      modified: JSON.parse(modified).external_attachments
     };
 
-    // Count number of objects in external attachments
-    // Then for every object, delete message id field
-
-    // TODO: Does an Empty Array of External Attachments break the code?
+    if (externalAttachments.original.length === 0 && externalAttachments.modified.length === 0) {
+      logInfo("No external attachments found in original OR modified, skipping.");
+      return true;
+    }
 
     for (const key in externalAttachments) {
       if (externalAttachments.hasOwnProperty(key)) {
-        delete externalAttachments[key]['message_id'];
+        for (const externalAttachment in externalAttachments[key]) {
+          delete externalAttachments[key][externalAttachment]['message_id'];
+        }
       }
     }
 
     return isEqual(externalAttachments.original, externalAttachments.modified);
   }
 
-  // No external attachments, skip
   return true;
 }

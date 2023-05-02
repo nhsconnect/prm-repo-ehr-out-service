@@ -9,7 +9,7 @@ describe('integration-test-utilities.js', () => {
       const fileName = 'RCMR_IN030000UK06';
       const folders = [
         'equality-test',
-        'large-ehr',
+        'large-ehr-with-external-attachments',
         'original'
       ];
 
@@ -50,21 +50,10 @@ describe('integration-test-utilities.js', () => {
     });
   });
 
-  describe('validateMessageEquality', () => {
+  describe('validateMessageEquality for large electronic health records without external attachments', () => {
     it('should be true when a large ehr UK06 has no unexpected changes', () => {
       // given
-      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr', 'original');
-
-      // when
-      const result = validateMessageEquality(originalMessage, originalMessage);
-
-      // then
-      expect(result).toBe(true);
-    });
-
-    it('should be true when a small ehr UK06 has no unexpected changes', () => {
-      // given
-      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
+      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-no-external-attachments', 'original');
 
       // when
       const result = validateMessageEquality(originalMessage, originalMessage);
@@ -75,8 +64,8 @@ describe('integration-test-utilities.js', () => {
 
     it('should be false when a large ehr UK06 has unexpected changes', () => {
       // given
-      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr', 'original');
-      const modifiedMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr', 'modified');
+      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-no-external-attachments', 'original');
+      const modifiedMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-no-external-attachments', 'modified');
 
       // when
       const result = validateMessageEquality(originalMessage, modifiedMessage);
@@ -85,10 +74,21 @@ describe('integration-test-utilities.js', () => {
       expect(result).toBe(false);
     });
 
-    it('should be false when a small ehr UK06 has unexpected changes', () => {
+    it('should be true when a fragment COPC has no unexpected changes', () => {
       // given
-      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
-      const modifiedMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'modified');
+      const originalMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'original');
+
+      // when
+      const result = validateMessageEquality(originalMessage, originalMessage);
+
+      // then
+      expect(result).toBe(true);
+    });
+
+    it('should be false when a fragment COPC with external attachments has unexpected changes', () => {
+      // given
+      const originalMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'original');
+      const modifiedMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'modified');
 
       // when
       const result = validateMessageEquality(originalMessage, modifiedMessage);
@@ -96,7 +96,9 @@ describe('integration-test-utilities.js', () => {
       // then
       expect(result).toBe(false);
     });
+  });
 
+  describe('validateMessageEquality for large electronic health records with external attachments', () => {
     it('should be true when a large ehr UK06 with external attachments has no unexpected changes', () => {
       // given
       const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-with-external-attachments', 'original');
@@ -112,6 +114,77 @@ describe('integration-test-utilities.js', () => {
       // given
       const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-with-external-attachments', 'original');
       const modifiedMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-with-external-attachments', 'modified');
+
+      // when
+      const result = validateMessageEquality(originalMessage, modifiedMessage);
+
+      // then
+      expect(result).toBe(false);
+    });
+
+    it('should be true when a fragment COPC with an empty array of external attachments has no unexpected changes', () => {
+      // given
+      const originalMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'original');
+
+      // when
+      const result = validateMessageEquality(originalMessage, originalMessage);
+
+      // then
+      expect(result).toBe(true);
+    });
+
+    it('should be false when a fragment COPC with an empty array of external attachments has unexpected changes', () => {
+      // given
+      const originalMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'original');
+      const modifiedMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'modified');
+
+      // when
+      const result = validateMessageEquality(originalMessage, modifiedMessage);
+
+      // then
+      expect(result).toBe(false);
+    });
+
+    it('should be true when a fragment COPC with external attachments has no unexpected changes', () => {
+      // given
+      const originalMessage = readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-with-external-attachments', 'original');
+
+      // when
+      const result = validateMessageEquality(originalMessage, originalMessage);
+
+      // then
+      expect(result).toBe(true);
+    });
+
+    it('should be false when a fragment COPC with external attachments has unexpected changes', () => {
+      // given
+      const originalMessage = readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-with-external-attachments', 'original');
+      const modifiedMessage = readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-with-external-attachments', 'modified');
+
+      // when
+      const result = validateMessageEquality(originalMessage, modifiedMessage);
+
+      // then
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('validateMessageEquality for small electronic health records', () => {
+    it('should be true when a small electronic health record UK06 has no unexpected changes', () => {
+      // given
+      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
+
+      // when
+      const result = validateMessageEquality(originalMessage, originalMessage);
+
+      // then
+      expect(result).toBe(true);
+    });
+
+    it('should be false when a small electronic health record UK06 has unexpected changes', () => {
+      // given
+      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
+      const modifiedMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'modified');
 
       // when
       const result = validateMessageEquality(originalMessage, modifiedMessage);
