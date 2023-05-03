@@ -108,7 +108,7 @@ const validateExternalAttachmentEquality = (original, modified) => {
     };
 
     if (externalAttachments.original.length === 0 && externalAttachments.modified.length === 0) {
-      logInfo("No external attachments found in original OR modified, skipping.");
+      logInfo("No external attachments found in original and modified, skipping.");
       return true;
     }
 

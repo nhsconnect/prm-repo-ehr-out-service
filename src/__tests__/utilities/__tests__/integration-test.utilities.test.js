@@ -135,8 +135,8 @@ describe('integration-test-utilities.js', () => {
 
     it('should be false when a fragment COPC with an empty array of external attachments has unexpected changes', () => {
       // given
-      const originalMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'original');
-      const modifiedMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'modified');
+      const originalMessage = readFile('COPC_IN000001UK01_04', 'equality-test', 'large-ehr-with-external-attachments', 'original');
+      const modifiedMessage = readFile('COPC_IN000001UK01_04', 'equality-test', 'large-ehr-with-external-attachments', 'modified');
 
       // when
       const result = validateMessageEquality(originalMessage, modifiedMessage);
@@ -158,8 +158,8 @@ describe('integration-test-utilities.js', () => {
 
     it('should be false when a fragment COPC with external attachments has unexpected changes', () => {
       // given
-      const originalMessage = readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-with-external-attachments', 'original');
-      const modifiedMessage = readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-with-external-attachments', 'modified');
+      const originalMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'original');
+      const modifiedMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'modified');
 
       // when
       const result = validateMessageEquality(originalMessage, modifiedMessage);
