@@ -1,6 +1,6 @@
 import { readFile, validateMessageEquality } from "../integration-test.utilities";
-import expect from "expect";
 import { FileReadError } from "../../../errors/errors";
+import expect from "expect";
 
 describe('integration-test-utilities.js', () => {
   describe('readMessage', () => {
@@ -53,10 +53,10 @@ describe('integration-test-utilities.js', () => {
   describe('validateMessageEquality for large electronic health records without external attachments', () => {
     it('should be true when a large ehr UK06 has no unexpected changes', () => {
       // given
-      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-no-external-attachments', 'original');
+      const message = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-no-external-attachments', 'original');
 
       // when
-      const result = validateMessageEquality(originalMessage, originalMessage);
+      const result = validateMessageEquality(message, message);
 
       // then
       expect(result).toBe(true);
@@ -76,10 +76,10 @@ describe('integration-test-utilities.js', () => {
 
     it('should be true when a fragment COPC has no unexpected changes', () => {
       // given
-      const originalMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'original');
+      const message = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'original');
 
       // when
-      const result = validateMessageEquality(originalMessage, originalMessage);
+      const result = validateMessageEquality(message, message);
 
       // then
       expect(result).toBe(true);
@@ -101,10 +101,10 @@ describe('integration-test-utilities.js', () => {
   describe('validateMessageEquality for large electronic health records with external attachments', () => {
     it('should be true when a large ehr UK06 with external attachments has no unexpected changes', () => {
       // given
-      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-with-external-attachments', 'original');
+      const message = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-with-external-attachments', 'original');
 
       // when
-      const result = validateMessageEquality(originalMessage, originalMessage);
+      const result = validateMessageEquality(message, message);
 
       // then
       expect(result).toBe(true);
@@ -124,10 +124,10 @@ describe('integration-test-utilities.js', () => {
 
     it('should be true when a fragment COPC with an empty array of external attachments has no unexpected changes', () => {
       // given
-      const originalMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'original');
+      const message = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'original');
 
       // when
-      const result = validateMessageEquality(originalMessage, originalMessage);
+      const result = validateMessageEquality(message, message);
 
       // then
       expect(result).toBe(true);
@@ -147,10 +147,10 @@ describe('integration-test-utilities.js', () => {
 
     it('should be true when a fragment COPC with external attachments has no unexpected changes', () => {
       // given
-      const originalMessage = readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-with-external-attachments', 'original');
+      const message = readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-with-external-attachments', 'original');
 
       // when
-      const result = validateMessageEquality(originalMessage, originalMessage);
+      const result = validateMessageEquality(message, message);
 
       // then
       expect(result).toBe(true);
@@ -172,10 +172,10 @@ describe('integration-test-utilities.js', () => {
   describe('validateMessageEquality for small electronic health records', () => {
     it('should be true when a small electronic health record UK06 has no unexpected changes', () => {
       // given
-      const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
+      const message = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
 
       // when
-      const result = validateMessageEquality(originalMessage, originalMessage);
+      const result = validateMessageEquality(message, message);
 
       // then
       expect(result).toBe(true);
