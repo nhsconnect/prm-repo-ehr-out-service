@@ -59,6 +59,57 @@ let validEbXmlAsJson = {
   }
 };
 
+
+const rawCOPCContinueBody =
+    '{"ebXML":"<SOAP:Envelope><SOAP:Header><eb:MessageHeader><eb:ConversationId>6E242658-3D8E-11E3-A7DC-172BDA00FA67</eb:ConversationId><eb:Action>COPC_IN000001UK01</eb:Action></eb:MessageHeader></SOAP:Header><SOAP:Body></SOAP:Body></SOAP:Envelope>","payload":"<COPC_IN000001UK01 xmlns=\\"urn:hl7-org:v3\\"><id root=\\"FA039330-7E63-446A-8CA4-E9E0D00DA6E8\\"/><ControlActEvent classCode=\\"CACT\\" moodCode=\\"EVN\\"><subject typeCode=\\"SUBJ\\" contextConductionInd=\\"false\\"><hl7:PayloadInformation classCode=\\"OBS\\" moodCode=\\"EVN\\" xmlns:npfitct=\\"template:NPFIT:content\\" xmlns:gp=\\"urn:nhs:names:services:gp2gp\\" xmlns:npfitlc=\\"NPFIT:HL7:Localisation\\" xmlns=\\"urn:hl7-org:v3\\" xmlns:hl7=\\"urn:hl7-org:v3\\"  xmlns:xsi=\\"http://www.w3.org/2001/XMLSchema-instance\\" xsi:schemaLocation=\\"urn:hl7-org:v3 ../../Schemas/COPC_MT000001UK01.xsd urn:nhs:names:services:gp2gp ../../Schemas/GP2GP_LM.xsd\\"><value><gp:Gp2gpfragment><gp:Recipients><gp:Recipient>B83002</gp:Recipient></gp:Recipients><gp:From>C81007</gp:From><gp:subject>Continue Acknowledgement</gp:subject></gp:Gp2gpfragment></value></hl7:PayloadInformation></subject></ControlActEvent></COPC_IN000001UK01>"}'
+
+const expectedParsedCOPCMessage = {
+  interactionId: 'COPC_IN000001UK01',
+  conversationId: '6E242658-3D8E-11E3-A7DC-172BDA00FA67',
+  odsCode: 'C81007'
+}
+
+const validCOPCEbXmlAsJson = {
+  data: {
+    Envelope: {
+      Header: {
+        MessageHeader:{
+          ConversationId: "6E242658-3D8E-11E3-A7DC-172BDA00FA67",
+          Action: "COPC_IN000001UK01"
+        }
+      },
+      Body: {
+      }
+    }
+  }
+}
+
+const validCOPCPayloadAsJson = {
+  data: {
+    COPC_IN000001UK01: {
+      ControlActEvent:{
+        classCode:"CACT",
+        moodCode:"EVN",
+        subject: {
+          typeCode:"SUBJ",
+          contextConductionInd:"false",
+          PayloadInformation: {
+            value:{
+              Gp2gpfragment:{
+                Recipients:{
+                  Recipient:"B83002"
+                },
+                From:"C81007",
+                subject:"Continue Acknowledgement"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 describe('sqs incoming message parser', () => {
   it('should successfully parse a valid ehr-request message', async () => {
     const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
@@ -111,5 +162,21 @@ describe('sqs incoming message parser', () => {
     xmlParser.mockReturnValueOnce(ebxmlWithoutInteractionId);
 
     await expect(() => parse(rawEhrRequestBody)).rejects.toThrow(/interaction ID/);
+  });
+
+  it('should successfully parse a valid COPC continue message', async () => {
+    // when
+    const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
+
+    xmlParser
+        .mockReturnValueOnce(validCOPCEbXmlAsJson)
+        .mockReturnValueOnce(validCOPCPayloadAsJson);
+
+    const parsedMessage = await parse(rawCOPCContinueBody);
+
+    // then
+    expect(parsedMessage.interactionId).toBe(expectedParsedCOPCMessage.interactionId);
+    expect(parsedMessage.conversationId).toBe(expectedParsedCOPCMessage.conversationId);
+    expect(parsedMessage.odsCode).toBe(expectedParsedCOPCMessage.odsCode);
   });
 });

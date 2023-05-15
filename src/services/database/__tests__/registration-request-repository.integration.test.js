@@ -1,9 +1,12 @@
+import { v4 as uuid } from 'uuid';
 import ModelFactory from '../../../models';
 import { modelName, Status } from '../../../models/registration-request';
 import {
+  getNhsNumberByConversationId,
   getRegistrationRequestStatusByConversationId,
   updateRegistrationRequestStatus
-} from '../../database/registration-request-repository';
+} from '../registration-request-repository';
+import {NhsNumberNotFoundError} from "../../../errors/errors";
 
 describe('Registration request repository', () => {
   const RegistrationRequest = ModelFactory.getByName(modelName);
@@ -59,5 +62,38 @@ describe('Registration request repository', () => {
     const registrationRequest = await RegistrationRequest.findByPk(conversationId);
 
     expect(registrationRequest.status).toBe(status);
+  });
+
+  describe('getNhsNumberByConversationId', () => {
+    it('should return the nhs number of a registration request', async () => {
+      // given
+      const conversationId = uuid();
+      const odsCode = 'B12345';
+      const nhsNumber = '1234567890'
+      const status = Status.REGISTRATION_REQUEST_RECEIVED
+
+      await RegistrationRequest.create({
+        conversationId,
+        nhsNumber,
+        status,
+        odsCode
+      });
+
+      // when
+      const returnedNhsNumber = await getNhsNumberByConversationId(conversationId)
+
+      // then
+      expect(returnedNhsNumber).toEqual(nhsNumber);
+    });
+
+    it('should throw NHS_NUMBER_NOT_FOUND_ERROR if cannot find the nhs number related to given conversation id', async () => {
+      // given
+      const conversationId = uuid();
+
+      // when
+      await expect(getNhsNumberByConversationId(conversationId))
+          // then
+          .rejects.toThrow(NhsNumberNotFoundError);
+    });
   });
 });

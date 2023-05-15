@@ -1,6 +1,7 @@
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { extractEbXmlData } from './extract-eb-xml-data';
 import { extractPayloadData } from './extract-payload-data';
+import { extractCOPCPayloadData } from "./extract-COPC-payload-data";
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { INTERACTION_IDS } from '../../constants/interaction-ids';
 
@@ -20,10 +21,14 @@ export const parse = async messageBody => {
       nhsNumber = payloadData.nhsNumber;
       odsCode = payloadData.odsCode;
       logInfo('Successfully parsed payload');
+      validatePayloadData(interactionId, conversationId, ehrRequestId, nhsNumber, odsCode);
       break;
     case INTERACTION_IDS.CONTINUE_REQUEST_INTERACTION_ID:
-      payloadData = await getPayloadData(messageBody, interactionId);
+      payloadData = await getCOPCPayloadData(messageBody);
       logInfo(`Received for ${interactionId}, payload data returned: ${JSON.stringify(payloadData)}`);
+      odsCode = payloadData.odsCode;
+      logInfo('Successfully parsed payload');
+      validatePayloadData(interactionId, conversationId, odsCode);
       break;
     case INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID:
       payloadData = await getPayloadData();
@@ -34,8 +39,7 @@ export const parse = async messageBody => {
       throw warning;
   }
 
-  validatePayloadData(interactionId, conversationId, ehrRequestId, nhsNumber, odsCode);
-  return {interactionId, conversationId, ehrRequestId, nhsNumber, odsCode };
+  return { interactionId, conversationId, ehrRequestId, nhsNumber, odsCode };
 };
 
 const getEbXMLPayloadData = async messageBody => {
@@ -50,6 +54,15 @@ const getEbXMLPayloadData = async messageBody => {
 const getPayloadData = async (messageBody, interactionId) => {
   try {
     return await extractPayloadData(JSON.parse(messageBody).payload, interactionId);
+  } catch (error) {
+    handleParsingError(error);
+  }
+}
+
+
+const getCOPCPayloadData = async (messageBody) => {
+  try {
+    return await extractCOPCPayloadData(JSON.parse(messageBody).payload);
   } catch (error) {
     handleParsingError(error);
   }
