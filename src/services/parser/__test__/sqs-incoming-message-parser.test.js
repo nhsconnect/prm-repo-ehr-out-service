@@ -7,7 +7,7 @@ jest.mock('../xml-parser/xml-parser');
 const rawEhrRequestBody =
   '{"ebXML":"<soap:Envelope><soap:Header><eb:MessageHeader ></eb:MessageHeader></soap:Header><soap:Body></soap:Body></soap:Envelope>","payload":"<RCMR_IN010000UK05 xmlns:xsi=\\"http://www.w3.org\\" xmlns:xs=\\"XMLSchema\\" type=\\"Message\\" xmlns=\\"urn:hl7-org:v3\\"></RCMR_IN010000UK05>","attachments":[]}';
 
-const expectedParsedMessage = {
+const expectedParsedEhrRequestMessage = {
   interactionId: 'RCMR_IN010000UK05',
   conversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22',
   ehrRequestId: 'FFFB3C70-0BCC-4D9E-A441-7E9C41A897AA',
@@ -46,7 +46,7 @@ const validEhrRequestPayloadAsJson = {
   }
 };
 
-let validEbXmlAsJson = {
+let validEhrRequestEbXmlAsJson = {
   data: {
     Envelope: {
       Header: {
@@ -60,16 +60,16 @@ let validEbXmlAsJson = {
 };
 
 
-const rawCOPCContinueBody =
+const rawContinueRequestBody =
     '{"ebXML":"<SOAP:Envelope><SOAP:Header><eb:MessageHeader><eb:ConversationId>6E242658-3D8E-11E3-A7DC-172BDA00FA67</eb:ConversationId><eb:Action>COPC_IN000001UK01</eb:Action></eb:MessageHeader></SOAP:Header><SOAP:Body></SOAP:Body></SOAP:Envelope>","payload":"<COPC_IN000001UK01 xmlns=\\"urn:hl7-org:v3\\"><id root=\\"FA039330-7E63-446A-8CA4-E9E0D00DA6E8\\"/><ControlActEvent classCode=\\"CACT\\" moodCode=\\"EVN\\"><subject typeCode=\\"SUBJ\\" contextConductionInd=\\"false\\"><hl7:PayloadInformation classCode=\\"OBS\\" moodCode=\\"EVN\\" xmlns:npfitct=\\"template:NPFIT:content\\" xmlns:gp=\\"urn:nhs:names:services:gp2gp\\" xmlns:npfitlc=\\"NPFIT:HL7:Localisation\\" xmlns=\\"urn:hl7-org:v3\\" xmlns:hl7=\\"urn:hl7-org:v3\\"  xmlns:xsi=\\"http://www.w3.org/2001/XMLSchema-instance\\" xsi:schemaLocation=\\"urn:hl7-org:v3 ../../Schemas/COPC_MT000001UK01.xsd urn:nhs:names:services:gp2gp ../../Schemas/GP2GP_LM.xsd\\"><value><gp:Gp2gpfragment><gp:Recipients><gp:Recipient>B83002</gp:Recipient></gp:Recipients><gp:From>C81007</gp:From><gp:subject>Continue Acknowledgement</gp:subject></gp:Gp2gpfragment></value></hl7:PayloadInformation></subject></ControlActEvent></COPC_IN000001UK01>"}'
 
-const expectedParsedCOPCMessage = {
+const expectedParsedContinueRequestMessage = {
   interactionId: 'COPC_IN000001UK01',
   conversationId: '6E242658-3D8E-11E3-A7DC-172BDA00FA67',
   odsCode: 'C81007'
 }
 
-const validCOPCEbXmlAsJson = {
+const validContinueRequestEbXmlAsJson = {
   data: {
     Envelope: {
       Header: {
@@ -84,7 +84,7 @@ const validCOPCEbXmlAsJson = {
   }
 }
 
-const validCOPCPayloadAsJson = {
+const validContinueRequestPayloadAsJson = {
   data: {
     COPC_IN000001UK01: {
       ControlActEvent:{
@@ -115,16 +115,16 @@ describe('sqs incoming message parser', () => {
     const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
 
     xmlParser
-      .mockReturnValueOnce(validEbXmlAsJson)
+      .mockReturnValueOnce(validEhrRequestEbXmlAsJson)
       .mockReturnValueOnce(validEhrRequestPayloadAsJson);
 
     let parsedMessage = await parse(rawEhrRequestBody);
 
-    await expect(parsedMessage.interactionId).toBe(expectedParsedMessage.interactionId);
-    await expect(parsedMessage.conversationId).toBe(expectedParsedMessage.conversationId);
-    await expect(parsedMessage.ehrRequestId).toBe(expectedParsedMessage.ehrRequestId);
-    await expect(parsedMessage.nhsNumber).toBe(expectedParsedMessage.nhsNumber);
-    await expect(parsedMessage.odsCode).toBe(expectedParsedMessage.odsCode);
+    await expect(parsedMessage.interactionId).toBe(expectedParsedEhrRequestMessage.interactionId);
+    await expect(parsedMessage.conversationId).toBe(expectedParsedEhrRequestMessage.conversationId);
+    await expect(parsedMessage.ehrRequestId).toBe(expectedParsedEhrRequestMessage.ehrRequestId);
+    await expect(parsedMessage.nhsNumber).toBe(expectedParsedEhrRequestMessage.nhsNumber);
+    await expect(parsedMessage.odsCode).toBe(expectedParsedEhrRequestMessage.odsCode);
   });
 
   it('should throw if cannot parse json wrapper', async () => {
@@ -141,7 +141,7 @@ describe('sqs incoming message parser', () => {
     await expect(() => parse({ ebXML: 'notxml' })).rejects.toThrow(/Error parsing/);
   });
 
-  it('should throw if cannot parse as ehr request message', async () => {
+  it('should throw if cannot parse as ehr-request message', async () => {
     const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
 
     xmlParser.mockReturnValue({
@@ -156,7 +156,7 @@ describe('sqs incoming message parser', () => {
   it('should throw if interaction ID is missing', async () => {
     const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
 
-    const ebxmlWithoutInteractionId = JSON.parse(JSON.stringify(validEbXmlAsJson));
+    const ebxmlWithoutInteractionId = JSON.parse(JSON.stringify(validEhrRequestEbXmlAsJson));
     ebxmlWithoutInteractionId.data.Envelope.Header.MessageHeader.Action = undefined;
 
     xmlParser.mockReturnValueOnce(ebxmlWithoutInteractionId);
@@ -164,19 +164,19 @@ describe('sqs incoming message parser', () => {
     await expect(() => parse(rawEhrRequestBody)).rejects.toThrow(/interaction ID/);
   });
 
-  it('should successfully parse a valid COPC continue message', async () => {
+  it('should successfully parse a valid continue-request message', async () => {
     // when
     const xmlParser = jest.spyOn(XmlParser.prototype, 'parse');
 
     xmlParser
-        .mockReturnValueOnce(validCOPCEbXmlAsJson)
-        .mockReturnValueOnce(validCOPCPayloadAsJson);
+        .mockReturnValueOnce(validContinueRequestEbXmlAsJson)
+        .mockReturnValueOnce(validContinueRequestPayloadAsJson);
 
-    const parsedMessage = await parse(rawCOPCContinueBody);
+    const parsedMessage = await parse(rawContinueRequestBody);
 
     // then
-    expect(parsedMessage.interactionId).toBe(expectedParsedCOPCMessage.interactionId);
-    expect(parsedMessage.conversationId).toBe(expectedParsedCOPCMessage.conversationId);
-    expect(parsedMessage.odsCode).toBe(expectedParsedCOPCMessage.odsCode);
+    expect(parsedMessage.interactionId).toBe(expectedParsedContinueRequestMessage.interactionId);
+    expect(parsedMessage.conversationId).toBe(expectedParsedContinueRequestMessage.conversationId);
+    expect(parsedMessage.odsCode).toBe(expectedParsedContinueRequestMessage.odsCode);
   });
 });

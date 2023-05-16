@@ -1,7 +1,7 @@
 import { XmlParser } from './xml-parser/xml-parser';
 import { logInfo } from '../../middleware/logging';
 
-export const extractPayloadData = async (payload, interactionId) => {
+export const extractEhrRequestPayloadData = async (payload, interactionId) => {
   const payloadAsObject = await new XmlParser().parse(payload);
   logInfo('parsed payload to object');
 

@@ -1,12 +1,12 @@
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { extractEbXmlData } from './extract-eb-xml-data';
-import { extractPayloadData } from './extract-payload-data';
-import { extractCOPCPayloadData } from "./extract-COPC-payload-data";
+import { extractEhrRequestPayloadData } from './extract-ehr-request-payload-data';
+import { extractContinueRequestPayloadData } from "./extract-continue-request-payload-data";
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { INTERACTION_IDS } from '../../constants/interaction-ids';
 
 export const parse = async messageBody => {
-  const { interactionId, conversationId } = await getEbXMLPayloadData(messageBody);
+  const { interactionId, conversationId } = await getEbXMLData(messageBody);
 
   setCurrentSpanAttributes({ conversationId });
   logInfo('Successfully parsed ebXML');
@@ -15,7 +15,7 @@ export const parse = async messageBody => {
 
   switch (interactionId) {
     case INTERACTION_IDS.EHR_REQUEST_INTERACTION_ID:
-      payloadData = await getPayloadData(messageBody, interactionId);
+      payloadData = await getEhrRequestPayloadData(messageBody, interactionId);
       logInfo(`Received for ${interactionId}, payload data returned: ${JSON.stringify(payloadData)}`);
       ehrRequestId = payloadData.ehrRequestId;
       nhsNumber = payloadData.nhsNumber;
@@ -24,14 +24,14 @@ export const parse = async messageBody => {
       validatePayloadData(interactionId, conversationId, ehrRequestId, nhsNumber, odsCode);
       break;
     case INTERACTION_IDS.CONTINUE_REQUEST_INTERACTION_ID:
-      payloadData = await getCOPCPayloadData(messageBody);
+      payloadData = await getContinueRequestPayloadData(messageBody);
       logInfo(`Received for ${interactionId}, payload data returned: ${JSON.stringify(payloadData)}`);
       odsCode = payloadData.odsCode;
       logInfo('Successfully parsed payload');
       validatePayloadData(interactionId, conversationId, odsCode);
       break;
     case INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID:
-      payloadData = await getPayloadData();
+      // TODO: Implement the handling of acknowledgement in future
       break;
     default:
       const warning = new Error(`Invalid interaction ID: ${interactionId}`);
@@ -42,7 +42,7 @@ export const parse = async messageBody => {
   return { interactionId, conversationId, ehrRequestId, nhsNumber, odsCode };
 };
 
-const getEbXMLPayloadData = async messageBody => {
+const getEbXMLData = async messageBody => {
   try {
     return await extractEbXmlData(JSON.parse(messageBody).ebXML);
   }
@@ -51,18 +51,18 @@ const getEbXMLPayloadData = async messageBody => {
   }
 };
 
-const getPayloadData = async (messageBody, interactionId) => {
+const getEhrRequestPayloadData = async (messageBody, interactionId) => {
   try {
-    return await extractPayloadData(JSON.parse(messageBody).payload, interactionId);
+    return await extractEhrRequestPayloadData(JSON.parse(messageBody).payload, interactionId);
   } catch (error) {
     handleParsingError(error);
   }
 }
 
 
-const getCOPCPayloadData = async (messageBody) => {
+const getContinueRequestPayloadData = async (messageBody) => {
   try {
-    return await extractCOPCPayloadData(JSON.parse(messageBody).payload);
+    return await extractContinueRequestPayloadData(JSON.parse(messageBody).payload);
   } catch (error) {
     handleParsingError(error);
   }

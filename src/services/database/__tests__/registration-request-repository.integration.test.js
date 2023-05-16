@@ -65,7 +65,7 @@ describe('Registration request repository', () => {
   });
 
   describe('getNhsNumberByConversationId', () => {
-    it('should return the nhs number of a registration request', async () => {
+    it('should return the nhs number of a registration-request', async () => {
       // given
       const conversationId = uuid();
       const odsCode = 'B12345';
