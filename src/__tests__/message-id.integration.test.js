@@ -72,29 +72,21 @@ describe('Replacement of message IDs', () => {
   // ================= END SETUP AND TEARDOWN =================
 
   // ================= HELPER FUNCTIONS =================
-  function extractMessageId(ebXML) {
-    return extractEbXmlData(ebXML).then(extractedData => extractedData.messageId);
-  }
+  const extractMessageId = ebXML =>
+    extractEbXmlData(ebXML).then(extractedData => extractedData.messageId);
 
-  function setUpMockForGp2gpGetOdsCode() {
-    return nock(gp2gpUrl, gp2gpHeaders)
+  const setUpMockForGp2gpGetOdsCode = () =>
+    nock(gp2gpUrl, gp2gpHeaders)
       .persist()
       .get(`/patient-demographics/${nhsNumber}`)
       .reply(200, { data: { odsCode } });
-  }
 
-  function setUpMockForEhrRepoCoreMessage() {
-    const ehrRepoCoreResponse = {
+  const setUpMockForEhrRepoCoreMessage = () =>
+    nock(ehrRepoUrl, ehrRepoHeaders).get(`/patients/${nhsNumber}`).reply(200, {
       coreMessageUrl: ehrCorePresignedUrl,
       fragmentMessageIds: fragmentMessageIds,
       conversationIdFromEhrIn: conversationIdFromEhrIn
-    };
-
-    const ehrRepoScope = nock(ehrRepoUrl, ehrRepoHeaders)
-      .get(`/patients/${nhsNumber}`)
-      .reply(200, ehrRepoCoreResponse);
-    return ehrRepoScope;
-  }
+    });
   // ================= END HELPER FUNCTIONS =================
 
   describe('EHR core uses new message IDs', () => {
@@ -149,17 +141,6 @@ describe('Replacement of message IDs', () => {
   });
 
   describe('Message fragments use new message IDs', () => {
-    /*
-      The structure of the files within the ehr_with_fragments directory is:
-
-      EHR-core
-      | fragment-1
-      | fragment-2
-      | | fragment-2-1
-      | | fragment-2-2
-
-     */
-
     function makePresignedUrlForFragment(messageId) {
       return `http://fake-fragment-presign-url/${messageId}`;
     }
