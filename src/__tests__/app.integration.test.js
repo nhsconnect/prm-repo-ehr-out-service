@@ -275,10 +275,10 @@ describe('Ensure health record outbound XML is unchanged', () => {
       ehrRequestId: EHR_REQUEST_ID
     });
 
-    const MODIFIED_UK06 = sendCore.mock.calls[0][2];
+    const MODIFIED_EHR_CORE = sendCore.mock.calls[0][2];
 
     // then
-    expect(validateMessageEquality(ORIGINAL_EHR_CORE, MODIFIED_UK06)).toBe(true);
+    expect(validateMessageEquality(ORIGINAL_EHR_CORE, MODIFIED_EHR_CORE)).toBe(true);
     expect(response).toEqual(DEFAULT_RESULT);
   });
 
