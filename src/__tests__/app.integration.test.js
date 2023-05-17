@@ -58,20 +58,18 @@ describe('GET /health', () => {
 
 describe('Swagger Documentation', () => {
   // ============ COMMON PROPERTIES ============
-  const SWAGGER_ENDPOINTS = [
-    '/swagger',
-    '/swagger/index.html'
-  ];
+  const SWAGGER_ENDPOINT_1 = '/swagger';
+  const SWAGGER_ENDPOINT_2 = '/swagger/index.html';
   const { nhsEnvironment } = config();
   // =================== END ===================
 
   it('GET /swagger - should return a redirect 301 status code and text/html content type response', async () => {
-    const res = await request(app).get(SWAGGER_ENDPOINTS[0]);
+    const res = await request(app).get(SWAGGER_ENDPOINT_1);
     expect(res.statusCode).toBe(301);
   });
 
   it('GET /swagger/index.html - should return a 200 status code and text/html content type response', async () => {
-    const res = await request(app).get(SWAGGER_ENDPOINTS[1]);
+    const res = await request(app).get(SWAGGER_ENDPOINT_2);
     expect(res.statusCode).toBe(200);
   });
 });
