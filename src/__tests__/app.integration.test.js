@@ -261,10 +261,10 @@ describe('Ensure health record outbound XML is unchanged', () => {
     const NHS_NUMBER = 9693796047;
     const CONVERSATION_ID = "0005504B-C4D5-458A-83BD-3FA2CCAE650E";
     const EHR_REQUEST_ID = "A4709C25-DD61-4FED-A9ED-E35AA464A7B3";
-    const ORIGINAL_UK06 = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
+    const ORIGINAL_EHR_CORE = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
 
     // when
-    getEhrCoreFromRepo.mockResolvedValueOnce(Promise.resolve(ORIGINAL_UK06));
+    getEhrCoreFromRepo.mockResolvedValueOnce(Promise.resolve(ORIGINAL_EHR_CORE));
     patientAndPracticeOdsCodesMatch.mockResolvedValueOnce(Promise.resolve(true));
     sendCore.mockResolvedValueOnce(Promise.resolve(undefined));
 
@@ -278,7 +278,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
     const MODIFIED_UK06 = sendCore.mock.calls[0][2];
 
     // then
-    expect(validateMessageEquality(ORIGINAL_UK06, MODIFIED_UK06)).toBe(true);
+    expect(validateMessageEquality(ORIGINAL_EHR_CORE, MODIFIED_UK06)).toBe(true);
     expect(response).toEqual(DEFAULT_RESULT);
   });
 
