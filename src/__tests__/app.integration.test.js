@@ -302,8 +302,8 @@ describe('Ensure health record outbound XML is unchanged', () => {
     });
 
     // then
-    const receivedArguments = [0, 1, 2, 3].map(i => sendFragment.mock.calls[i][2]).sort();
     const originalFragments = Object.values(ORIGINAL_FRAGMENTS).sort();
+    const receivedArguments = [0, 1, 2, 3].map(i => sendFragment.mock.calls[i][2]).sort();
 
     expect(sendFragment).toBeCalledTimes(4);
     expect(validateMessageEquality(originalFragments[0], receivedArguments[0])).toBe(true);
