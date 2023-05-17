@@ -256,10 +256,6 @@ describe('Ensure health record outbound XML is unchanged', () => {
     await ModelFactory.sequelize.close();
   });
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('should verify that a small EHR core is unchanged by XML changes', async () => {
     // given
     const NHS_NUMBER = 9693796047;
