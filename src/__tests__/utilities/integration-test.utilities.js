@@ -6,8 +6,8 @@ import { readFileSync } from 'fs';
 import * as path from 'path';
 
 const INTERACTION_IDS = {
-  UK06: 'RCMR_IN030000UK06',
-  COPC: 'COPC_IN000001UK01'
+  EHR_CORE: 'RCMR_IN030000UK06',
+  CONTINUE: 'COPC_IN000001UK01'
 }
 
 const parser = new XMLParser({
@@ -69,17 +69,17 @@ const validatePayloadEquality = (original, modified) => {
 
   for (const key in payloads) {
     if (payloads.hasOwnProperty(key)) {
-      if (original.includes(INTERACTION_IDS.UK06) && modified.includes(INTERACTION_IDS.UK06)) {
-        // Remove Message ID references within the UK06 message
-        delete payloads[key][INTERACTION_IDS.UK06]['id']['@_root'];
-        delete payloads[key][INTERACTION_IDS.UK06]['ControlActEvent']['subject']['EhrExtract']['id']['@_root'];
+      if (original.includes(INTERACTION_IDS.EHR_CORE) && modified.includes(INTERACTION_IDS.EHR_CORE)) {
+        // Remove Message ID references within the EHR_CORE message
+        delete payloads[key][INTERACTION_IDS.EHR_CORE]['id']['@_root'];
+        delete payloads[key][INTERACTION_IDS.EHR_CORE]['ControlActEvent']['subject']['EhrExtract']['id']['@_root'];
       }
-      else if (original.includes(INTERACTION_IDS.COPC) && modified.includes(INTERACTION_IDS.COPC)) {
-        // Remove Message ID references within the COPC message
-        delete payloads[key][INTERACTION_IDS.COPC]['id']['@_root'];
-        delete payloads[key][INTERACTION_IDS.COPC]['ControlActEvent']['subject']['PayloadInformation']['id']['@_root'];
-        delete payloads[key][INTERACTION_IDS.COPC]['ControlActEvent']['subject']['PayloadInformation']['value']['Gp2gpfragment']['message-id'];
-        delete payloads[key][INTERACTION_IDS.COPC]['ControlActEvent']['subject']['PayloadInformation']['pertinentInformation']['pertinentPayloadBody']['id']['@_root'];
+      else if (original.includes(INTERACTION_IDS.CONTINUE) && modified.includes(INTERACTION_IDS.CONTINUE)) {
+        // Remove Message ID references within the CONTINUE message
+        delete payloads[key][INTERACTION_IDS.CONTINUE]['id']['@_root'];
+        delete payloads[key][INTERACTION_IDS.CONTINUE]['ControlActEvent']['subject']['PayloadInformation']['id']['@_root'];
+        delete payloads[key][INTERACTION_IDS.CONTINUE]['ControlActEvent']['subject']['PayloadInformation']['value']['Gp2gpfragment']['message-id'];
+        delete payloads[key][INTERACTION_IDS.CONTINUE]['ControlActEvent']['subject']['PayloadInformation']['pertinentInformation']['pertinentPayloadBody']['id']['@_root'];
       }
       else {
         logError('Unrecognised Interaction ID');

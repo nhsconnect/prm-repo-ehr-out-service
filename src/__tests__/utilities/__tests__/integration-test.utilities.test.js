@@ -51,7 +51,7 @@ describe('integration-test-utilities.js', () => {
   });
 
   describe('validateMessageEquality for large electronic health records without external attachments', () => {
-    it('should be true when a large ehr UK06 has no unexpected changes', () => {
+    it('should be true when a large ehr EHR_CORE has no unexpected changes', () => {
       // given
       const message = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-no-external-attachments', 'original');
 
@@ -62,7 +62,7 @@ describe('integration-test-utilities.js', () => {
       expect(result).toBe(true);
     });
 
-    it('should be false when a large ehr UK06 has unexpected changes', () => {
+    it('should be false when a large ehr EHR_CORE has unexpected changes', () => {
       // given
       const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-no-external-attachments', 'original');
       const modifiedMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-no-external-attachments', 'modified');
@@ -74,7 +74,7 @@ describe('integration-test-utilities.js', () => {
       expect(result).toBe(false);
     });
 
-    it('should be true when a fragment COPC has no unexpected changes', () => {
+    it('should be true when a fragment CONTINUE has no unexpected changes', () => {
       // given
       const message = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'original');
 
@@ -85,7 +85,7 @@ describe('integration-test-utilities.js', () => {
       expect(result).toBe(true);
     });
 
-    it('should be false when a fragment COPC with external attachments has unexpected changes', () => {
+    it('should be false when a fragment CONTINUE with external attachments has unexpected changes', () => {
       // given
       const originalMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'original');
       const modifiedMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'modified');
@@ -99,7 +99,7 @@ describe('integration-test-utilities.js', () => {
   });
 
   describe('validateMessageEquality for large electronic health records with external attachments', () => {
-    it('should be true when a large ehr UK06 with external attachments has no unexpected changes', () => {
+    it('should be true when a large ehr EHR_CORE with external attachments has no unexpected changes', () => {
       // given
       const message = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-with-external-attachments', 'original');
 
@@ -110,7 +110,7 @@ describe('integration-test-utilities.js', () => {
       expect(result).toBe(true);
     });
 
-    it('should be false when a large ehr UK06 with external attachments has unexpected changes', () => {
+    it('should be false when a large ehr EHR_CORE with external attachments has unexpected changes', () => {
       // given
       const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-with-external-attachments', 'original');
       const modifiedMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'large-ehr-with-external-attachments', 'modified');
@@ -122,7 +122,7 @@ describe('integration-test-utilities.js', () => {
       expect(result).toBe(false);
     });
 
-    it('should be true when a fragment COPC with an empty array of external attachments has no unexpected changes', () => {
+    it('should be true when a fragment CONTINUE with an empty array of external attachments has no unexpected changes', () => {
       // given
       const message = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'original');
 
@@ -133,7 +133,7 @@ describe('integration-test-utilities.js', () => {
       expect(result).toBe(true);
     });
 
-    it('should be false when a fragment COPC with an empty array of external attachments has unexpected changes', () => {
+    it('should be false when a fragment CONTINUE with an empty array of external attachments has unexpected changes', () => {
       // given
       const originalMessage = readFile('COPC_IN000001UK01_04', 'equality-test', 'large-ehr-with-external-attachments', 'original');
       const modifiedMessage = readFile('COPC_IN000001UK01_04', 'equality-test', 'large-ehr-with-external-attachments', 'modified');
@@ -145,7 +145,7 @@ describe('integration-test-utilities.js', () => {
       expect(result).toBe(false);
     });
 
-    it('should be true when a fragment COPC with external attachments has no unexpected changes', () => {
+    it('should be true when a fragment CONTINUE with external attachments has no unexpected changes', () => {
       // given
       const message = readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-with-external-attachments', 'original');
 
@@ -156,7 +156,7 @@ describe('integration-test-utilities.js', () => {
       expect(result).toBe(true);
     });
 
-    it('should be false when a fragment COPC with external attachments has unexpected changes', () => {
+    it('should be false when a fragment CONTINUE with external attachments has unexpected changes', () => {
       // given
       const originalMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'original');
       const modifiedMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'modified');
@@ -170,7 +170,7 @@ describe('integration-test-utilities.js', () => {
   });
 
   describe('validateMessageEquality for small electronic health records', () => {
-    it('should be true when a small electronic health record UK06 has no unexpected changes', () => {
+    it('should be true when a small electronic health record EHR_CORE has no unexpected changes', () => {
       // given
       const message = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
 
@@ -181,7 +181,7 @@ describe('integration-test-utilities.js', () => {
       expect(result).toBe(true);
     });
 
-    it('should be false when a small electronic health record UK06 has unexpected changes', () => {
+    it('should be false when a small electronic health record EHR_CORE has unexpected changes', () => {
       // given
       const originalMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
       const modifiedMessage = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'modified');
