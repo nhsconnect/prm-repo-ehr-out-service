@@ -2,7 +2,7 @@ import ModelFactory from '../../models';
 import { modelName } from '../../models/registration-request';
 import { runWithinTransaction } from './helper';
 import { logInfo } from '../../middleware/logging';
-import {NhsNumberNotFoundError} from "../../errors/errors";
+import { NhsNumberNotFoundError } from "../../errors/errors";
 
 const RegistrationRequest = ModelFactory.getByName(modelName);
 

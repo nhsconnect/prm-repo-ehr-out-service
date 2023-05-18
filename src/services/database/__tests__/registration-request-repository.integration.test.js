@@ -6,7 +6,7 @@ import {
   getRegistrationRequestStatusByConversationId,
   updateRegistrationRequestStatus
 } from '../registration-request-repository';
-import {NhsNumberNotFoundError} from "../../../errors/errors";
+import { NhsNumberNotFoundError } from "../../../errors/errors";
 
 describe('Registration request repository', () => {
   const RegistrationRequest = ModelFactory.getByName(modelName);
@@ -17,11 +17,13 @@ describe('Registration request repository', () => {
   });
 
   it('should retrieve the registration request by conversation id', async () => {
+    // given
     const conversationId = '22a748b2-fef6-412d-b93a-4f6c68f0f8dd';
     const odsCode = 'B12345';
     const nhsNumber = '1234567891';
     const status = Status.REGISTRATION_REQUEST_RECEIVED;
 
+    // when
     await RegistrationRequest.create({
       conversationId,
       nhsNumber,
@@ -30,6 +32,8 @@ describe('Registration request repository', () => {
     });
 
     const registrationRequest = await getRegistrationRequestStatusByConversationId(conversationId);
+
+    // then
     expect(registrationRequest.nhsNumber).toBe(nhsNumber);
     expect(registrationRequest.status).toBe(status);
     expect(registrationRequest.odsCode).toBe(odsCode);
@@ -37,19 +41,26 @@ describe('Registration request repository', () => {
   });
 
   it('should return null when it cannot find the registration request', async () => {
+    // given
     const nonExistentConversationId = '4be94216-b00d-4355-8929-b22c8512b074';
+
+    // when
     const registrationRequest = await getRegistrationRequestStatusByConversationId(
       nonExistentConversationId
     );
+
+    // then
     expect(registrationRequest).toBe(null);
   });
 
   it('should change registration request status to invalid_ods_code', async () => {
+    // given
     const conversationId = 'e30d008e-0134-479c-bf59-6d4978227617';
     const nhsNumber = '1234567890';
     const status = Status.INCORRECT_ODS_CODE;
     const odsCode = 'B1234';
 
+    // when
     await RegistrationRequest.create({
       conversationId,
       nhsNumber,
@@ -61,6 +72,7 @@ describe('Registration request repository', () => {
 
     const registrationRequest = await RegistrationRequest.findByPk(conversationId);
 
+    // then
     expect(registrationRequest.status).toBe(status);
   });
 
@@ -72,6 +84,7 @@ describe('Registration request repository', () => {
       const nhsNumber = '1234567890'
       const status = Status.REGISTRATION_REQUEST_RECEIVED
 
+      // when
       await RegistrationRequest.create({
         conversationId,
         nhsNumber,
@@ -79,7 +92,6 @@ describe('Registration request repository', () => {
         odsCode
       });
 
-      // when
       const returnedNhsNumber = await getNhsNumberByConversationId(conversationId)
 
       // then

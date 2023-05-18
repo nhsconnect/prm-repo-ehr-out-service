@@ -3,8 +3,8 @@ import { transferOutFragments } from "../../transfer/transfer-out-fragments";
 import continueMessageHandler from "../continue-message-handler";
 import expect from "expect";
 import { Status } from "../../../models/registration-request";
-import {getNhsNumberByConversationId} from "../../database/registration-request-repository";
-import {NhsNumberNotFoundError} from "../../../errors/errors";
+import { getNhsNumberByConversationId } from "../../database/registration-request-repository";
+import { NhsNumberNotFoundError } from "../../../errors/errors";
 
 // Mocking
 jest.mock('../../../middleware/logging');

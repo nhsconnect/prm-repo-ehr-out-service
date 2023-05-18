@@ -7,7 +7,7 @@ export const extractContinueRequestPayloadData = async (payload) => {
 
   const continueRequestContent = payloadAsObject['data']['COPC_IN000001UK01']['ControlActEvent']['subject']['PayloadInformation'];
 
-  const odsCode = continueRequestContent['value']['Gp2gpfragment']['From']
+  const odsCode = continueRequestContent['value']['Gp2gpfragment']['From'];
 
   return { odsCode };
 };
