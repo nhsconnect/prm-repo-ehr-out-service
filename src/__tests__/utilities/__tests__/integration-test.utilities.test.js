@@ -6,7 +6,7 @@ describe('integration-test-utilities.js', () => {
   describe('readMessage', () => {
     it('should read a file successfully if the file name and folder path is correct', () => {
       // given
-      const fileName = 'RCMR_IN030000UK06';
+      const ehrCoreFileName = 'RCMR_IN030000UK06';
       const folders = [
         'equality-test',
         'large-ehr-with-external-attachments',
@@ -14,7 +14,7 @@ describe('integration-test-utilities.js', () => {
       ];
 
       // when
-      const result = readFile(fileName, ...folders);
+      const result = readFile(ehrCoreFileName, ...folders);
 
       // then
       expect(result).not.toBe(undefined);
@@ -22,7 +22,7 @@ describe('integration-test-utilities.js', () => {
 
     it('should throw a FileReadError when the file name is incorrect' , () => {
       // given
-      const fileName = 'RCMR_IN030000UK10';
+      const nonExistentFileName  = 'RCMR_IN030000UK10';
       const folders = [
         'equality-test',
         'large-ehr',
@@ -30,13 +30,13 @@ describe('integration-test-utilities.js', () => {
       ];
 
       // then
-      expect(() => readFile(fileName, ...folders))
+      expect(() => readFile(nonExistentFileName , ...folders))
         .toThrow(FileReadError);
     });
 
     it('should throw a FileReadError when a folder name is incorrect', () => {
       // given
-      const fileName = 'RCMR_IN030000UK06';
+      const ehrCoreFileName = 'RCMR_IN030000UK06';
       const folders = [
         'equality-test',
         'large-ehr',
@@ -45,7 +45,7 @@ describe('integration-test-utilities.js', () => {
       ];
 
       // then
-      expect(() => readFile(fileName, ...folders))
+      expect(() => readFile(ehrCoreFileName, ...folders))
         .toThrow(FileReadError);
     });
   });
