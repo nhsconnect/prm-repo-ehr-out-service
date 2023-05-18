@@ -285,10 +285,10 @@ describe('Ensure health record outbound XML is unchanged', () => {
     const NHS_NUMBER = 9693643038;
     const CONVERSATION_ID = "05E36C93-2DEF-4586-B842-127C534FB8B7";
     const ORIGINAL_FRAGMENTS = {
-      ['DD92589A-B5B4-4492-AADD-51534821F07B']: readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'original'),
-      ['DE4A9436-FFA3-49B1-8180-5570510F0C11']: readFile('COPC_IN000001UK01_02', 'equality-test', 'large-ehr-no-external-attachments', 'original'),
-      ['62330782-1C8B-45CD-95E3-4FC624091C61']: readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-no-external-attachments', 'original'),
-      ['770C42DD-301B-4177-A78E-0E9E62F3FDA1']: readFile('COPC_IN000001UK01_04', 'equality-test', 'large-ehr-no-external-attachments', 'original')
+      'DD92589A-B5B4-4492-AADD-51534821F07B': readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'original'),
+      'DE4A9436-FFA3-49B1-8180-5570510F0C11': readFile('COPC_IN000001UK01_02', 'equality-test', 'large-ehr-no-external-attachments', 'original'),
+      '62330782-1C8B-45CD-95E3-4FC624091C61': readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-no-external-attachments', 'original'),
+      '770C42DD-301B-4177-A78E-0E9E62F3FDA1': readFile('COPC_IN000001UK01_04', 'equality-test', 'large-ehr-no-external-attachments', 'original')
     }
 
     // when
@@ -317,10 +317,10 @@ describe('Ensure health record outbound XML is unchanged', () => {
     const NHS_NUMBER = 9693643038;
     const CONVERSATION_ID = "0346D9CC-F472-492A-86D4-43D8B73AC95D";
     const ORIGINAL_FRAGMENTS = {
-      ['060FA820-A231-11ED-808B-AC162D1F16F0']: readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'original'),
-      ['063817B0-A231-11ED-808B-AC162D1F16F0']: readFile('COPC_IN000001UK01_02', 'equality-test', 'large-ehr-with-external-attachments', 'original'),
-      ['0635CDC0-A231-11ED-808B-AC162D1F16F0']: readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-with-external-attachments', 'original'),
-      ['0635CDC1-A231-11ED-808B-AC162D1F16F0']: readFile('COPC_IN000001UK01_04', 'equality-test', 'large-ehr-with-external-attachments', 'original')
+      '060FA820-A231-11ED-808B-AC162D1F16F0': readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'original'),
+      '063817B0-A231-11ED-808B-AC162D1F16F0': readFile('COPC_IN000001UK01_02', 'equality-test', 'large-ehr-with-external-attachments', 'original'),
+      '0635CDC0-A231-11ED-808B-AC162D1F16F0': readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-with-external-attachments', 'original'),
+      '0635CDC1-A231-11ED-808B-AC162D1F16F0': readFile('COPC_IN000001UK01_04', 'equality-test', 'large-ehr-with-external-attachments', 'original')
     }
 
     // when
