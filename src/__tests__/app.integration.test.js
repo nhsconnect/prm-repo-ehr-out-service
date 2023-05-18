@@ -48,7 +48,7 @@ describe('GET /health', () => {
       }
     };
 
-    const response = request(app)
+    const response = await request(app)
       .get(HEALTH_ENDPOINT);
 
     expect(response.statusCode).toBe(200);
