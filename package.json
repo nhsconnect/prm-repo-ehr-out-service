@@ -76,6 +76,9 @@
   "jest": {
     "resetModules": true,
     "clearMocks": true,
-    "automock": false
+    "automock": false,
+    "testPathIgnorePatterns": [
+      "src/__tests__/utilities/integration-test.utilities.js"
+    ]
   }
 }
