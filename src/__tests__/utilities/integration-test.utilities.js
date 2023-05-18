@@ -101,7 +101,7 @@ const validateAttachmentEquality = (original, modified) => {
 };
 
 const validateExternalAttachmentEquality = (original, modified) => {
-  if (original.includes('external_attachments') && modified.includes('external_attachments')) {
+  if (original.includes('external_attachments') || modified.includes('external_attachments')) {
     const externalAttachments = {
       original: JSON.parse(original).external_attachments,
       modified: JSON.parse(modified).external_attachments
