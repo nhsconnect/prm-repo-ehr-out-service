@@ -52,9 +52,7 @@ describe('getAllFragmentsFromRepo', () => {
       const repoScopeForFragments = nock(mockEhrRepoServiceUrl, headers);
       for (const messageId of messageIds) {
         repoScopeForFragments
-          // TODO: currently this endpoint of ehr-repo doesn't work as expect. we might need to change this endpoint
-
-          .get(`/messages/${conversationIdFromEhrIn}/${messageId}`)
+          .get(`/fragments/${conversationIdFromEhrIn}/${messageId}`)
           .reply(200, fragmentPresignedUrlRoot + messageId)
       }
 
@@ -120,11 +118,11 @@ describe('getAllFragmentsFromRepo', () => {
       const repoScopeForFragments = nock(mockEhrRepoServiceUrl, headers);
       for (const messageId of [messageIds[0], messageIds[2]]) {
         repoScopeForFragments
-          .get(`/messages/${conversationIdFromEhrIn}/${messageId}`)
+          .get(`/fragments/${conversationIdFromEhrIn}/${messageId}`)
           .reply(200, fragmentPresignedUrlRoot + messageId)
       }
       repoScopeForFragments
-        .get(`/messages/${conversationIdFromEhrIn}/${messageIds[1]}`)
+        .get(`/fragments/${conversationIdFromEhrIn}/${messageIds[1]}`)
         .reply(404)
 
       const axios404Error = new Error('Request failed with status code 404');
