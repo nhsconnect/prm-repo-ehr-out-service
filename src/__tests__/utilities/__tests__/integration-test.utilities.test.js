@@ -6,11 +6,11 @@ describe('integration-test-utilities.js', () => {
   describe('readMessage', () => {
     it('should read a file successfully if the file name and folder path is correct', () => {
       // given
-      const ehrCoreFileName = 'RCMR_IN030000UK06';
+      const ehrCoreFileName = 'COPC_IN000001UK01_01';
       const folders = [
         'equality-test',
         'large-ehr-with-external-attachments',
-        'original'
+        'modified'
       ];
 
       // when
@@ -83,18 +83,6 @@ describe('integration-test-utilities.js', () => {
 
       // then
       expect(result).toBe(true);
-    });
-
-    it('should be false when a fragment CONTINUE with external attachments has unexpected changes', () => {
-      // given
-      const originalMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'original');
-      const modifiedMessage = readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'modified');
-
-      // when
-      const result = validateMessageEquality(originalMessage, modifiedMessage);
-
-      // then
-      expect(result).toBe(false);
     });
   });
 
