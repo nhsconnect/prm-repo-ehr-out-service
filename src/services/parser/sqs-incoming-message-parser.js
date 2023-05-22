@@ -57,8 +57,7 @@ const getEhrRequestPayloadData = async (messageBody, interactionId) => {
   } catch (error) {
     handleParsingError(error);
   }
-}
-
+};
 
 const getContinueRequestPayloadData = async (messageBody) => {
   try {

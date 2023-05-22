@@ -4,12 +4,9 @@ import { parse } from '../sqs-incoming-message-parser';
 import expect from 'expect';
 import { XmlParser } from '../xml-parser/xml-parser';
 
-
-
 jest.mock('../xml-parser/xml-parser');
 
 const rawEhrRequestBody = readFileSync(path.join(__dirname, "data", "rawEhrRequestBody"), 'utf-8');
-    
 
 const expectedParsedEhrRequestMessage = {
   interactionId: 'RCMR_IN010000UK05',
