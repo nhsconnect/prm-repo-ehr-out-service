@@ -3,6 +3,7 @@ import { logError, logInfo } from '../../middleware/logging';
 import ehrRequestHandler from './ehr-request-handler';
 import {setCurrentSpanAttributes} from "../../config/tracing";
 import continueMessageHandler from "./continue-message-handler";
+import { acknowledgementMessageHandler } from "./acknowledgement-handler";
 
 export default async function sendMessageToCorrespondingHandler(parsedMessage) {
   const { conversationId } = parsedMessage;
@@ -18,7 +19,8 @@ export default async function sendMessageToCorrespondingHandler(parsedMessage) {
       await continueMessageHandler(parsedMessage);
       break;
     case INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID:
-      logInfo('Message Type: ACKNOWLEDGEMENT RESPONSE');
+      logInfo('Message Type: ACKNOWLEDGEMENT');
+      acknowledgementMessageHandler(parsedMessage);
       break;
     default:
       // eslint-disable-next-line no-case-declarations
