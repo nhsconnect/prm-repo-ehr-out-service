@@ -2,7 +2,7 @@ import { patientAndPracticeOdsCodesMatch, updateConversationStatus } from "../tr
 import { transferOutFragments } from "../transfer/transfer-out-fragments";
 import { setCurrentSpanAttributes } from "../../config/tracing";
 import { Status } from "../../models/registration-request";
-import { logInfo } from "../../middleware/logging";
+import { logError, logInfo } from "../../middleware/logging";
 import { getNhsNumberByConversationId } from "../database/registration-request-repository";
 
 export default async function continueMessageHandler(parsedMessage) {
@@ -27,9 +27,16 @@ export default async function continueMessageHandler(parsedMessage) {
   await updateConversationStatus(conversationId, Status.CONTINUE_REQUEST_RECEIVED);
 
   await transferOutFragments({conversationId, nhsNumber, odsCode})
-    .then(async () => await updateConversationStatus(conversationId, Status.SENT_FRAGMENTS))
-    .catch(async () => await updateConversationStatus(
+    .then(() => {
+      logInfo("Finished transferOutFragment");
+      updateConversationStatus(conversationId, Status.SENT_FRAGMENTS)
+    })
+    .catch(error => {
+      logError("Encountered error while sending out fragments", error);
+
+      updateConversationStatus(
         conversationId,
         Status.FRAGMENTS_SENDING_FAILED,
-        'One or more fragments failed to send'));
+        'One or more fragments failed to send');
+    })
 }
