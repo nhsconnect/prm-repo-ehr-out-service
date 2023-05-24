@@ -1,5 +1,4 @@
 import { DeleteMessageCommand, ReceiveMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { parse } from '../parser/sqs-incoming-message-parser.js';
 import { logDebug, logError, logInfo, logWarning } from '../../middleware/logging';
 import sendMessageToCorrespondingHandler from '../handler/broker';
 
@@ -32,13 +31,13 @@ export const stopSqsConsumer = () => {
   stop = true;
 };
 
-export const pollQueueOnce = (sqsClient, parser) => {
+export const pollQueueOnce = (sqsClient) => {
   logInfo('Polling for incoming messages');
   return sqsClient
     .send(new ReceiveMessageCommand(receiveCallParameters()))
     .then(data => {
       logInfo('Received message data');
-      processMessages(sqsClient, data, parser);
+      processMessages(sqsClient, data);
     })
     .catch(err => {
       logError(
@@ -55,7 +54,7 @@ const pollQueue = async sqsClient => {
     logInfo('SQS consumer poll stopped.');
     return;
   }
-  await pollQueueOnce(sqsClient, parse);
+  await pollQueueOnce(sqsClient);
   setTimeout(() => pollQueue(sqsClient), INTER_POLL_DELAY_MS);
 };
 
@@ -69,7 +68,7 @@ async function deleteToAcknowledge(sqsClient, message) {
   );
 }
 
-const processMessages = async (sqsClient, receiveResponse, parser) => {
+const processMessages = async (sqsClient, receiveResponse) => {
   try {
     let messages = receiveResponse.Messages;
     if (messages === undefined) {
@@ -79,8 +78,7 @@ const processMessages = async (sqsClient, receiveResponse, parser) => {
       return;
     }
     for (const message of messages) {
-      const parsedMessage = await parser(message.Body);
-      sendMessageToCorrespondingHandler(parsedMessage);
+      await sendMessageToCorrespondingHandler(message.Body);
       await deleteToAcknowledge(sqsClient, message);
     }
   } catch (err) {
