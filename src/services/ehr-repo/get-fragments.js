@@ -61,8 +61,7 @@ const getFragment = async (conversationIdFromEhrIn, messageId) => {
 
 const retrieveFragmentPresignedUrlFromRepo = async (conversationIdFromEhrIn, messageId) => {
   const { ehrRepoServiceUrl, ehrRepoAuthKeys } = config();
-  // TODO: currently this endpoint of ehr-repo doesn't work as expect. we might need to change this endpoint
-  const repoUrl = `${ehrRepoServiceUrl}/messages/${conversationIdFromEhrIn}/${messageId}`;
+  const repoUrl = `${ehrRepoServiceUrl}/fragments/${conversationIdFromEhrIn}/${messageId}`;
 
   return await axios.get(repoUrl, {
     headers: { Authorization: ehrRepoAuthKeys}
