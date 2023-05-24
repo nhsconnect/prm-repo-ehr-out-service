@@ -7,6 +7,7 @@ export const errorMessages = {
   SEND_FRAGMENT_ERROR: 'Failed while trying to send message fragment',
   GET_PDS_CODE_ERROR: 'Unable to retrieve patient from PDS',
   PATIENT_RECORD_NOT_FOUND_ERROR: 'Cannot find the requested patient record from ehr-repo',
+  NHS_NUMBER_NOT_FOUND_ERROR: 'Cannot find an NHS number related to given conversation ID',
   STATUS_ERROR: 'The status could not be updated',
   DUPLICATED_REQUEST_ERROR: 'Got a duplicated request',
   FILE_READ_ERROR: 'Failed to read file'
@@ -51,6 +52,13 @@ export class PatientRecordNotFoundError extends Error {
   constructor(error) {
     super(errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR);
     logError(errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR, error);
+  };
+}
+
+export class NhsNumberNotFoundError extends Error {
+  constructor(error) {
+    super(errorMessages.NHS_NUMBER_NOT_FOUND_ERROR);
+    logError(errorMessages.NHS_NUMBER_NOT_FOUND_ERROR, error);
   };
 }
 

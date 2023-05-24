@@ -3,17 +3,24 @@ import { transferOutFragments } from "../../transfer/transfer-out-fragments";
 import continueMessageHandler from "../continue-message-handler";
 import expect from "expect";
 import { Status } from "../../../models/registration-request";
+import { getNhsNumberByConversationId } from "../../database/registration-request-repository";
+import { NhsNumberNotFoundError } from "../../../errors/errors";
 
 // Mocking
 jest.mock('../../../middleware/logging');
 jest.mock('../../transfer/transfer-out-fragments');
 jest.mock('../../transfer/transfer-out-util');
+jest.mock('../../database/registration-request-repository');
 
 describe('continueMessageHandler', () => {
   // ============ COMMON PROPERTIES ============
   const ODS_CODE = 'V91720';
   const NHS_NUMBER = '1692842304';
   const CONVERSATION_ID = '87a757f2-f4d2-444e-a246-9cb77bef7f22';
+  const PARSED_MESSAGE = {
+    conversationId: CONVERSATION_ID,
+    odsCode: ODS_CODE
+  }
   const CONTINUE_REQUEST = {
     conversationId: CONVERSATION_ID,
     nhsNumber: NHS_NUMBER,
@@ -25,8 +32,9 @@ describe('continueMessageHandler', () => {
     // when
     patientAndPracticeOdsCodesMatch.mockReturnValueOnce(true);
     transferOutFragments.mockResolvedValueOnce(undefined);
+    getNhsNumberByConversationId.mockReturnValueOnce(Promise.resolve(NHS_NUMBER));
 
-    await continueMessageHandler(CONTINUE_REQUEST);
+    await continueMessageHandler(PARSED_MESSAGE);
 
     // then
     expect(transferOutFragments).toHaveBeenCalledWith(CONTINUE_REQUEST);
@@ -38,7 +46,7 @@ describe('continueMessageHandler', () => {
     updateConversationStatus.mockResolvedValueOnce(undefined);
     transferOutFragments.mockResolvedValueOnce(undefined);
 
-    await continueMessageHandler(CONTINUE_REQUEST);
+    await continueMessageHandler(PARSED_MESSAGE);
 
     // then
     expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, Status.CONTINUE_REQUEST_RECEIVED);
@@ -50,7 +58,7 @@ describe('continueMessageHandler', () => {
     patientAndPracticeOdsCodesMatch.mockReturnValueOnce(true);
     transferOutFragments.mockRejectedValueOnce('some error');
 
-    await continueMessageHandler(CONTINUE_REQUEST);
+    await continueMessageHandler(PARSED_MESSAGE);
 
     // then
     expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, Status.CONTINUE_REQUEST_RECEIVED);
@@ -64,7 +72,7 @@ describe('continueMessageHandler', () => {
     // when
     patientAndPracticeOdsCodesMatch.mockReturnValueOnce(false);
 
-    await continueMessageHandler(CONTINUE_REQUEST);
+    await continueMessageHandler(PARSED_MESSAGE);
 
     // then
     expect(updateConversationStatus).toHaveBeenCalledWith(
@@ -72,5 +80,18 @@ describe('continueMessageHandler', () => {
       Status.INCORRECT_ODS_CODE,
       'Patients ODS Code in PDS does not match requesting practices ODS Code');
     expect(transferOutFragments).not.toBeCalled();
+  });
+
+  it('should throw an error if cannot find an nhs number related to given conversation id', async () => {
+    // when
+    getNhsNumberByConversationId.mockRejectedValueOnce(new NhsNumberNotFoundError(''));
+
+    await expect(continueMessageHandler(PARSED_MESSAGE))
+        // then
+        .rejects.toThrow(NhsNumberNotFoundError)
+
+    // then
+    expect(updateConversationStatus).not.toHaveBeenCalled()
+    expect(transferOutFragments).not.toHaveBeenCalled();
   });
 });
