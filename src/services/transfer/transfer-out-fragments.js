@@ -5,6 +5,7 @@ import { sendFragment } from "../gp2gp/send-fragment";
 import { Status } from "../../models/message-fragment";
 import { updateFragmentStatus } from "./transfer-out-util";
 import { getMessageFragmentStatusByMessageId } from "../database/message-fragment-repository";
+import { createMessageFragment } from "../database/create-message-fragment"
 
 export async function transferOutFragments({conversationId, nhsNumber, odsCode}) {
   setCurrentSpanAttributes({ conversationId })
@@ -28,14 +29,17 @@ const sendAllFragments = (fragmentsWithMessageIds, conversationId, odsCode) => {
 }
 
 const sendOneFragment = async (conversationId, odsCode, fragment, messageId) => {
-  logInfo(`start sending fragment with message id: ${messageId}`);
+  logInfo(`Start sending fragment with message id: ${messageId}`);
 
   if (await hasFragmentBeenSent(messageId)) {
     return;
   }
+  logInfo(`Checked that fragment with message id: ${messageId} is not sent yet`);
 
-  logInfo(`checked that fragment with message id: ${messageId} is not sent yet`);
+  logInfo(`Creating a record for fragment in database, message id: ${messageId}`);
+  await createMessageFragment(messageId, conversationId);
 
+  logInfo(`Sending message fragment of id ${messageId}...`);
   return sendFragment(conversationId, odsCode, fragment, messageId)
     .then(() => updateFragmentStatus(conversationId, messageId, Status.SENT_FRAGMENT))
     .catch(async (error) => {
@@ -45,11 +49,11 @@ const sendOneFragment = async (conversationId, odsCode, fragment, messageId) => 
     });
 }
 
-const hasFragmentBeenSent = async (messageId) => {
+const hasFragmentBeenSent = async messageId => {
   const previousTransferOut = await getMessageFragmentStatusByMessageId(messageId);
   if (previousTransferOut?.status === Status.SENT_FRAGMENT) {
     logWarning(`EHR message FRAGMENT with message ID ${messageId} has already been sent`);
-    return true
+    return true;
   }
-  return false
-}
+  return false;
+};

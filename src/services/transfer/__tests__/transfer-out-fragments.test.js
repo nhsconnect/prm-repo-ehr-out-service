@@ -4,6 +4,7 @@ import { logError, logInfo, logWarning } from "../../../middleware/logging";
 import {
   getMessageFragmentStatusByMessageId,
 } from "../../database/message-fragment-repository";
+import { createMessageFragment } from '../../database/create-message-fragment';
 import { transferOutFragments } from "../transfer-out-fragments";
 import { sendFragment } from "../../gp2gp/send-fragment";
 import { updateFragmentStatus } from "../transfer-out-util";
@@ -13,6 +14,7 @@ import { getAllFragmentsWithMessageIdsFromRepo } from "../../ehr-repo/get-fragme
 jest.mock('../transfer-out-util');
 jest.mock('../../gp2gp/send-fragment');
 jest.mock('../../ehr-repo/get-fragments');
+jest.mock('../../database/create-message-fragment');
 jest.mock('../../database/message-fragment-repository');
 jest.mock('../../../config', () => ({
   config: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
