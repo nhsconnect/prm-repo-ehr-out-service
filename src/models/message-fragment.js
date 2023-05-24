@@ -23,6 +23,10 @@ const model = dataType => ({
         type: dataType.UUID,
         primaryKey: true
     },
+    conversationId: {
+        field: 'conversation_id',
+        type: dataType.UUID,
+    },
     status: {
         field: 'status',
         type: dataType.STRING,
