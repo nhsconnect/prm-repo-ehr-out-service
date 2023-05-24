@@ -28,9 +28,13 @@ const sendAllFragments = (fragmentsWithMessageIds, conversationId, odsCode) => {
 }
 
 const sendOneFragment = async (conversationId, odsCode, fragment, messageId) => {
+  logInfo(`start sending fragment with message id: ${messageId}`);
+
   if (await hasFragmentBeenSent(messageId)) {
     return;
   }
+
+  logInfo(`checked that fragment with message id: ${messageId} is not sent yet`);
 
   return sendFragment(conversationId, odsCode, fragment, messageId)
     .then(() => updateFragmentStatus(conversationId, messageId, Status.SENT_FRAGMENT))
