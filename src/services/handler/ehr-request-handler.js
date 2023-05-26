@@ -15,7 +15,12 @@ export default async function ehrRequestHandler(ehrRequest, overrides) {
 
   logInfo('Trying to handle EHR request');
 
-  let result = await doTransfer(ehrRequest);
+  let result = await doTransfer({
+    conversationId,
+    nhsNumber: ehrRequest.nhsNumber,
+    odsCode: ehrRequest.odsCode,
+    ehrRequestId: ehrRequest.ehrRequestId
+  });
 
   if (result.inProgress) {
     logWarning('EHR out transfer with this conversation ID is already in progress');
