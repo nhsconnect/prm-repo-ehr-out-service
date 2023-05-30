@@ -37,7 +37,6 @@ describe('Database connection test', () => {
     // given
     const NHS_NUMBER = 9693796047;
     const CONVERSATION_ID = uuid().toUpperCase();
-    const EHR_REQUEST_ID = uuid().toUpperCase();
     const ODS_CODE = 'B85002';
     const SINGLE_FRAGMENT = readFile(
       'COPC_IN000001UK01_01',
@@ -56,7 +55,7 @@ describe('Database connection test', () => {
     });
 
 
-    // create the registration request record first so that CONVERSATION_ID is a valid foreign id
+    // create the registration request record first so that CONVERSATION_ID is a valid foreign key
     await createRegistrationRequest(CONVERSATION_ID, NHS_NUMBER, ODS_CODE);
 
     // when
