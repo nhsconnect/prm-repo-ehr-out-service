@@ -69,9 +69,9 @@ describe('Database connection test', () => {
       nhsNumber: NHS_NUMBER,
       odsCode: ODS_CODE
     });
+    const numberOfMessagesInDatabase = await MessageFragment.count();
 
     // then
-    const numberOfMessagesInDatabase = await MessageFragment.count();
     expect(numberOfMessagesInDatabase).toEqual(NUMBER_OF_FRAGMENTS);
   });
 });
