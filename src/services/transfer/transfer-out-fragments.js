@@ -37,7 +37,12 @@ const sendOneFragment = async (conversationId, odsCode, fragment, messageId) => 
   logInfo(`Checked that fragment with message id: ${messageId} is not sent yet`);
 
   logInfo(`Creating a record for fragment in database, message id: ${messageId}`);
-  await createMessageFragment(messageId, conversationId);
+
+  try {
+    await createMessageFragment(messageId, conversationId);
+  } catch (error) {
+    logError(`Got error while trying to create record for message id: ${messageId}`, error);
+  }
 
   logInfo(`Sending message fragment of id ${messageId}...`);
   return sendFragment(conversationId, odsCode, fragment, messageId)
