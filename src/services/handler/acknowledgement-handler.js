@@ -1,61 +1,45 @@
-import { XMLParser } from "fast-xml-parser";
+import { parseCommonAcknowledgementFields } from "../parser/acknowledgement-parser";
+import { setCurrentSpanAttributes } from "../../config/tracing";
+import { logError, logInfo } from "../../middleware/logging";
+import {
+  parseConversationId
+} from "../parser/parsing-utilities";
 
-const parser = new XMLParser({
-  ignoreAttributes : false,
-  removeNSPrefix: true,
-  ignoreDeclaration: true
-});
+const POSITIVE_ACKNOWLEDGEMENTS = ['AA'];
+const NEGATIVE_ACKNOWLEDGEMENTS = ['AE', 'AR'];
 
-const ACKNOWLEDGEMENT_TYPES = {
-  POSITIVE_ACKNOWLEDGEMENT: 0,
-  NEGATIVE_ACKNOWLEDGEMENT: 1,
-  INTEGRATION_ACKNOWLEDGEMENT: 2
-};
+export const acknowledgementMessageHandler = async message => {
+  const conversationId = await parseConversationId(message);
+  const commonFields = await parseCommonAcknowledgementFields(message);
 
-export const acknowledgementMessageHandler = message => {
-  switch (differentiateAcknowledgementType(message)) {
-    case ACKNOWLEDGEMENT_TYPES.POSITIVE_ACKNOWLEDGEMENT:
-      // DO LOGIC HERE TO HANDLE POSITIVE ACKNOWLEDGEMENTS.
+  setCurrentSpanAttributes({ conversationId });
+
+  switch (commonFields.ackTypeCode) {
+    case POSITIVE_ACKNOWLEDGEMENTS.includes(commonFields.ackTypeCode):
+      // TODO: This falls within the scope of another ticket.
       break;
-    case ACKNOWLEDGEMENT_TYPES.NEGATIVE_ACKNOWLEDGEMENT:
-      // DO LOGIC HERE TO HANDLE NEGATIVE ACKNOWLEDGEMENTS.
-      break;
-    case ACKNOWLEDGEMENT_TYPES.INTEGRATION_ACKNOWLEDGEMENT:
-      // DO LOGIC HERE TO HANDLE INTEGRATION ACKNOWLEDGEMENTS.
+    case NEGATIVE_ACKNOWLEDGEMENTS.includes(commonFields.ackTypeCode):
+      logInfo(`NEGATIVE ACKNOWLEDGEMENT RECEIVED IN RESPONSE TO MESSAGE ID ${commonFields.referencedMessageId}`);
+
+      /*
+        fields required for acknowledgement table
+        messageId (UNIQUE TO ACK MESSAGE)
+        conversationId (ASSUMED TO BE THE CONVO ID IN RESPONSE)
+
+        referencedMessageId (MID IN RESPONSE)
+        typeCode
+        RSONS (MAY OR MAY NOT BE PRESENT) (can't recall name array of failure reasons)
+          EITHER:
+            1. acknowledgement -> acknowledgementDetail -> code -> (attr) displayName
+            2.
+       */
+
+
+
+      // Add a new row to the message acknowledgement tracking (TODO) database table.
       break;
     default:
-      // HANDLE ANY ERRORS.
-      break
+      logError(`ACKNOWLEDGEMENT TYPE ${commonFields.ackTypeCode} IS UNKNOWN.`);
+      break;
   }
-}
-
-const differentiateAcknowledgementType = message => {
-  const messageComponents = {
-    ebXML: parser.parse(JSON.parse(message).ebXML),
-    payload: parser.parse(JSON.parse(message).payload)
-  };
-
-  /**
-   * DRILL INTO THE ebXML AND LOOK FOR:
-   * - CONVERSATION ID
-   * - SERVICE urn:nhs:names:services:pds OR urn:nhs:names:services:gp2gp
-   *
-   */
-
-  /**
-   * DRILL INTO PAYLOAD AND LOOK FOR:
-   * <hl7:acknowledgement typeCode="AE"> <--- ACKNOWLEDGEMENT TYPE
-   *  <hl7:messageRef>
-   *    <hl7:id root="13962cb7-6d46-4986-bdb4-3201bb25f1f7"/> <---
-   *  </hl7:messageRef>
-   * </hl7:acknowledgement>
-   *
-   *
-   *
-   */
-
-  // DO SOME COMPARISONS ON WHAT DIFFERENTIATES THE ACKS AND RETURN THE
-  // CORRESPONDING ACK (I.E. ACKNOWLEDGEMENT_TYPES).
-
-  return 0;
-}
+};
