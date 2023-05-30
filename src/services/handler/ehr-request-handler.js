@@ -1,9 +1,12 @@
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { transferOutEhrCore } from "../transfer/transfer-out-ehr-core";
+import { parseEhrRequestMessage } from "../parser/ehr-request-parser";
+import { parseConversationId } from "../parser/parsing-utilities";
 
-export default async function ehrRequestHandler(ehrRequest, overrides) {
-  const { conversationId } = ehrRequest;
+export default async function ehrRequestHandler(message, overrides) {
+  const ehrRequest = await parseEhrRequestMessage(message);
+  const conversationId = await parseConversationId(message);
   setCurrentSpanAttributes({ conversationId });
 
   // TODO [PRMT-2728] The below linee are the old version which retrieves a presigned URL

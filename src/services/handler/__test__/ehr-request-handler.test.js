@@ -1,9 +1,9 @@
-import ehrRequestHandler from '../ehr-request-handler';
-import { logError, logInfo, logWarning } from '../../../middleware/logging';
 import expect from "expect";
+import ehrRequestHandler from '../ehr-request-handler';
 import { parseConversationId } from "../../parser/parsing-utilities";
 import { parseEhrRequestMessage } from "../../parser/ehr-request-parser";
 import { transferOutEhrCore } from "../../transfer/transfer-out-ehr-core";
+import { logError, logInfo, logWarning } from '../../../middleware/logging';
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -25,19 +25,23 @@ describe('ehrRequestHandler', () => {
   // =================== END ===================
 
   it('should forward the ehr request to initiate ehr out transfer', async () => {
-    // given
-    const transferOutEhrCore = jest.fn();
-
     // when
-    transferOutEhrCore.mockResolvedValue({
+    parseEhrRequestMessage.mockResolvedValueOnce(Promise.resolve(EHR_REQUEST));
+    parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
+    transferOutEhrCore.mockResolvedValue(Promise.resolve({
       inProgress: false,
       hasFailed: false
-    });
+    }));
 
     await ehrRequestHandler(EHR_REQUEST, { transferOutEhrCore });
 
     // then
-    await expect(transferOutEhrCore).toHaveBeenCalledWith(EHR_REQUEST);
+    await expect(transferOutEhrCore).toHaveBeenCalledWith({
+      conversationId: CONVERSATION_ID,
+      nhsNumber: EHR_REQUEST.nhsNumber,
+      odsCode: EHR_REQUEST.odsCode,
+      ehrRequestId: EHR_REQUEST.ehrRequestId
+    });
   });
 
   it('should log when transfer has been started', async () => {
