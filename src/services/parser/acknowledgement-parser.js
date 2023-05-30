@@ -8,6 +8,7 @@ export const parseCommonAcknowledgementFields = async message => {
   }
 
   const messageHeaderContent = messageParts.ebXml['data']['Envelope']['Header']['MessageHeader'];
+  const payloadContent = messageParts.payload['data'][INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID];
 
   return {
     service: messageHeaderContent['Service'],
@@ -15,12 +16,10 @@ export const parseCommonAcknowledgementFields = async message => {
     referencedMessageId: messageHeaderContent['MessageData']['RefToMessageId'] // Field does not always exist on ACK
       ? messageHeaderContent['MessageData']['RefToMessageId']
       : 'Unavailable',
-    ackTypeCode: messageParts.payload['data'][INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID]['acknowledgement']['typeCode'],
-    ackDetail: messageParts.payload['data'][INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID]['acknowledgement']['acknowledgementDetail']['code']['displayName']
+    ackTypeCode: payloadContent['acknowledgement']['typeCode'],
+    ackDetail: payloadContent['acknowledgement']['acknowledgementDetail']['code']['displayName']
   }
 }
-
-// failureReason
 
 export const parseNegativeAcknowledgementFields = async message => {
   const messageParts = {
@@ -29,11 +28,12 @@ export const parseNegativeAcknowledgementFields = async message => {
   }
 
   const messageHeaderContent = messageParts.ebXml['data']['Envelope']['Header']['MessageHeader'];
+  const payloadContent = messageParts.payload['data'][INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID];
 
   return {
     service: messageHeaderContent['Service'],
     messageId: messageHeaderContent['MessageData']['MessageId'],
     referencedMessageId: messageHeaderContent['MessageData']['RefToMessageId'],
-    ackTypeCode: messageParts.payload['data'][INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID]['acknowledgement']['typeCode']
+    ackTypeCode: payloadContent['acknowledgement']['typeCode']
   }
 }
