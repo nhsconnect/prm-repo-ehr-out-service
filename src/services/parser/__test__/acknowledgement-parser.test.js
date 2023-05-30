@@ -1,19 +1,11 @@
-import { parseCommonAcknowledgementFields } from "../acknowledgement-parser";
-import { readFileSync } from "fs";
-import expect from "expect";
 import path from "path";
+import expect from "expect";
+import { readFileSync } from "fs";
+import { parseCommonAcknowledgementFields } from "../acknowledgement-parser";
+import { ACKNOWLEDGEMENT_TYPES } from "../../../constants/acknowledgement-types";
+import { SERVICES } from "../../../constants/services";
 
 describe('parseCommonAcknowledgementFields', () => {
-  // ============ COMMON PROPERTIES ============
-  const ACKNOWLEDGEMENT_TYPES = {
-    POSITIVE: ['AA'],
-    NEGATIVE: ['AE', 'AR']
-  };
-  const SERVICES = [
-    'urn:nhs:names:services:gp2gp'
-  ];
-  // =================== END ===================
-
   /**
    * TODO [PRMT-2729] retrieve
    *  A positive acknowledgement with type code AA from EMIS
@@ -38,10 +30,11 @@ describe('parseCommonAcknowledgementFields', () => {
     const parsedMessage = await parseCommonAcknowledgementFields(exampleAcknowledgement);
 
     // then
-    expect(ACKNOWLEDGEMENT_TYPES.NEGATIVE).toContain(parsedMessage.ackTypeCode);
-    expect(SERVICES).toContain(parsedMessage.service);
-    expect(parsedMessage.referencedMessageId).toEqual(referencedMessageId);
     expect(parsedMessage.messageId).toEqual(acknowledgementMessageId);
+    expect(parsedMessage.referencedMessageId).toEqual(referencedMessageId);
+    expect(parsedMessage.acknowledgementDetail).toEqual(acknowledgementDetail);
+    expect(SERVICES.gp2gp).toEqual(parsedMessage.service);
+    expect(ACKNOWLEDGEMENT_TYPES.NEGATIVE).toContain(parsedMessage.acknowledgementTypeCode);
   });
 
   it('given a negative acknowledgement from TPP with no referencedMessageId, it should parse successfully', async () => {
@@ -55,9 +48,10 @@ describe('parseCommonAcknowledgementFields', () => {
     const parsedMessage = await parseCommonAcknowledgementFields(exampleAcknowledgement);
 
     // then
-    expect(ACKNOWLEDGEMENT_TYPES.NEGATIVE).toContain(parsedMessage.ackTypeCode);
-    expect(SERVICES).toContain(parsedMessage.service);
-    expect(parsedMessage.referencedMessageId).toEqual(referencedMessageId);
     expect(parsedMessage.messageId).toEqual(acknowledgementMessageId);
+    expect(parsedMessage.referencedMessageId).toEqual(referencedMessageId);
+    expect(parsedMessage.acknowledgementDetail).toEqual(acknowledgementDetail);
+    expect(ACKNOWLEDGEMENT_TYPES.NEGATIVE).toContain(parsedMessage.acknowledgementTypeCode);
+    expect(SERVICES.gp2gp).toEqual(parsedMessage.service);
   });
 });

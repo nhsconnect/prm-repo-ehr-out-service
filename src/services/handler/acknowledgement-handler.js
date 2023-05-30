@@ -4,9 +4,7 @@ import { logError, logInfo } from "../../middleware/logging";
 import {
   parseConversationId
 } from "../parser/parsing-utilities";
-
-const POSITIVE_ACKNOWLEDGEMENTS = ['AA'];
-const NEGATIVE_ACKNOWLEDGEMENTS = ['AE', 'AR'];
+import { ACKNOWLEDGEMENT_TYPES } from "../../constants/acknowledgement-types";
 
 export const acknowledgementMessageHandler = async message => {
   const conversationId = await parseConversationId(message);
@@ -14,11 +12,11 @@ export const acknowledgementMessageHandler = async message => {
 
   setCurrentSpanAttributes({ conversationId });
 
-  switch (commonFields.ackTypeCode) {
-    case POSITIVE_ACKNOWLEDGEMENTS.includes(commonFields.ackTypeCode):
+  switch (commonFields.acknowledgementTypeCode) {
+    case ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(commonFields.acknowledgementTypeCode):
       // TODO: This falls within the scope of another ticket.
       break;
-    case NEGATIVE_ACKNOWLEDGEMENTS.includes(commonFields.ackTypeCode):
+    case ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(commonFields.acknowledgementTypeCode):
       logInfo(`NEGATIVE ACKNOWLEDGEMENT RECEIVED IN RESPONSE TO MESSAGE ID ${commonFields.referencedMessageId}`);
 
       /*
@@ -39,7 +37,7 @@ export const acknowledgementMessageHandler = async message => {
       // Add a new row to the message acknowledgement tracking (TODO) database table.
       break;
     default:
-      logError(`ACKNOWLEDGEMENT TYPE ${commonFields.ackTypeCode} IS UNKNOWN.`);
+      logError(`ACKNOWLEDGEMENT TYPE ${commonFields.acknowledgementTypeCode} IS UNKNOWN.`);
       break;
   }
 };
