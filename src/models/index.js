@@ -108,11 +108,8 @@ class ModelFactory {
 
   setupModelRelationships() {
     this.setupRegistrationRequestAndMessageFragmentRelationship();
-    this.setupRegistrationRequestAndAcknowledgementRelationship();
-    this.setupMessageFragmentAndAcknowledgementRelationship();
   }
 
-  // 1 RR - 0..* MF
   setupRegistrationRequestAndMessageFragmentRelationship() {
     const RegistrationRequest = this.getByName("RegistrationRequest");
     const MessageFragment = this.getByName("MessageFragment");
@@ -126,56 +123,6 @@ class ModelFactory {
 
     RegistrationRequest.hasMany(MessageFragment, { foreignKey: foreignKeyProperties });
     MessageFragment.belongsTo(RegistrationRequest, { foreignKey: foreignKeyProperties });
-  }
-
-  /*
-   * 1 RR - 0..1 ACK
-   * There may be many message fragments attached to a RR, which will all receive their own ACK messages,
-   * but the ACK for the RR itself should relate only to the EHR core
-   */
-  setupRegistrationRequestAndAcknowledgementRelationship() {
-    const RegistrationRequest = this.getByName("RegistrationRequest");
-    const Acknowledgement = this.getByName("Acknowledgement");
-
-    const registrationRequestForeignKeyProperties = {
-      name: 'messageId',
-      foreignKeyConstraint: true,
-      type: Sequelize.DataTypes.UUID,
-      allowNull: false
-    };
-
-    const acknowledgementForeignKeyProperties = {
-      name: 'referencedMessageId',
-      foreignKeyConstraint: true,
-      type: Sequelize.DataTypes.UUID,
-      allowNull: false
-    };
-
-    RegistrationRequest.hasOne(Acknowledgement, { foreignKey: registrationRequestForeignKeyProperties });
-    Acknowledgement.belongsTo(RegistrationRequest, { foreignKey: acknowledgementForeignKeyProperties });
-  }
-
-  // 1 MF - 0..1 ACK
-  setupMessageFragmentAndAcknowledgementRelationship() {
-    const MessageFragment = this.getByName("MessageFragment");
-    const Acknowledgement = this.getByName("Acknowledgement");
-
-    const messageFragmentForeignKeyProperties = {
-      name: 'messageId',
-      foreignKeyConstraint: true,
-      type: Sequelize.DataTypes.UUID,
-      allowNull: false
-    };
-
-    const acknowledgementForeignKeyProperties = {
-      name: 'referencedMessageId',
-      foreignKeyConstraint: true,
-      type: Sequelize.DataTypes.UUID,
-      allowNull: false
-    };
-
-    MessageFragment.hasOne(Acknowledgement, { foreignKey: messageFragmentForeignKeyProperties });
-    Acknowledgement.belongsTo(MessageFragment, { foreignKey: acknowledgementForeignKeyProperties });
   }
 }
 
