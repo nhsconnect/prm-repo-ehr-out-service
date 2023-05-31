@@ -1,1 +1,0 @@
-{"ebXML":"<soap:Envelope><soap:Header><eb:MessageHeader ></eb:MessageHeader></soap:Header><soap:Body></soap:Body></soap:Envelope>","payload":"<RCMR_IN010000UK05 xmlns:xsi=\"http://www.w3.org\" xmlns:xs=\"XMLSchema\" type=\"Message\" xmlns=\"urn:hl7-org:v3\"></RCMR_IN010000UK05>","attachments":[]}
