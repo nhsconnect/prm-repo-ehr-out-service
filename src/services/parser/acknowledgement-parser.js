@@ -15,7 +15,7 @@ export const parseCommonAcknowledgementFields = async message => {
     messageId: messageHeaderContent['MessageData']['MessageId'],
     referencedMessageId: messageHeaderContent['MessageData']['RefToMessageId'] // Field does not always exist on ACK
       ? messageHeaderContent['MessageData']['RefToMessageId']
-      : 'Unavailable',
+      : 'UNAVAILABLE',
     acknowledgementTypeCode: payloadContent['acknowledgement']['typeCode'],
     acknowledgementDetail: payloadContent['acknowledgement']['acknowledgementDetail']['code']['displayName']
   }
