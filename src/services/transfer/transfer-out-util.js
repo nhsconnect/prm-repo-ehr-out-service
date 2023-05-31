@@ -64,6 +64,7 @@ const replaceMessageIdInObject = (ehrMessage, oldMessageId, newMessageId) => {
 export const updateMessageIdForEhrCore = async ehrCore => {
   try {
     const { messageId } = await extractEbXmlData(ehrCore.ebXML);
+
     const newMessageId = uuidv4().toUpperCase();
 
     return replaceMessageIdInObject(ehrCore, messageId, newMessageId);
@@ -113,7 +114,7 @@ export const updateAllFragmentsMessageIds = async fragments => {
   return fragmentsWithUpdatedMessageIds;
 };
 
-export const updateMessageIdForMessageFragment = async fragment => {
+export const updateMessageIdForMessageFragment = async (fragment) => {
   const { messageId } = await extractEbXmlData(fragment.ebXML);
   const newMessageId = await getNewMessageIdByOldMessageId(messageId);
   const updatedFragment = JSON.parse(JSON.stringify(fragment).replaceAll(messageId, newMessageId));

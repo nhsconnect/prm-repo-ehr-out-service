@@ -150,8 +150,7 @@ describe('Replacement of message IDs', () => {
 
       return (
         nock(ehrRepoUrl, ehrRepoHeaders)
-          // TODO: currently this endpoint of ehr-repo doesn't work as expect. we might need to change this endpoint later
-          .get(`/messages/${conversationIdFromEhrIn}/${messageId}`)
+          .get(`/fragments/${conversationIdFromEhrIn}/${messageId}`)
           .reply(200, ehrFragmentPresignedUrl)
       );
     }

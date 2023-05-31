@@ -1,13 +1,21 @@
 import ModelFactory from '../../models';
 import { modelName } from '../../models/message-fragment';
 import { runWithinTransaction } from './helper';
-import { logInfo } from "../../middleware/logging";
+import { logError, logInfo, logWarning } from "../../middleware/logging";
 import {FragmentMessageRecordNotFoundError} from "../../errors/errors";
 
 const MessageFragment = ModelFactory.getByName(modelName);
 
 export const getMessageFragmentStatusByMessageId = messageId => {
-  return MessageFragment.findByPk(messageId);
+  logInfo(`Getting the status of fragment with message id ${messageId} from database`);
+
+  // TODO: refactor this to a better shape
+  try {
+    return MessageFragment.findByPk(messageId);
+  } catch (error) {
+    logError("Encountered error during database transaction", error)
+    return Promise.resolve(null);
+  }
 };
 
 export const updateMessageFragmentStatus = (messageId, status) => {

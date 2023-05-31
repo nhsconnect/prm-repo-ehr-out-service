@@ -30,23 +30,32 @@ const sendAllFragments = (fragmentsWithMessageIds, conversationId, odsCode) => {
 };
 
 const sendOneFragment = async (conversationId, odsCode, fragment, messageId) => {
+  logInfo(`Start sending fragment with message id: ${messageId}`);
+
   if (await hasFragmentBeenSent(messageId)) {
     return;
   }
+  logInfo(`Checked that fragment with message id: ${messageId} is not sent yet`);
 
-  await createMessageFragment(messageId, conversationId);
+  logInfo(`Creating a record for fragment in database, message id: ${messageId}`);
+
+  try {
+    await createMessageFragment(messageId, conversationId);
+  } catch (error) {
+    logError(`Got error while trying to create record for message id: ${messageId}`, error);
+  }
+
   logInfo(`Sending message fragment of id ${messageId}...`);
-
   return sendFragment(conversationId, odsCode, fragment, messageId)
     .then(() => updateFragmentStatus(conversationId, messageId, Status.SENT_FRAGMENT))
-    .catch(async error => {
+    .catch(async (error) => {
       logError(`Message fragment transfer failed due to error: ${error}`);
       await updateFragmentStatus(conversationId, messageId, Status.FRAGMENT_SENDING_FAILED);
       throw error;
     });
 };
 
-const hasFragmentBeenSent = async messageId => {
+const hasFragmentBeenSent = async (messageId) => {
   const previousTransferOut = await getMessageFragmentStatusByMessageId(messageId);
   if (previousTransferOut?.status === Status.SENT_FRAGMENT) {
     logWarning(`EHR message FRAGMENT with message ID ${messageId} has already been sent`);

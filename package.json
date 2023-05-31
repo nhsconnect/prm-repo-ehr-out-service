@@ -31,7 +31,9 @@
     "expect": "^29.3.1",
     "express": "^4.17.3",
     "express-validator": "^6.14.0",
+    "fast-xml-parser": "^4.2.2",
     "lodash.clonedeep": "^4.5.0",
+    "lodash.isequal": "^4.5.0",
     "npm-audit-resolver": "3.0.0-7",
     "pg": "^8.8.0",
     "sequelize": "^6.26.0",
@@ -44,12 +46,12 @@
     "xml2js": "^0.5.0"
   },
   "devDependencies": {
-    "async-local-storage": "^2.3.1",
     "@babel/cli": "^7.17.6",
     "@babel/core": "^7.17.8",
     "@babel/node": "^7.16.8",
     "@babel/plugin-transform-runtime": "^7.17.0",
     "@babel/preset-env": "^7.16.11",
+    "async-local-storage": "^2.3.1",
     "eslint": "^8.11.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "^26.1.2",
@@ -74,6 +76,9 @@
   "jest": {
     "resetModules": true,
     "clearMocks": true,
-    "automock": false
+    "automock": false,
+    "testPathIgnorePatterns": [
+      "src/__tests__/utilities/integration-test.utilities.js"
+    ]
   }
 }
