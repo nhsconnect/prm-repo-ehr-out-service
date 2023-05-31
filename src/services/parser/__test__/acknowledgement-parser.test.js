@@ -6,19 +6,6 @@ import { ACKNOWLEDGEMENT_TYPES } from "../../../constants/acknowledgement-types"
 import { SERVICES } from "../../../constants/services";
 
 describe('parseCommonAcknowledgementFields', () => {
-  /**
-   * TODO [PRMT-2729] retrieve
-   *  A positive acknowledgement with type code AA from EMIS
-   *  A positive acknowledgement with type code AA from TPP
-   *  A negative acknowledgement with type code AE from EMIS when we're able to test EMIS FSS
-   *  A negative acknowledgement with type code AR from EMIS when we're able to test EMIS FSS
-   *  A negative acknowledgement with type code AR from TPP when we're able to test TPP FSS
-   */
-
-  //
-  // it('given a negative acknowledgement from EMIS, it should parse successfully', async () => {});
-  // it('given a negative acknowledgement from EMIS, it should parse successfully', async () => {});
-
   it('given a negative acknowledgement from TPP, it should parse successfully', async () => {
     // given
     const acknowledgementMessageId = "BB8FC948-FA40-11ED-A594-F40343488B16";
