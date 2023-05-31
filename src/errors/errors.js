@@ -11,6 +11,8 @@ export const errorMessages = {
   STATUS_ERROR: 'The status could not be updated',
   FILE_READ_ERROR: 'Failed to read file',
   DUPLICATED_REQUEST_ERROR: 'Got a duplicated request',
+  FILE_READ_ERROR: 'Failed to read file',
+  PARSING_ERROR: 'Unable to parse XML'
   PARSE_MESSAGE_ERROR: 'Failed while trying to parse ehr message',
   MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to update message id to new ones',
   MESSAGE_ID_RECORD_CREATION_ERROR: 'Failed to record the message ids replacement in database',
@@ -19,6 +21,13 @@ export const errorMessages = {
   FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR:
     'Cannot find the the replaced fragment message id from database'
 };
+
+export class ParsingError extends Error {
+  constructor(error) {
+    super(errorMessages.PARSING_ERROR);
+    logError(errorMessages.PARSING_ERROR, error);
+  };
+}
 
 export class GetPdsCodeError extends Error {
   constructor(error) {
