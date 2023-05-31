@@ -40,7 +40,7 @@ describe('parseCommonAcknowledgementFields', () => {
   it('given a negative acknowledgement from TPP with no referencedMessageId, it should parse successfully', async () => {
     // given
     const acknowledgementMessageId = "7E6C9590-FA4B-11ED-808B-AC162D1F16F0";
-    const referencedMessageId = "Unavailable";
+    const referencedMessageId = "UNAVAILABLE";
     const acknowledgementDetail = "Large Message general failure";
     const exampleAcknowledgement = readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_02"), "utf-8");
 
