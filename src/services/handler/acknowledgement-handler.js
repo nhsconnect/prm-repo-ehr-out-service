@@ -8,19 +8,19 @@ import { parseCommonAcknowledgementFields } from "../parser/acknowledgement-pars
 
 export const acknowledgementMessageHandler = async message => {
   const conversationId = await parseConversationId(message);
-  const commonFields = await parseCommonAcknowledgementFields(message);
+  const { acknowledgementTypeCode } = await parseCommonAcknowledgementFields(message);
 
   setCurrentSpanAttributes({ conversationId });
 
-  switch (commonFields.acknowledgementTypeCode) {
-    case ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(commonFields.acknowledgementTypeCode):
+  switch (acknowledgementTypeCode) {
+    case ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(acknowledgementTypeCode):
       logInfo(`POSITIVE ACKNOWLEDGEMENT RECEIVED`);
       break;
-    case ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(commonFields.acknowledgementTypeCode):
+    case ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(acknowledgementTypeCode):
       logInfo(`NEGATIVE ACKNOWLEDGEMENT RECEIVED`);
       break;
     default:
-      logError(`ACKNOWLEDGEMENT TYPE ${commonFields.acknowledgementTypeCode} IS UNKNOWN.`);
+      logError(`ACKNOWLEDGEMENT TYPE ${acknowledgementTypeCode} IS UNKNOWN.`);
       break;
   }
 };
