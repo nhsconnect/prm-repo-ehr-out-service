@@ -4,10 +4,12 @@ import { setCurrentSpanAttributes } from "../../config/tracing";
 import { Status } from "../../models/registration-request";
 import { logError, logInfo } from "../../middleware/logging";
 import { getNhsNumberByConversationId } from "../database/registration-request-repository";
+import { parseContinueRequestMessage } from "../parser/continue-request-parser";
+import { parseConversationId } from "../parser/parsing-utilities";
 
-export default async function continueMessageHandler(parsedMessage) {
-  // Set logging attributes.
-  const { conversationId, odsCode } = parsedMessage;
+export default async function continueMessageHandler(message) {
+  const conversationId = await parseConversationId(message);
+  const { odsCode } = await parseContinueRequestMessage(message);
   setCurrentSpanAttributes({ conversationId });
 
   logInfo('Trying to handle continue request');
@@ -38,5 +40,5 @@ export default async function continueMessageHandler(parsedMessage) {
         conversationId,
         Status.FRAGMENTS_SENDING_FAILED,
         'One or more fragments failed to send');
-    })
-}
+    });
+};
