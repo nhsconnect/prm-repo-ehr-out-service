@@ -14,10 +14,10 @@ export const acknowledgementMessageHandler = async message => {
 
   switch (commonFields.acknowledgementTypeCode) {
     case ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(commonFields.acknowledgementTypeCode):
-      // TODO: This falls within the scope of another ticket.
+      logInfo(`POSITIVE ACKNOWLEDGEMENT RECEIVED`);
       break;
     case ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(commonFields.acknowledgementTypeCode):
-      logInfo(`NEGATIVE ACKNOWLEDGEMENT RECEIVED IN RESPONSE TO MESSAGE ID ${commonFields.referencedMessageId}`);
+      logInfo(`NEGATIVE ACKNOWLEDGEMENT RECEIVED`);
       break;
     default:
       logError(`ACKNOWLEDGEMENT TYPE ${commonFields.acknowledgementTypeCode} IS UNKNOWN.`);

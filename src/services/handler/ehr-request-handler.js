@@ -1,8 +1,8 @@
 import { logError, logInfo, logWarning } from '../../middleware/logging';
-import { setCurrentSpanAttributes } from '../../config/tracing';
 import { transferOutEhrCore } from "../transfer/transfer-out-ehr-core";
 import { parseEhrRequestMessage } from "../parser/ehr-request-parser";
 import { parseConversationId } from "../parser/parsing-utilities";
+import { setCurrentSpanAttributes } from '../../config/tracing';
 
 export default async function ehrRequestHandler(message, overrides) {
   const ehrRequest = await parseEhrRequestMessage(message);
