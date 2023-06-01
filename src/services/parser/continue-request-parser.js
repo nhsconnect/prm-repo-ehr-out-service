@@ -1,7 +1,6 @@
 import { INTERACTION_IDS } from "../../constants/interaction-ids";
 import { XmlParser } from "./xml-parser/xml-parser";
-import { ParsingError } from "../../errors/errors";
-import {validateFieldsHaveSuccessfullyParsed} from "./parsing-utilities";
+import { validateFieldsHaveSuccessfullyParsed } from "./parsing-validation";
 
 export const parseContinueRequestMessage = async message => {
   const messageParts = {

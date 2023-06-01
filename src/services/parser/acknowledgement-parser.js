@@ -1,6 +1,6 @@
-import { validateFieldsHaveSuccessfullyParsed } from "./parsing-utilities";
 import { INTERACTION_IDS } from "../../constants/interaction-ids";
 import { XmlParser } from "./xml-parser/xml-parser";
+import { validateFieldsHaveSuccessfullyParsed } from "./parsing-validation";
 
 export const parseAcknowledgementFields = async message => {
   const messageParts = {
