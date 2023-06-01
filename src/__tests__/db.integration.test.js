@@ -3,7 +3,7 @@ import ModelFactory from '../models';
 import { modelName as messageFragmentModel } from '../models/message-fragment';
 import { modelName as registrationRequestModel } from '../models/registration-request';
 import { readFile } from './utilities/integration-test.utilities';
-import { patientAndPracticeOdsCodesMatch } from '../services/transfer/transfer-out-util';
+import { patientAndPracticeOdsCodesMatch, updateAllFragmentsMessageIds } from '../services/transfer/transfer-out-util';
 import { getAllFragmentsWithMessageIdsFromRepo } from '../services/ehr-repo/get-fragments';
 import { transferOutFragments } from '../services/transfer/transfer-out-fragments';
 import { sendFragment } from '../services/gp2gp/send-fragment';
@@ -62,6 +62,7 @@ describe('Database connection test', () => {
     getAllFragmentsWithMessageIdsFromRepo.mockReturnValue(Promise.resolve(FRAGMENTS_WITH_MESSAGE_IDS));
     patientAndPracticeOdsCodesMatch.mockReturnValue(Promise.resolve(true));
     sendFragment.mockResolvedValue(undefined);
+    updateAllFragmentsMessageIds.mockReturnValue(Promise.resolve(FRAGMENTS_WITH_MESSAGE_IDS));
 
     await transferOutFragments({
       conversationId: CONVERSATION_ID,

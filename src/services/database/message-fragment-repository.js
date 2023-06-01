@@ -2,6 +2,7 @@ import ModelFactory from '../../models';
 import { modelName } from '../../models/message-fragment';
 import { runWithinTransaction } from './helper';
 import { logError, logInfo, logWarning } from "../../middleware/logging";
+import {FragmentMessageRecordNotFoundError} from "../../errors/errors";
 
 const MessageFragment = ModelFactory.getByName(modelName);
 
@@ -17,16 +18,18 @@ export const getMessageFragmentStatusByMessageId = messageId => {
   }
 };
 
-export const updateMessageFragmentStatus = async (messageId, status) => {
+export const updateMessageFragmentStatus = (messageId, status) => {
   logInfo(`Updating message fragment status to ${status}`);
 
-  await runWithinTransaction(async transaction => {
-    return await MessageFragment.update(
-      { status },
-      {
-        where: { message_id: messageId },
-        transaction
-      }
-    );
-  });
+  return runWithinTransaction(transaction =>
+      getMessageFragmentStatusByMessageId(messageId)
+        .then(record => {
+          if (!record) {
+            throw new FragmentMessageRecordNotFoundError(messageId);
+          }
+          record.status = status
+          return record.save()
+        })
+        .then(() => logInfo('Updated message fragment status has been stored'))
+  )
 };

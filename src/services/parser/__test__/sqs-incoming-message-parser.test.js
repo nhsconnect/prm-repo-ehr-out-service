@@ -53,7 +53,10 @@ let validEhrRequestEbXmlAsJson = {
       Header: {
         MessageHeader: {
           Action: 'RCMR_IN010000UK05',
-          ConversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22'
+          ConversationId: '17a757f2-f4d2-444e-a246-9cb77bef7f22',
+          MessageData: {
+            MessageId: '2868A878-498D-4FCE-B3DD-6CB9FC4E4B9E'
+          }
         }
       }
     }
@@ -73,9 +76,12 @@ const validContinueRequestEbXmlAsJson = {
   data: {
     Envelope: {
       Header: {
-        MessageHeader:{
+        MessageHeader: {
           ConversationId: "6E242658-3D8E-11E3-A7DC-172BDA00FA67",
-          Action: "COPC_IN000001UK01"
+          Action: "COPC_IN000001UK01",
+          MessageData: {
+            MessageId: "F1F2E630-FECA-11ED-808B-AC162D1F16F0"
+          }
         }
       },
       Body: {
