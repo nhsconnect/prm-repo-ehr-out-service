@@ -16,10 +16,10 @@ export const parseAcknowledgementFields = async message => {
     messageId: messageHeaderContent['MessageData']['MessageId'],
     referencedMessageId: messageHeaderContent['MessageData']['RefToMessageId']
         ? messageHeaderContent['MessageData']['RefToMessageId']
-        : 'UNAVAILABLE',
+        : 'NOT FOUND',
     messageRef: payloadContent['acknowledgement']['messageRef']['id']['root']
         ? payloadContent['acknowledgement']['messageRef']['id']['root']
-        : 'UNAVAILABLE',
+        : 'NOT FOUND',
     acknowledgementTypeCode: payloadContent['acknowledgement']['typeCode'],
     acknowledgementDetail: payloadContent['acknowledgement']['acknowledgementDetail']['code']['displayName']
   };
