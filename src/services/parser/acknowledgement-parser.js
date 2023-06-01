@@ -1,8 +1,8 @@
-import { XmlParser } from "./xml-parser/xml-parser";
-import { INTERACTION_IDS } from "../../constants/interaction-ids";
 import { validateFieldsHaveSuccessfullyParsed } from "./parsing-utilities";
+import { INTERACTION_IDS } from "../../constants/interaction-ids";
+import { XmlParser } from "./xml-parser/xml-parser";
 
-export const parseCommonAcknowledgementFields = async message => {
+export const parseAcknowledgementFields = async message => {
   const messageParts = {
     ebXml: await new XmlParser().parse(JSON.parse(message).ebXML),
     payload: await new XmlParser().parse(JSON.parse(message).payload)
@@ -14,8 +14,11 @@ export const parseCommonAcknowledgementFields = async message => {
   const parsedFields = {
     service: messageHeaderContent['Service'],
     messageId: messageHeaderContent['MessageData']['MessageId'],
-    referencedMessageId: messageHeaderContent['MessageData']['RefToMessageId'] // Field does not always exist on ACK
+    referencedMessageId: messageHeaderContent['MessageData']['RefToMessageId']
         ? messageHeaderContent['MessageData']['RefToMessageId']
+        : 'UNAVAILABLE',
+    messageRef: payloadContent['acknowledgement']['messageRef']['id']['root']
+        ? payloadContent['acknowledgement']['messageRef']['id']['root']
         : 'UNAVAILABLE',
     acknowledgementTypeCode: payloadContent['acknowledgement']['typeCode'],
     acknowledgementDetail: payloadContent['acknowledgement']['acknowledgementDetail']['code']['displayName']
