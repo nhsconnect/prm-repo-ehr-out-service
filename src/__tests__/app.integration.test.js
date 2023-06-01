@@ -342,7 +342,6 @@ describe('Ensure health record outbound XML is unchanged', () => {
       .sort()
 
     expect(sendFragment).toBeCalledTimes(4);
-
     expect(validateMessageEquality(originalFragments[0], receivedArguments[0])).toBe(true);
     expect(validateMessageEquality(originalFragments[1], receivedArguments[1])).toBe(true);
     expect(validateMessageEquality(originalFragments[2], receivedArguments[2])).toBe(true);

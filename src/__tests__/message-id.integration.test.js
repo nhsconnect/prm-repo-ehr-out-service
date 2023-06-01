@@ -97,6 +97,7 @@ describe('Replacement of message IDs', () => {
       const ebXML = JSON.parse(ehrCore).ebXML;
       const oldMessageId = await extractMessageId(ebXML);
       const oldReferencedFragmentIds = await extractReferencedFragmentMessageIds(ebXML);
+      const uuidRegexPattern = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
 
       // set up mocks
       const ehrRepoScope = setUpMockForEhrRepoCoreMessage();
@@ -126,7 +127,8 @@ describe('Replacement of message IDs', () => {
         conversationId: conversationId,
         odsCode: odsCode,
         ehrRequestId: ehrRequestId,
-        coreEhr: expect.anything()
+        coreEhr: expect.anything(),
+        messageId: expect.stringMatching(uuidRegexPattern)
       });
 
       const outBoundEhrCore = gp2gpMessengerPostBody.coreEhr;

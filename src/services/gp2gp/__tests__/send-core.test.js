@@ -27,11 +27,13 @@ describe('sendCore', () => {
   const ODS_CODE = 'G67200';
   const CORE_EHR = { ebXML: "", payload: "", attachments: [] };
   const EHR_REQUEST_ID = '5cefa7a2-fbca-494a-a114-6f58fae4be4a';
+  const MESSAGE_ID = '242d2dfa-9972-4798-8397-86a046f98e1d';
   const REQUEST_BODY = {
     conversationId: CONVERSATION_ID,
     odsCode: ODS_CODE,
     coreEhr: CORE_EHR,
-    ehrRequestId: EHR_REQUEST_ID
+    ehrRequestId: EHR_REQUEST_ID,
+    messageId: MESSAGE_ID
   };
   const HEADERS = { reqheaders: { Authorization: AUTH_KEYS } };
   // =================== END ===================
@@ -39,10 +41,10 @@ describe('sendCore', () => {
   it('should log message if ehr core sent successfully', async () => {
     // when
     const mockUrlRequest = nock(REQUEST_BASE_URL, HEADERS)
-      .post(`${REQUEST_ENDPOINT}/core`)
+      .post(`${REQUEST_ENDPOINT}/core`, REQUEST_BODY)
       .reply(204);
 
-    await sendCore(CONVERSATION_ID, ODS_CODE, CORE_EHR, EHR_REQUEST_ID);
+    await sendCore(CONVERSATION_ID, ODS_CODE, CORE_EHR, EHR_REQUEST_ID, MESSAGE_ID);
 
     // then
     expect(mockUrlRequest.isDone()).toBe(true);
@@ -53,11 +55,11 @@ describe('sendCore', () => {
   it('should throw error if sending ehr core unsuccessful', async () => {
     // when
     const mockUrlRequest = nock(REQUEST_BASE_URL, HEADERS)
-      .post(`${REQUEST_ENDPOINT}/fragment`)
+      .post(`${REQUEST_ENDPOINT}/core`)
       .reply(404);
 
     // then
-    await expect(() => sendCore(CONVERSATION_ID, ODS_CODE, CORE_EHR, EHR_REQUEST_ID))
+    await expect(() => sendCore(CONVERSATION_ID, ODS_CODE, CORE_EHR, EHR_REQUEST_ID, MESSAGE_ID))
       .rejects
       .toThrowError(SendCoreError);
   });

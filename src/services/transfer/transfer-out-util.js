@@ -66,8 +66,11 @@ export const updateMessageIdForEhrCore = async ehrCore => {
     const { messageId } = await extractEbXmlData(ehrCore.ebXML);
 
     const newMessageId = uuidv4().toUpperCase();
+    const ehrCoreWithUpdatedMessageId = replaceMessageIdInObject(ehrCore, messageId, newMessageId);
 
-    return replaceMessageIdInObject(ehrCore, messageId, newMessageId);
+    return {
+      newMessageId, ehrCoreWithUpdatedMessageId
+    }
   } catch (error) {
     throw new MessageIdUpdateError(error);
   }
