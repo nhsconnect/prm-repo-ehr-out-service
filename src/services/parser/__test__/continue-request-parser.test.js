@@ -7,8 +7,8 @@ import { validateFieldsHaveSuccessfullyParsed } from "../parsing-validation";
 // Mocking
 jest.mock('../parsing-validation');
 
-describe('ehr-request-parser.js', () => {
-  it('given a continue request, it should parse successfully', async () => {
+describe('continue-request-parser.js', () => {
+  it('should parse a continue request successfully', async () => {
     // given
     const odsCode = "M85019";
     const exampleContinueRequest = readFileSync(path.join(__dirname, "data", "continue-requests", "COPC_IN000001UK01"), "utf-8");
