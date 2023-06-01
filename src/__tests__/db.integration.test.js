@@ -3,7 +3,7 @@ import ModelFactory from '../models';
 import { modelName as messageFragmentModel } from '../models/message-fragment';
 import { modelName as registrationRequestModel } from '../models/registration-request';
 import { readFile } from './utilities/integration-test.utilities';
-import {patientAndPracticeOdsCodesMatch, updateAllFragmentsMessageIds} from '../services/transfer/transfer-out-util';
+import { patientAndPracticeOdsCodesMatch, updateAllFragmentsMessageIds } from '../services/transfer/transfer-out-util';
 import { getAllFragmentsWithMessageIdsFromRepo } from '../services/ehr-repo/get-fragments';
 import { transferOutFragments } from '../services/transfer/transfer-out-fragments';
 import { sendFragment } from '../services/gp2gp/send-fragment';

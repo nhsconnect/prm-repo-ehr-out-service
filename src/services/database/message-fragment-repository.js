@@ -21,7 +21,6 @@ export const getMessageFragmentStatusByMessageId = messageId => {
 export const updateMessageFragmentStatus = (messageId, status) => {
   logInfo(`Updating message fragment status to ${status}`);
 
-
   return runWithinTransaction(transaction =>
       getMessageFragmentStatusByMessageId(messageId)
         .then(record => {
@@ -31,6 +30,6 @@ export const updateMessageFragmentStatus = (messageId, status) => {
           record.status = status
           return record.save()
         })
-    .then(() => logInfo('Updated message fragment status has been stored'))
+        .then(() => logInfo('Updated message fragment status has been stored'))
   )
 };

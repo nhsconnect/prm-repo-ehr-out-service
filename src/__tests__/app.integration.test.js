@@ -12,17 +12,13 @@ import ModelFactory from '../models';
 import { modelName as registrationRequestModel, modelName, Status } from "../models/registration-request";
 import { modelName as messageFragmentModel } from "../models/message-fragment";
 import { modelName as messageIdReplacementModel } from "../models/message-id-replacement"
-import {getEhrCoreAndFragmentIdsFromRepo, getEhrCoreFromRepo} from "../services/ehr-repo/get-ehr";
-import {
-  patientAndPracticeOdsCodesMatch,
-  updateConversationStatus,
-  updateReferencedFragmentIds
-} from "../services/transfer/transfer-out-util";
+import { getEhrCoreAndFragmentIdsFromRepo } from "../services/ehr-repo/get-ehr";
+import { patientAndPracticeOdsCodesMatch } from "../services/transfer/transfer-out-util";
 import { sendCore } from "../services/gp2gp/send-core";
 import { transferOutFragments } from "../services/transfer/transfer-out-fragments";
 import { sendFragment } from "../services/gp2gp/send-fragment";
 import { getAllFragmentsWithMessageIdsFromRepo } from "../services/ehr-repo/get-fragments";
-import {createMessageIdReplacement} from "../services/database/create-message-id-replacement";
+import { createMessageIdReplacement } from "../services/database/create-message-id-replacement";
 
 const EHR_OUT = 'http://localhost';
 const fakeAuth = 'fake-keys';
@@ -40,14 +36,6 @@ jest.mock('../services/transfer/transfer-out-util', () => {
   }
 
 });
-
-// import {
-//   patientAndPracticeOdsCodesMatch,
-//   updateConversationStatus,
-//   updateReferencedFragmentIds
-// } from "../services/transfer/transfer-out-util";
-
-
 
 jest.mock('../services/gp2gp/send-core');
 jest.mock('../services/ehr-repo/get-fragments');
@@ -327,9 +315,9 @@ describe('Ensure health record outbound XML is unchanged', () => {
     const FRAGMENT_MESSAGE_IDS = Object.keys(ORIGINAL_FRAGMENTS);
 
     for (let messageId of FRAGMENT_MESSAGE_IDS) {
-      // parse the COPC to JS object and assign to the return value of mock function
-      const copcFileAsString = ORIGINAL_FRAGMENTS[messageId];
-      MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo[messageId] = JSON.parse(copcFileAsString);
+      // parse the COPC fragment file to JS object and assign to the return value of mock function
+      const fragmentFileAsString = ORIGINAL_FRAGMENTS[messageId];
+      MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo[messageId] = JSON.parse(fragmentFileAsString);
 
       // add records of the old message ids to database table
       // new message ids are mostly same as the old ones, with last char replaced as '0', in order to guarantee the .sort() at expect statement give the same order.
@@ -376,8 +364,8 @@ describe('Ensure health record outbound XML is unchanged', () => {
     const FRAGMENT_MESSAGE_IDS = Object.keys(ORIGINAL_FRAGMENTS);
 
     for (let messageId of FRAGMENT_MESSAGE_IDS) {
-      const copcFileAsString = ORIGINAL_FRAGMENTS[messageId];
-      MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo[messageId] = JSON.parse(copcFileAsString);
+      const fragmentFileAsString = ORIGINAL_FRAGMENTS[messageId];
+      MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo[messageId] = JSON.parse(fragmentFileAsString);
 
       await createMessageIdReplacement(messageId, messageId.slice(0, 35) + '1')
     };
