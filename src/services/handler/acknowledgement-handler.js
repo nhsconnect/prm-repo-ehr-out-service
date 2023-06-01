@@ -4,11 +4,11 @@ import {
 import { logError, logInfo } from "../../middleware/logging";
 import { setCurrentSpanAttributes } from "../../config/tracing";
 import { ACKNOWLEDGEMENT_TYPES } from "../../constants/acknowledgement-types";
-import { parseCommonAcknowledgementFields } from "../parser/acknowledgement-parser";
+import { parseAcknowledgementFields } from "../parser/acknowledgement-parser";
 
 export const acknowledgementMessageHandler = async message => {
   const conversationId = await parseConversationId(message);
-  const { acknowledgementTypeCode } = await parseCommonAcknowledgementFields(message);
+  const { acknowledgementTypeCode } = await parseAcknowledgementFields(message);
 
   setCurrentSpanAttributes({ conversationId });
 
