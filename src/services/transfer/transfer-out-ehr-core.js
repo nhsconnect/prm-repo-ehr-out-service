@@ -49,7 +49,7 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
 
     await updateConversationStatus(conversationId, Status.ODS_VALIDATION_CHECKS_PASSED);
 
-    let ehrCoreWithUpdatedMessageId = await updateMessageIdForEhrCore(ehrCore);
+    let { ehrCoreWithUpdatedMessageId, newMessageId } = await updateMessageIdForEhrCore(ehrCore);
     logInfo(`Successfully replaced message id for ehrCore`);
 
     if (fragmentMessageIds?.length > 0) {
@@ -60,7 +60,7 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
     }
 
     logInfo('Sending EHR core');
-    await sendCore(conversationId, odsCode, ehrCoreWithUpdatedMessageId, ehrRequestId);
+    await sendCore(conversationId, odsCode, ehrCoreWithUpdatedMessageId, ehrRequestId, newMessageId);
 
     await updateConversationStatus(conversationId, Status.SENT_EHR, logs);
     return defaultResult;

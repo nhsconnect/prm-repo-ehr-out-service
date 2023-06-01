@@ -5,6 +5,7 @@ import { transferOutEhrCore } from '../transfer-out-ehr-core';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../../ehr-repo/get-ehr';
 import { createRegistrationRequest } from '../../database/create-registration-request';
 import expect from 'expect';
+import { v4 as uuid } from 'uuid';
 import { sendCore } from '../../gp2gp/send-core';
 import {
   EhrUrlNotFoundError,
@@ -32,6 +33,7 @@ jest.mock('../transfer-out-util');
 describe('transferOutEhrCore', () => {
   const conversationId = '5bb36755-279f-43d5-86ab-defea717d93f';
   const ehrRequestId = '870f6ef9-746f-4e81-b51f-884d64530bed';
+  const newMessageId = uuid();
   const odsCode = 'A12345';
   const nhsNumber = '1111111111';
   const ehrCore = {
@@ -130,7 +132,7 @@ describe('transferOutEhrCore', () => {
     // given
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds: [] });
-    updateMessageIdForEhrCore.mockResolvedValueOnce(ehrCoreWithUpdatedMessageId);
+    updateMessageIdForEhrCore.mockResolvedValueOnce({ehrCoreWithUpdatedMessageId, newMessageId});
 
     // when
     const result = await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
@@ -141,7 +143,8 @@ describe('transferOutEhrCore', () => {
       conversationId,
       odsCode,
       ehrCoreWithUpdatedMessageId,
-      ehrRequestId
+      ehrRequestId,
+      newMessageId
     );
     expect(result).toEqual({ hasFailed: false, inProgress: false });
 
@@ -153,6 +156,7 @@ describe('transferOutEhrCore', () => {
     // given
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds });
+    updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
     updateReferencedFragmentIds.mockResolvedValueOnce(
       ehrCoreWithUpdatedReferencedFragmentMessageId
     );
@@ -167,7 +171,8 @@ describe('transferOutEhrCore', () => {
       conversationId,
       odsCode,
       ehrCoreWithUpdatedReferencedFragmentMessageId,
-      ehrRequestId
+      ehrRequestId,
+      newMessageId
     );
     expect(result).toEqual({ hasFailed: false, inProgress: false });
   });
@@ -175,6 +180,7 @@ describe('transferOutEhrCore', () => {
   it('should send EHR core on success', async () => {
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore });
+    updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
 
     const result = await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
@@ -196,7 +202,8 @@ describe('transferOutEhrCore', () => {
       conversationId,
       odsCode,
       ehrCoreWithUpdatedMessageId,
-      ehrRequestId
+      ehrRequestId,
+      newMessageId
     );
   });
 
