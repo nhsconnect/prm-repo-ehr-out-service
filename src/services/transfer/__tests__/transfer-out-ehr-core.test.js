@@ -33,6 +33,7 @@ jest.mock('../transfer-out-util');
 describe('transferOutEhrCore', () => {
   const conversationId = '5bb36755-279f-43d5-86ab-defea717d93f';
   const ehrRequestId = '870f6ef9-746f-4e81-b51f-884d64530bed';
+  const newMessageId = uuid();
   const odsCode = 'A12345';
   const nhsNumber = '1111111111';
   const ehrCore = {
@@ -129,7 +130,6 @@ describe('transferOutEhrCore', () => {
 
   it('should replace the main message ID in ehr core before sending out, if no fragment', async () => {
     // given
-    const newMessageId = uuid();
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds: [] });
     updateMessageIdForEhrCore.mockResolvedValueOnce({ehrCoreWithUpdatedMessageId, newMessageId});
@@ -154,7 +154,6 @@ describe('transferOutEhrCore', () => {
 
   it('should create new message ids for fragment and replace them in ehrCore, if fragment is referenced', async () => {
     // given
-    const newMessageId = uuid();
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds });
     updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
@@ -179,7 +178,6 @@ describe('transferOutEhrCore', () => {
   });
 
   it('should send EHR core on success', async () => {
-    const newMessageId = uuid();
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore });
     updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
