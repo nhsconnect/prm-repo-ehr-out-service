@@ -1,5 +1,5 @@
-import { XmlParser } from "./xml-parser/xml-parser";
-import { ParsingError } from "../../errors/errors";
+import {XmlParser} from "./xml-parser/xml-parser";
+import { validateFieldsHaveSuccessfullyParsed } from "./parsing-validation";
 
 export const parseInteractionId = async message => {
   const ebxmlAsJson = await new XmlParser().parse(JSON.parse(message).ebXML);
@@ -23,16 +23,4 @@ export const parseConversationId = async message => {
   validateFieldsHaveSuccessfullyParsed(parsedFields);
 
   return parsedFields.conversationId;
-};
-
-export const validateFieldsHaveSuccessfullyParsed = parsedFields => {
-  const undefinedFields = Object.entries(parsedFields).map(([key, value]) => {
-    if (value === undefined) {
-      return key;
-    }
-  });
-
-  if (undefinedFields.length > 0) {
-    throw new ParsingError(`The following fields have parsed as undefined: ${undefinedFields}`);
-  }
 };
