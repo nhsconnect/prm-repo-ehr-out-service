@@ -1,9 +1,12 @@
+import sendMessageToCorrespondingHandler from "../../handler/broker";
 import { logError, logWarning } from "../../../middleware/logging";
 import { pollQueueOnce } from "../sqs-consumer.js";
+import { readFileSync } from "fs";
 import expect from "expect";
+import path from "path";
 
 // Mocking
-jest.mock('../../parser/sqs-incoming-message-parser', () => ({ parse: jest.fn() }));
+jest.mock('../../handler/broker');
 jest.mock('../../../middleware/logging');
 jest.mock('@aws-sdk/client-sqs');
 
@@ -11,56 +14,51 @@ describe('sqs consumer', () => {
   // ============ COMMON PROPERTIES ============
   const EHR_REQUEST_INTERACTION_ID = 'RCMR_IN010000UK05';
   const SQS_CLIENT = { send: jest.fn() };
-  const PARSER = jest.fn();
-  const MESSAGE_BODY = {
-    ebXML: '<soap:Envelope><soap:Header><eb:MessageHeader ></eb:MessageHeader></soap:Header><soap:Body></soap:Body></soap:Envelope>',
-    payload: '<RCMR_IN010000UK05 xmlns:xsi=\\"https://www.w3.org\\" xmlns:xs=\\"XMLSchema\\" type=\\"Message\\" xmlns=\\"urn:hl7-org:v3\\"></RCMR_IN010000UK05>',
-    attachments: []
-  };
+  const MESSAGE_BODY = readFileSync(path.join(__dirname, "data", "ehr-requests", "RCMR_IN010000UK05"), "utf-8");
   // =================== END ===================
 
-  it('should read a single message from the queue and invoke the parser with the message and acknowledge on success', async () => {
+  it('should read a single message from the queue and invoke the broker with the message and acknowledge on success', async () => {
     // when
-    PARSER.mockReturnValue({ interactionId: EHR_REQUEST_INTERACTION_ID });
+    sendMessageToCorrespondingHandler.mockReturnValueOnce(undefined);
+
     SQS_CLIENT.send.mockResolvedValue({
       $metadata: { attempts: 1, httpStatusCode: 200, totalRetryDelay: 0 },
       Messages: [
         {
           Attributes: { SentTimestamp: '1671103624717' },
-          Body: JSON.stringify(MESSAGE_BODY)
+          Body: MESSAGE_BODY
         }
       ]
     });
 
-    await pollQueueOnce(SQS_CLIENT, PARSER);
+    await pollQueueOnce(SQS_CLIENT);
 
     // then
     await expect(SQS_CLIENT.send).toHaveBeenCalledTimes(2); // receive + ack
-    expect(PARSER).toHaveBeenNthCalledWith(1, JSON.stringify(MESSAGE_BODY));
-    await expect(PARSER).toHaveBeenCalledTimes(1);
-    await expect(logError).not.toHaveBeenCalled();
+    await expect(sendMessageToCorrespondingHandler).toHaveBeenCalledWith(MESSAGE_BODY);
+    await expect(sendMessageToCorrespondingHandler).toHaveBeenCalledTimes(1);
   });
 
-  it('reads and parses a single message but does not acknowledge on parse failure', async () => {
+  it('reads and delegates to broker but does not acknowledge on failure', async () => {
     // when
-    PARSER.mockRejectedValue({});
+    sendMessageToCorrespondingHandler.mockRejectedValue(undefined);
 
     SQS_CLIENT.send.mockResolvedValue({
       $metadata: { attempts: 1, httpStatusCode: 200, totalRetryDelay: 0 },
       Messages: [
         {
           Attributes: { SentTimestamp: '1671103624717' },
-          Body: JSON.stringify(MESSAGE_BODY)
+          Body: MESSAGE_BODY
         }
       ]
     });
 
-    await pollQueueOnce(SQS_CLIENT, PARSER);
+    await pollQueueOnce(SQS_CLIENT);
 
     // then
     await expect(SQS_CLIENT.send).toHaveBeenCalledTimes(1); // receive + no ack
-    expect(PARSER).toHaveBeenNthCalledWith(1, JSON.stringify(MESSAGE_BODY));
-    await expect(PARSER).toHaveBeenCalledTimes(1);
+    await expect(sendMessageToCorrespondingHandler).toHaveBeenNthCalledWith(1, MESSAGE_BODY);
+    await expect(sendMessageToCorrespondingHandler).toHaveBeenCalledTimes(1);
     await expect(logError).toHaveBeenCalled();
   });
 
@@ -70,11 +68,10 @@ describe('sqs consumer', () => {
 
     // when
     SQS_CLIENT.send.mockRejectedValue(errorMessage);
-    await pollQueueOnce(SQS_CLIENT, PARSER);
+    await pollQueueOnce(SQS_CLIENT);
 
     // then
     await expect(SQS_CLIENT.send).toHaveBeenCalledTimes(1);
-    expect(PARSER).not.toHaveBeenCalled();
     await expect(logError).toHaveBeenCalledTimes(1);
     expect(logError).toHaveBeenCalledWith(
       'Error reading from EHR out incoming queue, receive call parameters: {"AttributeNames":["SentTimestamp"],"MaxNumberOfMessages":1,"MessageAttributeNames":["All"],"WaitTimeSeconds":20}',
@@ -88,11 +85,10 @@ describe('sqs consumer', () => {
       $metadata: { attempts: 1, httpStatusCode: 200, totalRetryDelay: 0 }
     });
 
-    await pollQueueOnce(SQS_CLIENT, PARSER);
+    await pollQueueOnce(SQS_CLIENT);
 
     // then
     await expect(SQS_CLIENT.send).toHaveBeenCalledTimes(1);
-    expect(PARSER).not.toHaveBeenCalled();
     await expect(logWarning).toHaveBeenCalled();
   });
 });
