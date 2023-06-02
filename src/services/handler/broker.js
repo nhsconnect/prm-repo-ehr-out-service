@@ -9,13 +9,13 @@ export default async function sendMessageToCorrespondingHandler(message) {
   const interactionId = await parseInteractionId(message);
 
   switch (interactionId) {
-    case INTERACTION_IDS.EHR_REQUEST_INTERACTION_ID:
+    case INTERACTION_IDS.EHR_REQUEST:
       await ehrRequestHandler(message);
       break;
-    case INTERACTION_IDS.CONTINUE_REQUEST_INTERACTION_ID:
+    case INTERACTION_IDS.CONTINUE_REQUEST:
       await continueMessageHandler(message);
       break;
-    case INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID:
+    case INTERACTION_IDS.ACKNOWLEDGEMENT:
       await acknowledgementMessageHandler(message);
       break;
     default:

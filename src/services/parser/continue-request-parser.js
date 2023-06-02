@@ -7,7 +7,7 @@ export const parseContinueRequestMessage = async message => {
     payload: await new XmlParser().parse(JSON.parse(message).payload)
   }
 
-  const continueRequestContent = messageParts.payload['data'][INTERACTION_IDS.CONTINUE_REQUEST_INTERACTION_ID]['ControlActEvent']['subject']['PayloadInformation'];
+  const continueRequestContent = messageParts.payload['data'][INTERACTION_IDS.CONTINUE_REQUEST]['ControlActEvent']['subject']['PayloadInformation'];
 
   const parsedFields = {
     odsCode: continueRequestContent['value']['Gp2gpfragment']['From']

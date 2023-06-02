@@ -22,7 +22,7 @@ describe('broker', () => {
     const ehrRequest = readFileSync(path.join(__dirname, "data", "ehr-requests", "RCMR_IN010000UK05"), "utf-8");
 
     // when
-    parseInteractionId.mockResolvedValueOnce(Promise.resolve(INTERACTION_IDS.EHR_REQUEST_INTERACTION_ID));
+    parseInteractionId.mockResolvedValueOnce(Promise.resolve(INTERACTION_IDS.EHR_REQUEST));
 
     await sendMessageToCorrespondingHandler(ehrRequest);
 
@@ -35,7 +35,7 @@ describe('broker', () => {
     const continueRequest = readFileSync(path.join(__dirname, "data", "continue-requests", "COPC_IN000001UK01"), "utf-8");
 
     // when
-    parseInteractionId.mockResolvedValueOnce(Promise.resolve(INTERACTION_IDS.CONTINUE_REQUEST_INTERACTION_ID));
+    parseInteractionId.mockResolvedValueOnce(Promise.resolve(INTERACTION_IDS.CONTINUE_REQUEST));
 
     await sendMessageToCorrespondingHandler(continueRequest);
 
@@ -48,7 +48,7 @@ describe('broker', () => {
     const negativeAcknowledgement = readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_01"), "utf-8");
 
     // when
-    parseInteractionId.mockResolvedValueOnce(Promise.resolve(INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID));
+    parseInteractionId.mockResolvedValueOnce(Promise.resolve(INTERACTION_IDS.ACKNOWLEDGEMENT));
 
     await sendMessageToCorrespondingHandler(negativeAcknowledgement);
 

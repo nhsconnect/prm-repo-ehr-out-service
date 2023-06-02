@@ -7,7 +7,7 @@ export const parseEhrRequestMessage = async message => {
     payload: await new XmlParser().parse(JSON.parse(message).payload)
   };
 
-  const ehrRequestContent = messageParts.payload['data'][INTERACTION_IDS.EHR_REQUEST_INTERACTION_ID]['ControlActEvent']['subject']['EhrRequest'];
+  const ehrRequestContent = messageParts.payload['data'][INTERACTION_IDS.EHR_REQUEST]['ControlActEvent']['subject']['EhrRequest'];
 
   const parsedFields = {
     ehrRequestId: ehrRequestContent['id']['root'],

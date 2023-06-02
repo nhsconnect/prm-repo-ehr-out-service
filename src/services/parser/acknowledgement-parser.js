@@ -9,7 +9,7 @@ export const parseAcknowledgementFields = async message => {
   }
 
   const messageHeaderContent = messageParts.ebXml['data']['Envelope']['Header']['MessageHeader'];
-  const payloadContent = messageParts.payload['data'][INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID];
+  const payloadContent = messageParts.payload['data'][INTERACTION_IDS.ACKNOWLEDGEMENT];
 
   const parsedFields = {
     service: messageHeaderContent['Service'],
