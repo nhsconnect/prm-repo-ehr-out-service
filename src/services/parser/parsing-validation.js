@@ -1,7 +1,7 @@
 import { ParsingError } from "../../errors/errors";
 
 export const validateFieldsHaveSuccessfullyParsed = parsedFields => {
-    const undefinedFields = Object.entries(parsedFields).map(([key, value]) => {
+    const undefinedFields = Object.entries(parsedFields).filter(([key, value]) => {
         if (value === undefined) {
             return key;
         }
