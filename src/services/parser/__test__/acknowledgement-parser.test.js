@@ -1,5 +1,5 @@
 import { ACKNOWLEDGEMENT_TYPES } from "../../../constants/acknowledgement-types";
-import { parseAcknowledgementFields } from "../acknowledgement-parser";
+import { parseAcknowledgementMessage } from "../acknowledgement-parser";
 import { SERVICES } from "../../../constants/services";
 import { readFileSync } from "fs";
 import expect from "expect";
@@ -22,7 +22,7 @@ describe('parseCommonAcknowledgementFields', () => {
     // when
     validateFieldsHaveSuccessfullyParsed.mockReturnValueOnce(undefined);
 
-    const parsedMessage = await parseAcknowledgementFields(exampleAcknowledgement);
+    const parsedMessage = await parseAcknowledgementMessage(exampleAcknowledgement);
 
     // then
     expect(parsedMessage.messageRef).toEqual(messageRef);
@@ -46,7 +46,7 @@ describe('parseCommonAcknowledgementFields', () => {
     // when
     validateFieldsHaveSuccessfullyParsed.mockReturnValueOnce(undefined);
 
-    const parsedMessage = await parseAcknowledgementFields(exampleAcknowledgement);
+    const parsedMessage = await parseAcknowledgementMessage(exampleAcknowledgement);
 
     // then
     expect(parsedMessage.messageId).toEqual(acknowledgementMessageId);

@@ -2,7 +2,7 @@ import { INTERACTION_IDS } from "../../constants/interaction-ids";
 import { XmlParser } from "./xml-parser/xml-parser";
 import { validateFieldsHaveSuccessfullyParsed } from "./parsing-validation";
 
-export const parseAcknowledgementFields = async message => {
+export const parseAcknowledgementMessage = async message => {
   const messageParts = {
     ebXml: await new XmlParser().parse(JSON.parse(message).ebXML),
     payload: await new XmlParser().parse(JSON.parse(message).payload)
