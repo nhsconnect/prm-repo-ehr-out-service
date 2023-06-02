@@ -24,3 +24,33 @@ export const parseConversationId = async message => {
 
   return parsedFields.conversationId;
 };
+
+export const parseMessageId = async message => {
+  const ebxmlAsJson = await new XmlParser().parse(JSON.parse(message).ebXML);
+
+  const parsedFields = {
+    messageId: ebxmlAsJson['data']['Envelope']['Header']['MessageHeader']['MessageData']['MessageId']
+  };
+
+  validateFieldsHaveSuccessfullyParsed(parsedFields);
+
+  return parsedFields.messageId;
+}
+
+export const extractReferencedFragmentMessageIds = async message => {
+  const ebXmlAsJson = await new XmlParser().parse(JSON.parse(message).ebXML);
+
+  const parsedFields = {
+    reference: ebXmlAsJson['data']['Envelope']['Body']['Manifest']['Reference']
+  }
+
+  validateFieldsHaveSuccessfullyParsed(parsedFields);
+
+  // Ensure we got an array before continue, as parser might yield the field 'Reference'
+  // as an array or single object, depends on how many references in input file.
+  const referencesList = Array.isArray(parsedFields.reference) ? parsedFields.reference : [parsedFields.reference];
+
+  const fragmentReferences = referencesList.filter(reference => reference?.href.startsWith('mid:'));
+
+  return fragmentReferences.map(reference => reference.href.replace('mid:', ''));
+};
