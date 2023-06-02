@@ -5,7 +5,7 @@ export const parseInteractionId = async message => {
   const ebxmlAsJson = await new XmlParser().parse(JSON.parse(message).ebXML);
 
   const parsedFields = {
-    interactionId: ebxmlAsJson['data']['Envelope']['Header']['MessageHeader']['Action']
+    interactionId: ebxmlAsJson?.['data']?.['Envelope']?.['Header']?.['MessageHeader']?.['Action']
   };
 
   validateFieldsHaveSuccessfullyParsed(parsedFields);
@@ -17,7 +17,7 @@ export const parseConversationId = async message => {
   const ebxmlAsJson = await new XmlParser().parse(JSON.parse(message).ebXML);
 
   const parsedFields = {
-    conversationId: ebxmlAsJson['data']['Envelope']['Header']['MessageHeader']['ConversationId']
+    conversationId: ebxmlAsJson?.['data']?.['Envelope']?.['Header']?.['MessageHeader']?.['ConversationId']
   };
 
   validateFieldsHaveSuccessfullyParsed(parsedFields);
@@ -29,7 +29,7 @@ export const parseMessageId = async message => {
   const ebxmlAsJson = await new XmlParser().parse(JSON.parse(message).ebXML);
 
   const parsedFields = {
-    messageId: ebxmlAsJson['data']['Envelope']['Header']['MessageHeader']['MessageData']['MessageId']
+    messageId: ebxmlAsJson?.['data']?.['Envelope']?.['Header']?.['MessageHeader']?.['MessageData']?.['MessageId']
   };
 
   validateFieldsHaveSuccessfullyParsed(parsedFields);
@@ -41,7 +41,7 @@ export const extractReferencedFragmentMessageIds = async message => {
   const ebXmlAsJson = await new XmlParser().parse(JSON.parse(message).ebXML);
 
   const parsedFields = {
-    reference: ebXmlAsJson['data']['Envelope']['Body']['Manifest']['Reference']
+    reference: ebXmlAsJson?.['data']?.['Envelope']?.['Body']?.['Manifest']?.['Reference']
   }
 
   validateFieldsHaveSuccessfullyParsed(parsedFields);

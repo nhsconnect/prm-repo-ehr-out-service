@@ -10,9 +10,9 @@ export const parseEhrRequestMessage = async message => {
   const ehrRequestContent = messageParts.payload['data'][INTERACTION_IDS.EHR_REQUEST]['ControlActEvent']['subject']['EhrRequest'];
 
   const parsedFields = {
-    ehrRequestId: ehrRequestContent['id']['root'],
-    nhsNumber: ehrRequestContent['recordTarget']['patient']['id']['extension'],
-    odsCode: ehrRequestContent['author']['AgentOrgSDS']['agentOrganizationSDS']['id']['extension']
+    ehrRequestId: ehrRequestContent?.['id']?.['root'],
+    nhsNumber: ehrRequestContent?.['recordTarget']?.['patient']?.['id']?.['extension'],
+    odsCode: ehrRequestContent?.['author']?.['AgentOrgSDS']?.['agentOrganizationSDS']?.['id']?.['extension']
   };
 
   validateFieldsHaveSuccessfullyParsed(parsedFields);

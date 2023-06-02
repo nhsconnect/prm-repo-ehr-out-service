@@ -12,16 +12,16 @@ export const parseAcknowledgementFields = async message => {
   const payloadContent = messageParts.payload['data'][INTERACTION_IDS.ACKNOWLEDGEMENT];
 
   const parsedFields = {
-    service: messageHeaderContent['Service'],
-    messageId: messageHeaderContent['MessageData']['MessageId'],
-    referencedMessageId: messageHeaderContent['MessageData']['RefToMessageId']
+    service: messageHeaderContent?.['Service'],
+    messageId: messageHeaderContent?.['MessageData']?.['MessageId'],
+    referencedMessageId: messageHeaderContent?.['MessageData']?.['RefToMessageId']
         ? messageHeaderContent['MessageData']['RefToMessageId']
         : 'NOT FOUND',
-    messageRef: payloadContent['acknowledgement']['messageRef']['id']['root']
+    messageRef: payloadContent?.['acknowledgement']?.['messageRef']?.['id']?.['root']
         ? payloadContent['acknowledgement']['messageRef']['id']['root']
         : 'NOT FOUND',
-    acknowledgementTypeCode: payloadContent['acknowledgement']['typeCode'],
-    acknowledgementDetail: payloadContent['acknowledgement']['acknowledgementDetail']['code']['displayName']
+    acknowledgementTypeCode: payloadContent?.['acknowledgement']?.['typeCode'],
+    acknowledgementDetail: payloadContent?.['acknowledgement']?.['acknowledgementDetail']?.['code']?.['displayName']
   };
 
   validateFieldsHaveSuccessfullyParsed(parsedFields);

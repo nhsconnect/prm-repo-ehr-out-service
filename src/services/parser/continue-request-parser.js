@@ -10,7 +10,7 @@ export const parseContinueRequestMessage = async message => {
   const continueRequestContent = messageParts.payload['data'][INTERACTION_IDS.CONTINUE_REQUEST]['ControlActEvent']['subject']['PayloadInformation'];
 
   const parsedFields = {
-    odsCode: continueRequestContent['value']['Gp2gpfragment']['From']
+    odsCode: continueRequestContent?.['value']?.['Gp2gpfragment']?.['From']
   };
 
   validateFieldsHaveSuccessfullyParsed(parsedFields);
