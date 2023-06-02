@@ -1,18 +1,14 @@
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { logInfo } from '../../middleware/logging';
 import { DownloadError, MessageIdUpdateError, StatusUpdateError } from '../../errors/errors';
 import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
 import { updateRegistrationRequestStatus } from '../database/registration-request-repository';
 import { updateMessageFragmentStatus } from '../database/message-fragment-repository';
-import {
-  extractEbXmlData,
-  extractReferencedFragmentMessageIds
-} from '../parser/extract-eb-xml-data';
 import { getNewMessageIdByOldMessageId } from '../database/message-id-replacement-repository';
 import { createMessageIdReplacement } from '../database/create-message-id-replacement';
+import { extractReferencedFragmentMessageIds, parseMessageId } from "../parser/parsing-utilities";
 
 export const downloadFromUrl = async messageUrl => {
   return axios
@@ -63,8 +59,7 @@ const replaceMessageIdInObject = (ehrMessage, oldMessageId, newMessageId) => {
 
 export const updateMessageIdForEhrCore = async ehrCore => {
   try {
-    const { messageId } = await extractEbXmlData(ehrCore.ebXML);
-
+    const messageId = await parseMessageId(ehrCore);
     const newMessageId = uuidv4().toUpperCase();
     const ehrCoreWithUpdatedMessageId = replaceMessageIdInObject(ehrCore, messageId, newMessageId);
 
@@ -91,7 +86,7 @@ export const updateReferencedFragmentIds = async ehrMessage => {
    */
 
   try {
-    const fragmentMessageIds = await extractReferencedFragmentMessageIds(ehrMessage.ebXML);
+    const fragmentMessageIds = await extractReferencedFragmentMessageIds(ehrMessage);
 
     for (let oldMessageId of fragmentMessageIds) {
       const newMessageId = await getNewMessageIdByOldMessageId(oldMessageId);
@@ -118,7 +113,7 @@ export const updateAllFragmentsMessageIds = async fragments => {
 };
 
 export const updateMessageIdForMessageFragment = async (fragment) => {
-  const { messageId } = await extractEbXmlData(fragment.ebXML);
+  const messageId  = await parseMessageId(fragment);
   const newMessageId = await getNewMessageIdByOldMessageId(messageId);
   const updatedFragment = JSON.parse(JSON.stringify(fragment).replaceAll(messageId, newMessageId));
   return {
