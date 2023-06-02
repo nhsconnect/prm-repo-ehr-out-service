@@ -239,13 +239,13 @@ describe('testTransferOutUtil', () => {
       // when
       const { ehrCoreWithUpdatedMessageId, newMessageId } = await updateMessageIdForEhrCore(ehrCore);
       const originalMessageId = await parseMessageId(ehrCore);
-      const messageIdOfUpdate = await parseMessageId(ehrCoreWithUpdatedMessageId);
+      const updatedMessagedId = await parseMessageId(ehrCoreWithUpdatedMessageId);
 
       // then
-      expect(messageIdOfUpdate).toEqual(newMessageId);
-      expect(messageIdOfUpdate).not.toEqual(originalMessageId);
-      expect(uuidValidate(messageIdOfUpdate)).toBe(true);
-      expect(messageIdOfUpdate).toEqual(messageIdOfUpdate.toUpperCase());
+      expect(updatedMessagedId).toEqual(newMessageId);
+      expect(updatedMessagedId).not.toEqual(originalMessageId);
+      expect(uuidValidate(updatedMessagedId)).toBe(true);
+      expect(updatedMessagedId).toEqual(updatedMessagedId.toUpperCase());
     });
 
     it('should throw an error when given an invalid ehrCore', async () => {
