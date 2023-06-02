@@ -1,6 +1,4 @@
-import {
-  parseConversationId
-} from "../parser/parsing-utilities";
+import { parseConversationId } from "../parser/parsing-utilities";
 import { logError, logInfo } from "../../middleware/logging";
 import { setCurrentSpanAttributes } from "../../config/tracing";
 import { ACKNOWLEDGEMENT_TYPES } from "../../constants/acknowledgement-types";
