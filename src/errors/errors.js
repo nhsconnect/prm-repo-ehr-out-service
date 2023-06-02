@@ -11,9 +11,7 @@ export const errorMessages = {
   STATUS_ERROR: 'The status could not be updated',
   FILE_READ_ERROR: 'Failed to read file',
   DUPLICATED_REQUEST_ERROR: 'Got a duplicated request',
-  FILE_READ_ERROR: 'Failed to read file',
-  PARSING_ERROR: 'Unable to parse XML'
-  PARSE_MESSAGE_ERROR: 'Failed while trying to parse ehr message',
+  PARSING_ERROR: 'Unable to parse XML',
   MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to update message id to new ones',
   MESSAGE_ID_RECORD_CREATION_ERROR: 'Failed to record the message ids replacement in database',
   FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR:
@@ -82,13 +80,6 @@ export class StatusUpdateError extends Error {
   constructor(error) {
     super(errorMessages.STATUS_ERROR);
     logError(errorMessages.STATUS_ERROR, error);
-  };
-}
-
-export class ParseMessageError extends Error {
-  constructor(error) {
-    super(errorMessages.PARSE_MESSAGE_ERROR);
-    logError(errorMessages.PARSE_MESSAGE_ERROR, error?.message);
   };
 }
 
