@@ -1,4 +1,4 @@
-import {XmlParser} from "./xml-parser/xml-parser";
+import { XmlParser } from "./xml-parser/xml-parser";
 import { validateFieldsHaveSuccessfullyParsed } from "./parsing-validation";
 
 export const parseInteractionId = async message => {
