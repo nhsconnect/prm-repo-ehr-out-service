@@ -1,4 +1,4 @@
-import {validateFieldsHaveSuccessfullyParsed} from "../parsing-validation";
+import { validateFieldsHaveSuccessfullyParsed } from "../parsing-validation";
 import { ParsingError } from "../../../errors/errors";
 import expect from "expect";
 

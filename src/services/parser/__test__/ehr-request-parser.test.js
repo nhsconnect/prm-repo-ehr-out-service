@@ -8,7 +8,7 @@ import { validateFieldsHaveSuccessfullyParsed } from "../parsing-validation";
 jest.mock("../parsing-validation");
 
 describe('ehr-request-parser.js', () => {
-  it('should parse successfully given an ehr request', async () => {
+  it('should parse an ehr request successfully', async () => {
     // given
     const ehrRequestId = "FFFB3C70-0BCC-4D9E-A441-7E9C41A897AA";
     const nhsNumber = "9692842304";
