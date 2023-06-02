@@ -1,8 +1,13 @@
-import path from "path";
-import expect from "expect";
-import { readFileSync } from "fs";
-import { parseConversationId, parseInteractionId } from "../parsing-utilities";
 import { validateFieldsHaveSuccessfullyParsed } from "../parsing-validation";
+import { readFileSync } from "fs";
+import expect from "expect";
+import path from "path";
+import {
+  extractReferencedFragmentMessageIds,
+  parseConversationId,
+  parseInteractionId,
+  parseMessageId
+} from "../parsing-utilities";
 
 // Mocking
 jest.mock("../parsing-validation");
@@ -90,5 +95,98 @@ describe('parsing-utilities.js', () => {
 
     // then
     expect(parsedConversationId).toEqual(conversationId);
+  });
+
+  it('should parse the correct message ID, given a EHR Core', async () => {
+    // given
+    const messageId = "DF91D420-DDC7-11ED-808B-AC162D1F16F0";
+    const exampleEhrCore = readFileSync("src/__tests__/data/ehr_with_fragments/ehr-core", "utf-8");
+
+    // when
+    const parsedMessageId = await parseMessageId(exampleEhrCore);
+
+    // then
+    expect(messageId).toEqual(parsedMessageId);
+  });
+
+  it('should parse the correct message ID, given a fragment', async () => {
+    // given
+    const messageId = "DFBA6AC0-DDC7-11ED-808B-AC162D1F16F0";
+    const exampleFragment = readFileSync("src/__tests__/data/ehr_with_fragments/fragment-1", "utf-8");
+
+    // when
+    const parsedMessageId = await parseMessageId(exampleFragment);
+
+    // then
+    expect(messageId).toEqual(parsedMessageId);
+  });
+
+  it('should parse the correct message ID, given a continue request', async () => {
+    // given
+    const messageId = "DE304CA0-F984-11ED-808B-AC162D1F16F0";
+    const exampleContinueRequest = readFileSync(path.join(__dirname, "data", "continue-requests", "COPC_IN000001UK01"), "utf-8");
+
+    // when
+    const parsedMessageId = await parseMessageId(exampleContinueRequest);
+
+    // then
+    expect(messageId).toEqual(parsedMessageId);
+  });
+
+  it('should parse the correct message ID, given a negative acknowledgement', async () => {
+    // given
+    const messageId = "BB8FC948-FA40-11ED-A594-F40343488B16";
+    const exampleNegativeAcknowledgement = readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_01"), "utf-8");
+
+    // when
+    const parsedMessageId = await parseMessageId(exampleNegativeAcknowledgement);
+
+    // then
+    expect(messageId).toEqual(parsedMessageId);
+  });
+
+  it('should extract the message IDs from the references, given a EHR core', async () => {
+    // given
+    const messageIds = [
+      "DFBA6AC0-DDC7-11ED-808B-AC162D1F16F0",
+      "DFEC7740-DDC7-11ED-808B-AC162D1F16F0",
+    ];
+    const exampleEhrCore = readFileSync("src/__tests__/data/ehr_with_fragments/ehr-core", "utf-8");
+
+    // when
+    const parsedMessageIds = await extractReferencedFragmentMessageIds(exampleEhrCore);
+
+    // then
+    expect(parsedMessageIds).toEqual(messageIds);
+  });
+
+  it('should extract the message IDs from the references, given a EHR core with one reference', async () => {
+    // given
+    const messageIds = [
+      "D6BB8150-D478-11ED-808B-AC162D1F16F0"
+    ];
+    const exampleEhrCore = readFileSync("src/__tests__/data/ehr_with_fragments/ehr-core-with-only-one-ref", "utf-8");
+
+    // when
+    const parsedMessageIds = await extractReferencedFragmentMessageIds(exampleEhrCore);
+
+    // then
+    expect(parsedMessageIds).toEqual(messageIds);
+    expect(parsedMessageIds).toHaveLength(1);
+  });
+
+  it('should extract the message IDs from the references, given a fragment', async () => {
+    // given
+    const messageIds = [
+      "DFEC7741-DDC7-11ED-808B-AC162D1F16F0",
+      "DFF61430-DDC7-11ED-808B-AC162D1F16F0"
+    ];
+    const exampleEhrCore = readFileSync("src/__tests__/data/ehr_with_fragments/fragment-2", "utf-8");
+
+    // when
+    const parsedMessageIds = await extractReferencedFragmentMessageIds(exampleEhrCore);
+
+    // then
+    expect(parsedMessageIds).toEqual(messageIds);
   });
 });
