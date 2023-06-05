@@ -10,15 +10,11 @@ export const acknowledgementMessageHandler = async message => {
 
   setCurrentSpanAttributes({ conversationId });
 
-  switch (true) {
-    case ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(acknowledgementTypeCode):
-      logInfo(`POSITIVE ACKNOWLEDGEMENT RECEIVED`);
-      break;
-    case ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(acknowledgementTypeCode):
-      logInfo(`NEGATIVE ACKNOWLEDGEMENT RECEIVED`);
-      break;
-    default:
-      logError(`ACKNOWLEDGEMENT TYPE ${acknowledgementTypeCode} IS UNKNOWN.`);
-      break;
+  if (ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(acknowledgementTypeCode)) {
+    logInfo(`POSITIVE ACKNOWLEDGEMENT RECEIVED`);
+  } else if (ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(acknowledgementTypeCode)) {
+    logInfo(`NEGATIVE ACKNOWLEDGEMENT RECEIVED`);
+  } else {
+    logError(`ACKNOWLEDGEMENT TYPE ${acknowledgementTypeCode} IS UNKNOWN.`);
   }
 };
