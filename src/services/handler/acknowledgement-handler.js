@@ -10,7 +10,7 @@ export const acknowledgementMessageHandler = async message => {
 
   setCurrentSpanAttributes({ conversationId });
 
-  switch (acknowledgementTypeCode) {
+  switch (true) {
     case ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(acknowledgementTypeCode):
       logInfo(`POSITIVE ACKNOWLEDGEMENT RECEIVED`);
       break;
