@@ -8,8 +8,8 @@ export const parseAcknowledgementMessage = async message => {
     payload: await new XmlParser().parse(JSON.parse(message).payload)
   }
 
-  const messageHeaderContent = messageParts.ebXml['data']['Envelope']['Header']['MessageHeader'];
-  const payloadContent = messageParts.payload['data'][INTERACTION_IDS.ACKNOWLEDGEMENT];
+  const messageHeaderContent = messageParts.ebXml?.['data']?.['Envelope']?.['Header']?.['MessageHeader'];
+  const payloadContent = messageParts.payload?.['data']?.[INTERACTION_IDS.ACKNOWLEDGEMENT];
 
   const parsedFields = {
     service: messageHeaderContent?.['Service'],
