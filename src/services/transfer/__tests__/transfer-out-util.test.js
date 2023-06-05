@@ -319,13 +319,13 @@ describe('testTransferOutUtil', () => {
 
     it('should return a fragment unchanged if no other fragment was referenced in it', async () => {
       // given
-      const ehrFragment = getValidMessageFragment();
+      const fragment = getValidMessageFragment();
 
       // when
-      const returnedEhrFragment = await updateReferencedFragmentIds(ehrFragment);
+      const returnedEhrFragment = await updateReferencedFragmentIds(fragment);
 
       // then
-      expect(returnedEhrFragment).toEqual(ehrFragment);
+      expect(returnedEhrFragment).toEqual(fragment);
       expect(getNewMessageIdByOldMessageId).not.toHaveBeenCalled();
     });
 
