@@ -12,8 +12,26 @@ jest.mock('../../parser/acknowledgement-parser');
 describe('acknowledgement-handler.test.js', () => {
     // ============ COMMON PROPERTIES ============
     const CONVERSATION_ID = '63C1E862-8891-43E0-A53D-95EB5FCE1F08';
-    const LOG_MESSAGE = 'NEGATIVE ACKNOWLEDGEMENT RECEIVED';
+    const POSITIVE_LOG_MESSAGE = 'POSITIVE ACKNOWLEDGEMENT RECEIVED';
+    const NEGATIVE_LOG_MESSAGE = 'NEGATIVE ACKNOWLEDGEMENT RECEIVED';
     // =================== END ===================
+
+    it('should handle a positive acknowledgement with typecode AA successfully', async () => {
+        // given
+        const acknowledgementMessage = {
+            acknowledgementTypeCode: 'AA'
+        };
+
+        // when
+        parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
+        parseAcknowledgementMessage.mockResolvedValueOnce(Promise.resolve(acknowledgementMessage));
+
+        await acknowledgementMessageHandler(acknowledgementMessage);
+
+        // then
+        expect(logInfo).toHaveBeenCalledTimes(1);
+        expect(logInfo).toHaveBeenCalledWith(POSITIVE_LOG_MESSAGE);
+    });
 
     it('should handle a negative acknowledgement with typecode AR successfully', async () => {
         // given
@@ -29,7 +47,7 @@ describe('acknowledgement-handler.test.js', () => {
 
         // then
         expect(logInfo).toHaveBeenCalledTimes(1);
-        expect(logInfo).toHaveBeenCalledWith(LOG_MESSAGE);
+        expect(logInfo).toHaveBeenCalledWith(NEGATIVE_LOG_MESSAGE);
     });
 
     it('should handle a negative acknowledgement with typecode AE successfully', async () => {
@@ -46,7 +64,7 @@ describe('acknowledgement-handler.test.js', () => {
 
         // then
         expect(logInfo).toHaveBeenCalledTimes(1);
-        expect(logInfo).toHaveBeenCalledWith(LOG_MESSAGE);
+        expect(logInfo).toHaveBeenCalledWith(NEGATIVE_LOG_MESSAGE);
     });
 
     it('should handle an unknown acknowledgement typecode successfully', async () => {
