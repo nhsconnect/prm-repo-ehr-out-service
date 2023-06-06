@@ -1,28 +1,25 @@
 import { INTERACTION_IDS } from '../../constants/interaction-ids';
-import { logError, logInfo } from '../../middleware/logging';
+import { logError } from '../../middleware/logging';
 import ehrRequestHandler from './ehr-request-handler';
-import {setCurrentSpanAttributes} from "../../config/tracing";
 import continueMessageHandler from "./continue-message-handler";
+import { acknowledgementMessageHandler } from "./acknowledgement-handler";
+import { parseInteractionId } from "../parser/parsing-utilities";
 
-export default async function sendMessageToCorrespondingHandler(parsedMessage) {
-  const { conversationId } = parsedMessage;
-  setCurrentSpanAttributes({ conversationId: conversationId });
+export default async function sendMessageToCorrespondingHandler(message) {
+  const interactionId = await parseInteractionId(message);
 
-  switch (parsedMessage.interactionId) {
-    case INTERACTION_IDS.EHR_REQUEST_INTERACTION_ID:
-      logInfo('Message Type: EHR REQUEST');
-      await ehrRequestHandler(parsedMessage);
+  switch (interactionId) {
+    case INTERACTION_IDS.EHR_REQUEST:
+      await ehrRequestHandler(message);
       break;
-    case INTERACTION_IDS.CONTINUE_REQUEST_INTERACTION_ID:
-      logInfo('Message Type: EHR CONTINUE REQUEST');
-      await continueMessageHandler(parsedMessage);
+    case INTERACTION_IDS.CONTINUE_REQUEST:
+      await continueMessageHandler(message);
       break;
-    case INTERACTION_IDS.ACKNOWLEDGEMENT_INTERACTION_ID:
-      logInfo('Message Type: ACKNOWLEDGEMENT RESPONSE');
+    case INTERACTION_IDS.ACKNOWLEDGEMENT:
+      await acknowledgementMessageHandler(message);
       break;
     default:
-      // eslint-disable-next-line no-case-declarations
-      const error = new Error('Invalid interaction ID: ' + parsedMessage.interactionId);
+      const error = new Error(`Invalid interaction ID: ${interactionId}`);
       logError(error.message);
       throw error;
   }

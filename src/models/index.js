@@ -90,7 +90,7 @@ class ModelFactory {
       this.db[model.name] = model;
     }
 
-    this.setupModelRelationship();
+    this.setupModelRelationships();
 
     Object.keys(this.db).forEach(modelName => {
       if (this.db[modelName].associate) {
@@ -106,17 +106,23 @@ class ModelFactory {
     return this.db[moduleName];
   }
 
-  setupModelRelationship() {
+  setupModelRelationships() {
+    this.setupRegistrationRequestAndMessageFragmentRelationship();
+  }
+
+  setupRegistrationRequestAndMessageFragmentRelationship() {
     const RegistrationRequest = this.getByName("RegistrationRequest");
     const MessageFragment = this.getByName("MessageFragment");
+
     const foreignKeyProperties = {
-      name: 'conversationId', 
+      name: 'conversationId',
       foreignKeyConstraint: true,
-      type: Sequelize.DataTypes.UUID, 
+      type: Sequelize.DataTypes.UUID,
       allowNull: false
     };
-    RegistrationRequest.hasMany(MessageFragment, {foreignKey: foreignKeyProperties});
-    MessageFragment.belongsTo(RegistrationRequest, {foreignKey: foreignKeyProperties});
+
+    RegistrationRequest.hasMany(MessageFragment, { foreignKey: foreignKeyProperties });
+    MessageFragment.belongsTo(RegistrationRequest, { foreignKey: foreignKeyProperties });
   }
 }
 

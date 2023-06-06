@@ -1,21 +1,25 @@
 import { logError, logInfo, logWarning } from '../../middleware/logging';
-import { setCurrentSpanAttributes } from '../../config/tracing';
 import { transferOutEhrCore } from "../transfer/transfer-out-ehr-core";
+import { parseEhrRequestMessage } from "../parser/ehr-request-parser";
+import { parseConversationId } from "../parser/parsing-utilities";
+import { setCurrentSpanAttributes } from '../../config/tracing';
 
-export default async function ehrRequestHandler(ehrRequest, overrides) {
-  const { conversationId } = ehrRequest;
+export default async function ehrRequestHandler(message, overrides) {
+  const ehrRequest = await parseEhrRequestMessage(message);
+  const conversationId = await parseConversationId(message);
   setCurrentSpanAttributes({ conversationId });
-
-  // TODO [PRMT-2728] The below linee are the old version which retrieves a presigned URL
-  // const options = Object.assign({ transferOutEhr }, overrides);
-  // const doTransfer = options.transferOutEhr;
 
   const options = Object.assign({ transferOutEhrCore }, overrides);
   const doTransfer = options.transferOutEhrCore;
 
   logInfo('Trying to handle EHR request');
 
-  let result = await doTransfer(ehrRequest);
+  let result = await doTransfer({
+    conversationId,
+    nhsNumber: ehrRequest.nhsNumber,
+    odsCode: ehrRequest.odsCode,
+    ehrRequestId: ehrRequest.ehrRequestId
+  });
 
   if (result.inProgress) {
     logWarning('EHR out transfer with this conversation ID is already in progress');
