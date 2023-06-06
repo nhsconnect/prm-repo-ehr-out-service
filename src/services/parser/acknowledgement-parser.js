@@ -1,11 +1,12 @@
 import { INTERACTION_IDS } from "../../constants/interaction-ids";
 import { XmlParser } from "./xml-parser/xml-parser";
 import { validateFieldsHaveSuccessfullyParsed } from "./parsing-validation";
+import { jsonParseMessage } from "./parsing-utilities";
 
 export const parseAcknowledgementMessage = async message => {
   const messageParts = {
-    ebXml: await new XmlParser().parse(message.ebXML),
-    payload: await new XmlParser().parse(message.payload)
+    ebXml: await new XmlParser().parse(jsonParseMessage(message).ebXML),
+    payload: await new XmlParser().parse(jsonParseMessage(message).payload)
   }
 
   const messageHeaderContent = messageParts.ebXml?.['data']?.['Envelope']?.['Header']?.['MessageHeader'];

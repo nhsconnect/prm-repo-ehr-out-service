@@ -11,8 +11,8 @@ jest.mock('../parsing-validation');
 
 describe('parseCommonAcknowledgementFields', () => {
   // ============ COMMON PROPERTIES ============
-  const negativeTppAcknowledgementOne = JSON.parse(readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_01"), "utf-8"));
-  const negativeTppAcknowledgementTwo = JSON.parse(readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_02"), "utf-8"));
+  const negativeTppAcknowledgementOne = readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_01"), "utf-8");
+  const negativeTppAcknowledgementTwo = readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_02"), "utf-8");
   // =================== END ===================
 
   it('should parse a negative acknowledgement from TPP successfully', async () => {
