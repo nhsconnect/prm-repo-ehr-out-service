@@ -1,6 +1,6 @@
 import { XmlParser } from "./xml-parser/xml-parser";
 import { validateFieldsHaveSuccessfullyParsed } from "./parsing-validation";
-import {ParsingError} from "../../errors/errors";
+import { ParsingError } from "../../errors/errors";
 
 export const jsonParseMessage = message => {
   if (typeof message != "object") {
