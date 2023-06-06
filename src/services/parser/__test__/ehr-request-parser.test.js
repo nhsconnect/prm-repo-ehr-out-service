@@ -8,12 +8,15 @@ import { validateFieldsHaveSuccessfullyParsed } from "../parsing-validation";
 jest.mock("../parsing-validation");
 
 describe('ehr-request-parser.js', () => {
+  // ============ COMMON PROPERTIES ============
+  const exampleEhrRequest = JSON.parse(readFileSync(path.join(__dirname, "data", "ehr-requests", "RCMR_IN010000UK05"), "utf-8"));
+  // =================== END ===================
+
   it('should parse an ehr request successfully', async () => {
     // given
     const ehrRequestId = "FFFB3C70-0BCC-4D9E-A441-7E9C41A897AA";
     const nhsNumber = "9692842304";
     const odsCode = "A91720";
-    const exampleEhrRequest = readFileSync(path.join(__dirname, "data", "ehr-requests", "RCMR_IN010000UK05"), "utf-8");
 
     validateFieldsHaveSuccessfullyParsed.mockReturnValueOnce(undefined);
 
