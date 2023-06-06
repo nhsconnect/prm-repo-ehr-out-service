@@ -12,7 +12,6 @@ jest.mock('@aws-sdk/client-sqs');
 
 describe('sqs consumer', () => {
   // ============ COMMON PROPERTIES ============
-  const EHR_REQUEST_INTERACTION_ID = 'RCMR_IN010000UK05';
   const SQS_CLIENT = { send: jest.fn() };
   const MESSAGE_BODY = readFileSync(path.join(__dirname, "data", "ehr-requests", "RCMR_IN010000UK05"), "utf-8");
   // =================== END ===================
