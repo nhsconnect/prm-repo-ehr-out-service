@@ -48,23 +48,31 @@ describe('testTransferOutUtil', () => {
     /^[0-9A-F]{8}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{12}$/;
 
   function getValidEhrCore() {
-    return readFileSync('src/__tests__/data/ehr_with_fragments/ehr-core', 'utf8');
+    return JSON.parse(
+        readFileSync('src/__tests__/data/ehr_with_fragments/ehr-core', 'utf8')
+    );
   }
 
   function getValidMessageFragment() {
-    return readFileSync('src/__tests__/data/ehr_with_fragments/fragment-1', 'utf8');
+    return JSON.parse(
+        readFileSync('src/__tests__/data/ehr_with_fragments/fragment-1', 'utf8')
+    );
   }
 
   function getArrayOfValidMessageFragments() {
     const filenames = ['fragment-1', 'fragment-2', 'fragment-2-1', 'fragment-2-2'];
 
     return filenames.map(filename =>
-      readFileSync(`src/__tests__/data/ehr_with_fragments/${filename}`, 'utf8')
+      JSON.parse(
+          readFileSync(`src/__tests__/data/ehr_with_fragments/${filename}`, 'utf8')
+      )
     );
   }
 
   function getValidNestedMessageFragment() {
-    return readFileSync('src/__tests__/data/ehr_with_fragments/fragment-2', 'utf8');
+    return JSON.parse(
+        readFileSync('src/__tests__/data/ehr_with_fragments/fragment-2', 'utf8')
+    );
   }
 
   afterEach(() => {
@@ -306,9 +314,7 @@ describe('testTransferOutUtil', () => {
 
         // then
         const oldFragmentIdList = await extractReferencedFragmentMessageIds(ehrMessage);
-        const newFragmentIdList = await extractReferencedFragmentMessageIds(
-          ehrMessageWithUpdatedFragmentIds
-        );
+        const newFragmentIdList = await extractReferencedFragmentMessageIds(ehrMessageWithUpdatedFragmentIds);
 
         expect(newFragmentIdList).toEqual(['new-fragment-id-1', 'new-fragment-id-2']);
         for (let oldFragmentId of oldFragmentIdList) {
