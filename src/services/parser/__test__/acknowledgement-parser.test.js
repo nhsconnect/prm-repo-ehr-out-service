@@ -10,6 +10,11 @@ import { validateFieldsHaveSuccessfullyParsed } from "../parsing-validation";
 jest.mock('../parsing-validation');
 
 describe('parseCommonAcknowledgementFields', () => {
+  // ============ COMMON PROPERTIES ============
+  const negativeTppAcknowledgementOne = JSON.parse(readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_01"), "utf-8"));
+  const negativeTppAcknowledgementTwo = JSON.parse(readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_02"), "utf-8"));
+  // =================== END ===================
+
   it('should parse a negative acknowledgement from TPP successfully', async () => {
     // given
     const messageRef = "1800becd-710c-4e6e-871b-1f1844c32d00";
@@ -17,12 +22,11 @@ describe('parseCommonAcknowledgementFields', () => {
     const referencedMessageId = "608368A0-DEC0-496B-9C4F-47CA90B81B58";
     const acknowledgementDetail = "hl7:{interactionId}/hl7:communicationFunctionRcv/hl7:device/hl7:id/@extension is missing, empty, invalid or ACL violation";
     const acknowledgementTypeCode = "AR";
-    const exampleAcknowledgement = readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_01"), "utf-8");
 
     // when
     validateFieldsHaveSuccessfullyParsed.mockReturnValueOnce(undefined);
 
-    const parsedMessage = await parseAcknowledgementMessage(exampleAcknowledgement);
+    const parsedMessage = await parseAcknowledgementMessage(negativeTppAcknowledgementOne);
 
     // then
     expect(parsedMessage.messageRef).toEqual(messageRef);
@@ -41,12 +45,11 @@ describe('parseCommonAcknowledgementFields', () => {
     const referencedMessageId = "NOT FOUND";
     const acknowledgementDetail = "Large Message general failure";
     const acknowledgementTypeCode = "AR";
-    const exampleAcknowledgement = readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_02"), "utf-8");
 
     // when
     validateFieldsHaveSuccessfullyParsed.mockReturnValueOnce(undefined);
 
-    const parsedMessage = await parseAcknowledgementMessage(exampleAcknowledgement);
+    const parsedMessage = await parseAcknowledgementMessage(negativeTppAcknowledgementTwo);
 
     // then
     expect(parsedMessage.messageId).toEqual(acknowledgementMessageId);
