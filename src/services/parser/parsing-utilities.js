@@ -1,8 +1,21 @@
 import { XmlParser } from "./xml-parser/xml-parser";
 import { validateFieldsHaveSuccessfullyParsed } from "./parsing-validation";
+import {ParsingError} from "../../errors/errors";
+
+export const jsonParseMessage = message => {
+  if (typeof message != "object") {
+    try {
+      return JSON.parse(message);
+    } catch (error) {
+      throw new ParsingError(error);
+    }
+  } else {
+    return message;
+  }
+};
 
 export const parseInteractionId = async message => {
-  const ebxmlAsJson = await new XmlParser().parse(message.ebXML);
+  const ebxmlAsJson = await new XmlParser().parse(jsonParseMessage(message).ebXML);
 
   const parsedFields = {
     interactionId: ebxmlAsJson?.['data']?.['Envelope']?.['Header']?.['MessageHeader']?.['Action']
@@ -14,7 +27,7 @@ export const parseInteractionId = async message => {
 };
 
 export const parseConversationId = async message => {
-  const ebxmlAsJson = await new XmlParser().parse(message.ebXML);
+  const ebxmlAsJson = await new XmlParser().parse(jsonParseMessage(message).ebXML);
 
   const parsedFields = {
     conversationId: ebxmlAsJson?.['data']?.['Envelope']?.['Header']?.['MessageHeader']?.['ConversationId']
@@ -26,7 +39,7 @@ export const parseConversationId = async message => {
 };
 
 export const parseMessageId = async message => {
-  const ebxmlAsJson = await new XmlParser().parse(message.ebXML);
+  const ebxmlAsJson = await new XmlParser().parse(jsonParseMessage(message).ebXML);
 
   const parsedFields = {
     messageId: ebxmlAsJson?.['data']?.['Envelope']?.['Header']?.['MessageHeader']?.['MessageData']?.['MessageId']
@@ -38,7 +51,7 @@ export const parseMessageId = async message => {
 }
 
 export const extractReferencedFragmentMessageIds = async message => {
-  const ebXmlAsJson = await new XmlParser().parse(message.ebXML);
+  const ebXmlAsJson = await new XmlParser().parse(jsonParseMessage(message).ebXML);
 
   const parsedFields = {
     reference: ebXmlAsJson?.['data']?.['Envelope']?.['Body']?.['Manifest']?.['Reference']
