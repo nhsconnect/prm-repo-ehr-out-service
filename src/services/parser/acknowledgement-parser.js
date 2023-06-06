@@ -4,8 +4,8 @@ import { validateFieldsHaveSuccessfullyParsed } from "./parsing-validation";
 
 export const parseAcknowledgementMessage = async message => {
   const messageParts = {
-    ebXml: await new XmlParser().parse(JSON.parse(message).ebXML),
-    payload: await new XmlParser().parse(JSON.parse(message).payload)
+    ebXml: await new XmlParser().parse(message.ebXML),
+    payload: await new XmlParser().parse(message.payload)
   }
 
   const messageHeaderContent = messageParts.ebXml?.['data']?.['Envelope']?.['Header']?.['MessageHeader'];

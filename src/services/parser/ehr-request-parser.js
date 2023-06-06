@@ -4,7 +4,7 @@ import { validateFieldsHaveSuccessfullyParsed } from "./parsing-validation";
 
 export const parseEhrRequestMessage = async message => {
   const messageParts = {
-    payload: await new XmlParser().parse(JSON.parse(message).payload)
+    payload: await new XmlParser().parse(message.payload)
   };
 
   const ehrRequestContent = messageParts.payload?.['data']?.[INTERACTION_IDS.EHR_REQUEST]?.['ControlActEvent']?.['subject']?.['EhrRequest'];

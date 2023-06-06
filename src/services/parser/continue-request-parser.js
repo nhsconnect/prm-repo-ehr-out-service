@@ -4,7 +4,7 @@ import { validateFieldsHaveSuccessfullyParsed } from "./parsing-validation";
 
 export const parseContinueRequestMessage = async message => {
   const messageParts = {
-    payload: await new XmlParser().parse(JSON.parse(message).payload)
+    payload: await new XmlParser().parse(message.payload)
   }
 
   const continueRequestContent = messageParts.payload?.['data']?.[INTERACTION_IDS.CONTINUE_REQUEST]?.['ControlActEvent']?.['subject']?.['PayloadInformation'];
