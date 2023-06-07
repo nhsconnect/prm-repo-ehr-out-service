@@ -13,6 +13,7 @@ describe('parseCommonAcknowledgementFields', () => {
   // ============ COMMON PROPERTIES ============
   const negativeTppAcknowledgementOne = JSON.parse(readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_01"), "utf-8"));
   const negativeTppAcknowledgementTwo = JSON.parse(readFileSync(path.join(__dirname, "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_02"), "utf-8"));
+  const positiveTppAcknowledgementOne = JSON.parse(readFileSync(path.join(__dirname, "data", "acknowledgements", "positive", "MCCI_IN010000UK13_TPP_AA_01"), "utf-8"));
   // =================== END ===================
 
   it('should parse a negative acknowledgement from TPP successfully', async () => {
@@ -58,6 +59,29 @@ describe('parseCommonAcknowledgementFields', () => {
     expect(parsedMessage.acknowledgementDetail).toEqual(acknowledgementDetail);
     expect(parsedMessage.acknowledgementTypeCode).toEqual(acknowledgementTypeCode);
     expect(ACKNOWLEDGEMENT_TYPES.NEGATIVE).toContain(parsedMessage.acknowledgementTypeCode);
+    expect(SERVICES.gp2gp).toEqual(parsedMessage.service);
+  });
+
+  it('should parse a positive acknowledgement from TPP successfully', async () => {
+    // given
+    const messageId = "3B768FD0-FECD-11ED-808B-AC162D1F16F0";
+    const messageRef = "82BFE6C0-56CE-4466-886A-3FDE9D08D0C2";
+    const referencedMessageId = "NOT FOUND";
+    const acknowledgementDetail = "NOT FOUND";
+    const acknowledgementTypeCode = "AA";
+
+    // when
+    validateFieldsHaveSuccessfullyParsed.mockReturnValueOnce(undefined);
+
+    const parsedMessage = await parseAcknowledgementMessage(positiveTppAcknowledgementOne);
+
+    // then
+    expect(parsedMessage.messageId).toEqual(messageId);
+    expect(parsedMessage.messageRef).toEqual(messageRef);
+    expect(parsedMessage.referencedMessageId).toEqual(referencedMessageId);
+    expect(parsedMessage.acknowledgementDetail).toEqual(acknowledgementDetail);
+    expect(parsedMessage.acknowledgementTypeCode).toEqual(acknowledgementTypeCode);
+    expect(ACKNOWLEDGEMENT_TYPES.POSITIVE).toContain(parsedMessage.acknowledgementTypeCode);
     expect(SERVICES.gp2gp).toEqual(parsedMessage.service);
   });
 });
