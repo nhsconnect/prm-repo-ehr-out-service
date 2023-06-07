@@ -13,7 +13,6 @@ describe('acknowledgement-handler.test.js', () => {
     // ============ COMMON PROPERTIES ============
     const CONVERSATION_ID = '63C1E862-8891-43E0-A53D-95EB5FCE1F08';
     const POSITIVE_LOG_MESSAGE = 'POSITIVE ACKNOWLEDGEMENT RECEIVED';
-    const NEGATIVE_LOG_MESSAGE = 'NEGATIVE ACKNOWLEDGEMENT RECEIVED';
     // =================== END ===================
 
     it('should handle a positive acknowledgement with typecode AA successfully', async () => {
@@ -36,7 +35,8 @@ describe('acknowledgement-handler.test.js', () => {
     it('should handle a negative acknowledgement with typecode AR successfully', async () => {
         // given
         const acknowledgementMessage = {
-            acknowledgementTypeCode: 'AR'
+            acknowledgementTypeCode: 'AR',
+            acknowledgementDetail: 'NOT FOUND'
         };
 
         // when
@@ -47,13 +47,14 @@ describe('acknowledgement-handler.test.js', () => {
 
         // then
         expect(logInfo).toHaveBeenCalledTimes(1);
-        expect(logInfo).toHaveBeenCalledWith(NEGATIVE_LOG_MESSAGE);
+        expect(logInfo).toHaveBeenCalledWith(`NEGATIVE ACKNOWLEDGEMENT RECEIVED - DETAIL: ${acknowledgementMessage.acknowledgementDetail}`);
     });
 
     it('should handle a negative acknowledgement with typecode AE successfully', async () => {
         // given
         const acknowledgementMessage = {
-            acknowledgementTypeCode: 'AE'
+            acknowledgementTypeCode: 'AE',
+            acknowledgementDetail: 'Error with something'
         };
 
         // when
@@ -64,7 +65,7 @@ describe('acknowledgement-handler.test.js', () => {
 
         // then
         expect(logInfo).toHaveBeenCalledTimes(1);
-        expect(logInfo).toHaveBeenCalledWith(NEGATIVE_LOG_MESSAGE);
+        expect(logInfo).toHaveBeenCalledWith(`NEGATIVE ACKNOWLEDGEMENT RECEIVED - DETAIL: ${acknowledgementMessage.acknowledgementDetail}`);
     });
 
     it('should handle an unknown acknowledgement typecode successfully', async () => {
