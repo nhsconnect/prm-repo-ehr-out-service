@@ -1,4 +1,4 @@
-import { ERROR_CODES } from './pg-error-codes';
+import { ERROR_CODES } from '../../constants/pg-error-codes';
 import ModelFactory from '../../models';
 import { modelName } from '../../models/health-check';
 
