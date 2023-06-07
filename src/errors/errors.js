@@ -15,9 +15,11 @@ export const errorMessages = {
   MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to update message id to new ones',
   MESSAGE_ID_RECORD_CREATION_ERROR: 'Failed to record the message ids replacement in database',
   FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR:
-    'Cannot find the the fragment message record from database',
+    'Cannot find the fragment message record within the database',
+  ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR:
+      'Cannot find an acknowledgement record within the database',
   FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR:
-    'Cannot find the the replaced fragment message id from database'
+    'Cannot find the replaced fragment message id within the database'
 };
 
 export class ParsingError extends Error {
@@ -95,6 +97,15 @@ export class FragmentMessageRecordNotFoundError extends Error {
     super(errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR);
     logError(
       `${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId: ${messageId}`
+    );
+  };
+}
+
+export class AcknowledgementRecordNotFoundError extends Error {
+  constructor(messageId) {
+    super(errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR);
+    logError(
+        `${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`
     );
   };
 }
