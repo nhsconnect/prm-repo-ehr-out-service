@@ -5,13 +5,11 @@ import { buildTestApp } from '../../__builders__/test-app';
 import { registrationRequests } from '../../api/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
 import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
-import { getPatientHealthRecordFromRepo } from '../../services/ehr-repo/get-health-record';
 import { logInfo, logWarning } from '../logging';
 
 jest.mock('../../services/database/create-registration-request');
 jest.mock('../../services/database/registration-request-repository');
 jest.mock('../../services/gp2gp/pds-retrieval-request');
-jest.mock('../../services/ehr-repo/get-health-record');
 jest.mock('../../middleware/logging');
 jest.mock('../../config', () => ({
   config: jest.fn().mockReturnValue({
@@ -38,7 +36,6 @@ describe('auth', () => {
 
       getRegistrationRequestStatusByConversationId.mockResolvedValue(registrationRequestRecord);
       getPdsOdsCode.mockResolvedValue({ data: { data: { odsCode } } });
-      getPatientHealthRecordFromRepo.mockResolvedValue({ coreEhrMessageUrl });
 
       const res = await request(testApp)
         .get(`/registration-requests/${conversationId}`)
