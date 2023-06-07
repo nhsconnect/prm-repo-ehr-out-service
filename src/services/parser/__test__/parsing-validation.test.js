@@ -14,4 +14,16 @@ describe('parsing-validation.js', () => {
         expect(() => validateFieldsHaveSuccessfullyParsed(parsedFields))
             .toThrow(ParsingError);
     });
+
+    it('should not throw a ParsingError if all fields are defined', () => {
+        // Given
+        const parsedFields = {
+            nhsNumber: 1234567890,
+            odsCode: "B85002"
+        };
+
+        // Then
+        expect(() => validateFieldsHaveSuccessfullyParsed(parsedFields))
+            .not.toThrow(ParsingError);
+    });
 });
