@@ -1,6 +1,5 @@
 import { agent as request } from 'supertest';
 import { v4 } from 'uuid';
-import nock from 'nock';
 import app from '../app';
 import { config } from '../config';
 import { logger } from '../config/logging';
@@ -20,7 +19,6 @@ import { sendFragment } from "../services/gp2gp/send-fragment";
 import { getAllFragmentsWithMessageIdsFromRepo } from "../services/ehr-repo/get-fragments";
 import { createMessageIdReplacement } from "../services/database/create-message-id-replacement";
 
-const EHR_OUT = 'http://localhost';
 const fakeAuth = 'fake-keys';
 
 // Setup mocking
@@ -73,7 +71,6 @@ describe('Swagger Documentation', () => {
   // ============ COMMON PROPERTIES ============
   const SWAGGER_ENDPOINT_1 = '/swagger';
   const SWAGGER_ENDPOINT_2 = '/swagger/index.html';
-  const { nhsEnvironment } = config();
   // =================== END ===================
 
   it('GET /swagger - should return a redirect 301 status code and text/html content type response', async () => {

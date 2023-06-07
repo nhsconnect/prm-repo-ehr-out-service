@@ -1,7 +1,6 @@
 import request from 'supertest';
 import { v4 } from 'uuid';
 import { config } from '../../config';
-import { createRegistrationRequest } from '../../services/database/create-registration-request';
 import { buildTestApp } from '../../__builders__/test-app';
 import { registrationRequests } from '../../api/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
@@ -30,7 +29,6 @@ describe('auth', () => {
   const odsCode = 'A12345';
   const coreEhrMessageUrl = 'fake-url';
   const nhsNumber = '1234567890';
-  const ehrRequestId = v4();
   const conversationId = v4();
 
   describe('authenticated successfully', () => {
