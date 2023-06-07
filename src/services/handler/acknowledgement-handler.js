@@ -6,14 +6,14 @@ import { parseAcknowledgementMessage } from "../parser/acknowledgement-parser";
 
 export const acknowledgementMessageHandler = async message => {
   const conversationId = await parseConversationId(message);
-  const { acknowledgementTypeCode } = await parseAcknowledgementMessage(message);
+  const { acknowledgementTypeCode, acknowledgementDetail } = await parseAcknowledgementMessage(message);
 
   setCurrentSpanAttributes({ conversationId });
 
   if (ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(acknowledgementTypeCode)) {
     logInfo(`POSITIVE ACKNOWLEDGEMENT RECEIVED`);
   } else if (ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(acknowledgementTypeCode)) {
-    logInfo(`NEGATIVE ACKNOWLEDGEMENT RECEIVED`);
+    logInfo(`NEGATIVE ACKNOWLEDGEMENT RECEIVED - DETAIL: ${acknowledgementDetail}`);
   } else {
     logError(`ACKNOWLEDGEMENT TYPE ${acknowledgementTypeCode} IS UNKNOWN.`);
   }
