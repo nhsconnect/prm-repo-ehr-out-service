@@ -1,4 +1,5 @@
 import { parseAcknowledgementMessage } from "../../parser/acknowledgement-parser";
+import { createAcknowledgement } from "../../database/create-acknowledgement";
 import { acknowledgementMessageHandler } from "../acknowledgement-handler";
 import { parseConversationId } from "../../parser/parsing-utilities";
 import { logError, logInfo } from "../../../middleware/logging";
@@ -8,6 +9,7 @@ import expect from "expect";
 jest.mock('../../../middleware/logging');
 jest.mock('../../parser/parsing-utilities');
 jest.mock('../../parser/acknowledgement-parser');
+jest.mock('../../database/create-acknowledgement');
 
 describe('acknowledgement-handler.test.js', () => {
     // ============ COMMON PROPERTIES ============
@@ -24,6 +26,7 @@ describe('acknowledgement-handler.test.js', () => {
         // when
         parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
         parseAcknowledgementMessage.mockResolvedValueOnce(Promise.resolve(acknowledgementMessage));
+        createAcknowledgement.mockResolvedValueOnce(undefined);
 
         await acknowledgementMessageHandler(acknowledgementMessage);
 
@@ -42,6 +45,7 @@ describe('acknowledgement-handler.test.js', () => {
         // when
         parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
         parseAcknowledgementMessage.mockResolvedValueOnce(Promise.resolve(acknowledgementMessage));
+        createAcknowledgement.mockResolvedValueOnce(undefined);
 
         await acknowledgementMessageHandler(acknowledgementMessage);
 
@@ -60,6 +64,7 @@ describe('acknowledgement-handler.test.js', () => {
         // when
         parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
         parseAcknowledgementMessage.mockResolvedValueOnce(Promise.resolve(acknowledgementMessage));
+        createAcknowledgement.mockResolvedValueOnce(undefined);
 
         await acknowledgementMessageHandler(acknowledgementMessage);
 
@@ -77,6 +82,7 @@ describe('acknowledgement-handler.test.js', () => {
         // when
         parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
         parseAcknowledgementMessage.mockResolvedValueOnce(Promise.resolve(acknowledgementMessage));
+        createAcknowledgement.mockResolvedValueOnce(undefined);
 
         await acknowledgementMessageHandler(acknowledgementMessage);
 
