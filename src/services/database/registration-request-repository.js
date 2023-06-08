@@ -22,12 +22,11 @@ export const getNhsNumberByConversationId = conversationId => {
 export const updateRegistrationRequestStatus = async (conversationId, status) => {
   logInfo(`Updating registration request status ${status}, conversationId: ${conversationId}`);
   await runWithinTransaction(async transaction => {
-    return await RegistrationRequest.update(
-      { status },
-      {
-        where: { conversation_id: conversationId },
-        transaction
-      }
-    );
+    const options = {
+      where: { conversation_id: conversationId },
+      transaction: transaction
+    }
+
+    return await RegistrationRequest.update({ status }, options)
   });
 };
