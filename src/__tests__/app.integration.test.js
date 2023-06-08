@@ -1,6 +1,5 @@
 import { agent as request } from 'supertest';
 import { v4 } from 'uuid';
-import nock from 'nock';
 import app from '../app';
 import { config } from '../config';
 import { logger } from '../config/logging';
@@ -20,7 +19,6 @@ import { sendFragment } from "../services/gp2gp/send-fragment";
 import { getAllFragmentsWithMessageIdsFromRepo } from "../services/ehr-repo/get-fragments";
 import { createMessageIdReplacement } from "../services/database/create-message-id-replacement";
 
-const EHR_OUT = 'http://localhost';
 const fakeAuth = 'fake-keys';
 
 // Setup mocking
@@ -73,7 +71,6 @@ describe('Swagger Documentation', () => {
   // ============ COMMON PROPERTIES ============
   const SWAGGER_ENDPOINT_1 = '/swagger';
   const SWAGGER_ENDPOINT_2 = '/swagger/index.html';
-  const { nhsEnvironment } = config();
   // =================== END ===================
 
   it('GET /swagger - should return a redirect 301 status code and text/html content type response', async () => {
@@ -143,97 +140,6 @@ describe('GET /registration-requests/:conversationId', () => {
     expect(res.statusCode).toBe(404);
     expectStructuredLogToContain(transportSpy, {
       conversationId: nonExistentConversationId
-    });
-  });
-});
-
-describe('POST /registration-requests/', () => {
-  const conversationId = v4();
-  const conversationIdFromEhrIn = v4();
-  const nhsNumber = '1234567890';
-  const odsCode = 'A12345';
-  const ehrRequestId = v4();
-  const serviceUrl = 'http://ehr-out-service';
-  const coreMessageUrl = 'fake-url';
-  const fragmentMessageIds = [];
-  const ehrHeaders = { reqheaders: { Authorization: fakeAuth } };
-  const gp2gpHeaders = { reqheaders: { Authorization: fakeAuth } };
-  const pdsResponseBody = { data: { odsCode } };
-  const ehrResponseBody = {
-    coreMessageUrl,
-    fragmentMessageIds,
-    conversationIdFromEhrIn: conversationIdFromEhrIn
-  };
-
-  const sendEhrBody = {
-    data: {
-      type: 'health-record-transfers',
-      id: conversationId,
-      attributes: {
-        odsCode,
-        ehrRequestId
-      },
-      links: {
-        currentEhrUrl: coreMessageUrl
-      }
-    }
-  };
-
-  beforeEach(() => {
-    logger.add(transportSpy);
-
-    process.env.SERVICE_URL = serviceUrl;
-    process.env.API_KEY_FOR_TEST = fakeAuth;
-    process.env.GP2GP_MESSENGER_SERVICE_URL = EHR_OUT;
-    process.env.GP2GP_MESSENGER_AUTHORIZATION_KEYS = fakeAuth;
-    process.env.EHR_REPO_SERVICE_URL = EHR_OUT;
-    process.env.EHR_REPO_AUTHORIZATION_KEYS = fakeAuth;
-  });
-
-  afterEach(() => {
-    delete process.env.API_KEY_FOR_TEST;
-    delete process.env.GP2GP_MESSENGER_SERVICE_URL;
-    delete process.env.GP2GP_MESSENGER_AUTHORIZATION_KEYS;
-    delete process.env.EHR_REPO_SERVICE_URL;
-    delete process.env.EHR_REPO_AUTHORIZATION_KEYS;
-  });
-
-  it('should return a 204 status code for correct request', async () => {
-    nock(EHR_OUT, ehrHeaders).get(`/patients/${nhsNumber}`).reply(200, ehrResponseBody);
-    nock(EHR_OUT, gp2gpHeaders)
-      .get(`/patient-demographics/${nhsNumber}`)
-      .reply(200, pdsResponseBody);
-    nock(EHR_OUT, gp2gpHeaders).post(`/health-record-transfers`, sendEhrBody).reply(204);
-
-    const body = {
-      data: {
-        type: 'registration-requests',
-        id: conversationId,
-        attributes: {
-          nhsNumber,
-          odsCode,
-          ehrRequestId
-        }
-      }
-    };
-
-    const res = await request(app)
-      .post(`/registration-requests/`)
-      .set('Authorization', fakeAuth)
-      .send(body);
-
-    expect(res.header[`location`]).toEqual(
-      `${serviceUrl}/registration-requests/${conversationId}`
-    );
-    expect(res.statusCode).toBe(204);
-
-    const statusUpdate = await request(app)
-      .get(`/registration-requests/${conversationId}`)
-      .set('Authorization', fakeAuth);
-
-    expect(statusUpdate.body.data.attributes.status).toEqual('sent_ehr');
-    expectStructuredLogToContain(transportSpy, {
-      conversationId: conversationId
     });
   });
 });

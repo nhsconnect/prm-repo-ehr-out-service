@@ -1,18 +1,15 @@
 import request from 'supertest';
 import { v4 } from 'uuid';
 import { config } from '../../config';
-import { createRegistrationRequest } from '../../services/database/create-registration-request';
 import { buildTestApp } from '../../__builders__/test-app';
 import { registrationRequests } from '../../api/registration-request';
 import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
 import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
-import { getPatientHealthRecordFromRepo } from '../../services/ehr-repo/get-health-record';
 import { logInfo, logWarning } from '../logging';
 
 jest.mock('../../services/database/create-registration-request');
 jest.mock('../../services/database/registration-request-repository');
 jest.mock('../../services/gp2gp/pds-retrieval-request');
-jest.mock('../../services/ehr-repo/get-health-record');
 jest.mock('../../middleware/logging');
 jest.mock('../../config', () => ({
   config: jest.fn().mockReturnValue({
@@ -29,32 +26,22 @@ describe('auth', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
   const odsCode = 'A12345';
   const coreEhrMessageUrl = 'fake-url';
-  const ehrRequestId = v4();
+  const nhsNumber = '1234567890';
+  const conversationId = v4();
 
   describe('authenticated successfully', () => {
     it('should return HTTP 204 when correctly authenticated', async () => {
-      getRegistrationRequestStatusByConversationId.mockResolvedValue(null);
+      // given
+      const registrationRequestRecord = { conversationId, nhsNumber, odsCode, status: "test-record" };
+
+      getRegistrationRequestStatusByConversationId.mockResolvedValue(registrationRequestRecord);
       getPdsOdsCode.mockResolvedValue({ data: { data: { odsCode } } });
-      getPatientHealthRecordFromRepo.mockResolvedValue({ coreEhrMessageUrl });
-      createRegistrationRequest.mockResolvedValue();
 
-      const body = {
-        data: {
-          type: 'registration-requests',
-          id: '5bb36755-279f-43d5-86ab-defea717d93f',
-          attributes: {
-            nhsNumber: '1111111111',
-            odsCode,
-            ehrRequestId
-          }
-        }
-      };
       const res = await request(testApp)
-        .post('/registration-requests/')
+        .get(`/registration-requests/${conversationId}`)
         .set('Authorization', 'correct-key')
-        .send(body);
 
-      expect(res.statusCode).toBe(204);
+      expect(res.statusCode).toBe(200);
     });
   });
 
@@ -66,7 +53,7 @@ describe('auth', () => {
       };
 
       const res = await request(testApp)
-        .post('/registration-requests/')
+        .get(`/registration-requests/${conversationId}`)
         .set('Authorization', 'correct-key');
 
       expect(res.statusCode).toBe(412);
@@ -81,7 +68,7 @@ describe('auth', () => {
           'The request (/registration-requests) requires a valid Authorization header to be set'
       };
 
-      const res = await request(testApp).post('/registration-requests/');
+      const res = await request(testApp).get(`/registration-requests/${conversationId}`);
 
       expect(res.statusCode).toBe(401);
       expect(res.body).toEqual(errorMessage);
@@ -93,7 +80,7 @@ describe('auth', () => {
       const errorMessage = { error: 'Authorization header is provided but not valid' };
 
       const res = await request(testApp)
-        .post('/registration-requests/')
+        .get(`/registration-requests/${conversationId}`)
         .set('Authorization', 'incorrect-key');
 
       expect(res.statusCode).toBe(403);
@@ -103,23 +90,23 @@ describe('auth', () => {
 
   describe('Auth logging', () => {
     it('should log consumer, method and url for correctly authenticated request', async () => {
-      const logMessage = 'Consumer: USER_2, Request: POST /registration-requests/';
-      await request(testApp).post('/registration-requests/').set('Authorization', 'key_2');
+      const logMessage = `Consumer: USER_2, Request: GET /registration-requests/${conversationId}`;
+      await request(testApp).get(`/registration-requests/${conversationId}`).set('Authorization', 'key_2');
 
       expect(logInfo).toHaveBeenCalledWith(logMessage);
     });
 
     it('should log multiple consumers when they use the same key value', async () => {
       const logMessage =
-        'Consumer: TEST_USER/DUPLICATE_TEST_USER, Request: POST /registration-requests/';
-      await request(testApp).post('/registration-requests/').set('Authorization', 'correct-key');
+        `Consumer: TEST_USER/DUPLICATE_TEST_USER, Request: GET /registration-requests/${conversationId}`;
+      await request(testApp).get(`/registration-requests/${conversationId}`).set('Authorization', 'correct-key');
 
       expect(logInfo).toHaveBeenCalledWith(logMessage);
     });
 
     it('should log the method, url and partial api key when a request is unsuccessful', async () => {
-      const logMessage = 'Unsuccessful Request: POST /registration-requests/, API Key: ******key';
-      await request(testApp).post('/registration-requests/').set('Authorization', 'incorrect-key');
+      const logMessage = `Unsuccessful Request: GET /registration-requests/${conversationId}, API Key: ******key`;
+      await request(testApp).get(`/registration-requests/${conversationId}`).set('Authorization', 'incorrect-key');
 
       expect(logWarning).toHaveBeenCalledWith(logMessage);
     });

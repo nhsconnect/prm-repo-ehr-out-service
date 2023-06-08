@@ -31,46 +31,6 @@
         }
       }
     },
-    "/registration-requests/": {
-      "post": {
-        "tags": [
-          "/registration-requests"
-        ],
-        "summary": "Responsible for the EHR out transfer (aka registration request). Retrieves patient's health record and sends it out",
-        "parameters": [
-          {
-            "in": "body",
-            "name": "registrationRequest",
-            "description": "Registration",
-            "schema": {
-              "$ref": "#/definitions/registrationRequest"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Accepted and started registration request"
-          },
-          "401": {
-            "description": "Authorization header missing"
-          },
-          "403": {
-            "description": "Authorization key invalid"
-          },
-          "503": {
-            "description": "Error",
-            "schema": {
-              "$ref": "#/definitions/errorResponse"
-            }
-          }
-        },
-        "security": [
-          {
-            "api_key": []
-          }
-        ]
-      }
-    },
     "/registration-requests/{conversationId}": {
       "get": {
         "tags": [
@@ -126,45 +86,6 @@
     }
   },
   "definitions": {
-    "registrationRequest": {
-      "type": "object",
-      "properties": {
-        "data": {
-          "type": "object",
-          "properties": {
-             "type": {
-               "type": "string",
-               "enum": ["registration-requests"]
-             },
-            "id": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "attributes": {
-              "type": "object",
-              "properties": {
-                "nhsNumber": {
-                  "type": "string"
-                },
-                "ehrRequestId": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "odsCode": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      },
-      "required": [
-        "type",
-        "id",
-        "nhsNumber",
-        "odsCode"
-      ]
-    },
     "errorResponse": {
       "type": "object",
       "properties": {
