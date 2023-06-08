@@ -103,7 +103,7 @@ export class FragmentMessageRecordNotFoundError extends Error {
 
 export class AcknowledgementRecordNotFoundError extends Error {
   constructor(messageId) {
-    super(errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR);
+    super(`${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`);
     logError(
         `${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`
     );
