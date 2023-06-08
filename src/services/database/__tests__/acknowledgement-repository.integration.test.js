@@ -1,18 +1,15 @@
 import { parseAcknowledgementMessage } from "../../parser/acknowledgement-parser";
-import { createAcknowledgement } from '../create-acknowledgement';
-import { logError, logInfo } from '../../../middleware/logging';
+import { getAcknowledgementByMessageId } from "../acknowledgement-repository";
+import { createAcknowledgement } from "../create-acknowledgement";
 import { modelName } from '../../../models/acknowledgements';
 import { SERVICES } from "../../../constants/services";
-import { runWithinTransaction } from '../helper';
 import ModelFactory from '../../../models';
 import { readFileSync } from "fs";
 import expect from "expect";
 import path from "path";
+import { AcknowledgementRecordNotFoundError } from "../../../errors/errors";
 
-// Mocking
-jest.mock("../../../middleware/logging");
-
-describe('createAcknowledgement', () => {
+describe('acknowledgementRepository', () => {
     // ============ COMMON PROPERTIES ============
     const Acknowledgement = ModelFactory.getByName(modelName);
     // =================== END ===================
@@ -27,7 +24,7 @@ describe('createAcknowledgement', () => {
         await ModelFactory.sequelize.close();
     });
 
-    it('should create an acknowledgement with the correct values', async () => {
+    it('should retrieve the acknowledgement by message id', async () => {
         // given
         const parsedAcknowledgement = await parseAcknowledgementMessage(
             JSON.parse(
@@ -43,14 +40,7 @@ describe('createAcknowledgement', () => {
         // when
         await createAcknowledgement(parsedAcknowledgement);
 
-        const acknowledgement = await runWithinTransaction(transaction =>
-            Acknowledgement.findOne({
-                where: {
-                    message_id: acknowledgementMessageId
-                },
-                transaction: transaction
-            })
-        );
+        const acknowledgement = await getAcknowledgementByMessageId(acknowledgementMessageId);
 
         // then
         expect(acknowledgement).not.toBeNull();
@@ -62,28 +52,14 @@ describe('createAcknowledgement', () => {
         expect(acknowledgement.get().messageRef).toBe(messageRef);
     });
 
-    it('should log event if data persisted correctly', async () => {
+    it('should throw AcknowledgementRecordNotFoundError when it cannot find the acknowledgement', async () => {
         // given
-        const parsedAcknowledgement = await parseAcknowledgementMessage(
-            JSON.parse(
-                readFileSync(path.join(__dirname, "..", "..", "parser", "__test__", "data", "acknowledgements", "negative", "MCCI_IN010000UK13_TPP_AR_01"), "utf-8")
-            )
-        );
+        const nonExistentAcknowledgementMessageId = '4be94216-b00d-4355-8929-b22c8512b074';
 
         // when
-        await createAcknowledgement(parsedAcknowledgement);
-
-        // then
-        expect(logInfo).toHaveBeenCalledTimes(1);
-        expect(logInfo).toHaveBeenCalledWith('Acknowledgement has been stored');
-    });
-
-    it('should log errors when invalid parsed acknowledgement is passed', async () => {
-        try {
-            await createAcknowledgement({ messageId: 'hello-world' });
-        } catch (error) {
-            expect(logError).toHaveBeenCalled();
-            expect(logError).toHaveBeenCalledWith(error);
-        }
+        await expect(async () => {
+            await getAcknowledgementByMessageId(nonExistentAcknowledgementMessageId)
+        })  // then
+            .rejects.toThrow(AcknowledgementRecordNotFoundError);
     });
 });
