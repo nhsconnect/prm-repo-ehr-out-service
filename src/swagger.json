@@ -86,45 +86,6 @@
     }
   },
   "definitions": {
-    "registrationRequest": {
-      "type": "object",
-      "properties": {
-        "data": {
-          "type": "object",
-          "properties": {
-             "type": {
-               "type": "string",
-               "enum": ["registration-requests"]
-             },
-            "id": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "attributes": {
-              "type": "object",
-              "properties": {
-                "nhsNumber": {
-                  "type": "string"
-                },
-                "ehrRequestId": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "odsCode": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      },
-      "required": [
-        "type",
-        "id",
-        "nhsNumber",
-        "odsCode"
-      ]
-    },
     "errorResponse": {
       "type": "object",
       "properties": {
