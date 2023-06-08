@@ -1,6 +1,6 @@
-import { ERROR_CODES } from './pg-error-codes';
-import ModelFactory from '../../models';
+import { ERROR_CODES } from "../../constants/postgres-error-codes";
 import { modelName } from '../../models/health-check';
+import ModelFactory from '../../models';
 
 export const checkDbHealth = async () => {
   const HealthCheck = ModelFactory.getByName(modelName);
