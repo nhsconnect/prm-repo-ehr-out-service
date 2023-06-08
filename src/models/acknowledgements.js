@@ -35,6 +35,11 @@ const model = dataType => ({
         type: dataType.STRING,
         allowNull: false
     },
+    createdAt: {
+        field: 'created_at',
+        type: dataType.DATE,
+        allowNull: false
+    },
     updatedAt: {
         field: 'updated_at',
         type: dataType.DATE,
