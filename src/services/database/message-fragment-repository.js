@@ -9,12 +9,11 @@ const MessageFragment = ModelFactory.getByName(modelName);
 export const getMessageFragmentStatusByMessageId = messageId => {
   logInfo(`Getting the status of fragment with message id ${messageId} from database`);
 
-  try {
-    return MessageFragment.findByPk(messageId);
-  } catch (error) {
-    logError('Encountered error during database transaction', error);
-    return Promise.resolve(null);
-  }
+  return MessageFragment.findByPk(messageId)
+    .catch(error => {
+      logError('Encountered error during database transaction', error);
+      return null;
+    })
 };
 
 export const updateMessageFragmentStatus = (messageId, status) => {
