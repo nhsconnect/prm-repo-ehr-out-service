@@ -16,7 +16,7 @@ export const createAcknowledgement = (parsedAcknowledgementMessage) =>
                 referencedMessageId: parsedAcknowledgementMessage.referencedMessageId,
                 messageRef: parsedAcknowledgementMessage.messageRef
             },
-            transaction
+            { transaction: transaction }
         )
             .then(() => logInfo('Acknowledgement has been stored'))
             .catch(error => logError(error))

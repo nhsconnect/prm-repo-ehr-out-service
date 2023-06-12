@@ -13,7 +13,7 @@ export const createMessageIdReplacement = (oldMessageId, newMessageId) =>
         oldMessageId,
         newMessageId,
       },
-      transaction
+      { transaction: transaction }
     )
       .then(() => logInfo(`Recorded a pair of message id mapping: {inbound: ${oldMessageId}, outbound: ${newMessageId}}`))
       .catch(error => {

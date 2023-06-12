@@ -14,7 +14,7 @@ export const createRegistrationRequest = (conversationId, nhsNumber, odsCode) =>
         odsCode,
         status: Status.REGISTRATION_REQUEST_RECEIVED
       },
-      transaction
+      { transaction: transaction }
     )
       .then(() => logInfo('Registration request has been stored'))
       .catch(error => logError(error))

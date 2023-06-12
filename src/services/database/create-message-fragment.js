@@ -13,7 +13,7 @@ export const createMessageFragment = (messageId, conversationId) =>
         conversationId,
         status: Status.FRAGMENT_REQUEST_RECEIVED
       },
-      transaction
+      { transaction: transaction }
     )
       .then(() => logInfo('Message fragment status has been updated'))
       .catch(error => logError(error))
