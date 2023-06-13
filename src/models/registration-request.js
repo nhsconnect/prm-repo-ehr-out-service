@@ -10,12 +10,14 @@ export const Status = {
   SENT_EHR: 'sent_ehr',
   CONTINUE_REQUEST_RECEIVED: 'continue_request_received',
   SENT_FRAGMENTS: 'sent_fragments',
+  EHR_INTEGRATED: 'ehr_integrated',
 
   // ERRONEOUS
   INCORRECT_ODS_CODE: 'incorrect_ods_code',
   MISSING_FROM_REPO: 'missing_from_repo',
   EHR_DOWNLOAD_FAILED: 'ehr_download_failed',
   FRAGMENTS_SENDING_FAILED: 'fragments_sending_failed',
+  EHR_INTEGRATION_FAILED: 'ehr_integration_failed'
 };
 
 Object.freeze(Status);
