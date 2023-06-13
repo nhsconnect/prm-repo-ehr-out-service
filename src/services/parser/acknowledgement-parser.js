@@ -31,8 +31,3 @@ export const parseAcknowledgementMessage = async message => {
 
   return parsedFields;
 };
-
-export const isIntegrationAcknowledgement = async message => {
-  // Parse fields which identify it as being an integration acknowledgement.
-  // Return true is it is, or false if it's not.
-};
