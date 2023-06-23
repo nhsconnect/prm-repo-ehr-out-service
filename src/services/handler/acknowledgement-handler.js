@@ -1,5 +1,5 @@
 import { parseConversationId } from "../parser/parsing-utilities";
-import {logError, logInfo} from "../../middleware/logging";
+import { logError, logInfo } from "../../middleware/logging";
 import { setCurrentSpanAttributes } from "../../config/tracing";
 import { ACKNOWLEDGEMENT_TYPES } from "../../constants/acknowledgement-types";
 import { parseAcknowledgementMessage } from "../parser/acknowledgement-parser";
@@ -18,12 +18,15 @@ export const acknowledgementMessageHandler = async message => {
 
   await createAcknowledgement(parsedAcknowledgementFields);
 
-  if (ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(typeCode))
-    isIntegrationAcknowledgement ? handlePositiveIntegrationAcknowledgement() : handlePositiveAcknowledgement();
-  else if (ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(typeCode))
-    isIntegrationAcknowledgement ? handleNegativeIntegrationAcknowledgement() : handleNegativeAcknowledgement();
-  else
+  if (ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(typeCode)) {
+    if (isIntegrationAcknowledgement) handlePositiveIntegrationAcknowledgement();
+    else handlePositiveAcknowledgement();
+  } else if (ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(typeCode)) {
+    if (isIntegrationAcknowledgement) handleNegativeIntegrationAcknowledgement()
+    else handleNegativeAcknowledgement();
+  } else {
     logError(`ACKNOWLEDGEMENT TYPE ${typeCode} IS UNKNOWN.`);
+  }
 };
 
 const handlePositiveIntegrationAcknowledgement = () => {
