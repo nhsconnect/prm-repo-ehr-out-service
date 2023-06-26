@@ -34,7 +34,7 @@ export const updateRegistrationRequestStatus = async (conversationId, status) =>
 };
 
 export const registrationRequestExistsWithMessageId = async messageId => {
-    const isRegistrationRequestFound = await RegistrationRequest.find({
+  const foundRecord = await RegistrationRequest.findOne({
         where: {
             messageId: {
                 [Op.eq]: messageId
@@ -43,5 +43,5 @@ export const registrationRequestExistsWithMessageId = async messageId => {
     }).then(registrationRequest => registrationRequest)
       .catch(error => logError(error));
 
-    return isRegistrationRequestFound != null;
+    return foundRecord !== null;
 }

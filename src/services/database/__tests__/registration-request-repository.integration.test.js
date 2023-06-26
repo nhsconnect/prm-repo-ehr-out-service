@@ -117,6 +117,7 @@ describe('Registration request repository', () => {
       expect(foundRecord).not.toBeNull();
       expect(foundRecord).toEqual(true);
     });
+
     it('should return false if a registration request is not found, given an non-existent messageId', async () => {
       // given
       const nonExistentMessageId = uuid();
