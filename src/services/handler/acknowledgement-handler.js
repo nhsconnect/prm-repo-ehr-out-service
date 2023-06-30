@@ -13,7 +13,7 @@ import {
 export const acknowledgementMessageHandler = async message => {
   const conversationId = await parseConversationId(message);
   const parsedAcknowledgementFields = await parseAcknowledgementMessage(message);
-  const { typeCode, messageRef } = parsedAcknowledgementFields;
+  const { acknowledgementTypeCode, messageRef, acknowledgementDetail } = parsedAcknowledgementFields;
   const isIntegrationAcknowledgement = await registrationRequestExistsWithMessageId(messageRef);
   const nhsNumber = await getNhsNumberByConversationId(conversationId);
 
@@ -21,14 +21,14 @@ export const acknowledgementMessageHandler = async message => {
 
   await createAcknowledgement(parsedAcknowledgementFields);
 
-  if (ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(typeCode)) {
+  if (ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(acknowledgementTypeCode)) {
     if (isIntegrationAcknowledgement) await handlePositiveIntegrationAcknowledgement(nhsNumber, conversationId);
     else handlePositiveAcknowledgement();
-  } else if (ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(typeCode)) {
+  } else if (ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(acknowledgementTypeCode)) {
     if (isIntegrationAcknowledgement) handleNegativeIntegrationAcknowledgement();
-    else handleNegativeAcknowledgement();
+    else handleNegativeAcknowledgement(acknowledgementDetail);
   } else {
-    logError(`ACKNOWLEDGEMENT TYPE ${typeCode} IS UNKNOWN.`);
+    logError(`Acknowledgement type ${acknowledgementTypeCode} is unknown.`);
   }
 };
 
@@ -48,6 +48,6 @@ const handlePositiveAcknowledgement = () => {
   logInfo(`Positive acknowledgement received.`);
 };
 
-const handleNegativeAcknowledgement = () => {
-  logInfo(`Negative acknowledgement received.`);
+const handleNegativeAcknowledgement = (acknowledgementDetail) => {
+  logInfo(`Negative acknowledgement received - detail: ${acknowledgementDetail}.`);
 };
