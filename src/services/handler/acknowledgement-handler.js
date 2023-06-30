@@ -41,13 +41,13 @@ const handlePositiveIntegrationAcknowledgement = async (nhsNumber, conversationI
 };
 
 const handleNegativeIntegrationAcknowledgement = () => {
-  logInfo(`NEGATIVE INTEGRATION ACKNOWLEDGEMENT RECEIVED`);
+  logInfo(`Negative integration acknowledgement received.`);
 };
 
 const handlePositiveAcknowledgement = () => {
-  logInfo(`POSITIVE ACKNOWLEDGEMENT RECEIVED`);
+  logInfo(`Positive acknowledgement received.`);
 };
 
 const handleNegativeAcknowledgement = () => {
-  logInfo(`NEGATIVE ACKNOWLEDGEMENT RECEIVED`);
+  logInfo(`Negative acknowledgement received.`);
 };
