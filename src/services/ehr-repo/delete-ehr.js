@@ -1,7 +1,7 @@
-import {config} from "../../config";
+import { EhrUrlNotFoundError } from "../../errors/errors";
+import { logError } from "../../middleware/logging";
+import { config } from "../../config";
 import axios from "axios";
-import {EhrUrlNotFoundError} from "../../errors/errors";
-import {logError} from "../../middleware/logging";
 
 export const sendDeleteRequestToEhrRepo = async (nhsNumber, conversationId) => {
   const { ehrRepoAuthKeys, ehrRepoServiceUrl } = config();
