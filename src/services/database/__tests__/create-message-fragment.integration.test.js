@@ -10,6 +10,7 @@ jest.mock('../../../middleware/logging');
 describe('createFragmentsRequest', () => {
   const MessageFragment = ModelFactory.getByName(modelName);
   const conversationId = '40abdd36-6f86-455a-8135-4ab4c764cdd1';
+  const messageId = '9b9ca459-1f52-4e77-862c-52fb897b6070';
 
   beforeAll(async () => {
     // clean and sync the table before test
@@ -17,7 +18,7 @@ describe('createFragmentsRequest', () => {
     await MessageFragment.sync({ force: true });
 
     // create a parent record of RegistrationRequest
-    await createRegistrationRequest(conversationId, "1234567890", "fake-ods-code");
+    await createRegistrationRequest(conversationId, "1234567890", messageId, "fake-ods-code");
   })
   
   afterAll(async () => {
