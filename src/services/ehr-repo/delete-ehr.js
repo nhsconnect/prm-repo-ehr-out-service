@@ -13,9 +13,11 @@ export const sendDeleteRequestToEhrRepo = async (nhsNumber, conversationId) => {
       })
       .then(response => {
         return {
-          type: response.data.data.type,
-          id: response.data.data.id,
-          conversationIds: response.data.data.conversationIds
+          data: {
+            type: response.data.data.type,
+            id: response.data.data.id,
+            conversationIds: response.data.data.conversationIds
+          }
         };
       })
       .catch(error => {
