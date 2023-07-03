@@ -1,11 +1,10 @@
-import nock from 'nock';
-import {logError, logInfo} from '../../../middleware/logging';
-import { config } from '../../../config';
-import { getEhrCoreAndFragmentIdsFromRepo } from "../get-ehr";
 import { EhrUrlNotFoundError, DownloadError, errorMessages} from "../../../errors/errors";
+import { logError, logInfo } from '../../../middleware/logging';
+import { getEhrCoreAndFragmentIdsFromRepo } from "../get-ehr";
+import nock from 'nock';
 
+// Mocking
 jest.mock('../../../middleware/logging');
-
 jest.mock('../../../config', () => ({
   config: jest.fn().mockReturnValue({
     sequelize: { dialect: 'postgres' },
