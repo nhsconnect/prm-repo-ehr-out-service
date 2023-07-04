@@ -14,7 +14,7 @@ import {
   updateReferencedFragmentIds
 } from './transfer-out-util';
 
-export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
+export async function transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId }) {
   setCurrentSpanAttributes({ conversationId: conversationId });
   logInfo('EHR transfer out request received');
 
@@ -33,7 +33,7 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
         inProgress: true
       };
     }
-    await createRegistrationRequest(conversationId, nhsNumber, odsCode);
+    await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
 
     logInfo('Getting patient health record from EHR repo');
     const { ehrCore, fragmentMessageIds } = await getEhrCoreAndFragmentIdsFromRepo(

@@ -1,12 +1,13 @@
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { transferOutEhrCore } from "../transfer/transfer-out-ehr-core";
 import { parseEhrRequestMessage } from "../parser/ehr-request-parser";
-import { parseConversationId } from "../parser/parsing-utilities";
+import {parseConversationId, parseMessageId} from "../parser/parsing-utilities";
 import { setCurrentSpanAttributes } from '../../config/tracing';
 
 export default async function ehrRequestHandler(message, overrides) {
   const ehrRequest = await parseEhrRequestMessage(message);
   const conversationId = await parseConversationId(message);
+  const messageId = await parseMessageId(message);
   setCurrentSpanAttributes({ conversationId });
 
   const options = Object.assign({ transferOutEhrCore }, overrides);
@@ -17,6 +18,7 @@ export default async function ehrRequestHandler(message, overrides) {
   let result = await doTransfer({
     conversationId,
     nhsNumber: ehrRequest.nhsNumber,
+    messageId,
     odsCode: ehrRequest.odsCode,
     ehrRequestId: ehrRequest.ehrRequestId
   });

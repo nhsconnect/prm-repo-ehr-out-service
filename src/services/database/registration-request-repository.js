@@ -1,8 +1,9 @@
 import ModelFactory from '../../models';
 import { modelName } from '../../models/registration-request';
 import { runWithinTransaction } from './helper';
-import { logInfo } from '../../middleware/logging';
+import { logError, logInfo } from '../../middleware/logging';
 import { NhsNumberNotFoundError } from "../../errors/errors";
+import { Op } from "sequelize";
 
 const RegistrationRequest = ModelFactory.getByName(modelName);
 
@@ -30,3 +31,16 @@ export const updateRegistrationRequestStatus = async (conversationId, status) =>
     return await RegistrationRequest.update({ status }, options)
   });
 };
+
+export const registrationRequestExistsWithMessageId = async messageId => {
+  const foundRecord = await RegistrationRequest.findOne({
+        where: {
+            messageId: {
+                [Op.eq]: messageId
+            }
+        }
+    }).then(registrationRequest => registrationRequest)
+      .catch(error => logError(error));
+
+    return foundRecord !== null;
+}

@@ -46,6 +46,7 @@ describe('Database connection test', () => {
   it('should be able to handle sending out 100 fragments at once', async () => {
     // given
     const NHS_NUMBER = 9693796047;
+    const MESSAGE_ID = uuid().toUpperCase();
     const CONVERSATION_ID = uuid().toUpperCase();
     const ODS_CODE = 'B85002';
     const SINGLE_FRAGMENT = readFile(
@@ -65,7 +66,7 @@ describe('Database connection test', () => {
     });
 
     // create the registration request record first so that CONVERSATION_ID is a valid foreign key
-    await createRegistrationRequest(CONVERSATION_ID, NHS_NUMBER, ODS_CODE);
+    await createRegistrationRequest(CONVERSATION_ID, NHS_NUMBER, MESSAGE_ID, ODS_CODE);
 
     // when
     getAllFragmentsWithMessageIdsFromRepo.mockReturnValue(Promise.resolve(FRAGMENTS_WITH_MESSAGE_IDS));
