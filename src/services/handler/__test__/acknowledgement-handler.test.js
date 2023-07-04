@@ -66,7 +66,7 @@ describe('acknowledgement-handler.test.js', () => {
 
         // then
         expect(logInfo).toHaveBeenCalledTimes(1);
-        expect(logInfo).toHaveBeenCalledWith(`Negative acknowledgement received - detail: ${acknowledgementMessage.acknowledgementDetail}.`);
+        expect(logInfo).toHaveBeenCalledWith(`Negative acknowledgement received - detail: ${acknowledgementMessage.acknowledgementDetail} for Conversation ID ${CONVERSATION_ID}, and NHS number ${NHS_NUMBER}.`);
     });
 
     it('should handle a negative acknowledgement with typecode AE successfully', async () => {
@@ -88,7 +88,7 @@ describe('acknowledgement-handler.test.js', () => {
 
         // then
         expect(logInfo).toHaveBeenCalledTimes(1);
-        expect(logInfo).toHaveBeenCalledWith(`Negative acknowledgement received - detail: ${acknowledgementMessage.acknowledgementDetail}.`);
+        expect(logInfo).toHaveBeenCalledWith(`Negative acknowledgement received - detail: ${acknowledgementMessage.acknowledgementDetail} for Conversation ID ${CONVERSATION_ID}, and NHS number ${NHS_NUMBER}.`);
     });
 
     it('should handle an unknown acknowledgement typecode successfully', async () => {
@@ -152,7 +152,8 @@ describe('acknowledgement-handler.test.js', () => {
         await acknowledgementMessageHandler(acknowledgementMessage);
 
         // then
-        expect(logInfo).toBeCalledTimes(1);
-        expect(logInfo).toBeCalledWith('Negative integration acknowledgement received.');
+        expect(logInfo).toBeCalledTimes(2);
+        expect(logInfo).toBeCalledWith(`Negative integration acknowledgement received for Conversation ID ${CONVERSATION_ID}, and NHS number ${NHS_NUMBER}.`);
+        expect(logInfo).toBeCalledWith(`Sending delete request to ehr out repository for Conversation ID ${CONVERSATION_ID}, and NHS number ${NHS_NUMBER}.`)
     });
 });

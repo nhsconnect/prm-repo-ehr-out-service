@@ -1,10 +1,10 @@
-import { parseConversationId } from "../parser/parsing-utilities";
-import { logError, logInfo } from "../../middleware/logging";
-import { setCurrentSpanAttributes } from "../../config/tracing";
-import { ACKNOWLEDGEMENT_TYPES } from "../../constants/acknowledgement-types";
 import { parseAcknowledgementMessage } from "../parser/acknowledgement-parser";
+import { ACKNOWLEDGEMENT_TYPES } from "../../constants/acknowledgement-types";
 import { createAcknowledgement } from "../database/create-acknowledgement";
 import { sendDeleteRequestToEhrRepo } from "../ehr-repo/delete-ehr";
+import { parseConversationId } from "../parser/parsing-utilities";
+import { setCurrentSpanAttributes } from "../../config/tracing";
+import { logError, logInfo } from "../../middleware/logging";
 import {
   getNhsNumberByConversationId,
   registrationRequestExistsWithMessageId
@@ -22,11 +22,13 @@ export const acknowledgementMessageHandler = async message => {
   await createAcknowledgement(parsedAcknowledgementFields);
 
   if (ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(acknowledgementTypeCode)) {
-    if (isIntegrationAcknowledgement) await handlePositiveIntegrationAcknowledgement(nhsNumber, conversationId);
-    else handlePositiveAcknowledgement();
+    isIntegrationAcknowledgement === true ?
+        await handlePositiveIntegrationAcknowledgement(nhsNumber, conversationId)
+        : handlePositiveAcknowledgement(nhsNumber, conversationId);
   } else if (ACKNOWLEDGEMENT_TYPES.NEGATIVE.includes(acknowledgementTypeCode)) {
-    if (isIntegrationAcknowledgement) handleNegativeIntegrationAcknowledgement();
-    else handleNegativeAcknowledgement(acknowledgementDetail);
+    isIntegrationAcknowledgement === true ?
+        await handleNegativeIntegrationAcknowledgement(nhsNumber, conversationId)
+        : handleNegativeAcknowledgement(acknowledgementDetail, nhsNumber, conversationId);
   } else {
     logError(`Acknowledgement type ${acknowledgementTypeCode} is unknown.`);
   }
@@ -35,19 +37,28 @@ export const acknowledgementMessageHandler = async message => {
 const handlePositiveIntegrationAcknowledgement = async (nhsNumber, conversationId) => {
   const usefulDetails = `for Conversation ID ${conversationId}, and NHS number ${nhsNumber}.`;
   logInfo(`Positive integration acknowledgement received ${usefulDetails}`);
-  logInfo(`Sending delete request to ehr out repository ${usefulDetails}`);
 
-  await sendDeleteRequestToEhrRepo(nhsNumber, conversationId);
+  await deleteEhrFromRepo(nhsNumber, conversationId);
 };
 
-const handleNegativeIntegrationAcknowledgement = () => {
-  logInfo(`Negative integration acknowledgement received.`);
+const handleNegativeIntegrationAcknowledgement = async (nhsNumber, conversationId) => {
+  const usefulDetails = `for Conversation ID ${conversationId}, and NHS number ${nhsNumber}.`;
+  logInfo(`Negative integration acknowledgement received ${usefulDetails}`);
+
+  await deleteEhrFromRepo(nhsNumber, conversationId);
 };
 
-const handlePositiveAcknowledgement = () => {
+const handlePositiveAcknowledgement = (nhsNumber, conversationId) => {
+  const usefulDetails = `for Conversation ID ${conversationId}, and NHS number ${nhsNumber}.`;
   logInfo(`Positive acknowledgement received.`);
 };
 
-const handleNegativeAcknowledgement = (acknowledgementDetail) => {
-  logInfo(`Negative acknowledgement received - detail: ${acknowledgementDetail}.`);
+const handleNegativeAcknowledgement = (acknowledgementDetail, nhsNumber, conversationId) => {
+  const usefulDetails = `for Conversation ID ${conversationId}, and NHS number ${nhsNumber}.`;
+  logInfo(`Negative acknowledgement received - detail: ${acknowledgementDetail} ${usefulDetails}`);
 };
+
+const deleteEhrFromRepo = async (nhsNumber, conversationId) => {
+  logInfo(`Sending delete request to ehr out repository for Conversation ID ${conversationId}, and NHS number ${nhsNumber}.`);
+  await sendDeleteRequestToEhrRepo(nhsNumber, conversationId);
+}
