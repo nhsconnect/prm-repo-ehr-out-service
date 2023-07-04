@@ -49,7 +49,7 @@ describe('Registration request repository', () => {
     );
 
     // then
-    expect(registrationRequest).toBe(null);
+    expect(registrationRequest).toBeNull();
   });
 
   it('should change registration request status to invalid_ods_code', async () => {
@@ -113,7 +113,6 @@ describe('Registration request repository', () => {
       const foundRecord = await registrationRequestExistsWithMessageId(messageId);
 
       // then
-      expect(foundRecord).not.toBeNull();
       expect(foundRecord).toEqual(true);
     });
 
@@ -125,7 +124,6 @@ describe('Registration request repository', () => {
       const foundRecord = await registrationRequestExistsWithMessageId(nonExistentMessageId);
 
       // then
-      expect(foundRecord).not.toBeNull();
       expect(foundRecord).toEqual(false);
     });
   });
