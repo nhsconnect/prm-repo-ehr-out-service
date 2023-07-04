@@ -50,7 +50,7 @@ const handleNegativeIntegrationAcknowledgement = async (nhsNumber, conversationI
 
 const handlePositiveAcknowledgement = (nhsNumber, conversationId) => {
   const usefulDetails = `for Conversation ID ${conversationId}, and NHS number ${nhsNumber}.`;
-  logInfo(`Positive acknowledgement received.`);
+  logInfo(`Positive acknowledgement received ${usefulDetails}`);
 };
 
 const handleNegativeAcknowledgement = (acknowledgementDetail, nhsNumber, conversationId) => {

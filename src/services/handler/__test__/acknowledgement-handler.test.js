@@ -23,7 +23,6 @@ describe('acknowledgement-handler.test.js', () => {
     const CONVERSATION_ID = '63C1E862-8891-43E0-A53D-95EB5FCE1F08';
     const MESSAGE_REF = '9BD81F1F-DD62-470A-AAB8-B500FDA7A9EC';
     const NHS_NUMBER = 1245748541;
-    const POSITIVE_LOG_MESSAGE = 'Positive acknowledgement received.';
     // =================== END ===================
 
     it('should handle a positive acknowledgement with typecode AA successfully', async () => {
@@ -44,7 +43,7 @@ describe('acknowledgement-handler.test.js', () => {
 
         // then
         expect(logInfo).toHaveBeenCalledTimes(1);
-        expect(logInfo).toHaveBeenCalledWith(POSITIVE_LOG_MESSAGE);
+        expect(logInfo).toHaveBeenCalledWith(`Positive acknowledgement received for Conversation ID ${CONVERSATION_ID}, and NHS number ${NHS_NUMBER}.`);
     });
 
     it('should handle a negative acknowledgement with typecode AR successfully', async () => {
