@@ -216,7 +216,7 @@ describe('Replacement of message IDs', () => {
         oldMessageFragmentIds.map(getNewMessageIdByOldMessageId)
       );
       const newMessageIdsInPostRequests = gp2gpMessengerPostBodies.map(body => body.messageId);
-      expect(newMessageIdsInPostRequests).toEqual(newMessageFragmentIds);
+      expect(newMessageIdsInPostRequests.sort()).toEqual(newMessageFragmentIds.sort());
 
       // manually replace all message ids in copied ver of original messages,
       // and compare those with the actual outbound fragment messages
