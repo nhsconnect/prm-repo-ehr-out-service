@@ -239,7 +239,7 @@ describe('Replacement of message IDs', () => {
         .map(replaceAllMessageIds)
         .map(str => JSON.parse(str));
 
-      expect(outboundFragmentMessages.sort()).toEqual(expectedOutboundFragmentMessages.sort());
+      expect(outboundFragmentMessages).toEqual(expectedOutboundFragmentMessages);
     });
   });
 });
