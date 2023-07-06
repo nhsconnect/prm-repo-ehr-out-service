@@ -18,7 +18,7 @@ describe('createFragmentsRequest', () => {
     await MessageFragment.sync({ force: true });
 
     // create a parent record of RegistrationRequest
-    await createRegistrationRequest(conversationId, "1234567890", messageId, "fake-ods-code");
+    await createRegistrationRequest(conversationId, messageId, "1234567890", "fake-ods-code");
   })
   
   afterAll(async () => {

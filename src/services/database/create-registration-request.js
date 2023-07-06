@@ -5,7 +5,7 @@ import ModelFactory from '../../models';
 
 const RegistrationRequest = ModelFactory.getByName(modelName);
 
-export const createRegistrationRequest = (conversationId, nhsNumber, messageId, odsCode) =>
+export const createRegistrationRequest = (conversationId, messageId, nhsNumber, odsCode) =>
   runWithinTransaction(transaction =>
     RegistrationRequest.create(
       {

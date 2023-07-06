@@ -25,8 +25,8 @@ describe('Database connection test', () => {
   // =================== END ===================
 
   beforeAll(async () => {
-    await RegistrationRequest.truncate();
     await MessageFragment.truncate();
+    await RegistrationRequest.truncate();
     await MessageFragment.sync({ force: true });
 
     // change logger level to 'warn' to avoid flooding the log while sending out 100 fragments
@@ -37,8 +37,8 @@ describe('Database connection test', () => {
   afterAll(async () => {
     logger.level = originalLoggerLevel;
 
-    await RegistrationRequest.sequelize.sync({ force: true });
     await MessageFragment.sequelize.sync({ force: true });
+    await RegistrationRequest.sequelize.sync({ force: true });
     ModelFactory.sequelize.close();
 
   });
@@ -66,7 +66,7 @@ describe('Database connection test', () => {
     });
 
     // create the registration request record first so that CONVERSATION_ID is a valid foreign key
-    await createRegistrationRequest(CONVERSATION_ID, NHS_NUMBER, MESSAGE_ID, ODS_CODE);
+    await createRegistrationRequest(CONVERSATION_ID, MESSAGE_ID, NHS_NUMBER, ODS_CODE);
 
     // when
     getAllFragmentsWithMessageIdsFromRepo.mockReturnValue(Promise.resolve(FRAGMENTS_WITH_MESSAGE_IDS));

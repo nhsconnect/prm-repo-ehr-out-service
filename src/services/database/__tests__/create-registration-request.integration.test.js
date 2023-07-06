@@ -24,7 +24,7 @@ describe('createRegistrationRequest', () => {
 
   it('should create registration request with correct values', async () => {
     const conversationId = '9ca400c5-4ba3-4cfa-9ae5-96887e4d81d2';
-    await createRegistrationRequest(conversationId, nhsNumber, messageId, odsCode);
+    await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
     const registrationRequest = await runWithinTransaction(transaction =>
       RegistrationRequest.findOne({
         where: {
@@ -42,7 +42,7 @@ describe('createRegistrationRequest', () => {
 
   it('should log event if data persisted correctly', async () => {
     const conversationId = '36e9c17f-943c-4efc-9afd-a6f8d58bc884';
-    await createRegistrationRequest(conversationId, nhsNumber, messageId, odsCode);
+    await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
 
     expect(logInfo).toHaveBeenCalled();
     expect(logInfo).toHaveBeenCalledWith('Registration request has been stored');
@@ -51,7 +51,7 @@ describe('createRegistrationRequest', () => {
   it('should log errors when nhs number is invalid', async () => {
     const conversationId = '8fa34b56-7c52-461b-9d52-682bd2eb9c9a';
     try {
-      await createRegistrationRequest(conversationId, '123', messageId, odsCode);
+      await createRegistrationRequest(conversationId, messageId, '123', odsCode);
     } catch (err) {
       expect(logError).toHaveBeenCalled();
       expect(logError).toHaveBeenCalledWith(err);
@@ -61,7 +61,7 @@ describe('createRegistrationRequest', () => {
 
   it('should log errors when conversationId is invalid', async () => {
     try {
-      await createRegistrationRequest('invalid-conversation-id', nhsNumber, messageId, odsCode);
+      await createRegistrationRequest('invalid-conversation-id', messageId, nhsNumber, odsCode);
     } catch (err) {
       expect(logError).toHaveBeenCalledTimes(1);
       expect(logError).toHaveBeenCalledWith(err);
