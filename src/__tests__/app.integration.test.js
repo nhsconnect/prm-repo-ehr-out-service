@@ -100,6 +100,8 @@ describe('GET /registration-requests/:conversationId', () => {
   });
 
   it('should return registration request info', async () => {
+    const messageId = v4();
+
     const retrievalResponse = {
       data: {
         type: 'registration-requests',
@@ -115,6 +117,7 @@ describe('GET /registration-requests/:conversationId', () => {
     const RegistrationRequest = ModelFactory.getByName(modelName);
     await RegistrationRequest.create({
       conversationId,
+      messageId,
       nhsNumber,
       status,
       odsCode
