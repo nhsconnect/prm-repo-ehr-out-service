@@ -29,7 +29,7 @@ describe('Registration request repository', () => {
     const status = Status.REGISTRATION_REQUEST_RECEIVED;
 
     // when
-    await createRegistrationRequest(conversationId, nhsNumber, messageId, odsCode);
+    await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
     const registrationRequest = await getRegistrationRequestStatusByConversationId(conversationId);
 
     // then
@@ -61,7 +61,7 @@ describe('Registration request repository', () => {
     const odsCode = 'B1234';
 
     // when
-    await createRegistrationRequest(conversationId, nhsNumber, messageId, odsCode);
+    await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
     await updateRegistrationRequestStatus(conversationId, status);
 
     const registrationRequest = await RegistrationRequest.findByPk(conversationId);
@@ -80,7 +80,7 @@ describe('Registration request repository', () => {
       const status = Status.REGISTRATION_REQUEST_RECEIVED
 
       // when
-      await createRegistrationRequest(conversationId, nhsNumber, messageId, odsCode);
+      await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
       const returnedNhsNumber = await getNhsNumberByConversationId(conversationId);
 
       // then
@@ -108,7 +108,7 @@ describe('Registration request repository', () => {
       const status = Status.REGISTRATION_REQUEST_RECEIVED
 
       // when
-      await createRegistrationRequest(conversationId, nhsNumber, messageId, odsCode);
+      await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
 
       const foundRecord = await registrationRequestExistsWithMessageId(messageId);
 

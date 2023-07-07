@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { readFileSync } from 'fs';
 import expect from "expect";
 import nock from 'nock';
+import { sortBy } from 'lodash';
 
 describe('Replacement of message IDs', () => {
   // ============ COMMON PROPERTIES ============
@@ -44,17 +45,15 @@ describe('Replacement of message IDs', () => {
 
   // ================= SETUP AND TEARDOWN =================
   beforeAll(async () => {
-    logger.add(transportSpy);
-
     process.env.GP2GP_MESSENGER_SERVICE_URL = gp2gpUrl;
     process.env.GP2GP_MESSENGER_AUTHORIZATION_KEYS = gp2gpAuth;
     process.env.EHR_REPO_SERVICE_URL = ehrRepoUrl;
     process.env.EHR_REPO_AUTHORIZATION_KEYS = ehrRepoAuth;
 
-    // clear all records in database before test start
-    await RegistrationRequest.destroy({ where: {}, force: true });
-    await MessageFragment.destroy({ where: {}, force: true });
-    await MessageIdReplacement.destroy({ where: {}, force: true });
+    await MessageIdReplacement.truncate();
+    await MessageFragment.truncate();
+    await RegistrationRequest.truncate();
+    await ModelFactory.sequelize.sync({force: true})
   });
 
   afterAll(async () => {
@@ -107,13 +106,13 @@ describe('Replacement of message IDs', () => {
         .reply(204);
 
       // when
-      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
+      await transferOutEhrCore({ conversationId, nhsNumber, messageId: oldMessageId, odsCode, ehrRequestId });
 
       // then
       expect(ehrRepoScope.isDone()).toBe(true);
       expect(gp2gpMessengerGetODSScope.isDone()).toBe(true);
       expect(s3Scope.isDone()).toBe(true);
-      // expect(gp2gpMessengerSendCoreScope.isDone()).toBe(true);
+      expect(gp2gpMessengerSendCoreScope.isDone()).toBe(true);
 
       expect(gp2gpMessengerPostBody).toEqual({
         conversationId: conversationId,
@@ -218,7 +217,7 @@ describe('Replacement of message IDs', () => {
         oldMessageFragmentIds.map(getNewMessageIdByOldMessageId)
       );
       const newMessageIdsInPostRequests = gp2gpMessengerPostBodies.map(body => body.messageId);
-      expect(newMessageIdsInPostRequests).toEqual(newMessageFragmentIds);
+      expect(newMessageIdsInPostRequests.sort()).toEqual(newMessageFragmentIds.sort());
 
       // manually replace all message ids in copied ver of original messages,
       // and compare those with the actual outbound fragment messages
@@ -241,7 +240,18 @@ describe('Replacement of message IDs', () => {
         .map(replaceAllMessageIds)
         .map(str => JSON.parse(str));
 
-      expect(outboundFragmentMessages).toEqual(expectedOutboundFragmentMessages);
+      const messageIdRegex = /<eb:MessageId>([A-F0-9\-]+)<\/eb:MessageId>/;
+      const getMessageId = message => {
+        const match = message.ebXML.match(messageIdRegex)
+        if (!match) {
+          throw new Error('Failed to extract messageId from message')
+        }
+        return match[1];
+      }
+      const outboundFragmentMessagesSorted = sortBy(outboundFragmentMessages, getMessageId);
+      const expectedOutboundFragmentMessagesSorted = sortBy(expectedOutboundFragmentMessages, getMessageId)
+
+      expect(outboundFragmentMessagesSorted).toEqual(expectedOutboundFragmentMessagesSorted);
     });
   });
 });
