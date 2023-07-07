@@ -10,10 +10,6 @@ const model = dataType => {
       primaryKey: true,
       defaultValue: dataType.UUIDV4
     },
-    messageId: {
-      field: 'message_id',
-      type: dataType.UUID,
-    },
     nhsNumber: {
       field: 'nhs_number',
       type: dataType.CHAR(10),
