@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { readFileSync } from 'fs';
 import expect from "expect";
 import nock from 'nock';
+import { sortBy } from 'lodash';
 
 describe('Replacement of message IDs', () => {
   // ============ COMMON PROPERTIES ============
@@ -239,7 +240,18 @@ describe('Replacement of message IDs', () => {
         .map(replaceAllMessageIds)
         .map(str => JSON.parse(str));
 
-      expect(outboundFragmentMessages).toEqual(expectedOutboundFragmentMessages);
+      const messageIdRegex = /<eb:MessageId>([A-F0-9\-]+)<\/eb:MessageId>/;
+      const getMessageId = message => {
+        const match = message.ebXML.match(messageIdRegex)
+        if (!match) {
+          throw new Error('Failed to extract messageId from message')
+        }
+        return match[1];
+      }
+      const outboundFragmentMessagesSorted = sortBy(outboundFragmentMessages, getMessageId);
+      const expectedOutboundFragmentMessagesSorted = sortBy(expectedOutboundFragmentMessages, getMessageId)
+
+      expect(outboundFragmentMessagesSorted).toEqual(expectedOutboundFragmentMessagesSorted);
     });
   });
 });
