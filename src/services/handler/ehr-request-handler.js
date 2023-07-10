@@ -1,7 +1,7 @@
-import { logError, logInfo, logWarning } from '../../middleware/logging';
-import { transferOutEhrCore } from "../transfer/transfer-out-ehr-core";
-import { parseEhrRequestMessage } from "../parser/ehr-request-parser";
-import {parseConversationId, parseMessageId} from "../parser/parsing-utilities";
+import { logError, logInfo } from '../../middleware/logging';
+import { transferOutEhrCore } from '../transfer/transfer-out-ehr-core';
+import { parseEhrRequestMessage } from '../parser/ehr-request-parser';
+import { parseConversationId, parseMessageId } from '../parser/parsing-utilities';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 
 export default async function ehrRequestHandler(message) {
@@ -12,19 +12,15 @@ export default async function ehrRequestHandler(message) {
 
   logInfo('Trying to handle EHR request');
 
-  const result = await transferOutEhrCore({
-    conversationId,
-    nhsNumber: ehrRequest.nhsNumber,
-    messageId,
-    odsCode: ehrRequest.odsCode,
-    ehrRequestId: ehrRequest.ehrRequestId
-  });
-
-  if (result.inProgress) {
-    logWarning('EHR out transfer with this conversation ID is already in progress');
-  } else if (result.hasFailed) {
-    logError('EHR out transfer failed due to error: ' + result.error);
-  } else {
-    logInfo('EHR transfer out started');
+  try {
+    await transferOutEhrCore({
+      conversationId,
+      nhsNumber: ehrRequest.nhsNumber,
+      messageId,
+      odsCode: ehrRequest.odsCode,
+      ehrRequestId: ehrRequest.ehrRequestId
+    });
+  } catch (error) {
+    logError('EHR out transfer failed due to unexpected error', error);
   }
 }
