@@ -14,13 +14,7 @@ import {
   updateReferencedFragmentIds
 } from './transfer-out-util';
 
-export async function transferOutEhrCore({
-  conversationId,
-  nhsNumber,
-  messageId,
-  odsCode,
-  ehrRequestId
-}) {
+export async function transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId }) {
   setCurrentSpanAttributes({ conversationId: conversationId });
   logInfo('EHR transfer out request received');
 
