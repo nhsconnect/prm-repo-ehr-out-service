@@ -45,14 +45,10 @@ export async function transferOutEhrCore({
     await updateConversationStatus(conversationId, Status.ODS_VALIDATION_CHECKS_PASSED);
 
     logInfo('Getting patient health record from EHR repo');
-    const { ehrCore, fragmentMessageIds } = await getEhrCoreAndFragmentIdsFromRepo(
+
+    const { ehrCoreWithUpdatedMessageId, newMessageId } = await getEhrCoreAndUpdateMessageIds(
       nhsNumber,
       conversationId
-    );
-
-    const { ehrCoreWithUpdatedMessageId, newMessageId } = await updateAllMessageIdsInOutboundEHR(
-      ehrCore,
-      fragmentMessageIds
     );
     // TODO: Here we should update the message id of this Registration Request in database to newMessageId.
     // To be addressed in another ticket
@@ -84,7 +80,12 @@ export async function transferOutEhrCore({
   }
 }
 
-async function updateAllMessageIdsInOutboundEHR(ehrCore, fragmentMessageIds) {
+const getEhrCoreAndUpdateMessageIds = async (nhsNumber, conversationId) => {
+  const { ehrCore, fragmentMessageIds } = await getEhrCoreAndFragmentIdsFromRepo(
+    nhsNumber,
+    conversationId
+  );
+
   let { ehrCoreWithUpdatedMessageId, newMessageId } = await updateMessageIdForEhrCore(ehrCore);
   logInfo(`Replaced message id for ehrCore`);
 
@@ -97,7 +98,7 @@ async function updateAllMessageIdsInOutboundEHR(ehrCore, fragmentMessageIds) {
   return { ehrCoreWithUpdatedMessageId, newMessageId };
 }
 
-async function isEhrRequestDuplicate(conversationId) {
+const isEhrRequestDuplicate = async (conversationId) => {
   const previousTransferOut  = await getRegistrationRequestStatusByConversationId(conversationId);
   if (previousTransferOut !== null) {
     logInfo('Duplicate transfer out request');
