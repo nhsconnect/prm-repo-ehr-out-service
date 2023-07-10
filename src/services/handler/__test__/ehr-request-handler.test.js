@@ -33,7 +33,7 @@ describe('ehrRequestHandler', () => {
       hasFailed: false
     }));
 
-    await ehrRequestHandler(EHR_REQUEST, { transferOutEhrCore });
+    await ehrRequestHandler(EHR_REQUEST);
 
     // then
     await expect(transferOutEhrCore).toHaveBeenCalledWith({
@@ -53,7 +53,7 @@ describe('ehrRequestHandler', () => {
       hasFailed: false
     }));
 
-    await ehrRequestHandler(EHR_REQUEST, { transferOutEhrCore });
+    await ehrRequestHandler(EHR_REQUEST);
 
     // then
     await expect(transferOutEhrCore).toHaveBeenCalledWith({
@@ -74,7 +74,7 @@ describe('ehrRequestHandler', () => {
       hasFailed: false
     }));
 
-    await ehrRequestHandler(EHR_REQUEST, { transferOutEhrCore });
+    await ehrRequestHandler(EHR_REQUEST);
 
     // then
     await expect(transferOutEhrCore).toHaveBeenCalledWith({
@@ -98,7 +98,7 @@ describe('ehrRequestHandler', () => {
       error: 'some error'
     }));
 
-    await ehrRequestHandler(EHR_REQUEST, { transferOutEhrCore });
+    await ehrRequestHandler(EHR_REQUEST);
 
     // then
     await expect(transferOutEhrCore).toHaveBeenCalledWith({

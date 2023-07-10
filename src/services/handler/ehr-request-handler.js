@@ -4,18 +4,15 @@ import { parseEhrRequestMessage } from "../parser/ehr-request-parser";
 import {parseConversationId, parseMessageId} from "../parser/parsing-utilities";
 import { setCurrentSpanAttributes } from '../../config/tracing';
 
-export default async function ehrRequestHandler(message, overrides) {
+export default async function ehrRequestHandler(message) {
   const ehrRequest = await parseEhrRequestMessage(message);
   const conversationId = await parseConversationId(message);
   const messageId = await parseMessageId(message);
   setCurrentSpanAttributes({ conversationId });
 
-  const options = Object.assign({ transferOutEhrCore }, overrides);
-  const doTransfer = options.transferOutEhrCore;
-
   logInfo('Trying to handle EHR request');
 
-  let result = await doTransfer({
+  const result = await transferOutEhrCore({
     conversationId,
     nhsNumber: ehrRequest.nhsNumber,
     messageId,
