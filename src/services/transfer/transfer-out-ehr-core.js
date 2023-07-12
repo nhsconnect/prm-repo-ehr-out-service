@@ -44,8 +44,6 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, messageId,
       nhsNumber,
       conversationId
     );
-    // TODO: Here we should update the message id of this Registration Request in database to newMessageId.
-    // To be addressed in another ticket
 
     logInfo('EHR transfer out started');
     logInfo('Sending EHR core');
@@ -90,14 +88,13 @@ const getEhrCoreAndUpdateMessageIds = async (nhsNumber, conversationId) => {
     logInfo(`Replaced fragment id references in ehrCore`);
   }
   return { ehrCoreWithUpdatedMessageId, newMessageId };
-}
+};
 
-const isEhrRequestDuplicate = async (conversationId) => {
-  const previousTransferOut  = await getRegistrationRequestStatusByConversationId(conversationId);
+const isEhrRequestDuplicate = async conversationId => {
+  const previousTransferOut = await getRegistrationRequestStatusByConversationId(conversationId);
   if (previousTransferOut !== null) {
-    logInfo('Duplicate transfer out request');
-    logInfo('EHR out transfer with this conversation ID is already in progress');
+    logInfo(`EHR out transfer with conversation ID ${conversationId} is already in progress`);
     return true;
   }
   return false;
-}
+};
