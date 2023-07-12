@@ -59,13 +59,16 @@ describe('transferOutEhrCore', () => {
 
   describe('transfer request validation checks', () => {
     it('should stop EHR transfer if the received EHR request is a duplicated one', async () => {
+      // given
       getRegistrationRequestStatusByConversationId.mockResolvedValueOnce({
         conversationId,
         status: Status.REGISTRATION_REQUEST_RECEIVED
       });
 
+      // when
       await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
+      // then
       expect(logInfo).toHaveBeenCalledWith('Duplicate transfer out request');
       expect(logInfo).toHaveBeenCalledWith(
         'EHR out transfer with this conversation ID is already in progress'
@@ -75,11 +78,12 @@ describe('transferOutEhrCore', () => {
     });
 
     it('should stop EHR transfer if the requested EHR record does not exist in EHR repo', async () => {
-      // when
+      // given
       getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
       getEhrCoreAndFragmentIdsFromRepo.mockRejectedValueOnce(new EhrUrlNotFoundError());
       patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
 
+      // when
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
       // then
@@ -92,12 +96,15 @@ describe('transferOutEhrCore', () => {
     });
 
     it('should stop EHR transfer if failed to download the EHR from S3 presigned URL', async () => {
+      // given
       getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
       getEhrCoreAndFragmentIdsFromRepo.mockRejectedValueOnce(new DownloadError());
       patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
 
+      // when
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
+      // then
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, messageId, nhsNumber, odsCode);
       expect(getEhrCoreAndFragmentIdsFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
       expect(updateConversationStatus).toHaveBeenCalledWith(conversationId, Status.EHR_DOWNLOAD_FAILED);
@@ -107,12 +114,15 @@ describe('transferOutEhrCore', () => {
     });
 
     it('should validate ODS code in PDS', async () => {
+      // given
       getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
       getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({});
       patientAndPracticeOdsCodesMatch.mockResolvedValueOnce(false);
 
+      // when
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
+      // then
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, messageId, nhsNumber, odsCode);
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
@@ -160,13 +170,16 @@ describe('transferOutEhrCore', () => {
   });
 
   it('should send EHR core on success', async () => {
+    // given
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
     getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore });
     updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
 
+    // when
     await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
+    // then
     expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, messageId, nhsNumber, odsCode);
     expect(getEhrCoreAndFragmentIdsFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
     expect(updateConversationStatus).toHaveBeenCalledWith(
@@ -184,10 +197,14 @@ describe('transferOutEhrCore', () => {
   });
 
   it('should handle exceptions', async () => {
+    // given
     const error = new Error('test error message');
     getRegistrationRequestStatusByConversationId.mockRejectedValueOnce(error);
 
+    // when
     await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+
+    // then
     expect(logError).toHaveBeenCalledWith('EHR transfer out request failed', error);
     expect(sendCore).not.toHaveBeenCalled();
   });
