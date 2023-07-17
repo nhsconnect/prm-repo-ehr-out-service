@@ -1,0 +1,89 @@
+import { sendCore } from '../send-core';
+import { sendFragment } from '../send-fragment';
+import { logInfo } from '../../../middleware/logging';
+import { logOutboundMessage, removeBase64Payloads } from '../logging-utils';
+import {
+  createMockGP2GPScope,
+  createRandomUUID,
+  EhrMessageType,
+  isSmallerThan256KB,
+  loadTestData,
+  setupEnvVarForTest
+} from './test-utils';
+
+jest.mock('../../../config');
+jest.mock('../../../middleware/logging');
+
+describe('logOutboundMessage', () => {
+  beforeAll(() => {
+    setupEnvVarForTest();
+  });
+
+  const testCases = [EhrMessageType.core, EhrMessageType.fragment];
+
+  describe.each(testCases)('Test case for EHR %s', testCase => {
+    it('should log the outbound message with all base64 payload removed', async () => {
+      // given
+      const [conversationId, messageId, ehrRequestId] = createRandomUUID(3);
+      const inputEhrMessage = loadTestData(`TestEhr${testCase}`);
+      const odsCode = 'test-ods-code';
+
+      // when
+      const scope = createMockGP2GPScope(testCase);
+      if (testCase === EhrMessageType.core) {
+        await sendCore(conversationId, odsCode, inputEhrMessage, ehrRequestId, messageId);
+      } else {
+        await sendFragment(conversationId, odsCode, inputEhrMessage, messageId);
+      }
+
+      // then
+      expect(scope.isDone()).toBe(true);
+
+      const loggedRequestBody = logInfo.mock.calls
+        .map(args => args[0])
+        .filter(args => args.conversationId !== undefined)
+        .pop();
+
+      expect(loggedRequestBody).not.toEqual(undefined);
+      expect(isSmallerThan256KB(loggedRequestBody)).toBe(true);
+
+      // the loggedRequestBody should be same as the actual outbound request body,
+      // except that base64 content are removed
+      expect(loggedRequestBody).not.toEqual(scope.outboundRequestBody);
+      expect(loggedRequestBody).toEqual(removeBase64Payloads(scope.outboundRequestBody));
+    });
+
+    it('should keep the base64 content in the actual outbound post request unchanged', async () => {
+      // given
+      const [conversationId, messageId, ehrRequestId] = createRandomUUID(3);
+      const inputEhrMessage = loadTestData(`TestEhr${testCase}`);
+      const odsCode = 'test-ods-code';
+
+      // when
+      const scope = createMockGP2GPScope(testCase);
+      if (testCase === EhrMessageType.core) {
+        await sendCore(conversationId, odsCode, inputEhrMessage, ehrRequestId, messageId);
+      } else {
+        await sendFragment(conversationId, odsCode, inputEhrMessage, messageId);
+      }
+
+      // then
+      const actualOutboundRequestBody = scope.outboundRequestBody;
+
+      expect(actualOutboundRequestBody).toMatchObject({
+        conversationId,
+        messageId,
+        odsCode
+      });
+
+      const outboundEhrMessage =
+        testCase === EhrMessageType.core
+          ? actualOutboundRequestBody.coreEhr
+          : actualOutboundRequestBody.fragmentMessage;
+
+      // verify that the outbound ehr message is unchanged
+      expect(outboundEhrMessage).toEqual(inputEhrMessage);
+      expect(isSmallerThan256KB(outboundEhrMessage)).toBe(false);
+    });
+  });
+});
