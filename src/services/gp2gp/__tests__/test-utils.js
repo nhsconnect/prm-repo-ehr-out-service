@@ -1,9 +1,9 @@
-import { config } from '../../../config';
 import path from 'path';
 import { readFileSync } from 'fs';
-
 import nock from 'nock';
 import { v4 as uuidv4 } from 'uuid';
+
+import { config } from '../../../config';
 
 const GP2GP_MESSENGER_URL = 'http://localhost';
 const GP2GP_MESSENGER_AUTH_KEY = 'fake-keys';
@@ -22,8 +22,7 @@ export const createRandomUUID = number => {
 
 export const EhrMessageType = {
   core: 'core',
-  fragment: 'fragment',
-  coreWithLargeMedicalHistory: 'CoreWithLargeMedicalHistory'
+  fragment: 'fragment'
 };
 
 export const isSmallerThan256KB = input => {
@@ -31,22 +30,19 @@ export const isSmallerThan256KB = input => {
   return jsObjectAsString.length < 256 * 1024;
 };
 
-export const createMockGP2GPScope = (messageType, response = [200, 'OK']) => {
-  let endpoint = '/ehr-out-transfers/';
+export const createMockGP2GPScope = messageType => {
+  // helper function to create the nock scope of gp2gp messenger
+  // ehr core & ehr fragment calls to different endpoints at gp2gp, so take that as an input param
   let outboundRequestBody = {};
-
-  if (messageType === EhrMessageType.core) {
-    endpoint += 'core';
-  } else {
-    endpoint += 'fragment';
-  }
+  const endpoint =
+    messageType === EhrMessageType.core ? '/ehr-out-transfers/core' : '/ehr-out-transfers/fragment';
 
   const scope = nock(GP2GP_MESSENGER_URL)
     .post(endpoint, requestBody => {
       Object.assign(outboundRequestBody, requestBody);
       return true;
     })
-    .reply(() => response);
+    .reply(() => [200, 'OK']);
 
   scope.outboundRequestBody = outboundRequestBody;
 

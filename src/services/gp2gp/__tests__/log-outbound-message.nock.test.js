@@ -44,6 +44,7 @@ describe('logOutboundMessage', () => {
         .filter(args => args.conversationId !== undefined)
         .pop();
 
+      // verify that the log message exists and is less than 256KB in size
       expect(loggedRequestBody).not.toEqual(undefined);
       expect(isSmallerThan256KB(loggedRequestBody)).toBe(true);
 
