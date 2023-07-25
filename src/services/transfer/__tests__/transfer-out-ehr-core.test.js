@@ -7,11 +7,7 @@ import { createRegistrationRequest } from '../../database/create-registration-re
 import expect from 'expect';
 import { v4 as uuid } from 'uuid';
 import { sendCore } from '../../gp2gp/send-core';
-import {
-  EhrUrlNotFoundError,
-  DownloadError,
-  MessageIdUpdateError,
-} from '../../../errors/errors';
+import { EhrUrlNotFoundError, DownloadError, MessageIdUpdateError } from '../../../errors/errors';
 import {
   createNewMessageIdsForAllFragments,
   patientAndPracticeOdsCodesMatch,
@@ -51,11 +47,9 @@ describe('transferOutEhrCore', () => {
     payload: 'payload XML with updated referenced fragment message ids'
   };
 
-
   afterEach(() => {
     jest.resetAllMocks();
-  })
-
+  });
 
   describe('transfer request validation checks', () => {
     it('should stop EHR transfer if the received EHR request is a duplicated one', async () => {
@@ -69,9 +63,8 @@ describe('transferOutEhrCore', () => {
       await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
       // then
-      expect(logInfo).toHaveBeenCalledWith('Duplicate transfer out request');
       expect(logInfo).toHaveBeenCalledWith(
-        'EHR out transfer with this conversation ID is already in progress'
+        `EHR out transfer with conversation ID ${conversationId} is already in progress`
       );
       expect(updateConversationStatus).not.toHaveBeenCalled();
       expect(sendCore).not.toHaveBeenCalled();
@@ -87,11 +80,22 @@ describe('transferOutEhrCore', () => {
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
       // then
-      expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, messageId, nhsNumber, odsCode);
+      expect(createRegistrationRequest).toHaveBeenCalledWith(
+        conversationId,
+        messageId,
+        nhsNumber,
+        odsCode
+      );
       expect(getEhrCoreAndFragmentIdsFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
-      expect(updateConversationStatus).toHaveBeenCalledWith(conversationId, Status.MISSING_FROM_REPO);
+      expect(updateConversationStatus).toHaveBeenCalledWith(
+        conversationId,
+        Status.MISSING_FROM_REPO
+      );
       expect(logInfo).toHaveBeenCalledWith(`Getting patient health record from EHR repo`);
-      expect(logError).toHaveBeenCalledWith('EHR transfer out request failed', new EhrUrlNotFoundError());
+      expect(logError).toHaveBeenCalledWith(
+        'EHR transfer out request failed',
+        new EhrUrlNotFoundError()
+      );
       expect(sendCore).not.toHaveBeenCalled();
     });
 
@@ -105,9 +109,17 @@ describe('transferOutEhrCore', () => {
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
       // then
-      expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, messageId, nhsNumber, odsCode);
+      expect(createRegistrationRequest).toHaveBeenCalledWith(
+        conversationId,
+        messageId,
+        nhsNumber,
+        odsCode
+      );
       expect(getEhrCoreAndFragmentIdsFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
-      expect(updateConversationStatus).toHaveBeenCalledWith(conversationId, Status.EHR_DOWNLOAD_FAILED);
+      expect(updateConversationStatus).toHaveBeenCalledWith(
+        conversationId,
+        Status.EHR_DOWNLOAD_FAILED
+      );
       expect(logInfo).toHaveBeenCalledWith(`Getting patient health record from EHR repo`);
       expect(logError).toHaveBeenCalledWith('EHR transfer out request failed', new DownloadError());
       expect(sendCore).not.toHaveBeenCalled();
@@ -123,7 +135,12 @@ describe('transferOutEhrCore', () => {
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
       // then
-      expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, messageId, nhsNumber, odsCode);
+      expect(createRegistrationRequest).toHaveBeenCalledWith(
+        conversationId,
+        messageId,
+        nhsNumber,
+        odsCode
+      );
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
         Status.INCORRECT_ODS_CODE,
@@ -145,7 +162,13 @@ describe('transferOutEhrCore', () => {
 
     // then
     expect(updateMessageIdForEhrCore).toBeCalledWith(ehrCore);
-    expect(sendCore).toHaveBeenCalledWith(conversationId, odsCode, ehrCoreWithUpdatedMessageId, ehrRequestId, newMessageId);
+    expect(sendCore).toHaveBeenCalledWith(
+      conversationId,
+      odsCode,
+      ehrCoreWithUpdatedMessageId,
+      ehrRequestId,
+      newMessageId
+    );
     expect(createNewMessageIdsForAllFragments).not.toHaveBeenCalled();
     expect(updateReferencedFragmentIds).not.toHaveBeenCalled();
   });
@@ -166,7 +189,13 @@ describe('transferOutEhrCore', () => {
     // then
     expect(createNewMessageIdsForAllFragments).toBeCalledWith(fragmentMessageIds);
     expect(updateReferencedFragmentIds).toBeCalledWith(ehrCoreWithUpdatedMessageId);
-    expect(sendCore).toHaveBeenCalledWith(conversationId, odsCode, ehrCoreWithUpdatedReferencedFragmentMessageId, ehrRequestId, newMessageId);
+    expect(sendCore).toHaveBeenCalledWith(
+      conversationId,
+      odsCode,
+      ehrCoreWithUpdatedReferencedFragmentMessageId,
+      ehrRequestId,
+      newMessageId
+    );
   });
 
   it('should send EHR core on success', async () => {
@@ -180,7 +209,12 @@ describe('transferOutEhrCore', () => {
     await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
     // then
-    expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, messageId, nhsNumber, odsCode);
+    expect(createRegistrationRequest).toHaveBeenCalledWith(
+      conversationId,
+      messageId,
+      nhsNumber,
+      odsCode
+    );
     expect(getEhrCoreAndFragmentIdsFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
     expect(updateConversationStatus).toHaveBeenCalledWith(
       conversationId,
@@ -193,7 +227,13 @@ describe('transferOutEhrCore', () => {
     );
     expect(logInfo).toHaveBeenCalledWith('EHR transfer out started');
     expect(logInfo).toHaveBeenCalledWith(`Sending EHR core`);
-    expect(sendCore).toHaveBeenCalledWith(conversationId, odsCode, ehrCoreWithUpdatedMessageId, ehrRequestId, newMessageId);
+    expect(sendCore).toHaveBeenCalledWith(
+      conversationId,
+      odsCode,
+      ehrCoreWithUpdatedMessageId,
+      ehrRequestId,
+      newMessageId
+    );
   });
 
   it('should handle exceptions', async () => {
