@@ -157,11 +157,6 @@ describe('Ensure health record outbound XML is unchanged', () => {
   const RegistrationRequest = ModelFactory.getByName(registrationRequestModel);
   const MessageIdReplacement = ModelFactory.getByName(messageIdReplacementModel);
 
-  // Responses
-  const DEFAULT_RESULT = {
-    hasFailed: false,
-    inProgress: false
-  };
   // =================== END ===================
 
   beforeAll(async () => {
@@ -193,7 +188,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
     patientAndPracticeOdsCodesMatch.mockReturnValue(Promise.resolve(true));
     sendCore.mockReturnValueOnce(Promise.resolve(undefined));
 
-    const response = await transferOutEhrCore({
+    await transferOutEhrCore({
       conversationId: CONVERSATION_ID,
       nhsNumber: NHS_NUMBER,
       odsCode: ODS_CODE,
@@ -204,7 +199,6 @@ describe('Ensure health record outbound XML is unchanged', () => {
 
     // then
     expect(validateMessageEquality(ORIGINAL_EHR_CORE, MODIFIED_EHR_CORE)).toBe(true);
-    expect(response).toEqual(DEFAULT_RESULT);
   });
 
   it('should verify that a fragment with no external attachments is unchanged by xml changes', async () => {
@@ -231,10 +225,12 @@ describe('Ensure health record outbound XML is unchanged', () => {
       // add records of the old message ids to database table
       // new message ids are mostly same as the old ones, with last char replaced as '0', in order to guarantee the .sort() at expect statement give the same order.
       await createMessageIdReplacement(messageId, messageId.slice(0, 35) + '0')
-    };
+    }
 
     // when
-    getAllFragmentsWithMessageIdsFromRepo.mockReturnValueOnce(Promise.resolve(MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo));
+    getAllFragmentsWithMessageIdsFromRepo.mockReturnValueOnce(
+      Promise.resolve(MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo)
+    );
     sendFragment.mockResolvedValue(undefined);
 
     await transferOutFragments({
@@ -276,7 +272,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
       MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo[messageId] = JSON.parse(fragmentFileAsString);
 
       await createMessageIdReplacement(messageId, messageId.slice(0, 35) + '1')
-    };
+    }
 
     // when
     getAllFragmentsWithMessageIdsFromRepo.mockReturnValueOnce(Promise.resolve(MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo));
