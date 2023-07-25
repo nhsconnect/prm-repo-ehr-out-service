@@ -1,9 +1,9 @@
-import expect from "expect";
+import expect from 'expect';
 import ehrRequestHandler from '../ehr-request-handler';
-import { parseConversationId } from "../../parser/parsing-utilities";
-import { parseEhrRequestMessage } from "../../parser/ehr-request-parser";
-import { transferOutEhrCore } from "../../transfer/transfer-out-ehr-core";
-import { logError, logInfo, logWarning } from '../../../middleware/logging';
+import { parseConversationId } from '../../parser/parsing-utilities';
+import { parseEhrRequestMessage } from '../../parser/ehr-request-parser';
+import { transferOutEhrCore } from '../../transfer/transfer-out-ehr-core';
+import { logError } from '../../../middleware/logging';
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -28,12 +28,8 @@ describe('ehrRequestHandler', () => {
     // when
     parseEhrRequestMessage.mockResolvedValueOnce(Promise.resolve(EHR_REQUEST));
     parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
-    transferOutEhrCore.mockResolvedValue(Promise.resolve({
-      inProgress: false,
-      hasFailed: false
-    }));
 
-    await ehrRequestHandler(EHR_REQUEST, { transferOutEhrCore });
+    await ehrRequestHandler(EHR_REQUEST);
 
     // then
     await expect(transferOutEhrCore).toHaveBeenCalledWith({
@@ -44,16 +40,14 @@ describe('ehrRequestHandler', () => {
     });
   });
 
-  it('should log when transfer has been started', async () => {
+  it('should log error when transfer fails due to error which was not handled in transferOutEhrCore', async () => {
     // when
+    const error = new Error('some special error');
     parseEhrRequestMessage.mockResolvedValueOnce(Promise.resolve(EHR_REQUEST));
     parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
-    transferOutEhrCore.mockResolvedValue(Promise.resolve({
-      inProgress: false,
-      hasFailed: false
-    }));
+    transferOutEhrCore.mockRejectedValueOnce(error);
 
-    await ehrRequestHandler(EHR_REQUEST, { transferOutEhrCore });
+    await ehrRequestHandler(EHR_REQUEST);
 
     // then
     await expect(transferOutEhrCore).toHaveBeenCalledWith({
@@ -62,51 +56,6 @@ describe('ehrRequestHandler', () => {
       odsCode: EHR_REQUEST.odsCode,
       ehrRequestId: EHR_REQUEST.ehrRequestId
     });
-    await expect(logInfo).toHaveBeenCalledWith('EHR transfer out started');
-  });
-
-  it('should log warning when transfer is already in progress', async () => {
-    // when
-    parseEhrRequestMessage.mockResolvedValueOnce(Promise.resolve(EHR_REQUEST));
-    parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
-    transferOutEhrCore.mockResolvedValue(Promise.resolve({
-      inProgress: true,
-      hasFailed: false
-    }));
-
-    await ehrRequestHandler(EHR_REQUEST, { transferOutEhrCore });
-
-    // then
-    await expect(transferOutEhrCore).toHaveBeenCalledWith({
-      conversationId: CONVERSATION_ID,
-      nhsNumber: EHR_REQUEST.nhsNumber,
-      odsCode: EHR_REQUEST.odsCode,
-      ehrRequestId: EHR_REQUEST.ehrRequestId
-    });
-    await expect(logWarning).toHaveBeenCalledWith(
-      'EHR out transfer with this conversation ID is already in progress'
-    );
-  });
-
-  it('should log error when transfer fails due to error', async () => {
-    // when
-    parseEhrRequestMessage.mockResolvedValueOnce(Promise.resolve(EHR_REQUEST));
-    parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
-    transferOutEhrCore.mockResolvedValue(Promise.resolve({
-      inProgress: false,
-      hasFailed: true,
-      error: 'some error'
-    }));
-
-    await ehrRequestHandler(EHR_REQUEST, { transferOutEhrCore });
-
-    // then
-    await expect(transferOutEhrCore).toHaveBeenCalledWith({
-      conversationId: CONVERSATION_ID,
-      nhsNumber: EHR_REQUEST.nhsNumber,
-      odsCode: EHR_REQUEST.odsCode,
-      ehrRequestId: EHR_REQUEST.ehrRequestId
-    });
-    await expect(logError).toHaveBeenCalledWith('EHR out transfer failed due to error: some error');
+    expect(logError).toHaveBeenCalledWith('EHR out transfer failed due to unexpected error', error);
   });
 });
