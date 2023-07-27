@@ -78,7 +78,8 @@
     "clearMocks": true,
     "automock": false,
     "testPathIgnorePatterns": [
-      "src/__tests__/utilities/integration-test.utilities.js"
+      "src/__tests__/utilities/integration-test.utilities.js",
+      ".*/test-utils.js"
     ]
   }
 }

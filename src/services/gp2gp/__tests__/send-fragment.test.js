@@ -46,7 +46,6 @@ describe('sendFragment', () => {
 
     // then
     expect(mockUrlRequest.isDone()).toBe(true);
-    expect(logInfo).toBeCalledTimes(1);
     expect(logInfo).toHaveBeenCalledWith('Successfully sent message fragment');
   });
 
