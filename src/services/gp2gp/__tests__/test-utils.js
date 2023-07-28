@@ -21,8 +21,8 @@ export const createRandomUUID = number => {
 };
 
 export const EhrMessageType = {
-  core: 'core',
-  fragment: 'fragment'
+  core: 'Core',
+  fragment: 'Fragment'
 };
 
 export const isSmallerThan256KB = input => {
