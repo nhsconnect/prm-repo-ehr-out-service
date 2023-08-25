@@ -1,21 +1,69 @@
 import axios from "axios";
-import { logInfo } from "../../middleware/logging";
+import { logInfo, logWarning } from "../../middleware/logging";
 import { config } from "../../config";
-import { SendFragmentError } from "../../errors/errors";
+import { FragmentSendingError } from "../../errors/errors";
 import { logOutboundMessage } from "./logging-utils";
+import { createFragmentDbRecord } from "../database/create-fragment-db-record";
+import { updateFragmentStatus } from "../transfer/transfer-out-util";
+import { Status } from "../../models/message-fragment";
+import { getMessageFragmentRecordByMessageId } from "../database/message-fragment-repository";
+import { setCurrentSpanAttributes } from "../../config/tracing";
+
+// ORIGINAL LOGIC
+// export const sendFragment = async (conversationId, odsCode, fragmentMessage, messageId) => {
+//   const { gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl } = config();
+//   const url = `${gp2gpMessengerServiceUrl}/ehr-out-transfers/fragment`;
+//
+//   const requestBody = { conversationId, odsCode, fragmentMessage, messageId };
+//
+//   logInfo('POST request to gp2gp /ehr-out-transfers/fragment with request body as below:');
+//   logOutboundMessage(requestBody);
+//
+//   await axios.post(url, requestBody, { headers: { Authorization: gp2gpMessengerAuthKeys } })
+//     .then(() => logInfo('Successfully sent message fragment'))
+//     .catch(error => {
+//       throw new SendFragmentError(error);
+//     });
+// }
+
+
+// TODO TEST CASES
+//  - Error while sending the fragment calls updateFragmentStatus with FRAGMENT_SENDING_FAILED and throws an error
 
 export const sendFragment = async (conversationId, odsCode, fragmentMessage, messageId) => {
   const { gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl } = config();
-  const url = `${gp2gpMessengerServiceUrl}/ehr-out-transfers/fragment`;
-
+  const ENDPOINT_URL = `${gp2gpMessengerServiceUrl}/ehr-out-transfers/fragment`;
   const requestBody = { conversationId, odsCode, fragmentMessage, messageId };
 
-  logInfo('POST request to gp2gp /ehr-out-transfers/fragment with request body as below:');
+  setCurrentSpanAttributes({ conversationId, messageId });
+
+  logInfo(`Started to send fragment with Message ID: ${messageId}, outbound Conversation ID ${conversationId}.`);
+
+  if (await hasFragmentBeenSent(messageId)) return;
+
+  await createFragmentDbRecord(messageId, conversationId);
+
+  logInfo('POST request has been made to the GP2GP Messenger `/ehr-out-transfers/fragment` endpoint with request body as below:');
   logOutboundMessage(requestBody);
 
-  await axios.post(url, requestBody, { headers: { Authorization: gp2gpMessengerAuthKeys } })
-    .then(() => logInfo('Successfully sent message fragment'))
-    .catch(error => {
-      throw new SendFragmentError(error);
-    });
+  await axios.post(ENDPOINT_URL, requestBody, { headers: { Authorization: gp2gpMessengerAuthKeys } })
+      .then(() => {
+        logInfo('Successfully sent message fragment');
+      })
+      .catch(async error => {
+        await updateFragmentStatus(conversationId, messageId, Status.FRAGMENT_SENDING_FAILED);
+        throw new FragmentSendingError(error, messageId);
+      });
+
+  await updateFragmentStatus(conversationId, messageId, Status.SENT_FRAGMENT);
 }
+
+const hasFragmentBeenSent = async (messageId) => {
+  const previousTransferOut = await getMessageFragmentRecordByMessageId(messageId);
+  if (previousTransferOut?.status === Status.SENT_FRAGMENT) {
+    logWarning(`EHR message FRAGMENT with message ID ${messageId} has already been sent`);
+    return true;
+  }
+  logInfo(`Checked that fragment with message id: ${messageId} is not sent yet`);
+  return false;
+};

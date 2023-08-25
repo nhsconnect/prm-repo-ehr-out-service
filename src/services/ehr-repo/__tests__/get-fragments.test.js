@@ -2,7 +2,7 @@ import nock from 'nock';
 import { logError, logInfo } from '../../../middleware/logging';
 import { getAllFragmentsWithMessageIdsFromRepo } from "../get-fragments";
 import { downloadFromUrl } from "../../transfer/transfer-out-util";
-import { getMessageFragmentStatusByMessageId} from "../../database/message-fragment-repository";
+import { getMessageFragmentRecordByMessageId} from "../../database/message-fragment-repository";
 import { EhrUrlNotFoundError, errorMessages, PatientRecordNotFoundError } from "../../../errors/errors";
 
 jest.mock('../../../middleware/logging');
@@ -40,7 +40,7 @@ describe('getAllFragmentsFromRepo', () => {
     };
 
     it('should return the stored ehr fragments from ehr repo', async () => {
-      getMessageFragmentStatusByMessageId.mockReturnValue(null);
+      getMessageFragmentRecordByMessageId.mockReturnValue(null);
 
       const repoScopeForIds = nock(mockEhrRepoServiceUrl, headers)
         .get(`/patients/${nhsNumber}`)

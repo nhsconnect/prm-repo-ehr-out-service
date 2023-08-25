@@ -1,12 +1,12 @@
 import { Status } from '../../../models/message-fragment';
 import expect from 'expect';
 import { logError, logInfo, logWarning } from '../../../middleware/logging';
-import { getMessageFragmentStatusByMessageId } from '../../database/message-fragment-repository';
-import { createMessageFragment } from '../../database/create-message-fragment';
+import { getMessageFragmentRecordByMessageId } from '../../database/message-fragment-repository';
+import { createFragmentDbRecord } from '../../database/create-fragment-db-record';
 import { transferOutFragments } from '../transfer-out-fragments';
 import { sendFragment } from '../../gp2gp/send-fragment';
 import { updateFragmentStatus, updateAllFragmentsMessageIds } from '../transfer-out-util';
-import { getAllFragmentsWithMessageIdsFromRepo } from '../../ehr-repo/get-fragments';
+import {getAllFragmentsWithMessageIdsFromRepo, retrieveIdsFromEhrRepo} from '../../ehr-repo/get-fragments';
 
 // Mocking
 jest.mock('../transfer-out-util');
@@ -39,9 +39,10 @@ describe('transferOutFragment', () => {
 
   it('should send fragment on success', async () => {
     // when
-    getMessageFragmentStatusByMessageId.mockResolvedValue(null);
-    getAllFragmentsWithMessageIdsFromRepo.mockResolvedValueOnce(FRAGMENT_WITH_MESSAGE_ID);
-    updateAllFragmentsMessageIds.mockResolvedValue(FRAGMENT_WITH_NEW_MESSAGE_ID);
+    // [NOT IN USE] getMessageFragmentStatusByMessageId.mockResolvedValue(null);
+    // [NOT IN USE] getAllFragmentsWithMessageIdsFromRepo.mockResolvedValueOnce(FRAGMENT_WITH_MESSAGE_ID);
+    // [NOT IN USE] updateAllFragmentsMessageIds.mockResolvedValue(FRAGMENT_WITH_NEW_MESSAGE_ID);
+    retrieveIdsFromEhrRepo
     sendFragment.mockResolvedValue(undefined);
 
     const result = await transferOutFragments({
@@ -68,7 +69,7 @@ describe('transferOutFragment', () => {
   describe('transfer request validation and error checks', () => {
     it('should validate duplicate transfer out requests', async () => {
       // when
-      getMessageFragmentStatusByMessageId.mockReturnValueOnce({
+      getMessageFragmentRecordByMessageId.mockReturnValueOnce({
         messageId: MESSAGE_ID,
         status: Status.SENT_FRAGMENT
       });
@@ -91,7 +92,7 @@ describe('transferOutFragment', () => {
 
     it('should handle exceptions', async () => {
       // given
-      getMessageFragmentStatusByMessageId.mockResolvedValue(null);
+      getMessageFragmentRecordByMessageId.mockResolvedValue(null);
       getAllFragmentsWithMessageIdsFromRepo.mockResolvedValueOnce(FRAGMENT_WITH_MESSAGE_ID);
       updateAllFragmentsMessageIds.mockResolvedValue(FRAGMENT_WITH_NEW_MESSAGE_ID);
 

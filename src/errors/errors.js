@@ -4,7 +4,7 @@ export const errorMessages = {
   DOWNLOAD_ERROR: 'Cannot retrieve message from presigned URL',
   EHR_URL_NOT_FOUND_ERROR: 'The presigned URL could not be retrieved',
   SEND_CORE_ERROR: 'Failed while trying to send ehr core',
-  SEND_FRAGMENT_ERROR: 'Failed while trying to send message fragment',
+  SEND_FRAGMENT_ERROR: `Failed while trying to send message fragment with message ID: `,
   GET_PDS_CODE_ERROR: 'Unable to retrieve patient from PDS',
   PATIENT_RECORD_NOT_FOUND_ERROR: 'Cannot find the requested patient record from ehr-repo',
   NHS_NUMBER_NOT_FOUND_ERROR: 'Cannot find an NHS number related to given conversation ID',
@@ -57,10 +57,10 @@ export class SendCoreError extends Error {
   };
 }
 
-export class SendFragmentError extends Error {
-  constructor(error) {
-    super(errorMessages.SEND_FRAGMENT_ERROR);
-    logError(errorMessages.SEND_FRAGMENT_ERROR, error);
+export class FragmentSendingError extends Error {
+  constructor(error, messageId) {
+    super(errorMessages.SEND_FRAGMENT_ERROR + messageId);
+    logError(errorMessages.SEND_FRAGMENT_ERROR + messageId, error);
   };
 }
 
@@ -93,10 +93,11 @@ export class MessageIdUpdateError extends Error {
 }
 
 export class FragmentMessageRecordNotFoundError extends Error {
-  constructor(messageId) {
+  constructor(messageId, error) {
     super(errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR);
     logError(
-      `${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId: ${messageId}`
+      `${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId: ${messageId}`,
+        error
     );
   };
 }

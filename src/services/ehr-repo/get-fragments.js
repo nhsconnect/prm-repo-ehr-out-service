@@ -23,7 +23,7 @@ export const getAllFragmentsWithMessageIdsFromRepo = async (nhsNumber) => {
   return allFragmentsWithMessageIds;
 };
 
-const retrieveIdsFromEhrRepo = async (nhsNumber) => {
+export const retrieveIdsFromEhrRepo = async (nhsNumber) => {
   const { ehrRepoServiceUrl, ehrRepoAuthKeys } = config();
   const repoUrl = `${ehrRepoServiceUrl}/patients/${nhsNumber}`;
 
@@ -50,12 +50,13 @@ const handleErrorWhileRetrievingIds = error => {
   }
 };
 
-const getFragment = async (conversationIdFromEhrIn, messageId) => {
+export const getFragment = async (conversationIdFromEhrIn, messageId) => {
   const fragmentMessageUrl = await retrieveFragmentPresignedUrlFromRepo(conversationIdFromEhrIn, messageId);
-
   logInfo(`Successfully retrieved fragment presigned url with messageId: ${messageId}`);
+
   const fragment = await downloadFromUrl(fragmentMessageUrl);
   logInfo(`Successfully retrieved fragment with messageId: ${messageId}`);
+
   return fragment;
 };
 

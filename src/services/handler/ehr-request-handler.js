@@ -12,6 +12,13 @@ export default async function ehrRequestHandler(message) {
 
   logInfo('Trying to handle EHR request');
 
+  // TODO
+  // [1] CHECK IF THE REQUEST ALREADY EXISTS IN THE DATABASE
+  // [2] IF IT DOES NOT, GREAT, CONTINUE...
+  // [3] IF IT DOES, WHAT DOES THE STATUS LOOK LIKE?
+  // [4] IF THE STATUS IS TRANSFER COMPLETE, GREAT, DISREGARD.
+  // [5] ETC. ETC. ETC. IF IT'S NOT COMPLETE OR FAILED, RETRY?
+
   try {
     await transferOutEhrCore({
       conversationId,

@@ -1,13 +1,13 @@
 import { logInfo, logError } from '../../../middleware/logging';
 import ModelFactory from '../../../models';
 import { modelName, Status } from '../../../models/message-fragment';
-import { createMessageFragment } from '../create-message-fragment';
+import { createFragmentDbRecord } from '../create-fragment-db-record';
 import { createRegistrationRequest } from '../create-registration-request';
 import { runWithinTransaction } from '../helper';
 
 jest.mock('../../../middleware/logging');
 
-describe('createFragmentsRequest', () => {
+describe('createFragmentDbRecord', () => {
   const MessageFragment = ModelFactory.getByName(modelName);
   const conversationId = '40abdd36-6f86-455a-8135-4ab4c764cdd1';
   const messageId = '9b9ca459-1f52-4e77-862c-52fb897b6070';
@@ -27,12 +27,12 @@ describe('createFragmentsRequest', () => {
     await ModelFactory.sequelize.close();
   });
 
-  it('should create fragments request with correct values', async () => {
+  it('should create fragmentdbrecord with correct values', async () => {
     // Given
     const messageId = '22e30a14-213a-42f3-8cc0-64c62175da41';
 
     // When
-    await createMessageFragment(messageId, conversationId);
+    await createFragmentDbRecord(messageId, conversationId);
 
     // Then
     const messageFragment = await runWithinTransaction(transaction =>
@@ -54,7 +54,7 @@ describe('createFragmentsRequest', () => {
     const messageId = '22e30a14-213a-42f3-8cc0-64c62175da42';
 
     // When
-    await createMessageFragment(messageId, conversationId);
+    await createFragmentDbRecord(messageId, conversationId);
 
     // Then
     expect(logInfo).toHaveBeenCalled();
@@ -64,7 +64,7 @@ describe('createFragmentsRequest', () => {
   it('should log errors when messageId is invalid', async () => {
     try {
       // When
-      await createMessageFragment('invalid-message-id', conversationId);
+      await createFragmentDbRecord('invalid-message-id', conversationId);
     } catch (err) {
       // Then
       expect(logError).toHaveBeenCalledTimes(1);
@@ -79,11 +79,11 @@ describe('createFragmentsRequest', () => {
 
     try {
       // When
-      await createMessageFragment(messageId, 'invalid-conversatioan-id');
+      await createFragmentDbRecord(messageId, 'invalid-conversatioan-id');
     } catch (err) {
       // Then
       expect(logError).toHaveBeenCalledTimes(1);
-      expect(logError).toHaveBeenCalledWith(err);
+      expect(logError).toHaveBeenCalledWith(`Got error while trying to create record for messageId: ${messageId}`, err);
       expect(err.message).toContain(
         'invalid input syntax for type uuid: "invalid-conversation-id"'
       );
