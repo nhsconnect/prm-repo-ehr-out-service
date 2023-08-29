@@ -1,38 +1,38 @@
-import { logError, logInfo, logWarning } from '../../middleware/logging';
+import { getFragment, retrieveIdsFromEhrRepo } from '../ehr-repo/get-fragments';
 import { setCurrentSpanAttributes } from '../../config/tracing';
-import {getAllFragmentsWithMessageIdsFromRepo, getFragment, retrieveIdsFromEhrRepo} from '../ehr-repo/get-fragments';
+import { updateFragmentMessageId } from './transfer-out-util';
+import { logError, logInfo } from '../../middleware/logging';
 import { sendFragment } from '../gp2gp/send-fragment';
-import { Status } from '../../models/message-fragment';
-import {updateFragmentStatus, updateAllFragmentsMessageIds, updateFragmentMessageId} from './transfer-out-util';
-import { getMessageFragmentRecordByMessageId } from '../database/message-fragment-repository';
-import { createFragmentDbRecord } from '../database/create-fragment-db-record';
-
-// TEST CASES:
-//    SUCCESS:
-//        GIVEN A VALID CONVERSATION ID, NHS NUMBER AND ODS CODE
-//        WHEN TRANSFER OUT FRAGMENTS IS CALLED
-//        THEN EXPECT LOG INFO TO BE CALLED WITH `FRAGMENT TRANSFER COMPLETED`.
-//          MOCKS: retrieveIdsFromEhrRepo, getFragment, updateFragmentMessageId, sendFragment
 
 export async function transferOutFragments({ conversationId, nhsNumber, odsCode }) {
   setCurrentSpanAttributes({ conversationId });
-  logInfo('Start EHR fragment transfer');
+  let count = 0;
 
-  // const fragmentsWithMessageIds = await getAllFragmentsWithMessageIdsFromRepo(nhsNumber);
+  logInfo('Initiated EHR Fragment transfer.');
 
-  logInfo('Getting ehrIn conversation ID and message ID from EHR repo');
   const { conversationIdFromEhrIn, messageIds } = await retrieveIdsFromEhrRepo(nhsNumber);
 
-  const promises = messageIds.map(messageId => {
-    const fragment = getFragment(conversationIdFromEhrIn, messageId);
-    // convert ID to the new ID
-    const { newMessageId, message } = updateFragmentMessageId(fragment);
-    return sendFragment(conversationId, odsCode, message, newMessageId);
+  logInfo('Retrieved Inbound Conversation ID and all Message IDs for transfer.');
+
+  const transferPromises = messageIds.map(async messageId => {
+    // const fragment = await getFragment(conversationIdFromEhrIn, messageId);
+    // const { newMessageId, message } = await updateFragmentMessageId(fragment);
+    // const fragmentPromise= sendFragment(conversationId, odsCode, message, newMessageId);
+
+    const fragment = await getFragment(conversationIdFromEhrIn, messageId).then();
+    const { newMessageId, message } = await updateFragmentMessageId(fragment);
+    const fragmentPromise= sendFragment(conversationId, odsCode, message, newMessageId);
+
+    logInfo(
+      `Fragment ${++count} of ${messageIds.length} sent to the GP2GP Messenger - with old Message ID ${messageId}, and new Message ID ${newMessageId}.`
+    );
+
+    return fragmentPromise;
   });
 
-  Promise.all(promises)
-    .then(() => logInfo('Fragment transfer completed'))
-    .catch(() => logError('Failure while attempting to transfer fragments from EHR repo'));
+  await Promise.all(transferPromises)
+    .then(() => logInfo('Fragment transfer completed.'))
+    .catch(error => logError(`An error occurred while attempting to transfer the fragments from the EHR Repository - details ${error}.`));
 }
 
 // export async function transferOutFragments({ conversationId, nhsNumber, odsCode }) {

@@ -4,6 +4,7 @@ import { config } from "../../config";
 import axios from "axios";
 import { EhrUrlNotFoundError, PatientRecordNotFoundError } from "../../errors/errors";
 
+// TODO PRMT-3983 remove this logic as we now retrieve fragments one at a time
 export const getAllFragmentsWithMessageIdsFromRepo = async (nhsNumber) => {
   logInfo('Getting ehrIn conversation ID and message ID from EHR repo');
   const { conversationIdFromEhrIn, messageIds } = await retrieveIdsFromEhrRepo(nhsNumber);
