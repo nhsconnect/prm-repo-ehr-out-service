@@ -107,21 +107,6 @@ export const updateFragmentMessageId = async fragment => {
   };
 }
 
-// Map<String, String> where the key is the Fragment Message ID and the value is the message (C
-
-// export const updateAllFragmentsMessageIds = async fragments => {
-//   const fragmentsWithUpdatedMessageIds = {};
-//
-//   for (let fragment of fragments) {
-//     let { updatedFragment, newMessageId } = await updateMessageIdForFragment(fragment);
-//     updatedFragment = await updateReferencedFragmentIds(updatedFragment);
-//     fragmentsWithUpdatedMessageIds[newMessageId] = updatedFragment;
-//   }
-//   logInfo('Successfully updated the message ids in all fragments');
-//
-//   return fragmentsWithUpdatedMessageIds;
-// };
-
 export const updateMessageIdForFragment = async (fragment) => {
   const messageId  = await parseMessageId(fragment);
   const newMessageId = await getNewMessageIdByOldMessageId(messageId);

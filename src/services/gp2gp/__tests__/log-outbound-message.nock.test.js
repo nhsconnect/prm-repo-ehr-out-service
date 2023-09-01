@@ -1,22 +1,30 @@
-import { sendCore } from '../send-core';
-import { sendFragment } from '../send-fragment';
-import { logInfo } from '../../../middleware/logging';
-import { logOutboundMessage, removeBase64Payloads } from '../logging-utils';
+import {sendCore} from '../send-core';
+import {sendFragment} from '../send-fragment';
+import {logInfo} from '../../../middleware/logging';
+import {logOutboundMessage, removeBase64Payloads} from '../logging-utils';
 import {
   createMockGP2GPScope,
   createRandomUUID,
   EhrMessageType,
   isSmallerThan256KB,
   loadTestData,
-  setupEnvVarForTest
+  setupMockConfigForTest
 } from './test-utils';
+import {createFragmentDbRecord} from "../../database/create-fragment-db-record";
+import {updateFragmentStatus} from "../../transfer/transfer-out-util";
+import {getMessageFragmentRecordByMessageId} from "../../database/message-fragment-repository";
 
-jest.mock('../../../config');
+jest.mock('../../../config', () => ({
+  config: jest.fn().mockReturnValue({sequelize: {dialect: 'postgres'}})
+}));
 jest.mock('../../../middleware/logging');
+jest.mock('../../database/message-fragment-repository');
+jest.mock('../../database/create-fragment-db-record');
+jest.mock('../../transfer/transfer-out-util');
 
 describe('logOutboundMessage', () => {
   beforeAll(() => {
-    setupEnvVarForTest();
+    setupMockConfigForTest();
   });
 
   const testCases = [EhrMessageType.core, EhrMessageType.fragment];
@@ -29,6 +37,10 @@ describe('logOutboundMessage', () => {
       const odsCode = 'test-ods-code';
 
       // when
+      getMessageFragmentRecordByMessageId.mockResolvedValueOnce(null); // no previous DB record for this fragment
+      createFragmentDbRecord.mockResolvedValueOnce(undefined); // assume database record creation works fine
+      updateFragmentStatus.mockResolvedValueOnce(undefined);
+
       const scope = createMockGP2GPScope(testCase);
       if (testCase === EhrMessageType.core) {
         await sendCore(conversationId, odsCode, inputEhrMessage, ehrRequestId, messageId);
@@ -61,6 +73,10 @@ describe('logOutboundMessage', () => {
       const odsCode = 'test-ods-code';
 
       // when
+      getMessageFragmentRecordByMessageId.mockResolvedValueOnce(null); // no previous DB record for this fragment
+      createFragmentDbRecord.mockResolvedValueOnce(undefined); // assume database record creation works fine
+      updateFragmentStatus.mockResolvedValueOnce(undefined);
+
       const scope = createMockGP2GPScope(testCase);
       if (testCase === EhrMessageType.core) {
         await sendCore(conversationId, odsCode, inputEhrMessage, ehrRequestId, messageId);

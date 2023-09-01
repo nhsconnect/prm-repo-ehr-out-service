@@ -1,47 +1,38 @@
-import { getMessageFragmentRecordByMessageId } from "../../database/message-fragment-repository";
-import { FragmentSendingError } from "../../../errors/errors";
-import { Status } from "../../../models/message-fragment";
-import { logInfo } from "../../../middleware/logging";
-import { sendFragment } from "../send-fragment";
-import { config } from "../../../config/index";
-import expect from "expect";
-import nock from "nock";
-import {createFragmentDbRecord} from "../../database/create-fragment-db-record";
-import {updateFragmentStatus} from "../../transfer/transfer-out-util";
+import { getMessageFragmentRecordByMessageId } from '../../database/message-fragment-repository';
+import { FragmentSendingError } from '../../../errors/errors';
+import { Status } from '../../../models/message-fragment';
+import { logInfo, logWarning } from '../../../middleware/logging';
+import { sendFragment } from '../send-fragment';
+import expect from 'expect';
+import nock from 'nock';
+import { createFragmentDbRecord } from '../../database/create-fragment-db-record';
+import { updateFragmentStatus } from '../../transfer/transfer-out-util';
+import {setupMockConfigForTest} from "./test-utils";
 
 // Mocking
-// jest.mock('../../../config');
+jest.mock('../../../config', () => ({
+  config: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
+}));
 jest.mock('../../../middleware/logging');
 jest.mock('../../database/message-fragment-repository');
 jest.mock('../../database/create-fragment-db-record');
-jest.mock("../../transfer/transfer-out-util");
-
-// Set Up
-// beforeEach(() => {
-//   config.mockReturnValue({
-//     gp2gpMessengerAuthKeys: 'fake-keys',
-//     gp2gpMessengerServiceUrl: 'http://localhost'
-//   });
-// });
+jest.mock('../../transfer/transfer-out-util');
 
 describe('sendFragment', () => {
   // ============ COMMON PROPERTIES ============
   const AUTH_KEYS = 'fake-keys';
   const REQUEST_BASE_URL = 'http://localhost';
   const REQUEST_ENDPOINT = '/ehr-out-transfers';
-  const FULL_URL = REQUEST_BASE_URL + REQUEST_ENDPOINT;
   const CONVERSATION_ID = '22d24155-c08c-4cac-a84a-4a5db46a2f99';
   const ODS_CODE = 'G67200';
   const MESSAGE_ID = '5cefa7a2-fbca-494a-a114-6f58fae4be4a';
-  const FRAGMENT_MESSAGE = { ebXML: "", payload: "", attachments: [] };
-  const REQUEST_BODY = {
-    conversationId: CONVERSATION_ID,
-    odsCode: ODS_CODE,
-    messageId: MESSAGE_ID,
-    fragmentMessage: FRAGMENT_MESSAGE
-  };
+  const FRAGMENT_MESSAGE = { ebXML: '', payload: '', attachments: [] };
   const HEADERS = { reqheaders: { Authorization: AUTH_KEYS } };
   // =================== END ===================
+
+  beforeAll(() => {
+    setupMockConfigForTest();
+  });
 
   it('should send fragment successfully', async () => {
     // when
@@ -69,18 +60,33 @@ describe('sendFragment', () => {
       .post(`${REQUEST_ENDPOINT}/fragment`)
       .reply(404);
 
+    getMessageFragmentRecordByMessageId.mockResolvedValueOnce(null);
+    createFragmentDbRecord.mockResolvedValueOnce(undefined);
     updateFragmentStatus.mockResolvedValueOnce(undefined);
 
-    // doesn't seem to work either
-    // expect(sendFragment(CONVERSATION_ID, ODS_CODE, FRAGMENT_MESSAGE, MESSAGE_ID)).toThrow(FragmentSendingError)
-
-    await expect(() => sendFragment(CONVERSATION_ID, ODS_CODE, FRAGMENT_MESSAGE, MESSAGE_ID))
-      .rejects
-      .toThrow(FragmentSendingError);
+    await expect(() =>
+      sendFragment(CONVERSATION_ID, ODS_CODE, FRAGMENT_MESSAGE, MESSAGE_ID)
+    ).rejects.toThrow(FragmentSendingError);
 
     expect(updateFragmentStatus).toBeCalledTimes(1);
-    // expect(updateFragmentStatus.calls[0][0]).toHaveBeenCalledWith(CONVERSATION_ID);
-    // expect(updateFragmentStatus.calls[0][1]).toHaveBeenCalledWith(MESSAGE_ID);
-    // expect(updateFragmentStatus.calls[0][2]).toHaveBeenCalledWith(Status.FRAGMENT_SENDING_FAILED);
+    expect(updateFragmentStatus).toHaveBeenCalledWith(CONVERSATION_ID, MESSAGE_ID, Status.FRAGMENT_SENDING_FAILED);
+    expect(mockUrlRequest.isDone()).toBe(true);
+  });
+
+  it('should validate duplicate transfer out requests', async () => {
+    // when
+    getMessageFragmentRecordByMessageId.mockReturnValueOnce({
+      messageId: MESSAGE_ID,
+      status: Status.SENT_FRAGMENT
+    });
+
+    await sendFragment(CONVERSATION_ID, ODS_CODE, FRAGMENT_MESSAGE, MESSAGE_ID);
+
+    // then
+    expect(logWarning).toHaveBeenCalledWith(
+      `EHR message FRAGMENT with message ID ${MESSAGE_ID} has already been sent`
+    );
+    expect(createFragmentDbRecord).not.toHaveBeenCalled();
+    expect(updateFragmentStatus).not.toHaveBeenCalled();
   });
 });
