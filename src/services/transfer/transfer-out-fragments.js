@@ -1,4 +1,4 @@
-import { getFragment, retrieveIdsFromEhrRepo } from '../ehr-repo/get-fragments';
+import { getFragment, retrieveIdsFromEhrRepo } from '../ehr-repo/get-fragment';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { updateFragmentMessageId } from './transfer-out-util';
 import { logError, logInfo } from '../../middleware/logging';

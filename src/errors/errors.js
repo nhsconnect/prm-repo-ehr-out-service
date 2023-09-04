@@ -93,11 +93,10 @@ export class MessageIdUpdateError extends Error {
 }
 
 export class FragmentMessageRecordNotFoundError extends Error {
-  constructor(messageId, error) {
+  constructor(messageId) {
     super(errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR);
     logError(
-      `${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId: ${messageId}`,
-        error
+      `${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId: ${messageId}`
     );
   };
 }

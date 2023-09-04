@@ -23,12 +23,11 @@ import {
   getFragment,
   retrieveFragmentPresignedUrlFromRepo,
   retrieveIdsFromEhrRepo
-} from "../services/ehr-repo/get-fragments";
+} from "../services/ehr-repo/get-fragment";
 import { createMessageIdReplacement } from "../services/database/create-message-id-replacement";
 import nock from "nock";
 import {createRegistrationRequest} from "../services/database/create-registration-request";
-import {or} from "sequelize";
-import isEqual from "lodash.isequal";
+import {jsonParseMessage} from "../services/parser/parsing-utilities";
 
 const fakeAuth = 'fake-keys';
 
@@ -217,81 +216,6 @@ describe('Ensure health record outbound XML is unchanged', () => {
     expect(validateMessageEquality(ORIGINAL_EHR_CORE, MODIFIED_EHR_CORE)).toBe(true);
   });
 
-  // it('should verify that a fragment with no external attachments is unchanged by xml changes', async () => {
-  //   // given
-  //   const NHS_NUMBER = 9693643038;
-  //   const CONVERSATION_ID = "05E36C93-2DEF-4586-B842-127C534FB8B7";
-  //   const PRESIGNED_URL = "dummy-presigned-url"
-  //
-  //   const ORIGINAL_FRAGMENTS = {
-  //     'DD92589A-B5B4-4492-AADD-51534821F07B': readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'original'),
-  //     'DE4A9436-FFA3-49B1-8180-5570510F0C11': readFile('COPC_IN000001UK01_02', 'equality-test', 'large-ehr-no-external-attachments', 'original'),
-  //     '62330782-1C8B-45CD-95E3-4FC624091C61': readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-no-external-attachments', 'original'),
-  //     '770C42DD-301B-4177-A78E-0E9E62F3FDA1': readFile('COPC_IN000001UK01_04', 'equality-test', 'large-ehr-no-external-attachments', 'original')
-  //   };
-  //
-  //
-  //   // // const MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo = {}
-  //   //
-  //   // // const FRAGMENT_MESSAGE_IDS = Object.keys(ORIGINAL_FRAGMENTS);
-  //   //
-  //   // // Object.keys(ORIGINAL_FRAGMENTS).forEach(messageId => {
-  //   // //
-  //   // // });
-  //   //
-  //   // // when
-  //   // // getAllFragmentsWithMessageIdsFromRepo.mockReturnValueOnce(
-  //   // //   Promise.resolve(MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo)
-  //   // // );
-  //   //
-  //   //
-  //   //
-  //   // // retrieveFragmentPresignedUrlFromRepo.mockResolvedValue(PRESIGNED_URL);
-  //   //
-  //   // `${ehrRepoServiceUrl}/fragments/${conversationIdFromEhrIn}/${messageId}`
-  //   //
-  //   // nock(ehrRepoUrl, ehrRepoHeaders)
-  //   //   .get('/')
-  //   //   .reply(200, PRESIGNED_URL);
-  //   //
-  //   // // it is possible to chain interceptors with nock, so each subsequent call should return the next fragment
-  //
-  //   const fragmentScopes = Object.keys(ORIGINAL_FRAGMENTS).map(async messageId => {
-  //     /*
-  //       add records of the old message ids to database table
-  //       new message ids are mostly the same as the old ones, with last char replaced as '0',
-  //       this in order to guarantee the .sort() at expect statement give the same order.
-  //      */
-  //     await createMessageIdReplacement(messageId, messageId.slice(0, 35) + '0');
-  //
-  //     return nock(PRESIGNED_URL)
-  //       .get('/')
-  //       .reply(200, JSON.parse(ORIGINAL_FRAGMENTS[messageId]));
-  //   });
-  //
-  //   sendFragment.mockResolvedValue(undefined);
-  //
-  //   await transferOutFragments({
-  //     conversationId: CONVERSATION_ID,
-  //     nhsNumber: NHS_NUMBER,
-  //     odsCode: ODS_CODE,
-  //   }); // Transfer out the fragments
-  //
-  //   // then
-  //   const originalFragments = Object.values(ORIGINAL_FRAGMENTS).sort();
-  //   const receivedArguments = [0, 1, 2, 3]
-  //     .map(i => sendFragment.mock.calls[i][2])
-  //     .map(jsObj => JSON.stringify((jsObj)))
-  //     .sort()
-  //
-  //   expect(sendFragment).toBeCalledTimes(4);
-  //   fragmentScopes.forEach(scope => expect(scope.isDone()).toBe(true));
-  //   expect(validateMessageEquality(originalFragments[0], receivedArguments[0])).toBe(true);
-  //   expect(validateMessageEquality(originalFragments[1], receivedArguments[1])).toBe(true);
-  //   expect(validateMessageEquality(originalFragments[2], receivedArguments[2])).toBe(true);
-  //   expect(validateMessageEquality(originalFragments[3], receivedArguments[3])).toBe(true);
-  // });
-
   it('should verify that a fragment with no external attachments is unchanged by xml changes', async () => {
     // given
     const nhsNumber = 9693643038;
@@ -321,13 +245,16 @@ describe('Ensure health record outbound XML is unchanged', () => {
       ODS_CODE
     );
 
-    await createNewMessageIdsForAllFragments(Object.keys(originalFragments));
     retrieveIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
-    getFragment
-      .mockResolvedValue(originalFragments['DD92589A-B5B4-4492-AADD-51534821F07B'])
-      .mockResolvedValue(originalFragments['DE4A9436-FFA3-49B1-8180-5570510F0C11'])
-      .mockResolvedValue(originalFragments['62330782-1C8B-45CD-95E3-4FC624091C61'])
-      .mockResolvedValue(originalFragments['770C42DD-301B-4177-A78E-0E9E62F3FDA1']);
+
+    const fragmentMessageIds = Object.keys(originalFragments);
+    for (let messageId of fragmentMessageIds) {
+      // add records of the old message ids to database table
+      // new message ids are mostly same as the old ones, with last char replaced as '0', in order to guarantee the .sort() at expect statement give the same order.
+      await createMessageIdReplacement(messageId, messageId.slice(0, 35) + '0')
+
+      getFragment.mockReturnValueOnce(JSON.parse(originalFragments[messageId]));
+    }
 
     nock(gp2gpMessengerEndpointUrl, {headers: {Authorization: gp2gpMessengerAuthKeys}})
       .post("/")
@@ -339,60 +266,72 @@ describe('Ensure health record outbound XML is unchanged', () => {
       odsCode: ODS_CODE,
     });
 
-    originalFragments = Object.values(originalFragments)
+    originalFragments = Object.values(originalFragments).sort();
+    const receivedArguments = [0, 1, 2, 3]
+      .map(i => JSON.stringify(sendFragment.mock.calls[i][2]))
       .sort();
 
     // then
-    const receivedArguments = [0, 1, 2, 3]
-      .map(i => sendFragment.mock.calls[i][2])
-      .sort();
-
-    for(let i = 0; i < originalFragments.length; i++)
-      console.log("================================================>>> " + originalFragments[i] + "\n\n\n\n\n" + receivedArguments[i] + "\n\n\n\n\n");
-
     expect(sendFragment).toBeCalledTimes(4);
-    // expect(validateMessageEquality(originalFragments[0], receivedArguments[0])).toBe(true);
-    // expect(validateMessageEquality(originalFragments[1], receivedArguments[1])).toBe(true);
-    // expect(validateMessageEquality(originalFragments[2], receivedArguments[2])).toBe(true);
-    // expect(validateMessageEquality(originalFragments[3], receivedArguments[3])).toBe(true);
+    expect(validateMessageEquality(originalFragments[0], receivedArguments[0])).toBe(true);
+    expect(validateMessageEquality(originalFragments[1], receivedArguments[1])).toBe(true);
+    expect(validateMessageEquality(originalFragments[2], receivedArguments[2])).toBe(true);
+    expect(validateMessageEquality(originalFragments[3], receivedArguments[3])).toBe(true);
   });
 
   it('should verify that a fragment with external attachments is unchanged by xml changes', async () => {
     // given
-    const NHS_NUMBER = 9693643038;
-    const CONVERSATION_ID = "0346D9CC-F472-492A-86D4-43D8B73AC95D";
-    const ORIGINAL_FRAGMENTS = {
+    const nhsNumber = 9697415247;
+    const inboundConversationId = "0635CDC1-A231-11ED-808B-AC162D1F16F0";
+    const outboundConversationId = "0635CDC1-A231-11ED-808B-AC162D1F16F0";
+    const ehrRequestMessageId = "0635CDC1-A231-11ED-808B-AC162D1F16F0";
+    const {gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl} = config();
+    const gp2gpMessengerEndpointUrl = `${gp2gpMessengerServiceUrl}/ehr-out-transfers/fragment`;
+
+    let originalFragments = {
       '060FA820-A231-11ED-808B-AC162D1F16F0': readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-with-external-attachments', 'original'),
       '063817B0-A231-11ED-808B-AC162D1F16F0': readFile('COPC_IN000001UK01_02', 'equality-test', 'large-ehr-with-external-attachments', 'original'),
       '0635CDC0-A231-11ED-808B-AC162D1F16F0': readFile('COPC_IN000001UK01_03', 'equality-test', 'large-ehr-with-external-attachments', 'original'),
       '0635CDC1-A231-11ED-808B-AC162D1F16F0': readFile('COPC_IN000001UK01_04', 'equality-test', 'large-ehr-with-external-attachments', 'original')
-    }
-    const MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo = {}
+    };
 
-    const FRAGMENT_MESSAGE_IDS = Object.keys(ORIGINAL_FRAGMENTS);
-
-    for (let messageId of FRAGMENT_MESSAGE_IDS) {
-      const fragmentFileAsString = ORIGINAL_FRAGMENTS[messageId];
-      MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo[messageId] = JSON.parse(fragmentFileAsString);
-
-      await createMessageIdReplacement(messageId, messageId.slice(0, 35) + '1')
+    const ehrRepoMessageIdResponse = {
+      conversationIdFromEhrIn: inboundConversationId,
+      messageIds: Object.keys(originalFragments)
     }
 
     // when
-    getAllFragmentsWithMessageIdsFromRepo.mockReturnValueOnce(Promise.resolve(MOCK_RETURN_VALUE_FOR_getAllFragmentsWithMessageIdsFromRepo));
-    sendFragment.mockResolvedValue(undefined);
+    await createRegistrationRequest(
+      outboundConversationId,
+      ehrRequestMessageId,
+      nhsNumber,
+      ODS_CODE
+    );
+
+    retrieveIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
+
+    const fragmentMessageIds = Object.keys(originalFragments);
+    for (let messageId of fragmentMessageIds) {
+      // add records of the old message ids to database table
+      // new message ids are mostly same as the old ones, with last char replaced as '0', in order to guarantee the .sort() at expect statement give the same order.
+      await createMessageIdReplacement(messageId, messageId.slice(0, 35) + '0')
+
+      getFragment.mockReturnValueOnce(JSON.parse(originalFragments[messageId]));
+    }
+
+    nock(gp2gpMessengerEndpointUrl, {headers: {Authorization: gp2gpMessengerAuthKeys}})
+      .post("/")
+      .reply(204) // This 'nock' is for sendFragment()
 
     await transferOutFragments({
-      conversationId: CONVERSATION_ID,
-      nhsNumber: NHS_NUMBER,
+      conversationId: outboundConversationId,
+      nhsNumber: nhsNumber,
       odsCode: ODS_CODE,
     });
 
-    // then
-    const originalFragments = Object.values(ORIGINAL_FRAGMENTS).sort();
+    originalFragments = Object.values(originalFragments).sort();
     const receivedArguments = [0, 1, 2, 3]
-      .map(i => sendFragment.mock.calls[i][2])
-      .map(jsObj => JSON.stringify((jsObj)))
+      .map(i => JSON.stringify(sendFragment.mock.calls[i][2]))
       .sort();
 
     expect(sendFragment).toBeCalledTimes(4);

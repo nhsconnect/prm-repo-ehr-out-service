@@ -201,6 +201,7 @@ describe('Replacement of message IDs', () => {
       ehrRepoFragmentScopes.forEach(scope => {
         expect(scope.isDone()).toBe(true);
       });
+
       expect(gp2gpMessengerSendFragmentScope.isDone()).toBe(true);
 
       // compare the post bodies that gp2gp-messenger got

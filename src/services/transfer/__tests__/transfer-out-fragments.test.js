@@ -3,12 +3,12 @@ import {logError, logInfo} from '../../../middleware/logging';
 import {transferOutFragments} from '../transfer-out-fragments';
 import {sendFragment} from '../../gp2gp/send-fragment';
 import {updateFragmentMessageId} from '../transfer-out-util';
-import {getFragment, retrieveIdsFromEhrRepo} from '../../ehr-repo/get-fragments';
+import {getFragment, retrieveIdsFromEhrRepo} from '../../ehr-repo/get-fragment';
 
 // Mocking
 jest.mock('../transfer-out-util');
 jest.mock('../../gp2gp/send-fragment');
-jest.mock('../../ehr-repo/get-fragments');
+jest.mock('../../ehr-repo/get-fragment');
 jest.mock('../../database/create-fragment-db-record');
 jest.mock('../../database/message-fragment-repository');
 jest.mock('../../../config', () => ({

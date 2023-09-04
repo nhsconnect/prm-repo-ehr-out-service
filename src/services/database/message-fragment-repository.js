@@ -7,9 +7,7 @@ const MessageFragment = ModelFactory.getByName(modelName);
 
 export const getMessageFragmentRecordByMessageId = messageId => {
   logInfo(`Getting the status of fragment with message id ${messageId} from database`);
-
-  return MessageFragment.findByPk(messageId)
-    .catch(error => throw new FragmentMessageRecordNotFoundError(messageId, error));
+  return MessageFragment.findByPk(messageId);
 };
 
 export const updateMessageFragmentRecordStatus = (messageId, status) => {
@@ -21,5 +19,4 @@ export const updateMessageFragmentRecordStatus = (messageId, status) => {
       return record.save();
     })
     .then(() => logInfo('Updated message fragment status has been stored'));
-
 };
