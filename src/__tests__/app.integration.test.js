@@ -1,33 +1,30 @@
+import { modelName as registrationRequestModel, modelName, Status } from "../models/registration-request";
+import { createMessageIdReplacement } from "../services/database/create-message-id-replacement";
+import { createRegistrationRequest } from "../services/database/create-registration-request";
+import { expectStructuredLogToContain, transportSpy } from '../__builders__/logging-helper';
+import { readFile, validateMessageEquality } from "./utilities/integration-test.utilities";
+import { modelName as messageIdReplacementModel } from "../models/message-id-replacement"
+import { transferOutFragments } from "../services/transfer/transfer-out-fragments";
+import { transferOutEhrCore } from "../services/transfer/transfer-out-ehr-core";
+import { getEhrCoreAndFragmentIdsFromRepo } from "../services/ehr-repo/get-ehr";
+import { modelName as messageFragmentModel } from "../models/message-fragment";
+import { sendFragment } from "../services/gp2gp/send-fragment";
+import { sendCore } from "../services/gp2gp/send-core";
 import { agent as request } from 'supertest';
+import { logger } from '../config/logging';
+import ModelFactory from '../models';
+import { config } from '../config';
+import expect from "expect";
 import { v4 } from 'uuid';
 import app from '../app';
-import { config } from '../config';
-import { logger } from '../config/logging';
-import { expectStructuredLogToContain, transportSpy } from '../__builders__/logging-helper';
-import expect from "expect";
-import { readFile, validateMessageEquality } from "./utilities/integration-test.utilities";
-import { transferOutEhrCore } from "../services/transfer/transfer-out-ehr-core";
-import ModelFactory from '../models';
-import { modelName as registrationRequestModel, modelName, Status } from "../models/registration-request";
-import { modelName as messageFragmentModel } from "../models/message-fragment";
-import { modelName as messageIdReplacementModel } from "../models/message-id-replacement"
-import { getEhrCoreAndFragmentIdsFromRepo } from "../services/ehr-repo/get-ehr";
 import {
-  createNewMessageIdsForAllFragments,
   patientAndPracticeOdsCodesMatch,
 } from "../services/transfer/transfer-out-util";
-import { sendCore } from "../services/gp2gp/send-core";
-import { transferOutFragments } from "../services/transfer/transfer-out-fragments";
-import { sendFragment } from "../services/gp2gp/send-fragment";
 import {
   getFragment,
-  retrieveFragmentPresignedUrlFromRepo,
   retrieveIdsFromEhrRepo
 } from "../services/ehr-repo/get-fragment";
-import { createMessageIdReplacement } from "../services/database/create-message-id-replacement";
 import nock from "nock";
-import {createRegistrationRequest} from "../services/database/create-registration-request";
-import {jsonParseMessage} from "../services/parser/parsing-utilities";
 
 const fakeAuth = 'fake-keys';
 
@@ -232,9 +229,11 @@ describe('Ensure health record outbound XML is unchanged', () => {
       '770C42DD-301B-4177-A78E-0E9E62F3FDA1': readFile('COPC_IN000001UK01_04', 'equality-test', 'large-ehr-no-external-attachments', 'original')
     };
 
+    const fragmentMessageIds = Object.keys(originalFragments);
+
     const ehrRepoMessageIdResponse = {
       conversationIdFromEhrIn: inboundConversationId,
-      messageIds: Object.keys(originalFragments)
+      messageIds: fragmentMessageIds
     }
 
     // when
@@ -247,7 +246,6 @@ describe('Ensure health record outbound XML is unchanged', () => {
 
     retrieveIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
 
-    const fragmentMessageIds = Object.keys(originalFragments);
     for (let messageId of fragmentMessageIds) {
       // add records of the old message ids to database table
       // new message ids are mostly same as the old ones, with last char replaced as '0', in order to guarantee the .sort() at expect statement give the same order.
