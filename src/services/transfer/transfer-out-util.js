@@ -101,9 +101,10 @@ export const updateReferencedFragmentIds = async ehrMessage => {
 
 export const updateFragmentMessageId = async fragment => {
   const { updatedFragment, newMessageId } = await updateMessageIdForFragment(fragment);
+  const fragmentWithUpdatedMIDAndReferences = await updateReferencedFragmentIds(updatedFragment);
   return {
     newMessageId,
-    message: await updateReferencedFragmentIds(updatedFragment)
+    message: fragmentWithUpdatedMIDAndReferences
   };
 }
 

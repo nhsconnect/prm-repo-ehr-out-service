@@ -27,7 +27,7 @@ describe('getFragment', () => {
   const ehrFragment = {
     payload: "<?xml a very large xml>",
     attachments: ["attachment1", "attachment2"],
-    "external_attachments": ["ext_attachment1", "ext_attachment2"]
+    external_attachments: ["ext_attachment1", "ext_attachment2"]
   };
 
   it('should get a fragment successfully', async () => {

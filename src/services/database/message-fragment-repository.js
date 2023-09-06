@@ -1,7 +1,7 @@
-import ModelFactory from '../../models';
+import { FragmentMessageRecordNotFoundError } from "../../errors/errors";
 import { modelName } from '../../models/message-fragment';
 import { logInfo } from '../../middleware/logging';
-import { FragmentMessageRecordNotFoundError } from '../../errors/errors';
+import ModelFactory from '../../models';
 
 const MessageFragment = ModelFactory.getByName(modelName);
 
@@ -15,6 +15,8 @@ export const updateMessageFragmentRecordStatus = (messageId, status) => {
 
   return getMessageFragmentRecordByMessageId(messageId)
     .then(record => {
+      if (!record) throw new FragmentMessageRecordNotFoundError(messageId);
+
       record.status = status;
       return record.save();
     })

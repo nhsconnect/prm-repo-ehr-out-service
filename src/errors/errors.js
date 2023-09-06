@@ -4,7 +4,7 @@ export const errorMessages = {
   DOWNLOAD_ERROR: 'Cannot retrieve message from presigned URL',
   EHR_URL_NOT_FOUND_ERROR: 'The presigned URL could not be retrieved',
   SEND_CORE_ERROR: 'Failed while trying to send ehr core',
-  SEND_FRAGMENT_ERROR: `Failed while trying to send message fragment with message ID: `,
+  SEND_FRAGMENT_ERROR: 'Failed while trying to send message fragment with message ID: ',
   GET_PDS_CODE_ERROR: 'Unable to retrieve patient from PDS',
   PATIENT_RECORD_NOT_FOUND_ERROR: 'Cannot find the requested patient record from ehr-repo',
   NHS_NUMBER_NOT_FOUND_ERROR: 'Cannot find an NHS number related to given conversation ID',
