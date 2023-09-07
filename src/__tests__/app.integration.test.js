@@ -164,7 +164,6 @@ describe('Ensure health record outbound XML is unchanged', () => {
   const ehrRequestMessageId = "7670F731-FE63-41FC-B238-975C31AFF913";
   const {gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl} = config();
 
-
   const originalFragments = {
     'DD92589A-B5B4-4492-AADD-51534821F07B': readFile('COPC_IN000001UK01_01', 'equality-test', 'large-ehr-no-external-attachments', 'original'),
     'DE4A9436-FFA3-49B1-8180-5570510F0C11': readFile('COPC_IN000001UK01_02', 'equality-test', 'large-ehr-no-external-attachments', 'original'),
