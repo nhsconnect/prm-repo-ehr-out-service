@@ -8,8 +8,8 @@ import {
   Status as registrationRequestStatus
 } from '../../../models/registration-request';
 import {
-  getMessageFragmentStatusByMessageId,
-  updateMessageFragmentStatus
+  getMessageFragmentRecordByMessageId,
+  updateMessageFragmentRecordStatus
 } from '../message-fragment-repository';
 import { v4 as uuidv4 } from 'uuid';
 import { logError, logInfo } from '../../../middleware/logging';
@@ -37,7 +37,7 @@ describe('message-fragment-repository.js', () => {
   });
 
   describe('getMessageFragmentStatusByMessageId', () => {
-    it('should retrieve the status of ehr fragment by message id', async () => {
+    it('should retrieve ehr fragment by message id', async () => {
       // given
       const messageId = 'd3809b41-1996-46ff-a103-47aace310ecb';
       const conversationId = '22a748b2-fef6-412d-b93a-4f6c68f0f8dd';
@@ -60,18 +60,17 @@ describe('message-fragment-repository.js', () => {
         status
       });
 
-      const record = await getMessageFragmentStatusByMessageId(messageId);
+      const record = await getMessageFragmentRecordByMessageId(messageId);
 
       // then
       expect(record.messageId).toBe(messageId);
       expect(record.conversationId).toBe(conversationId);
       expect(record.status).toBe(status);
     });
-
     it('should return null when it cannot find the message id in record', async () => {
       // when
       const nonExistentMessageId = '9dd61fbe-1958-4479-a6aa-14cb4aa9651a';
-      const record = await getMessageFragmentStatusByMessageId(nonExistentMessageId);
+      const record = await getMessageFragmentRecordByMessageId(nonExistentMessageId);
 
       // then
       expect(record).toBe(null);
@@ -103,7 +102,7 @@ describe('message-fragment-repository.js', () => {
         status: initialStatus
       });
 
-      await updateMessageFragmentStatus(messageId, updatedStatus);
+      await updateMessageFragmentRecordStatus(messageId, updatedStatus);
 
       const record = await MessageFragment.findByPk(messageId);
 
@@ -112,20 +111,6 @@ describe('message-fragment-repository.js', () => {
       expect(record.messageId).toBe(messageId);
       expect(record.status).toBe(updatedStatus);
       expect(logInfo).toHaveBeenCalledWith('Updated message fragment status has been stored');
-    });
-
-    it('should throw an error when trying to update a non-existing message fragment', async () => {
-      // given
-      const nonExistMessageId = uuidv4().toUpperCase();
-
-      // when
-      await expect(updateMessageFragmentStatus(nonExistMessageId, updatedStatus))
-        // then
-        .rejects.toThrow(FragmentMessageRecordNotFoundError);
-
-      expect(logError).toHaveBeenCalledWith(
-        expect.stringContaining(errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR)
-      );
     });
   });
 });

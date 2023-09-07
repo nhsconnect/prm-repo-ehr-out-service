@@ -5,7 +5,7 @@ import { logInfo } from '../../middleware/logging';
 import { DownloadError, MessageIdUpdateError, StatusUpdateError } from '../../errors/errors';
 import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
 import { updateRegistrationRequestStatus } from '../database/registration-request-repository';
-import { updateMessageFragmentStatus } from '../database/message-fragment-repository';
+import { updateMessageFragmentRecordStatus } from '../database/message-fragment-repository';
 import { getNewMessageIdByOldMessageId } from '../database/message-id-replacement-repository';
 import { createMessageIdReplacement } from '../database/create-message-id-replacement';
 import { extractReferencedFragmentMessageIds, parseMessageId } from "../parser/parsing-utilities";
@@ -38,17 +38,17 @@ export const updateConversationStatus = async (conversationId, status, logMessag
   if (logMessage) logInfo(logMessage);
 };
 
-export const updateFragmentStatus = async (conversationId, messageId, status, logMessage) => {
+export const updateFragmentStatus = async (conversationId, messageId, status) => {
   setCurrentSpanAttributes({ conversationId, messageId });
   logInfo(`Updating fragment with status: ${status}`);
 
-  await updateMessageFragmentStatus(messageId, status)
+  await updateMessageFragmentRecordStatus(messageId, status)
     .then()
     .catch(error => {
       throw new StatusUpdateError(error);
     });
 
-  if (logMessage) logInfo(logMessage);
+  logInfo(`Updated fragment status to: ${status}`);
 };
 
 const replaceMessageIdInObject = (ehrMessage, oldMessageId, newMessageId) => {
@@ -99,23 +99,20 @@ export const updateReferencedFragmentIds = async ehrMessage => {
   return ehrMessage;
 };
 
-export const updateAllFragmentsMessageIds = async fragments => {
-  const fragmentsWithUpdatedMessageIds = {};
+export const updateFragmentMessageId = async fragment => {
+  const { updatedFragment, newMessageId } = await updateMessageIdForFragment(fragment);
+  const fragmentWithUpdatedMIDAndReferences = await updateReferencedFragmentIds(updatedFragment);
+  return {
+    newMessageId,
+    message: fragmentWithUpdatedMIDAndReferences
+  };
+}
 
-  for (let fragment of fragments) {
-    let { updatedFragment, newMessageId } = await updateMessageIdForMessageFragment(fragment);
-    updatedFragment = await updateReferencedFragmentIds(updatedFragment);
-    fragmentsWithUpdatedMessageIds[newMessageId] = updatedFragment;
-  }
-  logInfo('Successfully updated the message ids in all fragments');
-
-  return fragmentsWithUpdatedMessageIds;
-};
-
-export const updateMessageIdForMessageFragment = async (fragment) => {
+export const updateMessageIdForFragment = async (fragment) => {
   const messageId  = await parseMessageId(fragment);
   const newMessageId = await getNewMessageIdByOldMessageId(messageId);
   const updatedFragment = JSON.parse(JSON.stringify(fragment).replaceAll(messageId, newMessageId));
+
   return {
     updatedFragment,
     newMessageId

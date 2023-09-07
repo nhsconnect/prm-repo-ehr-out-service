@@ -1,36 +1,40 @@
-import { Status } from '../../../models/message-fragment';
 import expect from 'expect';
-import { logError, logInfo, logWarning } from '../../../middleware/logging';
-import { getMessageFragmentStatusByMessageId } from '../../database/message-fragment-repository';
-import { createMessageFragment } from '../../database/create-message-fragment';
-import { transferOutFragments } from '../transfer-out-fragments';
-import { sendFragment } from '../../gp2gp/send-fragment';
-import { updateFragmentStatus, updateAllFragmentsMessageIds } from '../transfer-out-util';
-import { getAllFragmentsWithMessageIdsFromRepo } from '../../ehr-repo/get-fragments';
+import {logError, logInfo} from '../../../middleware/logging';
+import {transferOutFragments} from '../transfer-out-fragments';
+import {sendFragment} from '../../gp2gp/send-fragment';
+import {updateFragmentMessageId} from '../transfer-out-util';
+import {getFragment, retrieveIdsFromEhrRepo} from '../../ehr-repo/get-fragment';
 
 // Mocking
 jest.mock('../transfer-out-util');
 jest.mock('../../gp2gp/send-fragment');
-jest.mock('../../ehr-repo/get-fragments');
-jest.mock('../../database/create-message-fragment');
+jest.mock('../../ehr-repo/get-fragment');
+jest.mock('../../database/create-fragment-db-record');
 jest.mock('../../database/message-fragment-repository');
 jest.mock('../../../config', () => ({
-  config: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
+  config: jest.fn().mockReturnValue({sequelize: {dialect: 'postgres'}})
 }));
 jest.mock('../../../middleware/logging');
 jest.mock('../../gp2gp/pds-retrieval-request');
 
 describe('transferOutFragment', () => {
   // ============ COMMON PROPERTIES ============
-  const CONVERSATION_ID = 'eef53f72-985c-423c-b1e4-087b702f4dd4';
-  const MESSAGE_ID = 'ae6f5feb-b546-4584-be37-1eee0b343811';
-  const NEW_MESSAGE_ID = 'F0A3D766-52CC-458D-9F6A-12933DE83F03';
-  const NHS_NUMBER = '1111111112';
-  const ODS_CODE = 'fake-ods-code';
-  const FRAGMENT = { nhsNumber: NHS_NUMBER, messageId: MESSAGE_ID };
-  const FRAGMENT_WITH_MESSAGE_ID = { [MESSAGE_ID]: FRAGMENT };
-  const UPDATED_FRAGMENT = { nhsNumber: NHS_NUMBER, messageId: NEW_MESSAGE_ID };
-  const FRAGMENT_WITH_NEW_MESSAGE_ID = { [NEW_MESSAGE_ID]: UPDATED_FRAGMENT };
+  const odsCode = 'B12345';
+  const nhsNumber = 1234567890;
+  const inboundConversationId = 'a52e8782-2268-4d49-ab69-5fcfa10eb43a';
+  const originalMessageId = '2526ea9f-f800-461d-8046-8bc512920d23';
+  const updatedMessageId = '7B2D6A16-2C50-4BF8-A923-E14003816ECC';
+  const fragment = {ebXML: '', payload: '', attachments: [], externalAttachments: []};
+
+  const ehrRepositoryResponse = {
+    conversationIdFromEhrIn: inboundConversationId,
+    messageIds: [originalMessageId]
+  };
+
+  const updatedFragment = {
+    newMessageId: updatedMessageId,
+    message: fragment
+  };
   // =================== END ===================
 
   afterEach(() => {
@@ -39,82 +43,60 @@ describe('transferOutFragment', () => {
 
   it('should send fragment on success', async () => {
     // when
-    getMessageFragmentStatusByMessageId.mockResolvedValue(null);
-    getAllFragmentsWithMessageIdsFromRepo.mockResolvedValueOnce(FRAGMENT_WITH_MESSAGE_ID);
-    updateAllFragmentsMessageIds.mockResolvedValue(FRAGMENT_WITH_NEW_MESSAGE_ID);
-    sendFragment.mockResolvedValue(undefined);
+    retrieveIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
+    getFragment.mockResolvedValueOnce(fragment);
+    updateFragmentMessageId.mockResolvedValueOnce(updatedFragment);
+    sendFragment.mockResolvedValueOnce(undefined);
 
     const result = await transferOutFragments({
-      conversationId: CONVERSATION_ID,
-      nhsNumber: NHS_NUMBER,
-      odsCode: ODS_CODE
+      conversationId: inboundConversationId,
+      nhsNumber: nhsNumber,
+      odsCode: odsCode
     });
 
     // then
     expect(result).toBe(undefined);
-    expect(getAllFragmentsWithMessageIdsFromRepo).toHaveBeenCalledWith(NHS_NUMBER);
-    expect(updateFragmentStatus).toHaveBeenCalledTimes(1);
-    expect(updateFragmentStatus).toHaveBeenCalledWith(
-      CONVERSATION_ID,
-      NEW_MESSAGE_ID,
-      Status.SENT_FRAGMENT
+    expect(retrieveIdsFromEhrRepo).toBeCalledWith(nhsNumber);
+    expect(getFragment).toHaveBeenCalledWith(
+      inboundConversationId,
+      ehrRepositoryResponse.messageIds[0]
     );
-    expect(updateAllFragmentsMessageIds).toHaveBeenCalledWith([FRAGMENT]);
-    expect(logInfo).toHaveBeenCalledWith('Start EHR fragment transfer');
-    expect(logInfo).toHaveBeenCalledWith('Fragment transfer completed');
-    expect(logError).not.toHaveBeenCalled();
+    expect(updateFragmentMessageId).toHaveBeenCalledWith(fragment);
+    expect(sendFragment).toHaveBeenCalledWith(
+      inboundConversationId,
+      odsCode,
+      fragment,
+      updatedMessageId
+    );
+    expect(logInfo).toHaveBeenCalledTimes(4);
+    expect(logInfo).toHaveBeenCalledWith('Initiated EHR Fragment transfer.');
+    expect(logInfo).toHaveBeenCalledWith(
+      'Retrieved Inbound Conversation ID and all Message IDs for transfer.'
+    );
+    expect(logInfo).toHaveBeenCalledWith(
+      `Fragment 1 of 1 sent to the GP2GP Messenger - with old Message ID ${originalMessageId}, and new Message ID ${updatedMessageId}.`
+    );
+    expect(logInfo).toHaveBeenCalledWith('Fragment transfer completed.');
   });
 
   describe('transfer request validation and error checks', () => {
-    it('should validate duplicate transfer out requests', async () => {
-      // when
-      getMessageFragmentStatusByMessageId.mockReturnValueOnce({
-        messageId: MESSAGE_ID,
-        status: Status.SENT_FRAGMENT
-      });
-      getAllFragmentsWithMessageIdsFromRepo.mockResolvedValueOnce(FRAGMENT_WITH_MESSAGE_ID);
-      updateAllFragmentsMessageIds.mockResolvedValue(FRAGMENT_WITH_NEW_MESSAGE_ID);
-
-      await transferOutFragments({
-        conversationId: CONVERSATION_ID,
-        nhsNumber: NHS_NUMBER,
-        odsCode: ODS_CODE
-      });
-
-      // then
-      expect(logWarning).toHaveBeenCalledWith(
-        `EHR message FRAGMENT with message ID ${NEW_MESSAGE_ID} has already been sent`
-      );
-      expect(updateFragmentStatus).not.toHaveBeenCalled();
-      expect(sendFragment).not.toHaveBeenCalled();
-    });
-
     it('should handle exceptions', async () => {
-      // given
-      getMessageFragmentStatusByMessageId.mockResolvedValue(null);
-      getAllFragmentsWithMessageIdsFromRepo.mockResolvedValueOnce(FRAGMENT_WITH_MESSAGE_ID);
-      updateAllFragmentsMessageIds.mockResolvedValue(FRAGMENT_WITH_NEW_MESSAGE_ID);
-
+      // when
+      retrieveIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
+      getFragment.mockResolvedValueOnce(fragment);
+      updateFragmentMessageId.mockResolvedValueOnce(updatedFragment);
       const error = new Error('test error message');
       sendFragment.mockRejectedValue(error);
 
-      // when
-      await expect(() =>
-        transferOutFragments({
-          conversationId: CONVERSATION_ID,
-          nhsNumber: NHS_NUMBER,
-          odsCode: ODS_CODE
-        })
-      ).rejects.toThrowError(error);
+      await transferOutFragments({
+        conversationId: inboundConversationId,
+        nhsNumber: nhsNumber,
+        odsCode: odsCode
+      });
 
       // then
       expect(logError).toHaveBeenCalledWith(
-        `Message fragment transfer failed due to error: ${error}`
-      );
-      expect(updateFragmentStatus).toHaveBeenCalledWith(
-        CONVERSATION_ID,
-        NEW_MESSAGE_ID,
-        Status.FRAGMENT_SENDING_FAILED
+        `An error occurred while attempting to transfer the fragments from the EHR Repository - details ${error}.`
       );
     });
   });

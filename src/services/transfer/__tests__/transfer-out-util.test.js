@@ -13,7 +13,7 @@ import {
 import { logError, logInfo } from '../../../middleware/logging';
 import { Status } from '../../../models/message-fragment';
 import { createMessageIdReplacement } from '../../database/create-message-id-replacement';
-import { updateMessageFragmentStatus } from '../../database/message-fragment-repository';
+import { updateMessageFragmentRecordStatus } from '../../database/message-fragment-repository';
 import { getNewMessageIdByOldMessageId } from '../../database/message-id-replacement-repository';
 import { updateRegistrationRequestStatus } from '../../database/registration-request-repository';
 import { getPdsOdsCode } from '../../gp2gp/pds-retrieval-request';
@@ -21,11 +21,11 @@ import {
   createNewMessageIdsForAllFragments,
   downloadFromUrl,
   patientAndPracticeOdsCodesMatch,
-  updateAllFragmentsMessageIds,
+  updateFragmentMessageId,
   updateConversationStatus,
   updateFragmentStatus,
   updateMessageIdForEhrCore,
-  updateMessageIdForMessageFragment,
+  updateMessageIdForFragment,
   updateReferencedFragmentIds
 } from '../transfer-out-util';
 import { extractReferencedFragmentMessageIds, parseMessageId } from "../../parser/parsing-utilities";
@@ -198,39 +198,23 @@ describe('testTransferOutUtil', () => {
   describe('updateFragmentStatus', () => {
     // ============ COMMON PROPERTIES ============
     const STATUS = Status.INCORRECT_ODS_CODE;
-    const LOG_MESSAGE = 'This is an example log message';
     // =================== END ===================
 
     it('should update the fragment status successfully', async () => {
       // when
-      updateMessageFragmentStatus.mockResolvedValueOnce(undefined);
+      updateMessageFragmentRecordStatus.mockResolvedValueOnce(undefined);
       await updateFragmentStatus(CONVERSATION_ID, MESSAGE_ID, STATUS);
 
       // then
-      expect(updateMessageFragmentStatus).toBeCalledTimes(1);
-      expect(logInfo).toBeCalledTimes(1);
-      expect(logInfo).toBeCalledWith(`Updating fragment with status: ${STATUS}`);
-    });
-
-    it('should log the provided log message successfully', async () => {
-      // given
-      updateMessageFragmentStatus.mockResolvedValueOnce(undefined);
-      await updateFragmentStatus(CONVERSATION_ID, MESSAGE_ID, STATUS, LOG_MESSAGE);
-
-      // then
-      expect(setCurrentSpanAttributes).toBeCalledTimes(1);
-      expect(setCurrentSpanAttributes).toBeCalledWith({
-        conversationId: CONVERSATION_ID,
-        messageId: MESSAGE_ID
-      });
+      expect(updateMessageFragmentRecordStatus).toBeCalledTimes(1);
       expect(logInfo).toBeCalledTimes(2);
       expect(logInfo).toBeCalledWith(`Updating fragment with status: ${STATUS}`);
-      expect(logInfo).toBeCalledWith(LOG_MESSAGE);
+      expect(logInfo).toBeCalledWith(`Updated fragment status to: ${STATUS}`);
     });
 
     it('should throw a StatusUpdateError error', async () => {
       // when
-      updateMessageFragmentStatus.mockRejectedValueOnce(undefined);
+      updateMessageFragmentRecordStatus.mockRejectedValueOnce(undefined);
 
       // then
       await expect(() =>
@@ -357,28 +341,16 @@ describe('testTransferOutUtil', () => {
     });
   });
 
-  describe('updateAllFragmentsMessageIds', () => {
-    it('should update all the message ids of given fragments', async () => {
+  describe('updateFragmentMessageId', () => {
+    it("should update one fragment's message id", async () => {
       // given
-      const fragments = getArrayOfValidMessageFragments().map(file => file);
-      const extractMessageId = fragment => parseMessageId(fragment);
-      const oldMessageIds = await Promise.all(fragments.map(extractMessageId));
-      const newMessageIdsForMocking = oldMessageIds.map(() => uuidv4().toUpperCase());
+      const fragment = getValidMessageFragment();
 
       // when
-      getNewMessageIdByOldMessageId.mockImplementation(key => {
-        return newMessageIdsForMocking[oldMessageIds.indexOf(key)];
-      });
-      const fragmentsWithUpdatedMessageIds = await updateAllFragmentsMessageIds(fragments);
+      const updatedFragment = await updateFragmentMessageId(fragment)
 
       // then
-      for (let [newMessageId, updatedFragment] of Object.entries(fragmentsWithUpdatedMessageIds)) {
-        expect(newMessageIdsForMocking).toContain(newMessageId);
-        expect(oldMessageIds).not.toContain(newMessageId);
-
-        const actualMessageIdInUpdatedFragment = await extractMessageId(updatedFragment);
-        expect(actualMessageIdInUpdatedFragment).toEqual(newMessageId);
-      }
+      expect(fragment).not.toContain(updatedFragment.newMessageId);
     });
   });
 
@@ -389,7 +361,7 @@ describe('testTransferOutUtil', () => {
 
       // when
       getNewMessageIdByOldMessageId.mockReturnValueOnce(UPDATED_MESSAGE_ID);
-      const { updatedFragment, newMessageId } = await updateMessageIdForMessageFragment(fragment);
+      const { updatedFragment, newMessageId } = await updateMessageIdForFragment(fragment);
 
       const oldMessageId = await parseMessageId(fragment);
       const messageIdInUpdatedFragment = await parseMessageId(updatedFragment);
@@ -413,7 +385,7 @@ describe('testTransferOutUtil', () => {
     });
 
     // then
-    await expect(updateMessageIdForMessageFragment(fragment))
+    await expect(updateMessageIdForFragment(fragment))
       .rejects.toThrowError(FragmentMessageIdReplacementRecordNotFoundError);
   });
 });

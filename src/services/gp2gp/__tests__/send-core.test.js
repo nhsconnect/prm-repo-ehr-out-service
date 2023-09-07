@@ -4,18 +4,11 @@ import { SendCoreError } from "../../../errors/errors";
 import { config } from "../../../config/index";
 import nock from "nock";
 import expect from "expect";
+import {setupMockConfigForTest} from "./test-utils";
 
 // Mocking
 jest.mock('../../../config');
 jest.mock('../../../middleware/logging');
-
-// Set Up
-beforeEach(() => {
-  config.mockReturnValue({
-    gp2gpMessengerAuthKeys: 'fake-keys',
-    gp2gpMessengerServiceUrl: 'http://localhost'
-  });
-});
 
 describe('sendCore', () => {
   // ============ COMMON PROPERTIES ============
@@ -37,6 +30,10 @@ describe('sendCore', () => {
   };
   const HEADERS = { reqheaders: { Authorization: AUTH_KEYS } };
   // =================== END ===================
+
+  beforeAll(() => {
+    setupMockConfigForTest();
+  });
 
   it('should log message if ehr core sent successfully', async () => {
     // when
