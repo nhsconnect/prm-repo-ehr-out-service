@@ -43,7 +43,7 @@ jest.mock('../services/transfer/transfer-out-util', () => {
 });
 
 jest.mock('../services/gp2gp/send-core');
-jest.mock('../services/ehr-repo/get-fragments');
+jest.mock('../services/ehr-repo/get-fragment');
 jest.mock('../services/gp2gp/send-fragment');
 
 describe('GET /health', () => {
@@ -190,10 +190,11 @@ describe('Ensure health record outbound XML is unchanged', () => {
 
   // =================== END ===================
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await MessageFragment.truncate();
     await RegistrationRequest.truncate();
     await MessageIdReplacement.truncate();
+
     await MessageFragment.sync({ force: true });
     await RegistrationRequest.sync({ force: true });
     await MessageIdReplacement.sync({ force: true });
@@ -203,6 +204,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
     await MessageFragment.sequelize.sync({ force: true });
     await RegistrationRequest.sequelize.sync({ force: true });
     await MessageIdReplacement.sequelize.sync({ force: true });
+
     await ModelFactory.sequelize.close();
   });
 

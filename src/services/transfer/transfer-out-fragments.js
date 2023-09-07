@@ -6,25 +6,18 @@ import { sendFragment } from '../gp2gp/send-fragment';
 
 export async function transferOutFragments({ conversationId, nhsNumber, odsCode }) {
   setCurrentSpanAttributes({ conversationId });
-
   logInfo('Initiated EHR Fragment transfer.');
-
   const { conversationIdFromEhrIn, messageIds } = await retrieveIdsFromEhrRepo(nhsNumber);
-
   logInfo('Retrieved Inbound Conversation ID and all Message IDs for transfer.');
-
   let count = 0;
 
   const transferPromises = messageIds.map(async messageId => {
     const fragment = await getFragment(conversationIdFromEhrIn, messageId);
     const { newMessageId, message } = await updateFragmentMessageId(fragment);
-    const fragmentPromise= sendFragment(conversationId, odsCode, message, newMessageId);
+    const transferPromise = sendFragment(conversationId, odsCode, message, newMessageId);
+    logInfo(`Fragment ${++count} of ${messageIds.length} sent to the GP2GP Messenger - with old Message ID ${messageId}, and new Message ID ${newMessageId}.`);
 
-    logInfo(
-      `Fragment ${++count} of ${messageIds.length} sent to the GP2GP Messenger - with old Message ID ${messageId}, and new Message ID ${newMessageId}.`
-    );
-
-    return fragmentPromise;
+    return transferPromise;
   });
 
   await Promise.all(transferPromises)

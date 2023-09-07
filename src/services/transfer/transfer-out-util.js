@@ -112,6 +112,7 @@ export const updateMessageIdForFragment = async (fragment) => {
   const messageId  = await parseMessageId(fragment);
   const newMessageId = await getNewMessageIdByOldMessageId(messageId);
   const updatedFragment = JSON.parse(JSON.stringify(fragment).replaceAll(messageId, newMessageId));
+
   return {
     updatedFragment,
     newMessageId

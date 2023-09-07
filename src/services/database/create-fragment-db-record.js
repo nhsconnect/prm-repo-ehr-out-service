@@ -1,7 +1,7 @@
-import {runWithinTransaction} from './helper';
-import {logError, logInfo} from "../../middleware/logging";
-import ModelFactory from '../../models';
 import { modelName, Status } from '../../models/message-fragment';
+import { logError, logInfo } from "../../middleware/logging";
+import { runWithinTransaction } from './helper';
+import ModelFactory from '../../models';
 
 const MessageFragment = ModelFactory.getByName(modelName);
 
