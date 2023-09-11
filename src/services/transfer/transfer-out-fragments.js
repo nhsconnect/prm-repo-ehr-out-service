@@ -18,6 +18,7 @@ export async function transferOutFragments({ conversationId, nhsNumber, odsCode 
     await sendFragment(conversationId, odsCode, message, newMessageId);
     logInfo(`Fragment ${++count} of ${messageIds.length} sent to the GP2GP Messenger - with old Message ID ${messageId}, and new Message ID ${newMessageId}.`);
     logInfo(`Memory dump: total memory of system ${(os.totalmem() / (1024 * 1024))} MiB, available memory ${(os.freemem() / (1024 * 1024))} MiB remaining.`);
+    await new Promise(r => setTimeout(r, 1000)); // TODO SPIKE TEST REMOVE THIS LOGIC
   }
 
   logInfo(`All fragments have been successfully sent to GP2GP Messenger, Inbound Conversation ID: ${conversationId}`);
