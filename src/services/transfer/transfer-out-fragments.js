@@ -1,8 +1,9 @@
 import { getFragment, retrieveIdsFromEhrRepo } from '../ehr-repo/get-fragment';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { updateFragmentMessageId } from './transfer-out-util';
-import { logError, logInfo } from '../../middleware/logging';
+import { logInfo } from '../../middleware/logging';
 import { sendFragment } from '../gp2gp/send-fragment';
+import * as os from "os";
 
 export async function transferOutFragments({ conversationId, nhsNumber, odsCode }) {
   setCurrentSpanAttributes({ conversationId });
@@ -11,16 +12,13 @@ export async function transferOutFragments({ conversationId, nhsNumber, odsCode 
   logInfo('Retrieved Inbound Conversation ID and all Message IDs for transfer.');
   let count = 0;
 
-  const transferPromises = messageIds.map(async messageId => {
+  for (const messageId of messageIds) {
     const fragment = await getFragment(conversationIdFromEhrIn, messageId);
     const { newMessageId, message } = await updateFragmentMessageId(fragment);
-    const transferPromise = sendFragment(conversationId, odsCode, message, newMessageId);
+    await sendFragment(conversationId, odsCode, message, newMessageId);
     logInfo(`Fragment ${++count} of ${messageIds.length} sent to the GP2GP Messenger - with old Message ID ${messageId}, and new Message ID ${newMessageId}.`);
+    logInfo(`Memory dump: total memory of system ${(os.totalmem() / (1024 * 1024))} MiB, available memory ${(os.freemem() / (1024 * 1024))} MiB remaining.`);
+  }
 
-    return transferPromise;
-  });
-
-  await Promise.all(transferPromises)
-    .then(() => logInfo('Fragment transfer completed.'))
-    .catch(error => logError(`An error occurred while attempting to transfer the fragments from the EHR Repository - details ${error}.`));
+  logInfo(`All fragments have been successfully sent to GP2GP Messenger, Inbound Conversation ID: ${conversationId}`);
 }
