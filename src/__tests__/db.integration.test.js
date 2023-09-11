@@ -41,14 +41,14 @@ describe('Database connection test', () => {
   // =================== END ===================
 
   beforeAll(async () => {
+    process.env.GP2GP_MESSENGER_SERVICE_URL = gp2gpUrl;
+    process.env.GP2GP_MESSENGER_AUTHORIZATION_KEYS = gp2gpAuth;
     await MessageFragment.truncate();
     await RegistrationRequest.truncate();
     await MessageIdReplacement.truncate();
     await MessageFragment.sync({ force: true });
     await RegistrationRequest.sync({ force: true });
     await MessageIdReplacement.sync({ force: true });
-    process.env.GP2GP_MESSENGER_SERVICE_URL = gp2gpUrl;
-    process.env.GP2GP_MESSENGER_AUTHORIZATION_KEYS = gp2gpAuth;
 
     originalLoggerLevel = logger.level;
     logger.level = "warn";

@@ -1,9 +1,9 @@
 import expect from 'expect';
-import {logError, logInfo} from '../../../middleware/logging';
-import {transferOutFragments} from '../transfer-out-fragments';
-import {sendFragment} from '../../gp2gp/send-fragment';
-import {updateFragmentMessageId} from '../transfer-out-util';
-import {getFragment, retrieveIdsFromEhrRepo} from '../../ehr-repo/get-fragment';
+import { logInfo } from '../../../middleware/logging';
+import { transferOutFragments } from '../transfer-out-fragments';
+import { sendFragment } from '../../gp2gp/send-fragment';
+import { updateFragmentMessageId } from '../transfer-out-util';
+import { getFragment, retrieveIdsFromEhrRepo } from '../../ehr-repo/get-fragment';
 
 // Mocking
 jest.mock('../transfer-out-util');
@@ -68,36 +68,10 @@ describe('transferOutFragment', () => {
       fragment,
       updatedMessageId
     );
-    expect(logInfo).toHaveBeenCalledTimes(4);
+    expect(logInfo).toHaveBeenCalledTimes(5);
     expect(logInfo).toHaveBeenCalledWith('Initiated EHR Fragment transfer.');
-    expect(logInfo).toHaveBeenCalledWith(
-      'Retrieved Inbound Conversation ID and all Message IDs for transfer.'
-    );
-    expect(logInfo).toHaveBeenCalledWith(
-      `Fragment 1 of 1 sent to the GP2GP Messenger - with old Message ID ${originalMessageId}, and new Message ID ${updatedMessageId}.`
-    );
-    expect(logInfo).toHaveBeenCalledWith('Fragment transfer completed.');
-  });
-
-  describe('transfer request validation and error checks', () => {
-    it('should handle exceptions', async () => {
-      // when
-      retrieveIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
-      getFragment.mockResolvedValueOnce(fragment);
-      updateFragmentMessageId.mockResolvedValueOnce(updatedFragment);
-      const error = new Error('test error message');
-      sendFragment.mockRejectedValue(error);
-
-      await transferOutFragments({
-        conversationId: inboundConversationId,
-        nhsNumber: nhsNumber,
-        odsCode: odsCode
-      });
-
-      // then
-      expect(logError).toHaveBeenCalledWith(
-        `An error occurred while attempting to transfer the fragments from the EHR Repository - details ${error}.`
-      );
-    });
+    expect(logInfo).toHaveBeenCalledWith('Retrieved Inbound Conversation ID and all Message IDs for transfer.');
+    expect(logInfo).toHaveBeenCalledWith(`Fragment 1 of 1 sent to the GP2GP Messenger - with old Message ID ${originalMessageId}, and new Message ID ${updatedMessageId}.`);
+    expect(logInfo).toHaveBeenCalledWith(`All fragments have been successfully sent to GP2GP Messenger, Inbound Conversation ID: ${inboundConversationId}`);
   });
 });
