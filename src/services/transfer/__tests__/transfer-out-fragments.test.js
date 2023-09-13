@@ -14,7 +14,7 @@ jest.mock('../../database/message-fragment-repository');
 jest.mock('../../../config', () => ({
   config: jest.fn().mockReturnValue({
     sequelize: {dialect: 'postgres'},
-    rateLimitTimeoutSeconds: 1
+    rateLimitTimeoutMilliseconds: 1000
   })
 }));
 jest.mock('../../../middleware/logging');
