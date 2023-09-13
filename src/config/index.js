@@ -9,6 +9,7 @@ export const config = () => ({
   gp2gpMessengerAuthKeys: process.env.GP2GP_MESSENGER_AUTHORIZATION_KEYS,
   ehrRepoServiceUrl: process.env.EHR_REPO_SERVICE_URL,
   ehrRepoAuthKeys: process.env.EHR_REPO_AUTHORIZATION_KEYS,
+  rateLimitTimeoutSeconds: process.env.EHR_REPO_RATE_LIMIT_TIMEOUT_SECONDS || 0,
   sequelize: databaseConfig,
   consumerApiKeys: loadConsumerKeys()
 });
