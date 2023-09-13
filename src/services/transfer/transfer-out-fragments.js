@@ -17,7 +17,9 @@ export async function transferOutFragments({ conversationId, nhsNumber, odsCode 
     const { newMessageId, message } = await updateFragmentMessageId(fragment);
     await sendFragment(conversationId, odsCode, message, newMessageId);
     logInfo(`Fragment ${++count} of ${messageIds.length} sent to the GP2GP Messenger - with old Message ID ${messageId}, and new Message ID ${newMessageId}.`);
-    await new Promise(executor => setTimeout(executor, (config.rateLimitTimeoutSeconds * 1000)));
+
+    if(!config.rateLimitTimeoutSeconds)
+      await new Promise(executor => setTimeout(executor, (config.rateLimitTimeoutSeconds * 1000)))
   }
 
   logInfo(`All fragments have been successfully sent to GP2GP Messenger, Inbound Conversation ID: ${conversationId}`);

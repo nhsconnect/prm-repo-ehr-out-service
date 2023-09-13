@@ -12,7 +12,10 @@ jest.mock('../../ehr-repo/get-fragment');
 jest.mock('../../database/create-fragment-db-record');
 jest.mock('../../database/message-fragment-repository');
 jest.mock('../../../config', () => ({
-  config: jest.fn().mockReturnValue({sequelize: {dialect: 'postgres'}})
+  config: jest.fn().mockReturnValue({
+    sequelize: {dialect: 'postgres'},
+    rateLimitTimeoutSeconds: 1
+  })
 }));
 jest.mock('../../../middleware/logging');
 jest.mock('../../gp2gp/pds-retrieval-request');
@@ -68,8 +71,8 @@ describe('transferOutFragment', () => {
       fragment,
       updatedMessageId
     );
-    expect(logInfo).toHaveBeenCalledTimes(5);
-    expect(logInfo).toHaveBeenCalledWith('Initiated EHR Fragment transfer.');
+    expect(logInfo).toHaveBeenCalledTimes(4);
+    expect(logInfo).toHaveBeenCalledWith(`Initiated the EHR Fragment transfer for Inbound Conversation ID ${inboundConversationId}.`);
     expect(logInfo).toHaveBeenCalledWith('Retrieved Inbound Conversation ID and all Message IDs for transfer.');
     expect(logInfo).toHaveBeenCalledWith(`Fragment 1 of 1 sent to the GP2GP Messenger - with old Message ID ${originalMessageId}, and new Message ID ${updatedMessageId}.`);
     expect(logInfo).toHaveBeenCalledWith(`All fragments have been successfully sent to GP2GP Messenger, Inbound Conversation ID: ${inboundConversationId}`);
