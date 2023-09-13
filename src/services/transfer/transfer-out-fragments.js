@@ -1,13 +1,13 @@
 import { getFragment, retrieveIdsFromEhrRepo } from '../ehr-repo/get-fragment';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { updateFragmentMessageId } from './transfer-out-util';
-import { logInfo } from '../../middleware/logging';
 import { sendFragment } from '../gp2gp/send-fragment';
-import * as os from "os";
+import { logInfo } from '../../middleware/logging';
+import { config } from '../../config';
 
 export async function transferOutFragments({ conversationId, nhsNumber, odsCode }) {
   setCurrentSpanAttributes({ conversationId });
-  logInfo('Initiated EHR Fragment transfer.');
+  logInfo(`Initiated the EHR Fragment transfer for Inbound Conversation ID ${conversationId}.`);
   const { conversationIdFromEhrIn, messageIds } = await retrieveIdsFromEhrRepo(nhsNumber);
   logInfo('Retrieved Inbound Conversation ID and all Message IDs for transfer.');
   let count = 0;
@@ -17,8 +17,7 @@ export async function transferOutFragments({ conversationId, nhsNumber, odsCode 
     const { newMessageId, message } = await updateFragmentMessageId(fragment);
     await sendFragment(conversationId, odsCode, message, newMessageId);
     logInfo(`Fragment ${++count} of ${messageIds.length} sent to the GP2GP Messenger - with old Message ID ${messageId}, and new Message ID ${newMessageId}.`);
-    logInfo(`Memory dump: total memory of system ${(os.totalmem() / (1024 * 1024))} MiB, available memory ${(os.freemem() / (1024 * 1024))} MiB remaining.`);
-    await new Promise(r => setTimeout(r, 1000)); // TODO SPIKE TEST REMOVE THIS LOGIC
+    await new Promise(executor => setTimeout(executor, (config.rateLimitTimeoutSeconds * 1000)));
   }
 
   logInfo(`All fragments have been successfully sent to GP2GP Messenger, Inbound Conversation ID: ${conversationId}`);
