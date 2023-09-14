@@ -19,10 +19,10 @@ variable "component_name" {
 }
 variable "task_image_tag" {}
 variable "task_cpu" {
-  default = 256
+  default = 512
 }
 variable "task_memory" {
-  default = 512
+  default = 1024
 }
 variable "port" {
   default = 3000
