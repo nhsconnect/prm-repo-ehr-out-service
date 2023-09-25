@@ -1,4 +1,7 @@
-import { getRegistrationRequestStatusByConversationId } from '../database/registration-request-repository';
+import {
+  getRegistrationRequestStatusByConversationId,
+  updateMessageId
+} from '../database/registration-request-repository';
 import { logError, logInfo } from '../../middleware/logging';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { createRegistrationRequest } from '../database/create-registration-request';
@@ -50,6 +53,8 @@ export async function transferOutEhrCore({
       nhsNumber,
       conversationId
     );
+
+    await updateMessageId(messageId, newMessageId);
 
     logInfo('EHR transfer out started');
     logInfo('Sending EHR core');
