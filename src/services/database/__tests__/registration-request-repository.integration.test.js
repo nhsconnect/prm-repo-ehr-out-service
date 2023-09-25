@@ -3,7 +3,7 @@ import { modelName, Status } from '../../../models/registration-request';
 import { NhsNumberNotFoundError } from "../../../errors/errors";
 import {
   getNhsNumberByConversationId,
-  getRegistrationRequestStatusByConversationId, registrationRequestExistsWithMessageId,
+  getRegistrationRequestStatusByConversationId, registrationRequestExistsWithMessageId, updateMessageId,
   updateRegistrationRequestStatus
 } from '../registration-request-repository';
 import ModelFactory from '../../../models';
@@ -68,6 +68,28 @@ describe('Registration request repository', () => {
 
     // then
     expect(registrationRequest.status).toBe(status);
+  });
+
+  it('should update the message id successfully', async () => {
+    // given
+    const conversationId = 'e7a1b0ea-c51d-499e-a25a-d155b6df9904';
+    const inboundMessageId = '0d3ff0e6-27a1-4e98-a3e8-ac67c930df5e';
+    const outboundMessageId = '37bfaf7e-cfe2-4300-8804-a6629f8db1fc';
+    const odsCode = 'B23456';
+    const nhsNumber = '1478541274';
+    const status = Status.REGISTRATION_REQUEST_RECEIVED;
+
+    // when
+    await createRegistrationRequest(conversationId, inboundMessageId, nhsNumber, odsCode);
+    await updateMessageId(inboundMessageId, outboundMessageId);
+    const registrationRequest = await getRegistrationRequestStatusByConversationId(conversationId);
+
+    // then
+    expect(registrationRequest.nhsNumber).toBe(nhsNumber);
+    expect(registrationRequest.status).toBe(status);
+    expect(registrationRequest.odsCode).toBe(odsCode);
+    expect(registrationRequest.conversationId).toBe(conversationId);
+    expect(registrationRequest.messageId).toBe(outboundMessageId);
   });
 
   describe('getNhsNumberByConversationId', () => {
