@@ -232,29 +232,6 @@ describe('Ensure health record outbound XML is unchanged', () => {
     expect(validateMessageEquality(originalEhrCore, modifiedEhrCore)).toBe(true);
   });
 
-  // it('should verify that a small EHR core is unchanged by XML changes', async () => {
-  //   // given
-  //   const originalEhrCore = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
-  //   const ehrCoreAndFragmentIds = { ehrCore: JSON.parse(originalEhrCore), fragmentMessageIds: []};
-  //
-  //   // when
-  //   getEhrCoreAndFragmentIdsFromRepo.mockReturnValueOnce(Promise.resolve(ehrCoreAndFragmentIds));
-  //   patientAndPracticeOdsCodesMatch.mockReturnValue(Promise.resolve(true));
-  //   sendCore.mockReturnValueOnce(Promise.resolve(undefined));
-  //
-  //   await transferOutEhrCore({
-  //     conversationId: outboundConversationId,
-  //     nhsNumber: nhsNumber,
-  //     odsCode: odsCode,
-  //     ehrRequestId: ehrRequestMessageId
-  //   });
-  //
-  //   const modifiedEhrCore = JSON.stringify(sendCore.mock.calls[0][2]);
-  //
-  //   // then
-  //   expect(validateMessageEquality(originalEhrCore, modifiedEhrCore)).toBe(true);
-  // });
-
   it('should verify that a fragment with no external attachments is unchanged by xml changes', async () => {
     // when
     await createRegistrationRequest(
