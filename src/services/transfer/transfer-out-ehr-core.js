@@ -25,29 +25,24 @@ export async function transferOutEhrCore({
   ehrRequestId
 }) {
   setCurrentSpanAttributes({ conversationId: conversationId });
-  logInfo('EHR transfer out request received');
+  logInfo(`EHR Request received, transfer out process initiated for Outbound CID ${conversationId}.`);
 
   try {
-    // Stop transfer if it is a duplicated EHR request
-    if (await isEhrRequestDuplicate(conversationId)) {
-      return;
-    }
-
+    if (await isEhrRequestDuplicate(conversationId)) return;
     await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
 
-    // Stop transfer if ODS codes don't match
     if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
       await updateConversationStatus(
         conversationId,
         Status.INCORRECT_ODS_CODE,
-        'Patients ODS Code in PDS does not match requesting practices ODS Code'
+        "The patient's ODS Code in PDS does not match the requesting practice's ODS Code."
       );
       return;
     }
 
     await updateConversationStatus(conversationId, Status.ODS_VALIDATION_CHECKS_PASSED);
 
-    logInfo('Getting patient health record from EHR repo');
+    logInfo("Retrieving the patient's health record from the EHR Repository.");
 
     const { ehrCoreWithUpdatedMessageId, newMessageId } = await getEhrCoreAndUpdateMessageIds(
       nhsNumber,
@@ -56,8 +51,7 @@ export async function transferOutEhrCore({
 
     await updateMessageId(messageId, newMessageId);
 
-    logInfo('EHR transfer out started');
-    logInfo('Sending EHR core');
+    logInfo('Sending the EHR Core to GP2GP Messenger.');
 
     await sendCore(
       conversationId,
@@ -70,7 +64,7 @@ export async function transferOutEhrCore({
     await updateConversationStatus(
       conversationId,
       Status.SENT_EHR,
-      'EHR has been successfully sent'
+      'The EHR Core has successfully been sent.'
     );
   } catch (error) {
     if (error instanceof EhrUrlNotFoundError) {
