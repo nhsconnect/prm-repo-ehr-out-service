@@ -16,7 +16,7 @@ export const getNhsNumberByConversationId = conversationId => {
         if (!record) {
             throw new NhsNumberNotFoundError(`No record for NHS number related to conversation ID ${conversationId}`);
         }
-        return record.nhsNumber
+        return record.nhsNumber;
     });
 };
 
@@ -28,7 +28,19 @@ export const updateRegistrationRequestStatus = async (conversationId, status) =>
       transaction: transaction
     }
 
-    return await RegistrationRequest.update({ status }, options)
+    return await RegistrationRequest.update({ status }, options);
+  });
+};
+
+export const updateMessageId = async (messageId, newMessageId) => {
+  logInfo(`Updating Message ID from ${messageId}, to: ${newMessageId}`);
+  await runWithinTransaction(async transaction => {
+    const options = {
+      where: { message_id: messageId },
+      transaction: transaction
+    }
+
+    return await RegistrationRequest.update({ newMessageId }, options);
   });
 };
 
