@@ -1,4 +1,7 @@
-import { getRegistrationRequestStatusByConversationId } from '../../database/registration-request-repository';
+import {
+  getRegistrationRequestStatusByConversationId,
+  updateMessageId
+} from '../../database/registration-request-repository';
 import { logError, logInfo } from '../../../middleware/logging';
 import { Status } from '../../../models/registration-request';
 import { transferOutEhrCore } from '../transfer-out-ehr-core';
@@ -284,5 +287,22 @@ describe('transferOutEhrCore', () => {
       'EHR transfer out request failed',
       new MessageIdUpdateError()
     );
+  });
+
+  it('should update the registration request with the Outbound Message ID', async () => {
+    // when
+    createRegistrationRequest.mockResolvedValue(undefined);
+    patientAndPracticeOdsCodesMatch.mockResolvedValueOnce(true);
+    updateConversationStatus.mockResolvedValue(undefined);
+    getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds: [] });
+    getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
+    updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
+    updateMessageId.mockResolvedValue(undefined);
+    sendCore.mockResolvedValue(undefined);
+
+    await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+
+    // then
+    expect(updateMessageId).toBeCalledWith(messageId, newMessageId);
   });
 });
