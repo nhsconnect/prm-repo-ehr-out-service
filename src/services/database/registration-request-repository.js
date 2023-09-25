@@ -32,7 +32,7 @@ export const updateRegistrationRequestStatus = async (conversationId, status) =>
   });
 };
 
-export const updateMessageId = async (originalMessageId, updatedMessageId) => {
+export const updateRegistrationRequestMessageId = async (originalMessageId, updatedMessageId) => {
   logInfo(`Updating Message ID from ${originalMessageId}, to: ${updatedMessageId}`);
   await runWithinTransaction(async transaction => {
     const options = {

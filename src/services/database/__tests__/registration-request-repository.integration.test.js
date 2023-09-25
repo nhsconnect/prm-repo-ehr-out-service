@@ -3,7 +3,7 @@ import { modelName, Status } from '../../../models/registration-request';
 import { NhsNumberNotFoundError } from "../../../errors/errors";
 import {
   getNhsNumberByConversationId,
-  getRegistrationRequestStatusByConversationId, registrationRequestExistsWithMessageId, updateMessageId,
+  getRegistrationRequestStatusByConversationId, registrationRequestExistsWithMessageId, updateRegistrationRequestMessageId,
   updateRegistrationRequestStatus
 } from '../registration-request-repository';
 import ModelFactory from '../../../models';
@@ -81,7 +81,7 @@ describe('Registration request repository', () => {
 
     // when
     await createRegistrationRequest(conversationId, inboundMessageId, nhsNumber, odsCode);
-    await updateMessageId(inboundMessageId, outboundMessageId);
+    await updateRegistrationRequestMessageId(inboundMessageId, outboundMessageId);
     const registrationRequest = await getRegistrationRequestStatusByConversationId(conversationId);
 
     // then

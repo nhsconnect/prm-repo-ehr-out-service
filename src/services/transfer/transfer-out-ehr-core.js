@@ -1,6 +1,6 @@
 import {
   getRegistrationRequestStatusByConversationId,
-  updateMessageId
+  updateRegistrationRequestMessageId
 } from '../database/registration-request-repository';
 import { logError, logInfo } from '../../middleware/logging';
 import { setCurrentSpanAttributes } from '../../config/tracing';
@@ -49,7 +49,7 @@ export async function transferOutEhrCore({
       conversationId
     );
 
-    await updateMessageId(messageId, newMessageId);
+    await updateRegistrationRequestMessageId(messageId, newMessageId);
 
     logInfo('Sending the EHR Core to GP2GP Messenger.');
 

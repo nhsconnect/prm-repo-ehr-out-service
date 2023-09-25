@@ -211,15 +211,17 @@ describe('Ensure health record outbound XML is unchanged', () => {
     // given
     const originalEhrCore = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
     const ehrCoreAndFragmentIds = { ehrCore: JSON.parse(originalEhrCore), fragmentMessageIds: []};
+    const messageId = '4aa69fd3-6aaf-4f51-98ef-58a342c3265f';
 
     // when
-    getEhrCoreAndFragmentIdsFromRepo.mockReturnValueOnce(Promise.resolve(ehrCoreAndFragmentIds));
-    patientAndPracticeOdsCodesMatch.mockReturnValue(Promise.resolve(true));
-    sendCore.mockReturnValueOnce(Promise.resolve(undefined));
+    getEhrCoreAndFragmentIdsFromRepo.mockReturnValueOnce(ehrCoreAndFragmentIds);
+    patientAndPracticeOdsCodesMatch.mockReturnValue(true);
+    sendCore.mockReturnValueOnce(undefined);
 
     await transferOutEhrCore({
       conversationId: outboundConversationId,
       nhsNumber: nhsNumber,
+      messageId,
       odsCode: odsCode,
       ehrRequestId: ehrRequestMessageId
     });
@@ -229,6 +231,29 @@ describe('Ensure health record outbound XML is unchanged', () => {
     // then
     expect(validateMessageEquality(originalEhrCore, modifiedEhrCore)).toBe(true);
   });
+
+  // it('should verify that a small EHR core is unchanged by XML changes', async () => {
+  //   // given
+  //   const originalEhrCore = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
+  //   const ehrCoreAndFragmentIds = { ehrCore: JSON.parse(originalEhrCore), fragmentMessageIds: []};
+  //
+  //   // when
+  //   getEhrCoreAndFragmentIdsFromRepo.mockReturnValueOnce(Promise.resolve(ehrCoreAndFragmentIds));
+  //   patientAndPracticeOdsCodesMatch.mockReturnValue(Promise.resolve(true));
+  //   sendCore.mockReturnValueOnce(Promise.resolve(undefined));
+  //
+  //   await transferOutEhrCore({
+  //     conversationId: outboundConversationId,
+  //     nhsNumber: nhsNumber,
+  //     odsCode: odsCode,
+  //     ehrRequestId: ehrRequestMessageId
+  //   });
+  //
+  //   const modifiedEhrCore = JSON.stringify(sendCore.mock.calls[0][2]);
+  //
+  //   // then
+  //   expect(validateMessageEquality(originalEhrCore, modifiedEhrCore)).toBe(true);
+  // });
 
   it('should verify that a fragment with no external attachments is unchanged by xml changes', async () => {
     // when

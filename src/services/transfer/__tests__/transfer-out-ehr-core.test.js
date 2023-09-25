@@ -1,6 +1,6 @@
 import {
   getRegistrationRequestStatusByConversationId,
-  updateMessageId
+  updateRegistrationRequestMessageId
 } from '../../database/registration-request-repository';
 import { logError, logInfo } from '../../../middleware/logging';
 import { Status } from '../../../models/registration-request';
@@ -297,12 +297,12 @@ describe('transferOutEhrCore', () => {
     getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds: [] });
     getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
     updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
-    updateMessageId.mockResolvedValue(undefined);
+    updateRegistrationRequestMessageId.mockResolvedValue(undefined);
     sendCore.mockResolvedValue(undefined);
 
     await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
     // then
-    expect(updateMessageId).toBeCalledWith(messageId, newMessageId);
+    expect(updateRegistrationRequestMessageId).toBeCalledWith(messageId, newMessageId);
   });
 });
