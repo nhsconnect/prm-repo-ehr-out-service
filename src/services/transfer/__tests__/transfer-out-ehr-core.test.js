@@ -1,4 +1,7 @@
-import { getRegistrationRequestStatusByConversationId } from '../../database/registration-request-repository';
+import {
+  getRegistrationRequestStatusByConversationId,
+  updateRegistrationRequestMessageId
+} from '../../database/registration-request-repository';
 import { logError, logInfo } from '../../../middleware/logging';
 import { Status } from '../../../models/registration-request';
 import { transferOutEhrCore } from '../transfer-out-ehr-core';
@@ -91,7 +94,7 @@ describe('transferOutEhrCore', () => {
         conversationId,
         Status.MISSING_FROM_REPO
       );
-      expect(logInfo).toHaveBeenCalledWith(`Getting patient health record from EHR repo`);
+      expect(logInfo).toHaveBeenCalledWith(`Retrieving the patient's health record from the EHR Repository.`);
       expect(logError).toHaveBeenCalledWith(
         'EHR transfer out request failed',
         new EhrUrlNotFoundError()
@@ -120,7 +123,7 @@ describe('transferOutEhrCore', () => {
         conversationId,
         Status.EHR_DOWNLOAD_FAILED
       );
-      expect(logInfo).toHaveBeenCalledWith(`Getting patient health record from EHR repo`);
+      expect(logInfo).toHaveBeenCalledWith(`Retrieving the patient's health record from the EHR Repository.`);
       expect(logError).toHaveBeenCalledWith('EHR transfer out request failed', new DownloadError());
       expect(sendCore).not.toHaveBeenCalled();
     });
@@ -144,7 +147,7 @@ describe('transferOutEhrCore', () => {
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
         Status.INCORRECT_ODS_CODE,
-        `Patients ODS Code in PDS does not match requesting practices ODS Code`
+        `The patient's ODS Code in PDS does not match the requesting practice's ODS Code.`
       );
       expect(sendCore).not.toHaveBeenCalled();
     });
@@ -223,10 +226,10 @@ describe('transferOutEhrCore', () => {
     expect(updateConversationStatus).toHaveBeenCalledWith(
       conversationId,
       Status.SENT_EHR,
-      'EHR has been successfully sent'
+      'The EHR Core has successfully been sent.'
     );
-    expect(logInfo).toHaveBeenCalledWith('EHR transfer out started');
-    expect(logInfo).toHaveBeenCalledWith(`Sending EHR core`);
+    expect(logInfo).toHaveBeenCalledWith(`EHR Request received, transfer out process initiated for Outbound CID ${conversationId}.`);
+    expect(logInfo).toHaveBeenCalledWith(`Sending the EHR Core to GP2GP Messenger.`);
     expect(sendCore).toHaveBeenCalledWith(
       conversationId,
       odsCode,
@@ -284,5 +287,22 @@ describe('transferOutEhrCore', () => {
       'EHR transfer out request failed',
       new MessageIdUpdateError()
     );
+  });
+
+  it('should update the registration request with the Outbound Message ID', async () => {
+    // when
+    createRegistrationRequest.mockResolvedValue(undefined);
+    patientAndPracticeOdsCodesMatch.mockResolvedValueOnce(true);
+    updateConversationStatus.mockResolvedValue(undefined);
+    getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds: [] });
+    getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
+    updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
+    updateRegistrationRequestMessageId.mockResolvedValue(undefined);
+    sendCore.mockResolvedValue(undefined);
+
+    await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+
+    // then
+    expect(updateRegistrationRequestMessageId).toBeCalledWith(messageId, newMessageId);
   });
 });
