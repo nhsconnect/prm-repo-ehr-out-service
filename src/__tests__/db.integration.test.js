@@ -5,16 +5,16 @@ import { modelName as registrationRequestModel } from '../models/registration-re
 import { modelName as messageIdReplacementModel } from "../models/message-id-replacement";
 import { readFile } from './utilities/integration-test.utilities';
 import {
-  updateFragmentMessageId
+  updateFragmentMessageIds
 } from '../services/transfer/transfer-out-util';
 import {
   getFragment,
-  retrieveIdsFromEhrRepo
+  getMessageIdsFromEhrRepo
 } from '../services/ehr-repo/get-fragment';
-import { transferOutFragments } from '../services/transfer/transfer-out-fragments';
+import { transferOutFragmentsForNewContinueRequest } from '../services/transfer/transfer-out-fragments';
 import { createRegistrationRequest } from '../services/database/create-registration-request';
 import { logger } from "../config/logging";
-import { createMessageIdReplacement } from "../services/database/create-message-id-replacement";
+import { createMessageIdReplacements } from "../services/database/create-message-id-replacements";
 import nock from "nock";
 import { config } from "../config";
 
@@ -82,15 +82,15 @@ describe('Database connection test', () => {
 
     for (let oldFragmentMessageId of fragmentMessageIds) {
       const newFragmentMessageId = oldFragmentMessageId.slice(0, 35) + '0';
-      await createMessageIdReplacement(oldFragmentMessageId, newFragmentMessageId);
+      await createMessageIdReplacements(oldFragmentMessageId, newFragmentMessageId);
       getFragment.mockResolvedValueOnce((JSON.parse(fragmentsWithMessageIds[oldFragmentMessageId])));
-      updateFragmentMessageId.mockResolvedValueOnce({
+      updateFragmentMessageIds.mockResolvedValueOnce({
         newMessageId: newFragmentMessageId ,
         message: JSON.parse(fragmentsWithMessageIds[oldFragmentMessageId])
       });
     }
 
-    retrieveIdsFromEhrRepo.mockResolvedValueOnce({
+    getMessageIdsFromEhrRepo.mockResolvedValueOnce({
       conversationIdFromEhrIn: conversationId,
       messageIds: fragmentMessageIds
     });
@@ -100,7 +100,7 @@ describe('Database connection test', () => {
         .post('/ehr-out-transfers/fragment')
         .reply(204);
 
-    await transferOutFragments({
+    await transferOutFragmentsForNewContinueRequest({
       conversationId: conversationId,
       nhsNumber: nhsNumber,
       odsCode: odsCode

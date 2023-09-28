@@ -1,10 +1,10 @@
 import { modelName as registrationRequestModel, modelName, Status } from "../models/registration-request";
-import { createMessageIdReplacement } from "../services/database/create-message-id-replacement";
+import { createMessageIdReplacements } from "../services/database/create-message-id-replacements";
 import { createRegistrationRequest } from "../services/database/create-registration-request";
 import { expectStructuredLogToContain, transportSpy } from '../__builders__/logging-helper';
 import { readFile, validateMessageEquality } from "./utilities/integration-test.utilities";
 import { modelName as messageIdReplacementModel } from "../models/message-id-replacement"
-import { transferOutFragments } from "../services/transfer/transfer-out-fragments";
+import { transferOutFragmentsForNewContinueRequest } from "../services/transfer/transfer-out-fragments";
 import { transferOutEhrCore } from "../services/transfer/transfer-out-ehr-core";
 import { getEhrCoreAndFragmentIdsFromRepo } from "../services/ehr-repo/get-ehr";
 import { modelName as messageFragmentModel } from "../models/message-fragment";
@@ -22,7 +22,7 @@ import {
 } from "../services/transfer/transfer-out-util";
 import {
   getFragment,
-  retrieveIdsFromEhrRepo
+  getMessageIdsFromEhrRepo
 } from "../services/ehr-repo/get-fragment";
 import nock from "nock";
 
@@ -239,12 +239,12 @@ describe('Ensure health record outbound XML is unchanged', () => {
       odsCode
     );
 
-    retrieveIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
+    getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
 
     for (let messageId of fragmentMessageIds) {
       // add records of the old message ids to database table
       // new message ids are mostly same as the old ones, with last char replaced as '0', in order to guarantee the .sort() at expect statement give the same order.
-      await createMessageIdReplacement(messageId, messageId.slice(0, 35) + '0')
+      await createMessageIdReplacements(messageId, messageId.slice(0, 35) + '0')
 
       getFragment.mockReturnValueOnce(JSON.parse(originalFragments[messageId]));
     }
@@ -253,7 +253,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
       .post("/")
       .reply(204) // This 'nock' is for sendFragment()
 
-    await transferOutFragments({
+    await transferOutFragmentsForNewContinueRequest({
       conversationId: outboundConversationId,
       nhsNumber: nhsNumber,
       odsCode: odsCode,
@@ -281,13 +281,13 @@ describe('Ensure health record outbound XML is unchanged', () => {
       odsCode
     );
 
-    retrieveIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
+    getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
 
     const fragmentMessageIds = Object.keys(originalFragments);
     for (let messageId of fragmentMessageIds) {
       // add records of the old message ids to database table
       // new message ids are mostly same as the old ones, with last char replaced as '0', in order to guarantee the .sort() at expect statement give the same order.
-      await createMessageIdReplacement(messageId, messageId.slice(0, 35) + '0')
+      await createMessageIdReplacements(messageId, messageId.slice(0, 35) + '0')
 
       getFragment.mockReturnValueOnce(JSON.parse(originalFragments[messageId]));
     }
@@ -296,7 +296,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
       .post("/")
       .reply(204) // This 'nock' is for sendFragment()
 
-    await transferOutFragments({
+    await transferOutFragmentsForNewContinueRequest({
       conversationId: outboundConversationId,
       nhsNumber: nhsNumber,
       odsCode: odsCode,

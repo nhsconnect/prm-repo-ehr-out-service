@@ -1,7 +1,7 @@
 import { config } from '../../config';
 import axios from 'axios';
 import { logInfo, logError } from '../../middleware/logging';
-import { downloadFromUrl, updateMessageIdForEhrCore } from '../transfer/transfer-out-util';
+import { downloadFromUrl } from '../transfer/transfer-out-util';
 import { EhrUrlNotFoundError } from '../../errors/errors';
 
 export const getEhrCoreAndFragmentIdsFromRepo = async (nhsNumber, conversationId) => {

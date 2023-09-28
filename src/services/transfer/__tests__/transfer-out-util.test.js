@@ -12,16 +12,16 @@ import {
 } from '../../../errors/errors';
 import { logError, logInfo } from '../../../middleware/logging';
 import { Status } from '../../../models/message-fragment';
-import { createMessageIdReplacement } from '../../database/create-message-id-replacement';
+import { createMessageIdReplacements } from '../../database/create-message-id-replacements';
 import { updateMessageFragmentRecordStatus } from '../../database/message-fragment-repository';
 import { getNewMessageIdByOldMessageId } from '../../database/message-id-replacement-repository';
 import { updateRegistrationRequestStatus } from '../../database/registration-request-repository';
 import { getPdsOdsCode } from '../../gp2gp/pds-retrieval-request';
 import {
-  createNewMessageIdsForAllFragments,
+  createNewMessageIds,
   downloadFromUrl,
   patientAndPracticeOdsCodesMatch,
-  updateFragmentMessageId,
+  updateFragmentMessageIds,
   updateConversationStatus,
   updateFragmentStatus,
   updateMessageIdForEhrCore,
@@ -257,11 +257,11 @@ describe('testTransferOutUtil', () => {
       const oldFragmentMessageIds = [uuidv4(), uuidv4(), uuidv4()];
 
       // when
-      await createNewMessageIdsForAllFragments(oldFragmentMessageIds);
+      await createNewMessageIds(oldFragmentMessageIds);
 
       // then
       for (let oldFragmentId of oldFragmentMessageIds) {
-        expect(createMessageIdReplacement).toHaveBeenCalledWith(
+        expect(createMessageIdReplacements).toHaveBeenCalledWith(
           oldFragmentId,
           expect.stringMatching(UUID_UPPERCASE_REGEX)
         );
@@ -272,10 +272,10 @@ describe('testTransferOutUtil', () => {
       // given
       const oldFragmentMessageIds = [uuidv4(), uuidv4(), uuidv4()];
       const expectedError = new Error('some database error');
-      createMessageIdReplacement.mockRejectedValueOnce(expectedError);
+      createMessageIdReplacements.mockRejectedValueOnce(expectedError);
 
       // when
-      await expect(createMessageIdReplacement(oldFragmentMessageIds))
+      await expect(createMessageIdReplacements(oldFragmentMessageIds))
         // then
         .rejects.toThrowError(expectedError);
     });
@@ -347,7 +347,7 @@ describe('testTransferOutUtil', () => {
       const fragment = getValidMessageFragment();
 
       // when
-      const updatedFragment = await updateFragmentMessageId(fragment)
+      const updatedFragment = await updateFragmentMessageIds(fragment)
 
       // then
       expect(fragment).not.toContain(updatedFragment.newMessageId);

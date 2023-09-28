@@ -2,7 +2,7 @@ import { extractReferencedFragmentMessageIds, parseMessageId } from "../services
 import { getNewMessageIdByOldMessageId } from '../services/database/message-id-replacement-repository';
 import { modelName as messageIdReplacementModelName } from '../models/message-id-replacement';
 import { modelName as registrationRequestModelName } from '../models/registration-request';
-import { transferOutFragments } from '../services/transfer/transfer-out-fragments';
+import { transferOutFragmentsForNewContinueRequest } from '../services/transfer/transfer-out-fragments';
 import { transferOutEhrCore } from '../services/transfer/transfer-out-ehr-core';
 import { modelName as messageFragmentModelName } from '../models/message-fragment';
 import { transportSpy } from '../__builders__/logging-helper';
@@ -191,7 +191,7 @@ describe('Replacement of message IDs', () => {
         .reply(204);
 
       // when
-      await transferOutFragments({ conversationId, nhsNumber, odsCode });
+      await transferOutFragmentsForNewContinueRequest({ conversationId, nhsNumber, odsCode });
 
       // then
       // assert all endpoints are called

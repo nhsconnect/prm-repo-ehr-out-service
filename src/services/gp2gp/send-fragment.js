@@ -6,7 +6,6 @@ import {logOutboundMessage} from './logging-utils';
 import {createFragmentDbRecord} from '../database/create-fragment-db-record';
 import {updateFragmentStatus} from '../transfer/transfer-out-util';
 import {Status} from '../../models/message-fragment';
-import {getMessageFragmentRecordByMessageId} from '../database/message-fragment-repository';
 import {setCurrentSpanAttributes} from '../../config/tracing';
 
 export const sendFragment = async (conversationId, odsCode, fragmentMessage, messageId) => {
@@ -17,8 +16,6 @@ export const sendFragment = async (conversationId, odsCode, fragmentMessage, mes
   setCurrentSpanAttributes({conversationId, messageId});
 
   logInfo(`Started to send fragment with Message ID: ${messageId}, outbound Conversation ID ${conversationId}.`);
-
-  if (await hasFragmentBeenSent(messageId)) return;
 
   await createFragmentDbRecord(messageId, conversationId);
 
@@ -38,12 +35,3 @@ export const sendFragment = async (conversationId, odsCode, fragmentMessage, mes
   await updateFragmentStatus(conversationId, messageId, Status.SENT_FRAGMENT);
 };
 
-const hasFragmentBeenSent = async messageId => {
-  const previousTransferOut = await getMessageFragmentRecordByMessageId(messageId);
-  if (previousTransferOut?.status === Status.SENT_FRAGMENT) {
-    logWarning(`EHR message FRAGMENT with message ID ${messageId} has already been sent`);
-    return true;
-  }
-  logInfo(`Checked that fragment with message id: ${messageId} is not sent yet`);
-  return false;
-};

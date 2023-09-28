@@ -1,18 +1,17 @@
-import { getRegistrationRequestStatusByConversationId } from '../database/registration-request-repository';
-import { logError, logInfo } from '../../middleware/logging';
+import { getRegistrationRequestByConversationId } from '../database/registration-request-repository';
+import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { createRegistrationRequest } from '../database/create-registration-request';
 import { Status } from '../../models/registration-request';
-import { EhrUrlNotFoundError, DownloadError } from '../../errors/errors';
+import {EhrUrlNotFoundError, DownloadError, SendCoreError} from '../../errors/errors';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../ehr-repo/get-ehr';
 import { sendCore } from '../gp2gp/send-core';
 import {
-  createNewMessageIdsForAllFragments,
-  patientAndPracticeOdsCodesMatch,
+  createNewMessageIds, getNewMessageIdForOldMessageId,
+  patientAndPracticeOdsCodesMatch, replaceMessageIdsInObject,
   updateConversationStatus,
-  updateMessageIdForEhrCore,
-  updateReferencedFragmentIds
 } from './transfer-out-util';
+import {parseMessageId} from "../parser/parsing-utilities";
 
 export async function transferOutEhrCore({
   conversationId,
@@ -68,13 +67,18 @@ export async function transferOutEhrCore({
       'EHR has been successfully sent'
     );
   } catch (error) {
-    if (error instanceof EhrUrlNotFoundError) {
-      await updateConversationStatus(conversationId, Status.MISSING_FROM_REPO);
+    switch (error) {
+      case error instanceof EhrUrlNotFoundError:
+        await updateConversationStatus(conversationId, Status.MISSING_FROM_REPO);
+        break;
+      case error instanceof DownloadError:
+        await updateConversationStatus(conversationId, Status.EHR_DOWNLOAD_FAILED);
+        break;
+      // this will catch SendCoreErrors & Any miscellaneous errors
+      default:
+        await updateConversationStatus(conversationId, Status.CORE_SENDING_FAILED);
+        logError('EHR transfer out request failed', error);
     }
-    if (error instanceof DownloadError) {
-      await updateConversationStatus(conversationId, Status.EHR_DOWNLOAD_FAILED);
-    }
-    logError('EHR transfer out request failed', error);
   }
 }
 
@@ -84,22 +88,32 @@ const getEhrCoreAndUpdateMessageIds = async (nhsNumber, conversationId) => {
     conversationId
   );
 
-  let { ehrCoreWithUpdatedMessageId, newMessageId } = await updateMessageIdForEhrCore(ehrCore);
-  logInfo(`Replaced message id for ehrCore`);
+  const ehrCoreMessageId = await parseMessageId(ehrCore);
+  const allMessageIds = ehrCoreMessageId.concat(fragmentMessageIds);
+  const messageIdReplacements = await createNewMessageIds(allMessageIds);
 
-  if (fragmentMessageIds?.length > 0) {
-    await createNewMessageIdsForAllFragments(fragmentMessageIds);
-    logInfo(`Created new message id for all fragments`);
-    ehrCoreWithUpdatedMessageId = await updateReferencedFragmentIds(ehrCoreWithUpdatedMessageId);
-    logInfo(`Replaced fragment id references in ehrCore`);
-  }
+  // TODO PRMT-4074 REMOVE THIS
+  // let { ehrCoreWithUpdatedMessageId, newMessageId } = await updateMessageIdForEhrCore(ehrCore);
+  // // logInfo(`Replaced message id for ehrCore`);
+  //
+  //
+  //
+  // if (fragmentMessageIds?.length > 0) {
+  //   const messageIdReplacements = await createNewMessageIds(fragmentMessageIds);
+  //   logInfo(`Replaced fragment id references in ehrCore`);
+  // }
+
+  const ehrCoreWithUpdatedMessageId = await replaceMessageIdsInObject(ehrCore, messageIdReplacements);
+
+  const newMessageId = getNewMessageIdForOldMessageId(ehrCoreMessageId, messageIdReplacements);
+
   return { ehrCoreWithUpdatedMessageId, newMessageId };
 };
 
 const isEhrRequestDuplicate = async conversationId => {
-  const previousTransferOut = await getRegistrationRequestStatusByConversationId(conversationId);
+  const previousTransferOut = await getRegistrationRequestByConversationId(conversationId);
   if (previousTransferOut !== null) {
-    logInfo(`EHR out transfer with conversation ID ${conversationId} is already in progress`);
+    logWarning(`EHR out transfer with conversation ID ${conversationId} is already in progress`);
     return true;
   }
   return false;

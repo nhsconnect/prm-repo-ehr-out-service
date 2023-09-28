@@ -1,9 +1,9 @@
 import expect from 'expect';
 import { logInfo } from '../../../middleware/logging';
-import { transferOutFragments } from '../transfer-out-fragments';
+import { transferOutFragmentsForNewContinueRequest } from '../transfer-out-fragments';
 import { sendFragment } from '../../gp2gp/send-fragment';
-import { updateFragmentMessageId } from '../transfer-out-util';
-import { getFragment, retrieveIdsFromEhrRepo } from '../../ehr-repo/get-fragment';
+import { updateFragmentMessageIds } from '../transfer-out-util';
+import { getFragment, getMessageIdsFromEhrRepo } from '../../ehr-repo/get-fragment';
 
 // Mocking
 jest.mock('../transfer-out-util');
@@ -46,12 +46,12 @@ describe('transferOutFragment', () => {
 
   it('should send fragment on success', async () => {
     // when
-    retrieveIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
+    getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
     getFragment.mockResolvedValueOnce(fragment);
-    updateFragmentMessageId.mockResolvedValueOnce(updatedFragment);
+    updateFragmentMessageIds.mockResolvedValueOnce(updatedFragment);
     sendFragment.mockResolvedValueOnce(undefined);
 
-    const result = await transferOutFragments({
+    const result = await transferOutFragmentsForNewContinueRequest({
       conversationId: inboundConversationId,
       nhsNumber: nhsNumber,
       odsCode: odsCode
@@ -59,12 +59,12 @@ describe('transferOutFragment', () => {
 
     // then
     expect(result).toBe(undefined);
-    expect(retrieveIdsFromEhrRepo).toBeCalledWith(nhsNumber);
+    expect(getMessageIdsFromEhrRepo).toBeCalledWith(nhsNumber);
     expect(getFragment).toHaveBeenCalledWith(
       inboundConversationId,
       ehrRepositoryResponse.messageIds[0]
     );
-    expect(updateFragmentMessageId).toHaveBeenCalledWith(fragment);
+    expect(updateFragmentMessageIds).toHaveBeenCalledWith(fragment);
     expect(sendFragment).toHaveBeenCalledWith(
       inboundConversationId,
       odsCode,

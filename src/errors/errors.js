@@ -13,13 +13,13 @@ export const errorMessages = {
   DUPLICATED_REQUEST_ERROR: 'Got a duplicated request',
   PARSING_ERROR: 'Unable to parse XML',
   MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to update message id to new ones',
-  MESSAGE_ID_RECORD_CREATION_ERROR: 'Failed to record the message ids replacement in database',
+  MESSAGE_ID_RECORD_CREATION_ERROR: 'Failed to record the message id replacements in database',
   FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR:
     'Cannot find the fragment message record within the database',
   ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR:
       'Cannot find an acknowledgement record within the database',
   FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR:
-    'Cannot find the replaced fragment message id within the database'
+    'Cannot find one or more newMessageId for message fragment within the database'
 };
 
 export class ParsingError extends Error {
@@ -93,10 +93,10 @@ export class MessageIdUpdateError extends Error {
 }
 
 export class FragmentMessageRecordNotFoundError extends Error {
-  constructor(messageId) {
+  constructor(messageIds) {
     super(errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR);
     logError(
-      `${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId: ${messageId}`
+      `${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId(s): ${messageIds}`
     );
   };
 }
@@ -118,10 +118,11 @@ export class FileReadError extends Error {
 }
 
 export class FragmentMessageIdReplacementRecordNotFoundError extends Error {
-  constructor(oldMessageId) {
+  constructor(message) {
     super(errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR);
     logError(
-      `${errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR}, related oldMessageId: ${oldMessageId}`
+      `${errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR}, 
+      oldMessageIds has size ${oldMessageIdsSize} but found ${newMessageIdsSize}.`
     );
   };
 }
