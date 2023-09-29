@@ -89,7 +89,7 @@ const getEhrCoreAndUpdateMessageIds = async (nhsNumber, conversationId) => {
   );
 
   const ehrCoreMessageId = await parseMessageId(ehrCore);
-  const allMessageIds = ehrCoreMessageId.concat(fragmentMessageIds);
+  const allMessageIds = [ehrCoreMessageId].concat(fragmentMessageIds);
   const messageIdReplacements = await createNewMessageIds(allMessageIds);
 
   // TODO PRMT-4074 REMOVE THIS

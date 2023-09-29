@@ -30,7 +30,14 @@ describe('transferOutEhrCore', () => {
   const ehrRequestId = '870f6ef9-746f-4e81-b51f-884d64530bed';
   const messageId = '835a2b69-bac0-4f6f-97a8-897350604380';
   const newMessageId = uuid();
-  const messageIdWithReplacement = { oldMessageId: messageId, newMessageId };
+  const fragmentMessageIds = ['id1', 'id2', 'id3'];
+  const messageIdWithReplacementsEhrCoreWithNoFragments = [{ oldMessageId: messageId, newMessageId }];
+  const messageIdWithReplacementsEhrCoreWithFragments = [
+    { oldMessageId: messageId, newMessageId },
+    { oldMessageId: fragmentMessageIds[0], newMessageId: uuid() },
+    { oldMessageId: fragmentMessageIds[1], newMessageId: uuid() },
+    { oldMessageId: fragmentMessageIds[2], newMessageId: uuid() },
+  ];
   const odsCode = 'A12345';
   const nhsNumber = '1111111111';
   const ehrCore = {
@@ -38,7 +45,6 @@ describe('transferOutEhrCore', () => {
     attachments: ['attachment 1', 'attachment 2'],
     external_attachments: ['ext attachment 1', 'ext attachment 2']
   };
-  const fragmentMessageIds = ['id1', 'id2', 'id3'];
   const ehrCoreWithUpdatedMessageId = {
     ...ehrCore,
     payload: 'payload XML with updated message ids'
@@ -61,7 +67,7 @@ describe('transferOutEhrCore', () => {
       });
 
       // when
-      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
+      await transferOutEhrCore({conversationId, nhsNumber, odsCode, ehrRequestId});
 
       // then
       expect(logInfo).toHaveBeenNthCalledWith(
@@ -79,7 +85,7 @@ describe('transferOutEhrCore', () => {
       patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
 
       // when
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({conversationId, nhsNumber, messageId, odsCode, ehrRequestId});
 
       // then
       expect(createRegistrationRequest).toHaveBeenCalledWith(
@@ -108,7 +114,7 @@ describe('transferOutEhrCore', () => {
       patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
 
       // when
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({conversationId, nhsNumber, messageId, odsCode, ehrRequestId});
 
       // then
       expect(createRegistrationRequest).toHaveBeenCalledWith(
@@ -127,7 +133,116 @@ describe('transferOutEhrCore', () => {
       expect(sendCore).not.toHaveBeenCalled();
     });
 
-    it('should validate ODS code in PDS', async () => {
+    it('should replace the main message ID in ehr core before sending out, if no fragment', async () => {
+      // given
+      getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
+      patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
+      getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ehrCore, fragmentMessageIds: []});
+      parseMessageId.mockResolvedValueOnce(messageId);
+      createNewMessageIds.mockResolvedValueOnce(messageIdWithReplacementsEhrCoreWithNoFragments);
+      replaceMessageIdsInObject.mockResolvedValueOnce(ehrCoreWithUpdatedMessageId);
+      getNewMessageIdForOldMessageId.mockReturnValueOnce(newMessageId);
+
+      // when
+      await transferOutEhrCore({conversationId, nhsNumber, messageId, odsCode, ehrRequestId});
+
+      // then
+      expect(replaceMessageIdsInObject).toBeCalledWith(ehrCore, messageIdWithReplacementsEhrCoreWithNoFragments);
+      expect(sendCore).toBeCalledWith(
+        conversationId,
+        odsCode,
+        ehrCoreWithUpdatedMessageId,
+        ehrRequestId,
+        newMessageId
+      );
+    });
+
+    it('should create new message ids for fragment and replace them in ehrCore, if fragment is referenced', async () => {
+      // given
+      const allMessageIds = [messageId].concat(fragmentMessageIds);
+
+      getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
+      patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
+      getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ehrCore, fragmentMessageIds});
+      parseMessageId.mockResolvedValueOnce(messageId);
+      createNewMessageIds.mockResolvedValueOnce(messageIdWithReplacementsEhrCoreWithFragments);
+      replaceMessageIdsInObject.mockResolvedValueOnce(ehrCoreWithUpdatedMessageId);
+      getNewMessageIdForOldMessageId.mockReturnValueOnce(newMessageId);
+
+      // when
+      await transferOutEhrCore({conversationId, nhsNumber, messageId, odsCode, ehrRequestId});
+
+      // then
+      expect(createNewMessageIds).toBeCalledWith(allMessageIds);
+      expect(sendCore).toHaveBeenCalledWith(
+        conversationId,
+        odsCode,
+        ehrCoreWithUpdatedReferencedFragmentMessageId,
+        ehrRequestId,
+        newMessageId
+      );
+    });
+
+    it('should send EHR core on success', async () => {
+      // given
+      getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
+      patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
+      getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ehrCore, fragmentMessageIds});
+      parseMessageId.mockResolvedValueOnce(messageId);
+      createNewMessageIds.mockResolvedValueOnce(messageIdWithReplacementsEhrCoreWithFragments);
+      replaceMessageIdsInObject.mockResolvedValueOnce(ehrCoreWithUpdatedMessageId);
+      getNewMessageIdForOldMessageId.mockReturnValueOnce(newMessageId);
+
+      // when
+      await transferOutEhrCore({conversationId, nhsNumber, messageId, odsCode, ehrRequestId});
+
+      // then
+      expect(createRegistrationRequest).toHaveBeenCalledWith(
+        conversationId,
+        messageId,
+        nhsNumber,
+        odsCode
+      );
+      expect(getEhrCoreAndFragmentIdsFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
+      expect(updateConversationStatus).toHaveBeenCalledWith(
+        conversationId,
+        Status.ODS_VALIDATION_CHECKS_PASSED
+      );
+      expect(updateConversationStatus).toHaveBeenCalledWith(
+        conversationId,
+        Status.SENT_EHR,
+        'EHR has been successfully sent'
+      );
+      expect(logInfo).toHaveBeenCalledWith('EHR transfer out started');
+      expect(logInfo).toHaveBeenCalledWith(`Sending EHR core`);
+      expect(sendCore).toHaveBeenCalledWith(
+        conversationId,
+        odsCode,
+        ehrCoreWithUpdatedMessageId,
+        ehrRequestId,
+        newMessageId
+      );
+    });
+
+    it('should not send the ehrCore if the registrationRequest cannot be retrieved from the database', async () => {
+      // given
+      const error = new Error('test error message');
+      getRegistrationRequestByConversationId.mockRejectedValueOnce(error);
+
+      // when
+      await transferOutEhrCore({conversationId, nhsNumber, messageId, odsCode, ehrRequestId});
+
+      // then
+      expect(logError).toHaveBeenCalledWith('EHR transfer out request failed', error);
+      expect(sendCore).not.toHaveBeenCalled();
+    });
+
+    // TODO PRMT-4074
+    it('should not send out the ehrCore if ehrRequest is a duplicate', async () => {
+
+    });
+
+    it('should not send the ehrCore if the ODS code does not match in PDS', async () => {
       // given
       getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
       getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({});
@@ -150,142 +265,54 @@ describe('transferOutEhrCore', () => {
       );
       expect(sendCore).not.toHaveBeenCalled();
     });
-  });
 
-  it('should replace the main message ID in ehr core before sending out, if no fragment', async () => {
-    // given
-    getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
-    getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds: [] });
-    parseMessageId.mockResolvedValueOnce(messageId);
-    createNewMessageIds.mockResolvedValueOnce([messageIdWithReplacement]);
-    replaceMessageIdsInObject.mockResolvedValueOnce(ehrCoreWithUpdatedMessageId);
-    getNewMessageIdForOldMessageId.mockResolvedValueOnce(newMessageId);
-    patientAndPracticeOdsCodesMatch.mockResolvedValueOnce(true);
+    // TODO PRMT-4074
+    it('should not send out the ehrCore if failed to update conversation status', async () => {
 
-    // when
-    await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+    });
 
-    // then
-    expect(replaceMessageIdsInObject).toBeCalledWith(ehrCore, [messageIdWithReplacement]);
-    expect(sendCore).toHaveBeenCalledWith(
-      conversationId,
-      odsCode,
-      ehrCoreWithUpdatedMessageId,
-      ehrRequestId,
-      newMessageId
-    );
-  });
+    it('should not send out the ehrCore if failed to update the message ids', async () => {
+      // given
+      getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
+      patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
+      getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ehrCore});
+      parseMessageId.mockResolvedValueOnce(messageId);
+      createNewMessageIds.mockResolvedValueOnce(messageIdWithReplacementsEhrCoreWithFragments);
+      replaceMessageIdsInObject().mockRejectedValueOnce(new MessageIdUpdateError('some error'));
 
-  it('should create new message ids for fragment and replace them in ehrCore, if fragment is referenced', async () => {
-    // given
-    getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
-    patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
-    getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds });
-    updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
-    updateReferencedFragmentIds.mockResolvedValueOnce(
-      ehrCoreWithUpdatedReferencedFragmentMessageId
-    );
+      // when
+      await transferOutEhrCore({conversationId, nhsNumber, messageId, odsCode, ehrRequestId});
 
-    // when
-    await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      // then
+      expect(sendCore).not.toBeCalled();
+      expect(logError).toHaveBeenCalledWith(
+        'EHR transfer out request failed',
+        new MessageIdUpdateError()
+      );
+    });
 
-    // then
-    expect(createNewMessageIds).toBeCalledWith(fragmentMessageIds);
-    expect(updateReferencedFragmentIds).toBeCalledWith(ehrCoreWithUpdatedMessageId);
-    expect(sendCore).toHaveBeenCalledWith(
-      conversationId,
-      odsCode,
-      ehrCoreWithUpdatedReferencedFragmentMessageId,
-      ehrRequestId,
-      newMessageId
-    );
-  });
+    it('should not send out the ehrCore if got fragment and failed to update the message ids for fragment', async () => {
+      // given
+      getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
+      patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
+      getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ehrCore, fragmentMessageIds});
+      updateMessageIdForEhrCore.mockResolvedValueOnce({ehrCoreWithUpdatedMessageId, newMessageId});
+      updateReferencedFragmentIds.mockRejectedValue(new MessageIdUpdateError('some error'));
 
-  it('should send EHR core on success', async () => {
-    // given
-    getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
-    patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
-    getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore });
-    updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
+      // when
+      await transferOutEhrCore({conversationId, nhsNumber, odsCode, ehrRequestId});
 
-    // when
-    await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      // then
+      expect(sendCore).not.toBeCalled();
+      expect(logError).toHaveBeenCalledWith(
+        'EHR transfer out request failed',
+        new MessageIdUpdateError()
+      );
+    });
 
-    // then
-    expect(createRegistrationRequest).toHaveBeenCalledWith(
-      conversationId,
-      messageId,
-      nhsNumber,
-      odsCode
-    );
-    expect(getEhrCoreAndFragmentIdsFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
-    expect(updateConversationStatus).toHaveBeenCalledWith(
-      conversationId,
-      Status.ODS_VALIDATION_CHECKS_PASSED
-    );
-    expect(updateConversationStatus).toHaveBeenCalledWith(
-      conversationId,
-      Status.SENT_EHR,
-      'EHR has been successfully sent'
-    );
-    expect(logInfo).toHaveBeenCalledWith('EHR transfer out started');
-    expect(logInfo).toHaveBeenCalledWith(`Sending EHR core`);
-    expect(sendCore).toHaveBeenCalledWith(
-      conversationId,
-      odsCode,
-      ehrCoreWithUpdatedMessageId,
-      ehrRequestId,
-      newMessageId
-    );
-  });
+    // TODO PRMT-4074
+    it('should not send out the ehrCore if failed to send the core', async () => {
 
-  it('should handle exceptions', async () => {
-    // given
-    const error = new Error('test error message');
-    getRegistrationRequestByConversationId.mockRejectedValueOnce(error);
-
-    // when
-    await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
-
-    // then
-    expect(logError).toHaveBeenCalledWith('EHR transfer out request failed', error);
-    expect(sendCore).not.toHaveBeenCalled();
-  });
-
-  it('should not send out the ehrCore if failed to update the message ids', async () => {
-    // given
-    getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
-    patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
-    getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore });
-    updateMessageIdForEhrCore.mockRejectedValueOnce(new MessageIdUpdateError('some error'));
-
-    // when
-    await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
-
-    // then
-    expect(sendCore).not.toBeCalled();
-    expect(logError).toHaveBeenCalledWith(
-      'EHR transfer out request failed',
-      new MessageIdUpdateError()
-    );
-  });
-
-  it('should not send out the ehrCore if got fragment and failed to update the message ids for fragment', async () => {
-    // given
-    getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
-    patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
-    getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds });
-    updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
-    updateReferencedFragmentIds.mockRejectedValue(new MessageIdUpdateError('some error'));
-
-    // when
-    await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
-
-    // then
-    expect(sendCore).not.toBeCalled();
-    expect(logError).toHaveBeenCalledWith(
-      'EHR transfer out request failed',
-      new MessageIdUpdateError()
-    );
+    });
   });
 });
