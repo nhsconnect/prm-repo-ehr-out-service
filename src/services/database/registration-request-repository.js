@@ -7,8 +7,8 @@ import { Op } from "sequelize";
 
 const RegistrationRequest = ModelFactory.getByName(modelName);
 
-export const getRegistrationRequestByConversationId = conversationId => {
-  return RegistrationRequest.findByPk(conversationId);
+export const getRegistrationRequestByConversationId = async conversationId => {
+  return await RegistrationRequest.findByPk(conversationId);
 };
 
 export const getNhsNumberByConversationId = conversationId => {

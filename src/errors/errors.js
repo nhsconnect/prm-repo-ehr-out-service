@@ -2,7 +2,7 @@ import { logError } from '../middleware/logging';
 
 export const errorMessages = {
   DOWNLOAD_ERROR: 'Cannot retrieve message from presigned URL',
-  EHR_URL_NOT_FOUND_ERROR: 'The presigned URL could not be retrieved',
+  PRESIGNED_URL_NOT_FOUND_ERROR: 'The presigned URL could not be retrieved',
   SEND_CORE_ERROR: 'Failed while trying to send ehr core',
   SEND_FRAGMENT_ERROR: 'Failed while trying to send message fragment with message ID: ',
   GET_PDS_CODE_ERROR: 'Unable to retrieve patient from PDS',
@@ -36,10 +36,10 @@ export class GetPdsCodeError extends Error {
   };
 }
 
-export class EhrUrlNotFoundError extends Error {
+export class PresignedUrlNotFoundError extends Error {
   constructor(error) {
-    super(errorMessages.EHR_URL_NOT_FOUND_ERROR);
-    logError(errorMessages.EHR_URL_NOT_FOUND_ERROR, error);
+    super(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR);
+    logError(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR, error);
   };
 }
 

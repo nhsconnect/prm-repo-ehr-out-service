@@ -21,7 +21,7 @@ export const getAllMessageIdsWithReplacementsByOldMessageIds = async oldMessageI
       oldMessageId: oldMessageIds
     }
   }).then(messageIdReplacements => {
-    verifyMessageIdReplacementWasFoundForEachMessageId();
+    verifyMessageIdReplacementWasFoundForEachMessageId(oldMessageIds, messageIdReplacements);
 
     return messageIdReplacements.map(messageIdReplacement => {
       return {

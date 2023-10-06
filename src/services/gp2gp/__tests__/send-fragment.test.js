@@ -69,7 +69,7 @@ describe('sendFragment', () => {
     ).rejects.toThrow(FragmentSendingError);
 
     expect(updateFragmentStatus).toBeCalledTimes(1);
-    expect(updateFragmentStatus).toHaveBeenCalledWith(CONVERSATION_ID, MESSAGE_ID, Status.FRAGMENT_SENDING_FAILED);
+    expect(updateFragmentStatus).toHaveBeenCalledWith(CONVERSATION_ID, MESSAGE_ID, Status.SENDING_FAILED);
     expect(mockUrlRequest.isDone()).toBe(true);
   });
 

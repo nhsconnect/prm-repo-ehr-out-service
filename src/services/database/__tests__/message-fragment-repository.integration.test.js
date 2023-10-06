@@ -81,7 +81,7 @@ describe('message-fragment-repository.js', () => {
     // ============ COMMON PROPERTIES ============
     const registrationStatus = registrationRequestStatus.REGISTRATION_REQUEST_RECEIVED;
     const initialStatus = MessageFragmentStatus.FRAGMENT_REQUEST_RECEIVED;
-    const updatedStatus = MessageFragmentStatus.FRAGMENT_SENDING_FAILED;
+    const updatedStatus = MessageFragmentStatus.SENDING_FAILED;
     const messageId = '9dd61fbe-1958-4479-a6aa-14cb4aa9651a';
     const conversationId = 'efec71f4-bc54-4a31-9453-f1300bf28cef';
     const nhsNumber = '1234567890';

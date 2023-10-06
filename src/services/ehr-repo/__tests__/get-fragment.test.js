@@ -1,4 +1,4 @@
-import { DownloadError, EhrUrlNotFoundError, errorMessages } from "../../../errors/errors";
+import { DownloadError, PresignedUrlNotFoundError, errorMessages } from "../../../errors/errors";
 import { downloadFromUrl } from "../../transfer/transfer-out-util";
 import { logError, logInfo } from '../../../middleware/logging';
 import { getFragment } from "../get-fragment";
@@ -62,11 +62,11 @@ describe('getFragment', () => {
       .get(`/fragments/${conversationIdFromEhrIn}/${messageId}`)
       .reply(404);
 
-    await expect(getFragment(conversationIdFromEhrIn, messageId)).rejects.toThrow(EhrUrlNotFoundError)
+    await expect(getFragment(conversationIdFromEhrIn, messageId)).rejects.toThrow(PresignedUrlNotFoundError)
 
     // then
     expect(repoScope.isDone()).toBe(true);
-    expect(logError).toHaveBeenCalledWith(errorMessages.EHR_URL_NOT_FOUND_ERROR, axios404Error);
+    expect(logError).toHaveBeenCalledWith(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR, axios404Error);
   });
 
   it('should throw a DownloadError if it failed to download the EHR from the presigned URL', async () => {

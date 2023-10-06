@@ -1,4 +1,4 @@
-import { EhrUrlNotFoundError, PatientRecordNotFoundError } from "../../errors/errors";
+import { PresignedUrlNotFoundError, PatientRecordNotFoundError } from "../../errors/errors";
 import { downloadFromUrl } from "../transfer/transfer-out-util";
 import { logInfo, logError } from "../../middleware/logging";
 import { config } from "../../config";
@@ -48,5 +48,5 @@ const retrieveFragmentPresignedUrlFromRepo = async (conversationIdFromEhrIn, mes
   return await axios.get(repoUrl, {
     headers: { Authorization: ehrRepoAuthKeys}
   }).then(response => response.data)
-    .catch(error => { throw new EhrUrlNotFoundError(error) });
+    .catch(error => { throw new PresignedUrlNotFoundError(error) });
 };

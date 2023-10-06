@@ -74,7 +74,7 @@ describe('continueMessageHandler', () => {
     expect(updateConversationStatus).toHaveBeenCalledWith(
       CONVERSATION_ID,
       Status.FRAGMENTS_SENDING_FAILED,
-      'One or more fragments failed to send');
+      'A fragment failed to send, aborting transfer');
   });
 
   it('should not send fragments if ods codes of the patient and GP practice does not match', async () => {

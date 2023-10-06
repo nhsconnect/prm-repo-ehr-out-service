@@ -6,13 +6,12 @@ const tableName = 'message_fragment';
 export const Status = {
     // PRIMARY PATH
     FRAGMENT_REQUEST_RECEIVED: 'fragment_request_received',
-    ODS_VALIDATION_CHECKS_PASSED: 'ods_validation_checks_passed',
     SENT_FRAGMENT: 'sent_fragment',
 
     // ERRONEOUS
-    INCORRECT_ODS_CODE: 'incorrect_ods_code',
     MISSING_FROM_REPO: 'missing_from_repo',
-    FRAGMENT_SENDING_FAILED: 'fragment_sending_failed'
+    DOWNLOAD_FAILED: 'download_failed',
+    SENDING_FAILED: 'sending_failed'
 };
 
 Object.freeze(Status);

@@ -1,4 +1,4 @@
-import { EhrUrlNotFoundError, DownloadError, errorMessages} from "../../../errors/errors";
+import { PresignedUrlNotFoundError, DownloadError, errorMessages} from "../../../errors/errors";
 import { logError, logInfo } from '../../../middleware/logging';
 import { getEhrCoreAndFragmentIdsFromRepo } from "../get-ehr";
 import nock from 'nock';
@@ -89,9 +89,9 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
         .reply(404, expectedError);
 
       await expect(() => getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId))
-        .rejects.toThrow(EhrUrlNotFoundError);
+        .rejects.toThrow(PresignedUrlNotFoundError);
       expect(urlScope.isDone()).toBe(true);
-      expect(logError).toHaveBeenCalledWith(errorMessages.EHR_URL_NOT_FOUND_ERROR, expectedError);
+      expect(logError).toHaveBeenCalledWith(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR, expectedError);
     });
 
     it('should throw an error when failing to retrieve a presigned url with non-404 response', async () => {

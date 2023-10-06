@@ -32,6 +32,7 @@ export default async function continueMessageHandler(message) {
 
     case Status.INCORRECT_ODS_CODE:
     case Status.MISSING_FROM_REPO:
+    case Status.EHR_DOWNLOAD_FAILED:
     case Status.CORE_SENDING_FAILED:
     case Status.EHR_INTEGRATION_FAILED:
       logWarning(`Ignoring duplicate continue request. Conversation ID ${conversationId} already failed and is unable to retry`);
@@ -42,7 +43,6 @@ export default async function continueMessageHandler(message) {
       break;
 
     case (Status.CONTINUE_REQUEST_RECEIVED && hasServiceStartedInTheLast5Minutes):
-    case Status.EHR_DOWNLOAD_FAILED:
     case Status.FRAGMENTS_SENDING_FAILED:
       await handleRetriedContinueRequest(conversationId, continueRequestMessage);
       break;
@@ -54,14 +54,6 @@ export default async function continueMessageHandler(message) {
 };
 
 const handleNewContinueRequest = async (conversationId, continueRequestMessage) => {
-  /*
-    IN THIS METHOD
-    - getNhsNumberByConversationId
-    - check patient and practice ODS codes match
-    - updateConversationStatus to 'CONTINUE_REQUEST_RECEIVED'
-   */
-
-
   const nhsNumber = await getNhsNumberByConversationId(conversationId);
 
   logInfo('Found NHS number for the given conversation ID');
@@ -90,17 +82,38 @@ const handleNewContinueRequest = async (conversationId, continueRequestMessage) 
       updateConversationStatus(
         conversationId,
         Status.FRAGMENTS_SENDING_FAILED,
-        'One or more fragments failed to send');
+        'A fragment failed to send, aborting transfer');
     });
 }
 
 const handleRetriedContinueRequest = async (conversationId, continueRequestMessage) => {
-  /*
-     IN THIS METHOD
-     - getNhsNumberByConversationId
-     - check patient and practice ODS codes match
-    */
-
   logInfo(`Resuming failed continue request for conversation ID ${conversationId}`);
-  transferOutFragmentsForRetriedContinueRequest();
+
+  const nhsNumber = await getNhsNumberByConversationId(conversationId);
+
+  logInfo('Found NHS number for the given conversation ID');
+
+  if (!await patientAndPracticeOdsCodesMatch(nhsNumber, continueRequestMessage.odsCode)) {
+    await updateConversationStatus(
+      conversationId,
+      Status.INCORRECT_ODS_CODE,
+      'Patients ODS Code in PDS does not match requesting practices ODS Code');
+    return;
+  }
+
+  transferOutFragmentsForRetriedContinueRequest({
+    conversationId,
+    nhsNumber,
+    odsCode: continueRequestMessage.odsCode
+  }).then(() => {
+    logInfo("Finished transferOutFragment");
+    updateConversationStatus(conversationId, Status.SENT_FRAGMENTS)
+  })
+    .catch(error => {
+      logError("Encountered error while sending out fragments", error);
+      updateConversationStatus(
+        conversationId,
+        Status.FRAGMENTS_SENDING_FAILED,
+        'A fragment failed to send, aborting transfer');
+    });
 }

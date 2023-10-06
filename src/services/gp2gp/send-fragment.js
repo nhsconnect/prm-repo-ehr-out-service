@@ -28,7 +28,7 @@ export const sendFragment = async (conversationId, odsCode, fragmentMessage, mes
       logInfo('Successfully sent message fragment');
     })
     .catch(async error => {
-      await updateFragmentStatus(conversationId, messageId, Status.FRAGMENT_SENDING_FAILED);
+      await updateFragmentStatus(conversationId, messageId, Status.SENDING_FAILED);
       throw new FragmentSendingError(error, messageId);
     });
 
