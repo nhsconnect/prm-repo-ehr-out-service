@@ -26,6 +26,8 @@ resource "aws_sqs_queue" "ehr-out-service-incoming-dlq" {
   name                      = local.ehr-out-service-incoming-dlq_name
   message_retention_seconds = 1209600
   kms_master_key_id         = aws_kms_key.service_incoming.id
+  receive_wait_time_seconds  = 20
+  visibility_timeout_seconds = 240
 
   tags = {
     Name        = local.ehr-out-service-incoming-dlq_name
