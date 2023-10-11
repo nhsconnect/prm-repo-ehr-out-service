@@ -261,14 +261,19 @@ describe('transferOutEhrCore', () => {
       patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
       updateConversationStatus.mockResolvedValueOnce(undefined);
       getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ehrCore, fragmentMessageIds});
-      replaceMessageIdsInObject.mockRejectedValue(error);
+      replaceMessageIdsInObject.mockImplementationOnce(() => {
+        throw new MessageIdUpdateError()
+      });
 
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
       // then
-      expect(sendCore).not.toHaveBeenCalled();
       expect(getRegistrationRequestByConversationId).toHaveBeenCalledWith(conversationId);
-      expect(createRegistrationRequest).toHaveBeenCalledWith()
+
+      expect(updateConversationStatus).toHaveBeenCalledTimes(2);
+      expect(updateConversationStatus).toHaveBeenCalledWith(conversationId, Status.ODS_VALIDATION_CHECKS_PASSED);
+      expect(updateConversationStatus).toHaveBeenCalledWith(conversationId, Status.CORE_SENDING_FAILED);
+      expect(sendCore).not.toHaveBeenCalled();
     });
   });
 });

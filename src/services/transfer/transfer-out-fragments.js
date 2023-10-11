@@ -1,6 +1,6 @@
 import { getFragment, getMessageIdsFromEhrRepo } from '../ehr-repo/get-fragment';
 import { setCurrentSpanAttributes } from '../../config/tracing';
-import { replaceMessageIdsInObject, updateConversationStatus, updateFragmentStatus } from './transfer-out-util';
+import { replaceMessageIdsInObject, updateFragmentStatus } from './transfer-out-util';
 import { sendFragment } from '../gp2gp/send-fragment';
 import { logError, logInfo } from '../../middleware/logging';
 import { config } from '../../config';
@@ -25,7 +25,7 @@ export async function transferOutFragmentsForRetriedContinueRequest({ conversati
   setCurrentSpanAttributes({ conversationId });
   logInfo(`Retrying the EHR Fragment transfer.`);
   const { conversationIdFromEhrIn, messageIds } = await getMessageIdsFromEhrRepo(nhsNumber);
-  logInfo(`Retrieved Inbound Conversation ID ${conversationIdFromEhrIn} and all Message IDs for transfer.`);
+  logInfo('Retrieved all fragment Message IDs for transfer.');
 
   // returns an object with the inbound and outbound message IDs paired together
   const messageIdsWithReplacements = await getAllMessageIdsWithReplacementsByOldMessageIds(messageIds);
@@ -54,7 +54,7 @@ const getAndSendMessageFragments = async (messageIdsWithReplacements, conversati
         if (config.fragmentTransferRateLimitTimeoutMilliseconds)
           await new Promise(executor => setTimeout(executor, config.fragmentTransferRateLimitTimeoutMilliseconds));
       } catch (error) {
-        await handleFragmentTransferError(error, conversationId, messageIdsWithReplacements.newMessageId);
+        await handleFragmentTransferError(error, conversationId, messageIdWithReplacement.newMessageId);
         throw error;
       }
     }
@@ -95,7 +95,7 @@ const handleFragmentTransferError = async (error, conversationId, messageId) => 
       break;
     // this will catch any miscellaneous errors
     default:
-      await updateConversationStatus(conversationId, messageId, Status.SENDING_FAILED);
+      await updateFragmentStatus(conversationId, messageId, Status.SENDING_FAILED);
       logError('Fragment transfer request failed', error);
   }
 }

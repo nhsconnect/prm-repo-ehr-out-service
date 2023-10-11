@@ -24,7 +24,7 @@ export default async function continueMessageHandler(message) {
 
   const registrationRequest = await getRegistrationRequestByConversationId(conversationId);
 
-  switch (registrationRequest.status) {
+  switch (registrationRequest?.status) {
     case Status.SENT_FRAGMENTS:
     case Status.EHR_INTEGRATED:
       logWarning(`Ignoring duplicate continue request. Conversation ID ${conversationId} already completed successfully`);

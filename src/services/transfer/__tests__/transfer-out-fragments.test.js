@@ -21,7 +21,7 @@ jest.mock('../../database/message-fragment-repository');
 jest.mock('../../database/message-id-replacement-repository');
 jest.mock('../../../config', () => ({
   config: jest.fn().mockReturnValue({
-    sequelize: {dialect: 'postgres'},
+    sequelize: { dialect: 'postgres' },
     rateLimitTimeoutMilliseconds: 1000
   })
 }));
@@ -110,7 +110,7 @@ describe('transferOutFragments', () => {
 
     expect(logInfo).toHaveBeenCalledTimes(5);
     expect(logInfo).toHaveBeenCalledWith(`Initiated the EHR Fragment transfer.`);
-    expect(logInfo).toHaveBeenCalledWith('Retrieved Inbound Conversation ID and all Message IDs for transfer.');
+    expect(logInfo).toHaveBeenCalledWith('Retrieved all fragment Message IDs for transfer.');
     expect(logInfo).toHaveBeenCalledWith(`Fragment 1 of 2 sent to the GP2GP Messenger - with old Message ID ${originalMessageId1}, and new Message ID ${updatedMessageId1}.`);
     expect(logInfo).toHaveBeenCalledWith(`Fragment 2 of 2 sent to the GP2GP Messenger - with old Message ID ${originalMessageId2}, and new Message ID ${updatedMessageId2}.`);
     expect(logInfo).toHaveBeenCalledWith(`All fragments have been successfully sent to GP2GP Messenger.`);
@@ -193,22 +193,18 @@ describe('transferOutFragments', () => {
     getAllMessageIdsWithReplacementsByOldMessageIds.mockResolvedValueOnce(messageIdsWithReplacements);
     getFragment.mockRejectedValueOnce(error);
 
-    const result = await transferOutFragmentsForNewContinueRequest({
+    // then
+    await expect(transferOutFragmentsForNewContinueRequest({
       conversationId: outboundConversationId,
       nhsNumber: nhsNumber,
       odsCode: odsCode
-    });
-
-    // then
-    expect(result).toBe(undefined);
+    })).rejects.toThrow(error);
 
     expect(getMessageIdsFromEhrRepo).toHaveBeenCalledWith(nhsNumber);
     expect(getAllMessageIdsWithReplacementsByOldMessageIds).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
     expect(getFragment).toHaveBeenCalledTimes(1);
     expect(getFragment).toHaveBeenCalledWith(inboundConversationId, ehrRepositoryResponse.messageIds[0]);
-    expect(getFragment).toThrow(error);
     expect(updateFragmentStatus).toHaveBeenCalledWith(outboundConversationId, updatedMessageId1, Status.MISSING_FROM_REPO);
-    expect(transferOutFragmentsForNewContinueRequest).toThrow(error);
 
     expect(replaceMessageIdsInObject).not.toHaveBeenCalled();
     expect(sendFragment).not.toHaveBeenCalled();
@@ -223,22 +219,18 @@ describe('transferOutFragments', () => {
     getAllMessageIdsWithReplacementsByOldMessageIds.mockResolvedValueOnce(messageIdsWithReplacements);
     getFragment.mockRejectedValueOnce(error);
 
-    const result = await transferOutFragmentsForNewContinueRequest({
+    // then
+    await expect(transferOutFragmentsForNewContinueRequest({
       conversationId: outboundConversationId,
       nhsNumber: nhsNumber,
       odsCode: odsCode
-    });
-
-    // then
-    expect(result).toBe(undefined);
+    })).rejects.toThrow(error);
 
     expect(getMessageIdsFromEhrRepo).toHaveBeenCalledWith(nhsNumber);
     expect(getAllMessageIdsWithReplacementsByOldMessageIds).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
     expect(getFragment).toHaveBeenCalledTimes(1);
     expect(getFragment).toHaveBeenCalledWith(inboundConversationId, ehrRepositoryResponse.messageIds[0]);
-    expect(getFragment).toThrow(error);
     expect(updateFragmentStatus).toHaveBeenCalledWith(outboundConversationId, updatedMessageId1, Status.DOWNLOAD_FAILED);
-    expect(transferOutFragmentsForNewContinueRequest).toThrow(error);
 
     expect(replaceMessageIdsInObject).not.toHaveBeenCalled();
     expect(sendFragment).not.toHaveBeenCalled();
@@ -255,24 +247,20 @@ describe('transferOutFragments', () => {
     replaceMessageIdsInObject.mockReturnValueOnce(updatedFragment1);
     sendFragment.mockRejectedValueOnce(error);
 
-    const result = await transferOutFragmentsForNewContinueRequest({
+    // then
+    await expect(transferOutFragmentsForNewContinueRequest({
       conversationId: outboundConversationId,
       nhsNumber: nhsNumber,
       odsCode: odsCode
-    });
-
-    // then
-    expect(result).toBe(undefined);
+    })).rejects.toThrow(error);
 
     expect(getMessageIdsFromEhrRepo).toHaveBeenCalledWith(nhsNumber);
     expect(getAllMessageIdsWithReplacementsByOldMessageIds).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
     expect(getFragment).toHaveBeenCalledTimes(1);
     expect(getFragment).toHaveBeenCalledWith(inboundConversationId, ehrRepositoryResponse.messageIds[0]);
     expect(replaceMessageIdsInObject).toHaveBeenCalledTimes(1);
-    expect(replaceMessageIdsInObject).toHaveBeenCalledWith(fragment2, [messageIdsWithReplacements[1]]);
-    expect(sendFragment()).toHaveBeenCalledTimes(1)
-    expect(sendFragment()).toThrow(error);
+    expect(replaceMessageIdsInObject).toHaveBeenCalledWith(fragment1, messageIdsWithReplacements);
+    expect(sendFragment).toHaveBeenCalledTimes(1)
     expect(updateFragmentStatus).toHaveBeenCalledWith(outboundConversationId, updatedMessageId1, Status.SENDING_FAILED);
-    expect(transferOutFragmentsForNewContinueRequest).toThrow(error);
   });
 });
