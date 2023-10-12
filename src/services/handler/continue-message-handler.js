@@ -38,11 +38,12 @@ export default async function continueMessageHandler(message) {
       logWarning(`Ignoring duplicate continue request. Conversation ID ${conversationId} already failed and is unable to retry`);
       break;
 
-    case (Status.CONTINUE_REQUEST_RECEIVED && !hasServiceStartedInTheLast5Minutes):
-      logWarning(`Fragment transfer with conversation ID ${conversationId} is already in progress`);
+    case Status.CONTINUE_REQUEST_RECEIVED:
+      hasServiceStartedInTheLast5Minutes()
+        ? await handleRetriedContinueRequest(conversationId, continueRequestMessage)
+        : logWarning(`Fragment transfer with conversation ID ${conversationId} is already in progress`);
       break;
 
-    case (Status.CONTINUE_REQUEST_RECEIVED && hasServiceStartedInTheLast5Minutes):
     case Status.FRAGMENTS_SENDING_FAILED:
       await handleRetriedContinueRequest(conversationId, continueRequestMessage);
       break;

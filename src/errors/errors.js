@@ -72,9 +72,9 @@ export class PatientRecordNotFoundError extends Error {
 }
 
 export class NhsNumberNotFoundError extends Error {
-  constructor(error) {
+  constructor() {
     super(errorMessages.NHS_NUMBER_NOT_FOUND_ERROR);
-    logError(errorMessages.NHS_NUMBER_NOT_FOUND_ERROR, error);
+    logError(errorMessages.NHS_NUMBER_NOT_FOUND_ERROR);
   };
 }
 

@@ -3,6 +3,7 @@ import { logError, logInfo } from "../../middleware/logging";
 import ModelFactory from '../../models';
 import { modelName } from '../../models/message-id-replacement';
 import {errorMessages} from "../../errors/errors";
+import {v4 as uuidv4} from "uuid";
 
 const MessageIdReplacement = ModelFactory.getByName(modelName);
 
@@ -23,10 +24,10 @@ const MessageIdReplacement = ModelFactory.getByName(modelName);
 //       })
 //   );
 
-export const createMessageIdReplacements = (messageIds) =>
+export const createMessageIdReplacements = (messageIdReplacements) =>
   runWithinTransaction(transaction =>
     MessageIdReplacement.bulkCreate(
-      messageIds,
+      messageIdReplacements,
       { transaction: transaction })
       .then(() => logInfo('Recorded new message IDs in database'))
       .catch(error => {

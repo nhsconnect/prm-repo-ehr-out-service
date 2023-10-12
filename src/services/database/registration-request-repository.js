@@ -12,11 +12,12 @@ export const getRegistrationRequestByConversationId = async conversationId => {
 };
 
 export const getNhsNumberByConversationId = conversationId => {
-    return RegistrationRequest.findByPk(conversationId).then(record => {
+    return RegistrationRequest.findByPk(conversationId)
+      .then(record => {
         if (!record) {
-            throw new NhsNumberNotFoundError(`No record for NHS number related to conversation ID ${conversationId}`);
+            throw new NhsNumberNotFoundError();
         }
-        return record.nhsNumber
+        return record.nhsNumber;
     });
 };
 

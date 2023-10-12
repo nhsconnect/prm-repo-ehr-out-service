@@ -2,7 +2,12 @@ import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { logInfo } from '../../middleware/logging';
-import { DownloadError, MessageIdUpdateError, StatusUpdateError } from '../../errors/errors';
+import {
+  DownloadError,
+  FragmentMessageIdReplacementRecordNotFoundError,
+  MessageIdUpdateError,
+  StatusUpdateError
+} from '../../errors/errors';
 import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
 import { updateRegistrationRequestStatus } from '../database/registration-request-repository';
 import { updateMessageFragmentRecordStatus } from '../database/message-fragment-repository';
@@ -93,14 +98,13 @@ export const createNewMessageIds = async oldMessageIds => {
   });
 
   await createMessageIdReplacements(messageIdReplacements);
-  logInfo(`Created new message ID(s) for EHR core & ${messageIdReplacements.length - 1} fragments`)
+  logInfo(`Created new message ID(s) for EHR core & ${messageIdReplacements.length - 1} fragments`);
   return messageIdReplacements;
 };
 
 export const getNewMessageIdForOldMessageId = (oldMessageId, messageIdReplacements) => {
-  return messageIdReplacements.find(
-    messageIdReplacement => messageIdReplacement.oldMessageId === oldMessageId
-  )
+  return messageIdReplacements
+    .find(messageIdReplacement => messageIdReplacement.oldMessageId === oldMessageId)
     .newMessageId;
 }
 
