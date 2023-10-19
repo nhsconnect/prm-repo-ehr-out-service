@@ -198,39 +198,4 @@ describe('continueMessageHandler', () => {
       'Patients ODS Code in PDS does not match requesting practices ODS Code');
     expect(transferOutFragmentsForNewContinueRequest).not.toBeCalled();
   });
-
-  // TODO PRMT-4074 REMOVE THESE
-  // it('should update conversation status to SENT_FRAGMENTS if all fragment out transfers succeed', async () => {
-  //   // when
-  //   parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
-  //   parseContinueRequestMessage.mockResolvedValueOnce(Promise.resolve({ odsCode: ODS_CODE }));
-  //   getRegistrationRequestByConversationId.mockResolvedValueOnce();
-  //   patientAndPracticeOdsCodesMatch.mockReturnValueOnce(true);
-  //   updateConversationStatus.mockResolvedValueOnce(undefined);
-  //   transferOutFragmentsForNewContinueRequest.mockResolvedValueOnce(undefined);
-  //
-  //   await continueMessageHandler(CONTINUE_MESSAGE);
-  //
-  //   // then
-  //   expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, Status.CONTINUE_REQUEST_RECEIVED);
-  //   expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, Status.SENT_FRAGMENTS);
-  // });
-  //
-  // it('should update conversation status to FRAGMENTS_SENDING_FAILED if transferOutFragments failed', async () => {
-  //   // when
-  //   parseConversationId.mockResolvedValueOnce(Promise.resolve(CONVERSATION_ID));
-  //   parseContinueRequestMessage.mockResolvedValueOnce(Promise.resolve({ odsCode: ODS_CODE }));
-  //   patientAndPracticeOdsCodesMatch.mockReturnValueOnce(true);
-  //   transferOutFragmentsForNewContinueRequest.mockRejectedValueOnce('some error');
-  //
-  //   await continueMessageHandler(CONTINUE_MESSAGE);
-  //
-  //   // then
-  //   expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, Status.CONTINUE_REQUEST_RECEIVED);
-  //   expect(updateConversationStatus).toHaveBeenCalledWith(
-  //     CONVERSATION_ID,
-  //     Status.FRAGMENTS_SENDING_FAILED,
-  //     'A fragment failed to send, aborting transfer');
-  // });
-  //
 });

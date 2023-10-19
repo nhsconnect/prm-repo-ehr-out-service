@@ -1,22 +1,11 @@
 import ModelFactory from '../../models';
-import messageIdReplacement, { modelName } from '../../models/message-id-replacement';
+import { modelName } from '../../models/message-id-replacement';
 import { FragmentMessageIdReplacementRecordNotFoundError } from '../../errors/errors';
 
 const MessageIdReplacement = ModelFactory.getByName(modelName);
 
-// PRMT-4074 REMOVE THIS
-// export const getNewMessageIdByOldMessageId = async oldMessageId => {
-//   return MessageIdReplacement.findByPk(oldMessageId).then(record => {
-//     if (!record) {
-//       throw new FragmentMessageIdReplacementRecordNotFoundError(oldMessageId);
-//     }
-//     // Uppercase the newMessageId here, as postgres db auto converts stored UUIDs to lowercase
-//     return record.newMessageId.toUpperCase();
-//   });
-// };
-
-export const getAllMessageIdsWithReplacementsByOldMessageIds = async oldMessageIds => {
-  MessageIdReplacement.findAll({
+export const getAllMessageIdReplacements = async oldMessageIds => {
+  return MessageIdReplacement.findAll({
     where: {
       oldMessageId: oldMessageIds
     }
@@ -26,7 +15,6 @@ export const getAllMessageIdsWithReplacementsByOldMessageIds = async oldMessageI
     return messageIdReplacements.map(messageIdReplacement => {
       return {
         oldMessageId: messageIdReplacement.oldMessageId,
-        // Uppercase the newMessageId here, as postgres db auto converts stored UUIDs to lowercase
         newMessageId: messageIdReplacement.newMessageId.toUpperCase()
       }
     });
@@ -34,12 +22,6 @@ export const getAllMessageIdsWithReplacementsByOldMessageIds = async oldMessageI
 }
 
 const verifyMessageIdReplacementWasFoundForEachMessageId = (oldMessageIds, messageIdReplacements) => {
-  if (messageIdReplacements.length !== oldMessageIds.length) {
-    const messageIdsWithNoReplacementRecord = messageIdReplacements.map(messageIdReplacement => {
-      if (!oldMessageIds.contains(messageIdReplacement.oldMessageId)) {
-        return messageIdReplacements.oldMessageId
-      }
-      throw new FragmentMessageIdReplacementRecordNotFoundError(messageIdsWithNoReplacementRecord);
-    });
-  }
+  if (messageIdReplacements.length !== oldMessageIds.length)
+    throw new FragmentMessageIdReplacementRecordNotFoundError(oldMessageIds.length, messageIdReplacements.length);
 }

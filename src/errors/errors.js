@@ -95,18 +95,14 @@ export class MessageIdUpdateError extends Error {
 export class FragmentMessageRecordNotFoundError extends Error {
   constructor(messageIds) {
     super(errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR);
-    logError(
-      `${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId(s): ${messageIds}`
-    );
+    logError(`${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId(s): ${messageIds}`);
   };
 }
 
 export class AcknowledgementRecordNotFoundError extends Error {
   constructor(messageId) {
     super(`${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`);
-    logError(
-        `${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`
-    );
+    logError(`${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`);
   };
 }
 
@@ -118,11 +114,10 @@ export class FileReadError extends Error {
 }
 
 export class FragmentMessageIdReplacementRecordNotFoundError extends Error {
-  constructor(message) {
+  constructor(numberOfOldMessageIds, numberOfMessageIdReplacements) {
     super(errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR);
     logError(
-      `${errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR}, 
-      oldMessageIds has size ${oldMessageIdsSize} but found ${newMessageIdsSize}.`
-    );
+      errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR +
+      ` expected ${numberOfOldMessageIds} message ID replacements but found ${numberOfMessageIdReplacements}`);
   };
 }

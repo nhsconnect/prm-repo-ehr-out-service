@@ -25,7 +25,8 @@ describe('createMessageIdReplacement', () => {
     const newMessageId = uuidv4();
 
     // when
-    await createMessageIdReplacements(oldMessageId, newMessageId);
+    await createMessageIdReplacements([{oldMessageId, newMessageId}]);
+    // await createMessageIdReplacements([1,2,3]);
 
     // then
     const record = await runWithinTransaction(transaction =>
@@ -48,16 +49,19 @@ describe('createMessageIdReplacement', () => {
     const newMessageId = uuidv4();
 
     // when
-    await createMessageIdReplacements(oldMessageId, newMessageId);
+    await createMessageIdReplacements([{oldMessageId, newMessageId}]);
 
     // then
-    const expectedLogMessage = `Recorded a pair of message id mapping: {inbound: ${oldMessageId}, outbound: ${newMessageId}}`;
+    const expectedLogMessage = "Recorded new message IDs in database";
     expect(logInfo).toBeCalledWith(expectedLogMessage);
   });
 
   it('should throw an error when oldMessageId is invalid', async () => {
+    // given
+    const oldMessageId = 'INVALID-OLD-MESSAGE-ID';
+    const newMessageId = uuidv4();
     // when
-    await expect(createMessageIdReplacements('invalid-old-message-id', uuidv4()))
+    await expect(createMessageIdReplacements([{oldMessageId, newMessageId}]))
       // then
       .rejects.toThrow('invalid input syntax for type uuid');
 
@@ -65,8 +69,11 @@ describe('createMessageIdReplacement', () => {
   });
 
   it('should throw an error when newMessageId is invalid', async () => {
+    // given
+    const oldMessageId = uuidv4();
+    const newMessageId = 'INVALID-NEW-MESSAGE-ID';
     // when
-    await expect(createMessageIdReplacements(uuidv4(), 'INVALID-NEW-MESSAGE-ID'))
+    await expect(createMessageIdReplacements([{oldMessageId, newMessageId}]))
       // then
       .rejects.toThrow('invalid input syntax for type uuid');
 
@@ -76,10 +83,11 @@ describe('createMessageIdReplacement', () => {
   it('should throw an error when try to register again with the same oldMessageId', async () => {
     // given
     const oldMessageId = uuidv4();
-    await createMessageIdReplacements(oldMessageId, uuidv4());
+    const newMessageId = uuidv4();
+    await createMessageIdReplacements([{oldMessageId, newMessageId}]);
 
     // when
-    await expect(createMessageIdReplacements(oldMessageId, uuidv4()))
+    await expect(createMessageIdReplacements([{oldMessageId, newMessageId}]))
       //then
       .rejects.toThrow(UniqueConstraintError);
 

@@ -16,7 +16,7 @@ import { sortBy } from 'lodash';
 
 describe('Replacement of message IDs', () => {
   // ============ COMMON PROPERTIES ============
-  const gp2gpUrl = 'http://fake-gp2gpmessager-url';
+  const gp2gpUrl = 'http://fake-gp2gpmessenger-url';
   const gp2gpAuth = 'gp2gp-auth';
   const gp2gpHeaders = { reqheaders: { authorization: auth => auth === gp2gpAuth } };
   const ehrRepoUrl = 'http://fake-ehr-repo-url';
@@ -62,7 +62,6 @@ describe('Replacement of message IDs', () => {
     delete process.env.EHR_REPO_SERVICE_URL;
     delete process.env.EHR_REPO_AUTHORIZATION_KEYS;
 
-    // close the db connection to avoid "Jest did not exit" warning messages
     await ModelFactory.sequelize.close();
   });
   // ================= END SETUP AND TEARDOWN =================
@@ -96,6 +95,7 @@ describe('Replacement of message IDs', () => {
       const gp2gpMessengerGetODSScope = setUpMockForGp2gpGetOdsCode();
 
       let gp2gpMessengerPostBody;
+
       const storePostBody = body => {
         gp2gpMessengerPostBody = body;
         return true;
@@ -122,13 +122,13 @@ describe('Replacement of message IDs', () => {
         messageId: expect.stringMatching(uuidRegexPattern)
       });
 
-      const outBoundEhrCore = gp2gpMessengerPostBody.coreEhr;
+      const outboundEhrCore = gp2gpMessengerPostBody.coreEhr;
 
-      const outBoundEhrCoreAsString = JSON.stringify(outBoundEhrCore);
+      const outboundEhrCoreAsString = JSON.stringify(outboundEhrCore);
 
-      expect(outBoundEhrCoreAsString.includes(oldMessageId)).toBe(false);
+      expect(outboundEhrCoreAsString.includes(oldMessageId)).toBe(false);
       for (let oldFragmentId of oldReferencedFragmentIds) {
-        expect(outBoundEhrCoreAsString.includes(oldFragmentId)).toBe(false);
+        expect(outboundEhrCoreAsString.includes(oldFragmentId)).toBe(false);
       }
     });
   });
@@ -142,9 +142,9 @@ describe('Replacement of message IDs', () => {
       const ehrFragmentPresignedUrl = makePresignedUrlForFragment(messageId);
 
       return (
-        nock(ehrRepoUrl, ehrRepoHeaders)
-          .get(`/fragments/${conversationIdFromEhrIn}/${messageId}`)
-          .reply(200, ehrFragmentPresignedUrl)
+          nock(ehrRepoUrl, ehrRepoHeaders)
+              .get(`/fragments/${conversationIdFromEhrIn}/${messageId.toLowerCase()}`)
+              .reply(200, ehrFragmentPresignedUrl)
       );
     }
 
@@ -173,10 +173,11 @@ describe('Replacement of message IDs', () => {
 
       // set up mocks
       const ehrRepoPatientRecordScope = setUpMockForEhrRepoCoreMessage();
-      const ehrRepoFragmentScopes = oldMessageFragmentIds.map(setUpMockForEhrRepoFragmentMessage);
+      const ehrRepoFragmentScopes = oldMessageFragmentIds.map(messageId => setUpMockForEhrRepoFragmentMessage(messageId));
       const s3Scopes = Object.entries(filenamesAndMessageIds).map(([filename, messageId]) => {
         return setUpMockForS3BucketFragmentMessage(filename, messageId);
       });
+
       const gp2gpMessengerGetODSScope = setUpMockForGp2gpGetOdsCode();
 
       let gp2gpMessengerPostBodies = [];
@@ -193,11 +194,10 @@ describe('Replacement of message IDs', () => {
       // when
       await transferOutFragmentsForNewContinueRequest({ conversationId, nhsNumber, odsCode });
 
-      // then
-      // assert all endpoints are called
       s3Scopes.forEach(scope => {
         expect(scope.isDone()).toBe(true);
       });
+
       ehrRepoFragmentScopes.forEach(scope => {
         expect(scope.isDone()).toBe(true);
       });
@@ -214,9 +214,11 @@ describe('Replacement of message IDs', () => {
         expect(oldMessageFragmentIds).not.toContain(postBody.messageId);
       }
 
+      // TODO: CHANGE THIS TO USE NEW
       const newMessageFragmentIds = await Promise.all(
         oldMessageFragmentIds.map(getNewMessageIdByOldMessageId)
       );
+
       const newMessageIdsInPostRequests = gp2gpMessengerPostBodies.map(body => body.messageId);
       expect(newMessageIdsInPostRequests.sort()).toEqual(newMessageFragmentIds.sort());
 
@@ -226,6 +228,7 @@ describe('Replacement of message IDs', () => {
 
       let messageIdPairs = {};
       for (let oldMessageId of oldMessageFragmentIds) {
+        // TODO: CHANGE THIS TO USE NEW
         const newMessageId = await getNewMessageIdByOldMessageId(oldMessageId);
         messageIdPairs[oldMessageId] = newMessageId;
       }

@@ -231,23 +231,23 @@ describe('Ensure health record outbound XML is unchanged', () => {
   });
 
   it('should verify that a fragment with no external attachments is unchanged by xml changes', async () => {
+    // given
+    const fragmentMessageIds = Object.keys(originalFragments);
+    const messageIdReplacements = fragmentMessageIds.map(oldMessageId => {
+      return {
+        oldMessageId,
+        newMessageId: oldMessageId.slice(0, 35) + '0'
+      }
+    });
+
     // when
-    await createRegistrationRequest(
-      outboundConversationId,
-      ehrRequestMessageId,
-      nhsNumber,
-      odsCode
-    );
-
     getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
-
     for (let messageId of fragmentMessageIds) {
-      // add records of the old message ids to database table
-      // new message ids are mostly same as the old ones, with last char replaced as '0', in order to guarantee the .sort() at expect statement give the same order.
-      await createMessageIdReplacements(messageId, messageId.slice(0, 35) + '0')
-
       getFragment.mockReturnValueOnce(JSON.parse(originalFragments[messageId]));
     }
+
+    await createRegistrationRequest(outboundConversationId, ehrRequestMessageId, nhsNumber, odsCode);
+    await createMessageIdReplacements(messageIdReplacements);
 
     nock(gp2gpMessengerEndpointUrl, gp2gpMessengerHeaders)
       .post("/")
@@ -273,24 +273,23 @@ describe('Ensure health record outbound XML is unchanged', () => {
   });
 
   it('should verify that a fragment with external attachments is unchanged by xml changes', async () => {
-    // when
-    await createRegistrationRequest(
-      outboundConversationId,
-      ehrRequestMessageId,
-      nhsNumber,
-      odsCode
-    );
-
-    getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
-
+    // given
     const fragmentMessageIds = Object.keys(originalFragments);
-    for (let messageId of fragmentMessageIds) {
-      // add records of the old message ids to database table
-      // new message ids are mostly same as the old ones, with last char replaced as '0', in order to guarantee the .sort() at expect statement give the same order.
-      await createMessageIdReplacements(messageId, messageId.slice(0, 35) + '0')
+    const messageIdReplacements = fragmentMessageIds.map(oldMessageId => {
+      return {
+        oldMessageId,
+        newMessageId: oldMessageId.slice(0, 35) + '0'
+      }
+    });
 
+    // when
+    getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
+    for (let messageId of fragmentMessageIds) {
       getFragment.mockReturnValueOnce(JSON.parse(originalFragments[messageId]));
     }
+
+    await createRegistrationRequest(outboundConversationId, ehrRequestMessageId, nhsNumber, odsCode);
+    await createMessageIdReplacements(messageIdReplacements);
 
     nock(gp2gpMessengerEndpointUrl, gp2gpMessengerHeaders)
       .post("/")

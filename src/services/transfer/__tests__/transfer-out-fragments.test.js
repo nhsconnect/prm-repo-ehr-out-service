@@ -7,7 +7,7 @@ import {
 import { sendFragment } from '../../gp2gp/send-fragment';
 import {replaceMessageIdsInObject, updateFragmentStatus} from '../transfer-out-util';
 import { getFragment, getMessageIdsFromEhrRepo } from '../../ehr-repo/get-fragment';
-import { getAllMessageIdsWithReplacementsByOldMessageIds } from "../../database/message-id-replacement-repository";
+import { getAllMessageIdReplacements } from "../../database/message-id-replacement-repository";
 import {getAllMessageFragmentRecordsByMessageIds} from "../../database/message-fragment-repository";
 import {Status} from "../../../models/message-fragment";
 import {DownloadError, FragmentSendingError, PresignedUrlNotFoundError} from "../../../errors/errors";
@@ -83,7 +83,7 @@ describe('transferOutFragments', () => {
   it('should transfer out fragments for a new continue request', async () => {
     // when
     getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
-    getAllMessageIdsWithReplacementsByOldMessageIds.mockResolvedValueOnce(messageIdsWithReplacements);
+    getAllMessageIdReplacements.mockResolvedValueOnce(messageIdsWithReplacements);
     getFragment.mockResolvedValueOnce(fragment1);
     getFragment.mockResolvedValueOnce(fragment2);
     replaceMessageIdsInObject.mockReturnValueOnce(updatedFragment1);
@@ -100,7 +100,7 @@ describe('transferOutFragments', () => {
     expect(result).toBe(undefined);
 
     expect(getMessageIdsFromEhrRepo).toHaveBeenCalledWith(nhsNumber);
-    expect(getAllMessageIdsWithReplacementsByOldMessageIds).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
+    expect(getAllMessageIdReplacements).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
     expect(getFragment).toHaveBeenCalledWith(inboundConversationId, ehrRepositoryResponse.messageIds[0]);
     expect(getFragment).toHaveBeenCalledWith(inboundConversationId, ehrRepositoryResponse.messageIds[1]);
     expect(replaceMessageIdsInObject).toHaveBeenCalledWith(fragment1, messageIdsWithReplacements);
@@ -127,7 +127,7 @@ describe('transferOutFragments', () => {
   it('should send fragment with database status FRAGMENT_REQUEST_RECEIVED when receiving a retried continue request', async () => {
     // when
     getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
-    getAllMessageIdsWithReplacementsByOldMessageIds.mockResolvedValueOnce(messageIdsWithReplacements);
+    getAllMessageIdReplacements.mockResolvedValueOnce(messageIdsWithReplacements);
     getAllMessageFragmentRecordsByMessageIds.mockResolvedValueOnce([messageFragmentRecordSent, messageFragmentRecordUnsent])
     getFragment.mockResolvedValueOnce(fragment2);
     replaceMessageIdsInObject.mockReturnValueOnce(updatedFragment2);
@@ -143,7 +143,7 @@ describe('transferOutFragments', () => {
     expect(result).toBe(undefined);
 
     expect(getMessageIdsFromEhrRepo).toHaveBeenCalledWith(nhsNumber);
-    expect(getAllMessageIdsWithReplacementsByOldMessageIds).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
+    expect(getAllMessageIdReplacements).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
     expect(getFragment).toHaveBeenCalledTimes(1);
     expect(getFragment).toHaveBeenCalledWith(inboundConversationId, ehrRepositoryResponse.messageIds[1]);
     expect(replaceMessageIdsInObject).toHaveBeenCalledTimes(1);
@@ -157,7 +157,7 @@ describe('transferOutFragments', () => {
   it('should send fragment with no database record when receiving a retried continue request', async () => {
     // when
     getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
-    getAllMessageIdsWithReplacementsByOldMessageIds.mockResolvedValueOnce(messageIdsWithReplacements);
+    getAllMessageIdReplacements.mockResolvedValueOnce(messageIdsWithReplacements);
     getAllMessageFragmentRecordsByMessageIds.mockResolvedValueOnce([messageFragmentRecordSent])
     getFragment.mockResolvedValueOnce(fragment2);
     replaceMessageIdsInObject.mockReturnValueOnce(updatedFragment2);
@@ -173,7 +173,7 @@ describe('transferOutFragments', () => {
     expect(result).toBe(undefined);
 
     expect(getMessageIdsFromEhrRepo).toHaveBeenCalledWith(nhsNumber);
-    expect(getAllMessageIdsWithReplacementsByOldMessageIds).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
+    expect(getAllMessageIdReplacements).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
     expect(getFragment).toHaveBeenCalledTimes(1);
     expect(getFragment).toHaveBeenCalledWith(inboundConversationId, ehrRepositoryResponse.messageIds[1]);
     expect(replaceMessageIdsInObject).toHaveBeenCalledTimes(1);
@@ -190,7 +190,7 @@ describe('transferOutFragments', () => {
 
     // when
     getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
-    getAllMessageIdsWithReplacementsByOldMessageIds.mockResolvedValueOnce(messageIdsWithReplacements);
+    getAllMessageIdReplacements.mockResolvedValueOnce(messageIdsWithReplacements);
     getFragment.mockRejectedValueOnce(error);
 
     // then
@@ -201,7 +201,7 @@ describe('transferOutFragments', () => {
     })).rejects.toThrow(error);
 
     expect(getMessageIdsFromEhrRepo).toHaveBeenCalledWith(nhsNumber);
-    expect(getAllMessageIdsWithReplacementsByOldMessageIds).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
+    expect(getAllMessageIdReplacements).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
     expect(getFragment).toHaveBeenCalledTimes(1);
     expect(getFragment).toHaveBeenCalledWith(inboundConversationId, ehrRepositoryResponse.messageIds[0]);
     expect(updateFragmentStatus).toHaveBeenCalledWith(outboundConversationId, updatedMessageId1, Status.MISSING_FROM_REPO);
@@ -216,7 +216,7 @@ describe('transferOutFragments', () => {
 
     // when
     getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
-    getAllMessageIdsWithReplacementsByOldMessageIds.mockResolvedValueOnce(messageIdsWithReplacements);
+    getAllMessageIdReplacements.mockResolvedValueOnce(messageIdsWithReplacements);
     getFragment.mockRejectedValueOnce(error);
 
     // then
@@ -227,7 +227,7 @@ describe('transferOutFragments', () => {
     })).rejects.toThrow(error);
 
     expect(getMessageIdsFromEhrRepo).toHaveBeenCalledWith(nhsNumber);
-    expect(getAllMessageIdsWithReplacementsByOldMessageIds).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
+    expect(getAllMessageIdReplacements).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
     expect(getFragment).toHaveBeenCalledTimes(1);
     expect(getFragment).toHaveBeenCalledWith(inboundConversationId, ehrRepositoryResponse.messageIds[0]);
     expect(updateFragmentStatus).toHaveBeenCalledWith(outboundConversationId, updatedMessageId1, Status.DOWNLOAD_FAILED);
@@ -242,7 +242,7 @@ describe('transferOutFragments', () => {
 
     // when
     getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
-    getAllMessageIdsWithReplacementsByOldMessageIds.mockResolvedValueOnce(messageIdsWithReplacements);
+    getAllMessageIdReplacements.mockResolvedValueOnce(messageIdsWithReplacements);
     getFragment.mockResolvedValueOnce(fragment1);
     replaceMessageIdsInObject.mockReturnValueOnce(updatedFragment1);
     sendFragment.mockRejectedValueOnce(error);
@@ -255,7 +255,7 @@ describe('transferOutFragments', () => {
     })).rejects.toThrow(error);
 
     expect(getMessageIdsFromEhrRepo).toHaveBeenCalledWith(nhsNumber);
-    expect(getAllMessageIdsWithReplacementsByOldMessageIds).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
+    expect(getAllMessageIdReplacements).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds)
     expect(getFragment).toHaveBeenCalledTimes(1);
     expect(getFragment).toHaveBeenCalledWith(inboundConversationId, ehrRepositoryResponse.messageIds[0]);
     expect(replaceMessageIdsInObject).toHaveBeenCalledTimes(1);

@@ -4,7 +4,7 @@ import { replaceMessageIdsInObject, updateFragmentStatus } from './transfer-out-
 import { sendFragment } from '../gp2gp/send-fragment';
 import { logError, logInfo } from '../../middleware/logging';
 import { config } from '../../config';
-import { getAllMessageIdsWithReplacementsByOldMessageIds } from "../database/message-id-replacement-repository";
+import { getAllMessageIdReplacements } from "../database/message-id-replacement-repository";
 import { getAllMessageFragmentRecordsByMessageIds } from "../database/message-fragment-repository";
 import { Status } from "../../models/message-fragment";
 import { DownloadError, PresignedUrlNotFoundError } from "../../errors/errors";
@@ -16,7 +16,7 @@ export async function transferOutFragmentsForNewContinueRequest({ conversationId
   logInfo('Retrieved all fragment Message IDs for transfer.');
 
   // returns an object with the inbound and outbound message IDs paired together
-  const messageIdsWithReplacements = await getAllMessageIdsWithReplacementsByOldMessageIds(messageIds);
+  const messageIdsWithReplacements = await getAllMessageIdReplacements(messageIds);
 
   await getAndSendMessageFragments(messageIdsWithReplacements, conversationIdFromEhrIn, conversationId, odsCode);
 }
@@ -28,7 +28,7 @@ export async function transferOutFragmentsForRetriedContinueRequest({ conversati
   logInfo('Retrieved all fragment Message IDs for transfer.');
 
   // returns an object with the inbound and outbound message IDs paired together
-  const messageIdsWithReplacements = await getAllMessageIdsWithReplacementsByOldMessageIds(messageIds);
+  const messageIdsWithReplacements = await getAllMessageIdReplacements(messageIds);
 
   const messageIdsOfFragmentsEligibleForSending = await getMessageIdsOfFragmentsEligibleForSending(messageIdsWithReplacements);
 
@@ -39,16 +39,16 @@ export async function transferOutFragmentsForRetriedContinueRequest({ conversati
 }
 
 const getAndSendMessageFragments = async (messageIdsWithReplacements, conversationIdFromEhrIn, conversationId, odsCode) => {
-
     let count = 0;
 
     for (const messageIdWithReplacement of messageIdsWithReplacements) {
       try {
         const {oldMessageId, newMessageId} = messageIdWithReplacement;
-
         let fragment = await getFragment(conversationIdFromEhrIn, oldMessageId);
         fragment = replaceMessageIdsInObject(fragment, messageIdsWithReplacements);
+
         await sendFragment(conversationId, odsCode, fragment, newMessageId);
+
         logInfo(`Fragment ${++count} of ${messageIdsWithReplacements.length} sent to the GP2GP Messenger - with old Message ID ${oldMessageId}, and new Message ID ${newMessageId}.`);
 
         if (config.fragmentTransferRateLimitTimeoutMilliseconds)

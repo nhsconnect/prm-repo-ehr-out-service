@@ -34,7 +34,6 @@ const handleErrorWhileRetrievingIds = error => {
 export const getFragment = async (conversationIdFromEhrIn, messageId) => {
   const fragmentMessageUrl = await retrieveFragmentPresignedUrlFromRepo(conversationIdFromEhrIn, messageId);
   logInfo(`Successfully retrieved fragment presigned url with messageId: ${messageId}`);
-
   const fragment = await downloadFromUrl(fragmentMessageUrl);
   logInfo(`Successfully retrieved fragment with messageId: ${messageId}`);
 
@@ -47,6 +46,6 @@ const retrieveFragmentPresignedUrlFromRepo = async (conversationIdFromEhrIn, mes
 
   return await axios.get(repoUrl, {
     headers: { Authorization: ehrRepoAuthKeys}
-  }).then(response => response.data)
+  }).then(response => response.data )
     .catch(error => { throw new PresignedUrlNotFoundError(error) });
 };

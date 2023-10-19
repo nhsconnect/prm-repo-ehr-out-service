@@ -1,73 +1,88 @@
-import ModelFactory from '../../../models';
+import { errorMessages, FragmentMessageIdReplacementRecordNotFoundError } from "../../../errors/errors";
+import { getAllMessageIdReplacements } from "../message-id-replacement-repository";
+import { createMessageIdReplacements } from "../create-message-id-replacements";
 import { modelName } from '../../../models/message-id-replacement';
-import { getNewMessageIdByOldMessageId } from '../../database/message-id-replacement-repository';
-import { v4 } from 'uuid';
-import { logError } from '../../../middleware/logging';
-import {
-  errorMessages,
-  FragmentMessageIdReplacementRecordNotFoundError
-} from '../../../errors/errors';
-
-jest.mock('../../../middleware/logging');
+import { logError } from "../../../middleware/logging";
+import ModelFactory from '../../../models';
+import { v4 as uuidv4 } from 'uuid';
+import expect from "expect";
 
 describe('message-id-replacement-repository', () => {
-  afterAll(() => {
-    // close the db connection to avoid "Jest did not exit" warning messages
-    MessageIdReplacement.sequelize.close();
+  // Global test variables.
+  let messageIdReplacementRecords;
+  const numberOfRecordsToSeed = 10;
+
+  // Seed the database with test values.
+  beforeAll(async () => {
+    messageIdReplacementRecords = await seedTestData(numberOfRecordsToSeed);
   });
 
-  const uuidv4UpperCase = () => v4().toUpperCase();
+  afterAll(async () => {
+    await MessageIdReplacement.truncate();
+    await MessageIdReplacement.sync({ force: true });
+    await MessageIdReplacement.sequelize.close();
+  });
+
   const MessageIdReplacement = ModelFactory.getByName(modelName);
 
-  describe('getNewMessageIdByOldMessageId', () => {
-    it('should return the new message id of a given old message id (in uppercase)', async () => {
-      // given
-      const oldMessageId = uuidv4UpperCase();
-      const newMessageId = uuidv4UpperCase();
-      await MessageIdReplacement.create({
-        oldMessageId,
-        newMessageId
-      });
-
+  describe('getAllMessageIdReplacements', () => {
+    it('should retrieve all of the message ids with replacements successfully', async () => {
       // when
-      const newMessageIdFromRecord = await getNewMessageIdByOldMessageId(oldMessageId);
+      const result = await getAllMessageIdReplacements(getAllOldMessageIds(messageIdReplacementRecords));
+
+      const messageIds = {
+        oldMessageIdsFromResult: getAllOldMessageIds(result),
+        oldMessageIds: getAllOldMessageIds(messageIdReplacementRecords),
+        newMessageIdsFromResult: getAllNewMessageIds(result),
+        newMessageIds: getAllNewMessageIds(messageIdReplacementRecords).map(messageId => messageId.toUpperCase())
+      }
 
       // then
-      expect(newMessageIdFromRecord).toBe(newMessageId);
-      expect(newMessageIdFromRecord).toBe(newMessageIdFromRecord.toUpperCase());
+      expect(messageIds["oldMessageIdsFromResult"]).toEqual(messageIds["oldMessageIds"]);
+      expect(messageIds["newMessageIdsFromResult"]).toEqual(messageIds["newMessageIds"]);
     });
 
-    it('should be case insensitive when getting a record by oldMessageId', async () => {
+    it('should throw FragmentMessageIdReplacementRecordNotFoundError if provided a non-existent message id', async () => {
       // given
-      const oldMessageId = uuidv4UpperCase();
-      const newMessageId = uuidv4UpperCase();
-      await MessageIdReplacement.create({
-        oldMessageId,
-        newMessageId
-      });
+      const nonExistentMessageId = "faed05ff-7f8f-41f9-b44f-5e98289c98f2";
 
-      const oldMessageIdInLowerCase = oldMessageId.toLowerCase();
+      try {
 
-      // when
-      const newMessageIdFromRecord = await getNewMessageIdByOldMessageId(oldMessageId);
+        // when
+        await getAllMessageIdReplacements([...getAllOldMessageIds(messageIdReplacementRecords), nonExistentMessageId]);
 
-      // then
-      expect(newMessageIdFromRecord).toBe(newMessageId);
-      expect(newMessageIdFromRecord).toBe(newMessageIdFromRecord.toUpperCase());
-    });
+      } catch (error) {
 
-    it('should throw an error if the oldMessageId is not found in database', async () => {
-      // given
-      const oldMessageId = uuidv4UpperCase();
-
-      // when
-      await expect(getNewMessageIdByOldMessageId(oldMessageId))
         // then
-        .rejects.toThrow(FragmentMessageIdReplacementRecordNotFoundError);
+        expect(error).not.toBeNull();
+        expect(error).toBeInstanceOf(FragmentMessageIdReplacementRecordNotFoundError);
+        expect(error.message).toEqual(errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR);
 
-      expect(logError).toHaveBeenCalledWith(
-        `${errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR}, related oldMessageId: ${oldMessageId}`
-      );
+      }
     });
   });
 });
+
+const seedTestData = async (numberOfRecordsToSeed) => {
+  try {
+    const messageIdReplacementRecords = Array(numberOfRecordsToSeed)
+        .fill(undefined)
+        .map(() => {
+          return {
+            oldMessageId: uuidv4(),
+            newMessageId: uuidv4()
+          }
+        });
+
+    await createMessageIdReplacements(messageIdReplacementRecords);
+
+    return messageIdReplacementRecords;
+  } catch (error) {
+    logError(error);
+    throw error;
+  }
+}
+
+const getAllOldMessageIds = (records) => records.map(record => record['oldMessageId']);
+
+const getAllNewMessageIds = (records) => records.map(record => record['newMessageId']);
