@@ -14,9 +14,9 @@ import { Status } from "../../../models/registration-request";
 import { readFileSync } from "fs";
 import expect from "expect";
 import path from "path";
-import {logError, logInfo, logWarning} from "../../../middleware/logging";
-import {hasServiceStartedInTheLast5Minutes} from "../../../config";
-import {NhsNumberNotFoundError} from "../../../errors/errors";
+import { logError, logInfo, logWarning } from "../../../middleware/logging";
+import { hasServiceStartedInTheLast5Minutes } from "../../../config";
+import { NhsNumberNotFoundError } from "../../../errors/errors";
 
 // Mocking
 jest.mock('../../../middleware/logging');
