@@ -40,7 +40,7 @@ describe('continueMessageHandler', () => {
   const CONTINUE_MESSAGE = readFileSync(path.join(__dirname, "data", "continue-requests", "COPC_IN000001UK01"), "utf-8");
   // =================== END ===================
 
-  it('should forward a new continue request to initiate fragment out transfer', async () => {
+  it('should forward a new continue request to initiate transfer out fragment', async () => {
     // when
     parseConversationId.mockResolvedValueOnce(CONVERSATION_ID);
     parseContinueRequestMessage.mockResolvedValueOnce({ odsCode: ODS_CODE });
