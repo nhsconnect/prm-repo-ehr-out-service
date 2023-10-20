@@ -42,7 +42,7 @@ describe('transferOutFragments', () => {
 
   const messageIdsWithReplacements = [
     { oldMessageId: originalMessageId1, newMessageId: updatedMessageId1 },
-    { oldMessageId: originalMessageId2, newMessageId: updatedMessageId2 },
+    { oldMessageId: originalMessageId2, newMessageId: updatedMessageId2 }
   ];
 
   const ehrRepositoryResponse = {
