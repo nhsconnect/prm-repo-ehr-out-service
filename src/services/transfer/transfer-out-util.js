@@ -72,7 +72,7 @@ export const createNewMessageIds = async oldMessageIds => {
   });
 
   await createMessageIdReplacements(messageIdReplacements);
-  logInfo(`Created new message ID(s) for EHR core & ${messageIdReplacements.length - 1} fragments`);
+  logInfo(`Created new Message ID's for EHR Core and ${messageIdReplacements.length - 1} fragment(s)`);
   return messageIdReplacements;
 };
 
