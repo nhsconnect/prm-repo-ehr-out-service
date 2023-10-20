@@ -66,7 +66,7 @@ export const replaceMessageIdsInObject = (ehrMessage, messageIdReplacements) => 
 export const createNewMessageIds = async oldMessageIds => {
   const messageIdReplacements = oldMessageIds.map(oldMessageId => {
     return {
-      oldMessageId: oldMessageId,
+      oldMessageId,
       newMessageId: uuidv4().toUpperCase()
     }
   });
