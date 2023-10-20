@@ -30,7 +30,7 @@ export async function transferOutFragmentsForRetriedContinueRequest({ conversati
   // returns an object with the inbound and outbound message IDs paired together
   const messageIdsWithReplacements = await getAllMessageIdReplacements(messageIds);
 
-  const messageIdsOfFragmentsEligibleForSending = await getMessageIdsOfFragmentsEligibleForSending(messageIdsWithReplacements);
+  const messageIdsOfFragmentsEligibleForSending = await getMessageIdsForAllFragmentsEligibleForSending(messageIdsWithReplacements);
 
   const messageIdsWithReplacementsEligibleForSending = messageIdsWithReplacements.filter(messageIdWithReplacement =>
     messageIdsOfFragmentsEligibleForSending.includes(messageIdWithReplacement.newMessageId));
@@ -61,7 +61,7 @@ const getAndSendMessageFragments = async (messageIdsWithReplacements, conversati
     logInfo(`All fragments have been successfully sent to GP2GP Messenger.`);
 }
 
-const getMessageIdsOfFragmentsEligibleForSending = async (messageIdsWithReplacements) => {
+const getMessageIdsForAllFragmentsEligibleForSending = async messageIdsWithReplacements => {
   const newMessageIds = messageIdsWithReplacements.map(messageIdWithReplacement => messageIdWithReplacement.newMessageId);
   const messageFragmentRecords = await getAllMessageFragmentRecordsByMessageIds(newMessageIds);
 
