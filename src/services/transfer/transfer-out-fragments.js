@@ -93,7 +93,6 @@ const handleFragmentTransferError = async (error, conversationId, messageId) => 
     case error instanceof DownloadError:
       await updateFragmentStatus(conversationId, messageId, Status.DOWNLOAD_FAILED);
       break;
-    // this will catch any miscellaneous errors
     default:
       await updateFragmentStatus(conversationId, messageId, Status.SENDING_FAILED);
       logError('Fragment transfer request failed', error);
