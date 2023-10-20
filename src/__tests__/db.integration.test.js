@@ -1,8 +1,8 @@
-import { v4 as uuid } from 'uuid';
 import ModelFactory from '../models';
 import { modelName as registrationRequestModel } from '../models/registration-request';
 import { createRegistrationRequest } from "../services/database/create-registration-request";
 import { logInfo } from "../middleware/logging";
+import { createRandomUUID } from "../services/gp2gp/__tests__/test-utils";
 
 describe('Database connection test', () => {
   const RegistrationRequest = ModelFactory.getByName(registrationRequestModel);
@@ -26,7 +26,11 @@ describe('Database connection test', () => {
 
     // when
     for (let i = 0; i < numberOfTransactions; i++) {
-      databaseOperationPromises.push(createRegistrationRequest(uuid().toUpperCase(), uuid().toUpperCase(), nhsNumber, odsCode));
+      const [conversationId, messageId] = createRandomUUID(2);
+
+      databaseOperationPromises.push(
+          createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode)
+      );
     }
 
     await Promise.all(databaseOperationPromises).then(() => {
