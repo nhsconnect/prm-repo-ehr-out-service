@@ -118,7 +118,7 @@ describe('Replacement of message IDs', () => {
       return readFileSync(`src/__tests__/data/ehr_with_fragments/${fragmentFilename}`, 'utf8');
     }
 
-    const getPresignedUrlForFragment = (messageId) => `http://fake-fragment-presign-url/${messageId}`;
+    const getPresignedUrlForFragment = (messageId) => `http://fake-fragment-presigned-url/${messageId}`;
 
     function createNockForEhrRepoFragmentMessage(messageId) {
       const ehrFragmentPresignedUrl = getPresignedUrlForFragment(messageId);
