@@ -185,13 +185,13 @@ describe('Replacement of message IDs', () => {
       // Get the new Message IDs from the database, compare with the
       // Message IDs within the POST Request bodies.
       const messageIdReplacements = await getAllMessageIdReplacements(fragmentOldMessageIds);
-      const newMessageFragmentIds = messageIdReplacements
+      const newFragmentMessageIds = messageIdReplacements
           .map(replacement => replacement.newMessageId);
 
       const newMessageIdsInPostRequests = gp2gpMessengerPostRequestBodies
           .map(body => body.messageId);
 
-      expect(newMessageIdsInPostRequests.sort()).toEqual(newMessageFragmentIds.sort());
+      expect(newMessageIdsInPostRequests.sort()).toEqual(newFragmentMessageIds.sort());
 
       // manually replace all message ids in copied ver of original messages,
       // and compare those with the actual outbound fragment messages
