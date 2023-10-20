@@ -1,12 +1,10 @@
 import { extractReferencedFragmentMessageIds, parseMessageId } from "../services/parser/parsing-utilities";
-import { getNewMessageIdByOldMessageId } from '../services/database/message-id-replacement-repository';
+import { getAllMessageIdReplacements } from '../services/database/message-id-replacement-repository';
 import { modelName as messageIdReplacementModelName } from '../models/message-id-replacement';
 import { modelName as registrationRequestModelName } from '../models/registration-request';
 import { transferOutFragmentsForNewContinueRequest } from '../services/transfer/transfer-out-fragments';
 import { transferOutEhrCore } from '../services/transfer/transfer-out-ehr-core';
 import { modelName as messageFragmentModelName } from '../models/message-fragment';
-import { transportSpy } from '../__builders__/logging-helper';
-import { logger } from '../config/logging';
 import ModelFactory from '../models';
 import { v4 as uuidv4 } from 'uuid';
 import { readFileSync } from 'fs';
@@ -30,7 +28,6 @@ describe('Replacement of message IDs', () => {
   const odsCode = 'fake-ods-code';
   const ehrRequestId = uuidv4();
 
-  const coreMessageId = 'DF91D420-DDC7-11ED-808B-AC162D1F16F0';
   const fragmentMessageIds = [
     'DFBA6AC0-DDC7-11ED-808B-AC162D1F16F0',
     'DFEC7740-DDC7-11ED-808B-AC162D1F16F0',
@@ -64,22 +61,6 @@ describe('Replacement of message IDs', () => {
 
     await ModelFactory.sequelize.close();
   });
-  // ================= END SETUP AND TEARDOWN =================
-
-  // ================= HELPER FUNCTIONS =================
-  const setUpMockForGp2gpGetOdsCode = () =>
-    nock(gp2gpUrl, gp2gpHeaders)
-      .persist()
-      .get(`/patient-demographics/${nhsNumber}`)
-      .reply(200, { data: { odsCode } });
-
-  const setUpMockForEhrRepoCoreMessage = () =>
-    nock(ehrRepoUrl, ehrRepoHeaders).get(`/patients/${nhsNumber}`).reply(200, {
-      coreMessageUrl: ehrCorePresignedUrl,
-      fragmentMessageIds: fragmentMessageIds,
-      conversationIdFromEhrIn: conversationIdFromEhrIn
-    });
-  // ================= END HELPER FUNCTIONS =================
 
   describe('EHR core uses new message IDs', () => {
     it('should update the message IDs of the EHR core and referenced fragments', async () => {
@@ -87,7 +68,6 @@ describe('Replacement of message IDs', () => {
       const ehrCore = readFileSync('src/__tests__/data/ehr_with_fragments/ehr-core', 'utf8');
       const oldMessageId = await parseMessageId(ehrCore);
       const oldReferencedFragmentIds = await extractReferencedFragmentMessageIds(ehrCore);
-      const uuidRegexPattern = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
 
       // set up mocks
       const ehrRepoScope = createNockForEhrRepoCoreMessage();
@@ -172,12 +152,11 @@ describe('Replacement of message IDs', () => {
       const s3Scopes = Object.entries(fragmentFilenamesAndOldMessageIds).map(([filename, messageId]) => {
         return createNockForS3BucketFragmentMessage(filename, messageId);
       });
+      const ehrRepoFragmentScopes = fragmentOldMessageIds.map(messageId => createNockForEhrRepoFragmentMessage(messageId));
 
-      const gp2gpMessengerGetODSScope = setUpMockForGp2gpGetOdsCode();
-
-      let gp2gpMessengerPostBodies = [];
+      const gp2gpMessengerPostRequestBodies = [];
       const storePostBody = body => {
-        gp2gpMessengerPostBodies.push(body);
+        gp2gpMessengerPostRequestBodies.push(body);
         return true;
       };
 
@@ -227,7 +206,7 @@ describe('Replacement of message IDs', () => {
 
       expectedOutboundFragmentMessages = sortBy(expectedOutboundFragmentMessages, getMessageIdFromMessage);
 
-      expect(outboundFragmentMessagesSorted).toEqual(expectedOutboundFragmentMessagesSorted);
+      expect(actualOutboundFragmentMessages).toEqual(expectedOutboundFragmentMessages);
     });
   });
 
