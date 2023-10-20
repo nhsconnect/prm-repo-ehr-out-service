@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import ModelFactory from '../models';
 import { modelName as registrationRequestModel } from '../models/registration-request';
 import { createRegistrationRequest } from "../services/database/create-registration-request";
-import {logInfo} from "../middleware/logging";
+import { logInfo } from "../middleware/logging";
 
 describe('Database connection test', () => {
   const RegistrationRequest = ModelFactory.getByName(registrationRequestModel);
