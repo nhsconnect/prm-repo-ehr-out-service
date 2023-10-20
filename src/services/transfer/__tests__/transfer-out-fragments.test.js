@@ -80,7 +80,7 @@ describe('transferOutFragments', () => {
     jest.resetAllMocks();
   });
 
-  it('should transfer out fragments for a new continue request', async () => {
+  it('should transfer out fragments when new continue request is received', async () => {
     // when
     getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
     getAllMessageIdReplacements.mockResolvedValueOnce(messageIdsWithReplacements);
