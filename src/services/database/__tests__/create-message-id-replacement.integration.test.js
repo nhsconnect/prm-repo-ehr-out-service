@@ -26,7 +26,6 @@ describe('createMessageIdReplacement', () => {
 
     // when
     await createMessageIdReplacements([{oldMessageId, newMessageId}]);
-    // await createMessageIdReplacements([1,2,3]);
 
     // then
     const record = await runWithinTransaction(transaction =>
