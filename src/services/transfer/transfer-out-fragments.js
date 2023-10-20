@@ -69,7 +69,7 @@ const getMessageIdsForAllFragmentsEligibleForSending = async messageIdsWithRepla
     const messageFragmentRecord = messageFragmentRecords.find(
       messageFragmentRecord => messageFragmentRecord.messageId === messageId);
 
-    return isFragmentIsEligibleToBeSent(messageFragmentRecord);
+    return isFragmentEligibleToBeSent(messageFragmentRecord);
   });
 
   logInfo(`Out of ${newMessageIds.length} message Ids, ` +
@@ -79,7 +79,7 @@ const getMessageIdsForAllFragmentsEligibleForSending = async messageIdsWithRepla
   return messageIdsOfFragmentsEligibleForSending;
 }
 
-const isFragmentIsEligibleToBeSent = (messageFragmentRecord) => {
+const isFragmentEligibleToBeSent = (messageFragmentRecord) => {
   // if the fragment has no fragmentRecord, it is considered eligible for sending
   const fragmentStatus = messageFragmentRecord?.status;
   return !(fragmentStatus === Status.SENT_FRAGMENT || fragmentStatus === Status.MISSING_FROM_REPO);
