@@ -4,7 +4,8 @@ import { NhsNumberNotFoundError } from "../../../errors/errors";
 import {
   getNhsNumberByConversationId,
   getRegistrationRequestByConversationId,
-  registrationRequestExistsWithMessageId, updateRegistrationRequestMessageId,
+  registrationRequestExistsWithMessageId,
+  updateRegistrationRequestMessageId,
   updateRegistrationRequestStatus
 } from '../registration-request-repository';
 import ModelFactory from '../../../models';
