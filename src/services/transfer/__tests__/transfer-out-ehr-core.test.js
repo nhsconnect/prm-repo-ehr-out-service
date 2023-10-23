@@ -86,7 +86,7 @@ describe('transferOutEhrCore', () => {
     it('should stop EHR transfer if the requested EHR record does not exist in EHR repo', async () => {
       // given
       const error = new PresignedUrlNotFoundError();
-      const logInfoMessages = ['EHR transfer out request received', 'Getting patient health record from EHR repo'];
+      const logInfoMessages = ["Retrieving the patient's health record from the EHR Repository.", "EHR transfer out request received"];
 
       // when
       getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
@@ -111,7 +111,7 @@ describe('transferOutEhrCore', () => {
     it('should stop EHR transfer if failed to download the EHR from S3 presigned URL', async () => {
       // given
       const error = new DownloadError();
-      const logInfoMessages = ['EHR transfer out request received', 'Getting patient health record from EHR repo'];
+      const logInfoMessages = ["EHR transfer out request received", "Retrieving the patient's health record from the EHR Repository."];
 
       // when
       getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
@@ -214,7 +214,7 @@ describe('transferOutEhrCore', () => {
 
     it('should not send the EHR Core if the ODS code does not match in PDS', async () => {
       // given
-      const message = "Patients ODS Code in PDS does not match requesting practices ODS Code";
+      const message = "The patient's ODS Code in PDS does not match the requesting practice's ODS Code.";
 
       // when
       getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
@@ -252,9 +252,6 @@ describe('transferOutEhrCore', () => {
     });
 
     it('should not send out the EHR Core if we receive a fragment but the process to update its message ids fails', async () => {
-      // given
-      const error = new MessageIdUpdateError();
-
       // when
       getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
       createRegistrationRequest.mockResolvedValueOnce(undefined);
@@ -284,7 +281,7 @@ describe('transferOutEhrCore', () => {
       updateConversationStatus.mockResolvedValue(undefined);
       getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds: [] });
       parseMessageId.mockResolvedValueOnce(messageId);
-      createNewMessageIds.mockResolvedValueOnce([{ oldMessageId: messageId, newMessageId }])
+      createNewMessageIds.mockResolvedValueOnce([{ oldMessageId: messageId, newMessageId }]);
       updateRegistrationRequestMessageId.mockResolvedValue(undefined);
       replaceMessageIdsInObject.mockReturnValueOnce(ehrCoreWithUpdatedMessageId);
       getNewMessageIdForOldMessageId.mockReturnValueOnce(newMessageId);
