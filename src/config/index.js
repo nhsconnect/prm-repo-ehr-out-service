@@ -30,7 +30,7 @@ const loadConsumerKeys = () => {
   We have seen cases where the fargate container may crash and restart when attempting to send a large EHR.
   In the event this happens, we want the system to be able to restart and continue where it left off.
  */
-export let serviceStartedTimestamp;
+const serviceStartedTimestamp = Date.now();
 
 /*
   If a 'duplicate' continue request comes in for an EHR with status CONTINUE_REQUEST_RECEIVED but the service has only
