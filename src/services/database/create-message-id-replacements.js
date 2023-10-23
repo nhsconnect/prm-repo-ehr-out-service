@@ -6,7 +6,7 @@ import { errorMessages } from "../../errors/errors";
 
 const MessageIdReplacement = ModelFactory.getByName(modelName);
 
-export const createMessageIdReplacements = (messageIdReplacements) =>
+export const createMessageIdReplacements = async (messageIdReplacements) =>
   runWithinTransaction(transaction =>
     MessageIdReplacement.bulkCreate(
       messageIdReplacements,
