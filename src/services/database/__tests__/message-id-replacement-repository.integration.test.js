@@ -83,6 +83,6 @@ const seedTestData = async (numberOfRecordsToSeed) => {
   }
 }
 
-const getAllOldMessageIds = (records) => records.map(record => record['oldMessageId']);
+const getAllOldMessageIds = (records) => records.map(record => record.oldMessageId);
 
-const getAllNewMessageIds = (records) => records.map(record => record['newMessageId']);
+const getAllNewMessageIds = (records) => records.map(record => record.newMessageId);
