@@ -80,7 +80,7 @@ const getMessageIdsForAllFragmentsEligibleForSending = async messageIdsWithRepla
 }
 
 const isFragmentEligibleToBeSent = messageFragmentRecord => {
-  // if the fragment has no fragmentRecord, it is considered eligible for sending
+  // if the fragment has no fragmentRecord stored in the database, it is considered eligible for sending
   const fragmentStatus = messageFragmentRecord?.status;
   return !(fragmentStatus === Status.SENT_FRAGMENT || fragmentStatus === Status.MISSING_FROM_REPO);
 }
