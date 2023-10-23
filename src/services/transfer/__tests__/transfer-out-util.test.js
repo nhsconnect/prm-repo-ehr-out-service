@@ -1,7 +1,6 @@
 import { readFileSync } from 'fs';
 import expect from 'expect';
 import nock from 'nock';
-
 import { setCurrentSpanAttributes } from '../../../config/tracing';
 import {
   errorMessages,
