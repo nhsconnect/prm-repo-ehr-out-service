@@ -211,15 +211,17 @@ describe('Ensure health record outbound XML is unchanged', () => {
     // given
     const originalEhrCore = readFile('RCMR_IN030000UK06', 'equality-test', 'small-ehr', 'original');
     const ehrCoreAndFragmentIds = { ehrCore: JSON.parse(originalEhrCore), fragmentMessageIds: []};
+    const messageId = '4aa69fd3-6aaf-4f51-98ef-58a342c3265f';
 
     // when
-    getEhrCoreAndFragmentIdsFromRepo.mockReturnValueOnce(Promise.resolve(ehrCoreAndFragmentIds));
-    patientAndPracticeOdsCodesMatch.mockReturnValue(Promise.resolve(true));
-    sendCore.mockReturnValueOnce(Promise.resolve(undefined));
+    getEhrCoreAndFragmentIdsFromRepo.mockReturnValueOnce(ehrCoreAndFragmentIds);
+    patientAndPracticeOdsCodesMatch.mockReturnValue(true);
+    sendCore.mockReturnValueOnce(undefined);
 
     await transferOutEhrCore({
       conversationId: outboundConversationId,
       nhsNumber: nhsNumber,
+      messageId,
       odsCode: odsCode,
       ehrRequestId: ehrRequestMessageId
     });

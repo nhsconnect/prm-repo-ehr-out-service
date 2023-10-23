@@ -29,7 +29,19 @@ export const updateRegistrationRequestStatus = async (conversationId, status) =>
       transaction: transaction
     }
 
-    return await RegistrationRequest.update({ status }, options)
+    return await RegistrationRequest.update({ status }, options);
+  });
+};
+
+export const updateRegistrationRequestMessageId = async (originalMessageId, updatedMessageId) => {
+  logInfo(`Updating Message ID from ${originalMessageId}, to: ${updatedMessageId}`);
+  await runWithinTransaction(async transaction => {
+    const options = {
+      where: { message_id: originalMessageId },
+      transaction: transaction
+    }
+
+    return await RegistrationRequest.update({ messageId: updatedMessageId }, options);
   });
 };
 

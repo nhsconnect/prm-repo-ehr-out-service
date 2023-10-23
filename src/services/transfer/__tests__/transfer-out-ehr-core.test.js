@@ -1,5 +1,5 @@
-import { getRegistrationRequestByConversationId } from '../../database/registration-request-repository';
-import {logError, logInfo, logWarning} from '../../../middleware/logging';
+import { getRegistrationRequestByConversationId, updateRegistrationRequestMessageId } from '../../database/registration-request-repository';
+import { logError, logInfo, logWarning } from '../../../middleware/logging';
 import { Status } from '../../../models/registration-request';
 import { transferOutEhrCore } from '../transfer-out-ehr-core';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../../ehr-repo/get-ehr';
@@ -220,9 +220,9 @@ describe('transferOutEhrCore', () => {
       getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
       createRegistrationRequest.mockResolvedValueOnce(undefined);
       patientAndPracticeOdsCodesMatch.mockResolvedValue(false);
-
+      
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
-
+      
       // then
       expect(getRegistrationRequestByConversationId).toHaveBeenCalledWith(conversationId);
       expect(createRegistrationRequest).toHaveBeenCalledWith(conversationId, messageId, nhsNumber, odsCode);
@@ -275,5 +275,22 @@ describe('transferOutEhrCore', () => {
       expect(updateConversationStatus).toHaveBeenCalledWith(conversationId, Status.CORE_SENDING_FAILED);
       expect(sendCore).not.toHaveBeenCalled();
     });
+  });
+
+  it('should update the registration request with the Outbound Message ID', async () => {
+    // when
+    createRegistrationRequest.mockResolvedValue(undefined);
+    patientAndPracticeOdsCodesMatch.mockResolvedValueOnce(true);
+    updateConversationStatus.mockResolvedValue(undefined);
+    getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds: [] });
+    getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
+    updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
+    updateRegistrationRequestMessageId.mockResolvedValue(undefined);
+    sendCore.mockResolvedValue(undefined);
+
+    await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+
+    // then
+    expect(updateRegistrationRequestMessageId).toBeCalledWith(messageId, newMessageId);
   });
 });
