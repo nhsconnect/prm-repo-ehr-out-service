@@ -24,3 +24,18 @@ const loadConsumerKeys = () => {
   });
   return consumerObjectKeys;
 };
+
+/*
+  We are taking this timestamp when the system first boots up.
+  We have seen cases where the fargate container may crash and restart when attempting to send a large EHR.
+  In the event this happens, we want the system to be able to restart and continue where it left off.
+ */
+export let serviceStartedTimestamp;
+
+/*
+  If a 'duplicate' continue request comes in for an EHR with status CONTINUE_REQUEST_RECEIVED but the service has only
+  started within the last 5 minutes, we can safely assume it has just crashed and rebooted and the request is safe to retry.
+ */
+export const hasServiceStartedInTheLast5Minutes = () => {
+  return (Date.now() - serviceStartedTimestamp) <= 5 * 60 * 1000
+}

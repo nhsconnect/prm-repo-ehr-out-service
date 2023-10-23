@@ -40,14 +40,12 @@ describe('sendFragment', () => {
       .post(`${REQUEST_ENDPOINT}/fragment`)
       .reply(204);
 
-    getMessageFragmentRecordByMessageId.mockResolvedValueOnce(null); // no previous DB record for this fragment
     createFragmentDbRecord.mockResolvedValueOnce(undefined); // assume database record creation works fine
     updateFragmentStatus.mockResolvedValueOnce(undefined);
 
     await sendFragment(CONVERSATION_ID, ODS_CODE, FRAGMENT_MESSAGE, MESSAGE_ID);
 
     // then
-    expect(getMessageFragmentRecordByMessageId).toBeCalledTimes(1);
     expect(createFragmentDbRecord).toBeCalledTimes(1);
     expect(updateFragmentStatus).toBeCalledTimes(1);
     expect(mockUrlRequest.isDone()).toBe(true);
@@ -60,33 +58,12 @@ describe('sendFragment', () => {
       .post(`${REQUEST_ENDPOINT}/fragment`)
       .reply(404);
 
-    getMessageFragmentRecordByMessageId.mockResolvedValueOnce(null);
     createFragmentDbRecord.mockResolvedValueOnce(undefined);
-    updateFragmentStatus.mockResolvedValueOnce(undefined);
 
     await expect(() =>
       sendFragment(CONVERSATION_ID, ODS_CODE, FRAGMENT_MESSAGE, MESSAGE_ID)
     ).rejects.toThrow(FragmentSendingError);
 
-    expect(updateFragmentStatus).toBeCalledTimes(1);
-    expect(updateFragmentStatus).toHaveBeenCalledWith(CONVERSATION_ID, MESSAGE_ID, Status.FRAGMENT_SENDING_FAILED);
     expect(mockUrlRequest.isDone()).toBe(true);
-  });
-
-  it('should validate duplicate transfer out requests', async () => {
-    // when
-    getMessageFragmentRecordByMessageId.mockReturnValueOnce({
-      messageId: MESSAGE_ID,
-      status: Status.SENT_FRAGMENT
-    });
-
-    await sendFragment(CONVERSATION_ID, ODS_CODE, FRAGMENT_MESSAGE, MESSAGE_ID);
-
-    // then
-    expect(logWarning).toHaveBeenCalledWith(
-      `EHR message FRAGMENT with message ID ${MESSAGE_ID} has already been sent`
-    );
-    expect(createFragmentDbRecord).not.toHaveBeenCalled();
-    expect(updateFragmentStatus).not.toHaveBeenCalled();
   });
 });

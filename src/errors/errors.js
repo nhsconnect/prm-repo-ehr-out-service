@@ -2,7 +2,7 @@ import { logError } from '../middleware/logging';
 
 export const errorMessages = {
   DOWNLOAD_ERROR: 'Cannot retrieve message from presigned URL',
-  EHR_URL_NOT_FOUND_ERROR: 'The presigned URL could not be retrieved',
+  PRESIGNED_URL_NOT_FOUND_ERROR: 'The presigned URL could not be retrieved',
   SEND_CORE_ERROR: 'Failed while trying to send ehr core',
   SEND_FRAGMENT_ERROR: 'Failed while trying to send message fragment with message ID: ',
   GET_PDS_CODE_ERROR: 'Unable to retrieve patient from PDS',
@@ -13,13 +13,13 @@ export const errorMessages = {
   DUPLICATED_REQUEST_ERROR: 'Got a duplicated request',
   PARSING_ERROR: 'Unable to parse XML',
   MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to update message id to new ones',
-  MESSAGE_ID_RECORD_CREATION_ERROR: 'Failed to record the message ids replacement in database',
+  MESSAGE_ID_RECORD_CREATION_ERROR: 'Failed to record the message id replacements in database',
   FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR:
     'Cannot find the fragment message record within the database',
   ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR:
       'Cannot find an acknowledgement record within the database',
   FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR:
-    'Cannot find the replaced fragment message id within the database'
+    'Cannot find one or more newMessageId for message fragment within the database'
 };
 
 export class ParsingError extends Error {
@@ -36,10 +36,10 @@ export class GetPdsCodeError extends Error {
   };
 }
 
-export class EhrUrlNotFoundError extends Error {
+export class PresignedUrlNotFoundError extends Error {
   constructor(error) {
-    super(errorMessages.EHR_URL_NOT_FOUND_ERROR);
-    logError(errorMessages.EHR_URL_NOT_FOUND_ERROR, error);
+    super(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR);
+    logError(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR, error);
   };
 }
 
@@ -72,9 +72,9 @@ export class PatientRecordNotFoundError extends Error {
 }
 
 export class NhsNumberNotFoundError extends Error {
-  constructor(error) {
+  constructor() {
     super(errorMessages.NHS_NUMBER_NOT_FOUND_ERROR);
-    logError(errorMessages.NHS_NUMBER_NOT_FOUND_ERROR, error);
+    logError(errorMessages.NHS_NUMBER_NOT_FOUND_ERROR);
   };
 }
 
@@ -93,20 +93,16 @@ export class MessageIdUpdateError extends Error {
 }
 
 export class FragmentMessageRecordNotFoundError extends Error {
-  constructor(messageId) {
+  constructor(messageIds) {
     super(errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR);
-    logError(
-      `${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId: ${messageId}`
-    );
+    logError(`${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId(s): ${messageIds}`);
   };
 }
 
 export class AcknowledgementRecordNotFoundError extends Error {
   constructor(messageId) {
     super(`${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`);
-    logError(
-        `${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`
-    );
+    logError(`${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`);
   };
 }
 
@@ -118,10 +114,10 @@ export class FileReadError extends Error {
 }
 
 export class FragmentMessageIdReplacementRecordNotFoundError extends Error {
-  constructor(oldMessageId) {
+  constructor(numberOfOldMessageIds, numberOfMessageIdReplacements) {
     super(errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR);
     logError(
-      `${errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR}, related oldMessageId: ${oldMessageId}`
-    );
+      errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR +
+      ` expected ${numberOfOldMessageIds} message ID replacements but found ${numberOfMessageIdReplacements}`);
   };
 }

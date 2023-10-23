@@ -16,6 +16,7 @@ export const Status = {
   INCORRECT_ODS_CODE: 'incorrect_ods_code',
   MISSING_FROM_REPO: 'missing_from_repo',
   EHR_DOWNLOAD_FAILED: 'ehr_download_failed',
+  CORE_SENDING_FAILED: 'core_sending_failed',
   FRAGMENTS_SENDING_FAILED: 'fragments_sending_failed',
   EHR_INTEGRATION_FAILED: 'ehr_integration_failed'
 };

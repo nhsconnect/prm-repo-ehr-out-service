@@ -4,12 +4,24 @@ import { FragmentMessageIdReplacementRecordNotFoundError } from '../../errors/er
 
 const MessageIdReplacement = ModelFactory.getByName(modelName);
 
-export const getNewMessageIdByOldMessageId = async oldMessageId => {
-  return MessageIdReplacement.findByPk(oldMessageId).then(record => {
-    if (!record) {
-      throw new FragmentMessageIdReplacementRecordNotFoundError(oldMessageId);
+export const getAllMessageIdReplacements = async oldMessageIds => {
+  return MessageIdReplacement.findAll({
+    where: {
+      oldMessageId: oldMessageIds
     }
-    // Uppercase the newMessageId here, as postgres db auto converts stored UUIDs to lowercase
-    return record.newMessageId.toUpperCase();
+  }).then(messageIdReplacements => {
+    verifyMessageIdReplacementWasFoundForEachMessageId(oldMessageIds, messageIdReplacements);
+
+    return messageIdReplacements.map(messageIdReplacement => {
+      return {
+        oldMessageId: messageIdReplacement.oldMessageId,
+        newMessageId: messageIdReplacement.newMessageId.toUpperCase()
+      }
+    });
   });
-};
+}
+
+const verifyMessageIdReplacementWasFoundForEachMessageId = (oldMessageIds, messageIdReplacements) => {
+  if (messageIdReplacements.length !== oldMessageIds.length)
+    throw new FragmentMessageIdReplacementRecordNotFoundError(oldMessageIds.length, messageIdReplacements.length);
+}

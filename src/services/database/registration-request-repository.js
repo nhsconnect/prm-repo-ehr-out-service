@@ -7,14 +7,15 @@ import { Op } from "sequelize";
 
 const RegistrationRequest = ModelFactory.getByName(modelName);
 
-export const getRegistrationRequestStatusByConversationId = conversationId => {
-  return RegistrationRequest.findByPk(conversationId);
+export const getRegistrationRequestByConversationId = async conversationId => {
+  return await RegistrationRequest.findByPk(conversationId);
 };
 
 export const getNhsNumberByConversationId = conversationId => {
-    return RegistrationRequest.findByPk(conversationId).then(record => {
+    return RegistrationRequest.findByPk(conversationId)
+      .then(record => {
         if (!record) {
-            throw new NhsNumberNotFoundError(`No record for NHS number related to conversation ID ${conversationId}`);
+            throw new NhsNumberNotFoundError();
         }
         return record.nhsNumber;
     });

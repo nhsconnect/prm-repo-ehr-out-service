@@ -1,7 +1,7 @@
-import {sendCore} from '../send-core';
-import {sendFragment} from '../send-fragment';
-import {logInfo} from '../../../middleware/logging';
-import {logOutboundMessage, removeBase64Payloads} from '../logging-utils';
+import { sendCore } from '../send-core';
+import { sendFragment } from '../send-fragment';
+import { logInfo } from '../../../middleware/logging';
+import { logOutboundMessage, removeBase64Payloads } from '../logging-utils';
 import {
   createMockGP2GPScope,
   createRandomUUID,
@@ -10,9 +10,9 @@ import {
   loadTestData,
   setupMockConfigForTest
 } from './test-utils';
-import {createFragmentDbRecord} from "../../database/create-fragment-db-record";
-import {updateFragmentStatus} from "../../transfer/transfer-out-util";
-import {getMessageFragmentRecordByMessageId} from "../../database/message-fragment-repository";
+import { createFragmentDbRecord } from "../../database/create-fragment-db-record";
+import { updateFragmentStatus } from "../../transfer/transfer-out-util";
+import { getMessageFragmentRecordByMessageId } from "../../database/message-fragment-repository";
 
 jest.mock('../../../config', () => ({
   config: jest.fn().mockReturnValue({sequelize: {dialect: 'postgres'}})

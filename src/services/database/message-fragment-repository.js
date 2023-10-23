@@ -10,6 +10,28 @@ export const getMessageFragmentRecordByMessageId = messageId => {
   return MessageFragment.findByPk(messageId);
 };
 
+export const getAllMessageFragmentRecordsByMessageIds = async messageIds => {
+  return MessageFragment.findAll({
+    where: {
+      messageId: messageIds
+    }
+  }).then(messageFragments => {
+      verifyMessageFragmentWasFoundForEachMessageId(messageIds, messageFragments)
+      return messageFragments;
+    });
+}
+
+const verifyMessageFragmentWasFoundForEachMessageId = (messageIds, messageFragments) => {
+  if (messageFragments.length !== messageIds.length) {
+    const messageIdsWithNoMessageFragment = messageFragments.map(messageFragment => {
+      if (!messageIds.contains(messageFragment.messageId)) {
+        return messageFragments.messageId
+      }
+      throw new FragmentMessageRecordNotFoundError(messageIdsWithNoMessageFragment);
+    });
+  }
+}
+
 export const updateMessageFragmentRecordStatus = (messageId, status) => {
   logInfo(`Updating message fragment status to ${status}`);
 

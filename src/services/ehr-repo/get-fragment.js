@@ -1,10 +1,10 @@
-import { EhrUrlNotFoundError, PatientRecordNotFoundError } from "../../errors/errors";
+import { PresignedUrlNotFoundError, PatientRecordNotFoundError } from "../../errors/errors";
 import { downloadFromUrl } from "../transfer/transfer-out-util";
 import { logInfo, logError } from "../../middleware/logging";
 import { config } from "../../config";
 import axios from "axios";
 
-export const retrieveIdsFromEhrRepo = async (nhsNumber) => {
+export const getMessageIdsFromEhrRepo = async (nhsNumber) => {
   const { ehrRepoServiceUrl, ehrRepoAuthKeys } = config();
   const repoUrl = `${ehrRepoServiceUrl}/patients/${nhsNumber}`;
 
@@ -34,7 +34,6 @@ const handleErrorWhileRetrievingIds = error => {
 export const getFragment = async (conversationIdFromEhrIn, messageId) => {
   const fragmentMessageUrl = await retrieveFragmentPresignedUrlFromRepo(conversationIdFromEhrIn, messageId);
   logInfo(`Successfully retrieved fragment presigned url with messageId: ${messageId}`);
-
   const fragment = await downloadFromUrl(fragmentMessageUrl);
   logInfo(`Successfully retrieved fragment with messageId: ${messageId}`);
 
@@ -47,6 +46,6 @@ const retrieveFragmentPresignedUrlFromRepo = async (conversationIdFromEhrIn, mes
 
   return await axios.get(repoUrl, {
     headers: { Authorization: ehrRepoAuthKeys}
-  }).then(response => response.data)
-    .catch(error => { throw new EhrUrlNotFoundError(error) });
+  }).then(response => response.data )
+    .catch(error => { throw new PresignedUrlNotFoundError(error) });
 };

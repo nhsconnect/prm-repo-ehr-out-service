@@ -2,13 +2,14 @@ import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { logInfo } from '../../middleware/logging';
-import { DownloadError, MessageIdUpdateError, StatusUpdateError } from '../../errors/errors';
+import {
+  DownloadError,
+  StatusUpdateError
+} from '../../errors/errors';
 import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
 import { updateRegistrationRequestStatus } from '../database/registration-request-repository';
 import { updateMessageFragmentRecordStatus } from '../database/message-fragment-repository';
-import { getNewMessageIdByOldMessageId } from '../database/message-id-replacement-repository';
-import { createMessageIdReplacement } from '../database/create-message-id-replacement';
-import { extractReferencedFragmentMessageIds, parseMessageId } from "../parser/parsing-utilities";
+import { createMessageIdReplacements } from '../database/create-message-id-replacements';
 
 export const downloadFromUrl = async messageUrl => {
   return axios
@@ -51,70 +52,32 @@ export const updateFragmentStatus = async (conversationId, messageId, status) =>
   logInfo(`Updated fragment status to: ${status}`);
 };
 
-const replaceMessageIdInObject = (ehrMessage, oldMessageId, newMessageId) => {
-  // helper func to replace messageIds in an EHR core or EHR fragment parsed as a JS object
+export const replaceMessageIdsInObject = (ehrMessage, messageIdReplacements) => {
+  let ehrMessageJsonString = JSON.stringify(ehrMessage);
 
-  return JSON.parse(JSON.stringify(ehrMessage).replaceAll(oldMessageId, newMessageId));
-};
+  messageIdReplacements.forEach(messageIdReplacement => {
+    ehrMessageJsonString =
+        ehrMessageJsonString.replaceAll(messageIdReplacement.oldMessageId, messageIdReplacement.newMessageId);
+  });
 
-export const updateMessageIdForEhrCore = async ehrCore => {
-  try {
-    const messageId = await parseMessageId(ehrCore);
-    const newMessageId = uuidv4().toUpperCase();
-    const ehrCoreWithUpdatedMessageId = replaceMessageIdInObject(ehrCore, messageId, newMessageId);
-
-    return {
-      newMessageId, ehrCoreWithUpdatedMessageId
-    }
-  } catch (error) {
-    throw new MessageIdUpdateError(error);
-  }
-};
-
-export const createNewMessageIdsForAllFragments = async fragmentMessageIds => {
-  for (let oldMessageId of fragmentMessageIds) {
-    const newMessageId = uuidv4().toUpperCase();
-    await createMessageIdReplacement(oldMessageId, newMessageId);
-  }
-};
-
-export const updateReferencedFragmentIds = async ehrMessage => {
-  /*
-   This function take care of updating the message ids of referenced fragments.
-   It works for both an EHR core or a nested fragment message.
-   It doesn't update the main message id, which is to be taken care by other functions.
-   */
-
-  try {
-    const fragmentMessageIds = await extractReferencedFragmentMessageIds(ehrMessage);
-
-    for (let oldMessageId of fragmentMessageIds) {
-      const newMessageId = await getNewMessageIdByOldMessageId(oldMessageId);
-      ehrMessage = replaceMessageIdInObject(ehrMessage, oldMessageId, newMessageId);
-    }
-  } catch (error) {
-    throw new MessageIdUpdateError(error);
-  }
-
-  return ehrMessage;
-};
-
-export const updateFragmentMessageId = async fragment => {
-  const { updatedFragment, newMessageId } = await updateMessageIdForFragment(fragment);
-  const fragmentWithUpdatedMIDAndReferences = await updateReferencedFragmentIds(updatedFragment);
-  return {
-    newMessageId,
-    message: fragmentWithUpdatedMIDAndReferences
-  };
+  return JSON.parse(ehrMessageJsonString);
 }
 
-export const updateMessageIdForFragment = async (fragment) => {
-  const messageId  = await parseMessageId(fragment);
-  const newMessageId = await getNewMessageIdByOldMessageId(messageId);
-  const updatedFragment = JSON.parse(JSON.stringify(fragment).replaceAll(messageId, newMessageId));
+export const createNewMessageIds = async oldMessageIds => {
+  const messageIdReplacements = oldMessageIds.map(oldMessageId => {
+    return {
+      oldMessageId,
+      newMessageId: uuidv4().toUpperCase()
+    }
+  });
 
-  return {
-    updatedFragment,
-    newMessageId
-  };
+  await createMessageIdReplacements(messageIdReplacements);
+  logInfo(`Created new Message ID's for EHR Core and ${messageIdReplacements.length - 1} fragment(s)`);
+  return messageIdReplacements;
 };
+
+export const getNewMessageIdForOldMessageId = (oldMessageId, messageIdReplacements) => {
+  return messageIdReplacements
+    .find(messageIdReplacement => messageIdReplacement.oldMessageId === oldMessageId)
+    .newMessageId;
+}

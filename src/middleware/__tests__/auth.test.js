@@ -3,7 +3,7 @@ import { v4 } from 'uuid';
 import { config } from '../../config';
 import { buildTestApp } from '../../__builders__/test-app';
 import { registrationRequests } from '../../api/registration-request';
-import { getRegistrationRequestStatusByConversationId } from '../../services/database/registration-request-repository';
+import { getRegistrationRequestByConversationId } from '../../services/database/registration-request-repository';
 import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
 import { logInfo, logWarning } from '../logging';
 
@@ -34,7 +34,7 @@ describe('auth', () => {
       // given
       const registrationRequestRecord = { conversationId, nhsNumber, odsCode, status: "test-record" };
 
-      getRegistrationRequestStatusByConversationId.mockResolvedValue(registrationRequestRecord);
+      getRegistrationRequestByConversationId.mockResolvedValue(registrationRequestRecord);
       getPdsOdsCode.mockResolvedValue({ data: { data: { odsCode } } });
 
       const res = await request(testApp)

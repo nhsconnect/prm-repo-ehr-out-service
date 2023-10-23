@@ -3,7 +3,9 @@ import { modelName, Status } from '../../../models/registration-request';
 import { NhsNumberNotFoundError } from "../../../errors/errors";
 import {
   getNhsNumberByConversationId,
-  getRegistrationRequestStatusByConversationId, registrationRequestExistsWithMessageId, updateRegistrationRequestMessageId,
+  getRegistrationRequestByConversationId,
+  registrationRequestExistsWithMessageId,
+  updateRegistrationRequestMessageId,
   updateRegistrationRequestStatus
 } from '../registration-request-repository';
 import ModelFactory from '../../../models';
@@ -30,7 +32,7 @@ describe('Registration request repository', () => {
 
     // when
     await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
-    const registrationRequest = await getRegistrationRequestStatusByConversationId(conversationId);
+    const registrationRequest = await getRegistrationRequestByConversationId(conversationId);
 
     // then
     expect(registrationRequest.nhsNumber).toBe(nhsNumber);
@@ -44,7 +46,7 @@ describe('Registration request repository', () => {
     const nonExistentConversationId = '9c201efc-28b0-4ea0-ac5b-baf35bd575b8';
 
     // when
-    const registrationRequest = await getRegistrationRequestStatusByConversationId(
+    const registrationRequest = await getRegistrationRequestByConversationId(
       nonExistentConversationId
     );
 
@@ -82,7 +84,7 @@ describe('Registration request repository', () => {
     // when
     await createRegistrationRequest(conversationId, inboundMessageId, nhsNumber, odsCode);
     await updateRegistrationRequestMessageId(inboundMessageId, outboundMessageId);
-    const registrationRequest = await getRegistrationRequestStatusByConversationId(conversationId);
+    const registrationRequest = await getRegistrationRequestByConversationId(conversationId);
 
     // then
     expect(registrationRequest.nhsNumber).toBe(nhsNumber);
