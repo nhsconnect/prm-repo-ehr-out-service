@@ -275,22 +275,31 @@ describe('transferOutEhrCore', () => {
       expect(updateConversationStatus).toHaveBeenCalledWith(conversationId, Status.CORE_SENDING_FAILED);
       expect(sendCore).not.toHaveBeenCalled();
     });
-  });
 
-  it('should update the registration request with the Outbound Message ID', async () => {
-    // when
-    createRegistrationRequest.mockResolvedValue(undefined);
-    patientAndPracticeOdsCodesMatch.mockResolvedValueOnce(true);
-    updateConversationStatus.mockResolvedValue(undefined);
-    getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds: [] });
-    getRegistrationRequestStatusByConversationId.mockResolvedValueOnce(null);
-    updateMessageIdForEhrCore.mockResolvedValueOnce({ ehrCoreWithUpdatedMessageId, newMessageId });
-    updateRegistrationRequestMessageId.mockResolvedValue(undefined);
-    sendCore.mockResolvedValue(undefined);
+    it('should update the registration request with the Outbound Message ID', async () => {
+      // when
+      getRegistrationRequestByConversationId.mockResolvedValueOnce(null);
+      createRegistrationRequest.mockResolvedValue(undefined);
+      patientAndPracticeOdsCodesMatch.mockResolvedValueOnce(true);
+      updateConversationStatus.mockResolvedValue(undefined);
+      getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds: [] });
+      parseMessageId.mockResolvedValueOnce(messageId);
+      createNewMessageIds.mockResolvedValueOnce([{ oldMessageId: messageId, newMessageId }])
+      updateRegistrationRequestMessageId.mockResolvedValue(undefined);
+      replaceMessageIdsInObject.mockReturnValueOnce(ehrCoreWithUpdatedMessageId);
+      getNewMessageIdForOldMessageId.mockReturnValueOnce(newMessageId);
+      sendCore.mockResolvedValue(undefined);
 
-    await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({
+        conversationId,
+        nhsNumber,
+        messageId,
+        odsCode,
+        ehrRequestId
+      });
 
-    // then
-    expect(updateRegistrationRequestMessageId).toBeCalledWith(messageId, newMessageId);
+      // then
+      expect(updateRegistrationRequestMessageId).toBeCalledWith(messageId, newMessageId);
+    });
   });
 });
