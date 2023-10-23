@@ -38,8 +38,8 @@ describe('message-id-replacement-repository', () => {
       }
 
       // then
-      expect(messageIds["oldMessageIdsFromResult"]).toEqual(messageIds["oldMessageIds"]);
-      expect(messageIds["newMessageIdsFromResult"]).toEqual(messageIds["newMessageIds"]);
+      expect(messageIds.oldMessageIdsFromResult).toEqual(messageIds.oldMessageIds);
+      expect(messageIds.newMessageIdsFromResult).toEqual(messageIds.newMessageIds);
     });
 
     it('should throw FragmentMessageIdReplacementRecordNotFoundError if provided a non-existent message id', async () => {
