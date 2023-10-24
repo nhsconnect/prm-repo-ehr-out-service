@@ -59,13 +59,14 @@ const pollQueue = async sqsClient => {
 };
 
 async function deleteToAcknowledge(sqsClient, message) {
-  logDebug('acknowledging (deleting) message');
   await sqsClient.send(
     new DeleteMessageCommand({
       QueueUrl: receiveCallParameters().QueueUrl,
       ReceiptHandle: message.ReceiptHandle
     })
   );
+
+  logDeletionReceipt(message);
 }
 
 const processMessages = async (sqsClient, receiveResponse) => {
@@ -87,3 +88,8 @@ const processMessages = async (sqsClient, receiveResponse) => {
 };
 
 const readable = obj => JSON.stringify(obj);
+
+const logDeletionReceipt = message => {
+  const interactionIdRegex = /eb:Action>(.*?)<\/eb:Action/;
+  logDebug(`Message acknowledged (deleted from SQS) with Interaction ID: ${message.match(interactionIdRegex)[1]}.`);
+}
