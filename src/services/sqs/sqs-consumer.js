@@ -1,5 +1,5 @@
 import { DeleteMessageCommand, ReceiveMessageCommand, SQSClient } from '@aws-sdk/client-sqs';
-import { logDebug, logError, logInfo, logWarning } from '../../middleware/logging';
+import { logError, logInfo, logWarning } from '../../middleware/logging';
 import sendMessageToCorrespondingHandler from '../handler/broker';
 
 const INTER_POLL_DELAY_MS = 50;
@@ -59,6 +59,8 @@ const pollQueue = async sqsClient => {
 };
 
 async function deleteToAcknowledge(sqsClient, message) {
+  logInfo("Attempting to acknowledge message (delete from SQS).");
+
   await sqsClient.send(
     new DeleteMessageCommand({
       QueueUrl: receiveCallParameters().QueueUrl,
@@ -66,7 +68,10 @@ async function deleteToAcknowledge(sqsClient, message) {
     })
   );
 
-  logDeletionReceipt(message);
+  const interactionIdRegex = /eb:Action>(.*?)<\/eb:Action/;
+  logInfo(`Message acknowledged (deleted from SQS) with Interaction ID: ${
+    JSON.stringify(message).match(interactionIdRegex)[1]}.`
+  );
 }
 
 const processMessages = async (sqsClient, receiveResponse) => {
@@ -88,8 +93,3 @@ const processMessages = async (sqsClient, receiveResponse) => {
 };
 
 const readable = obj => JSON.stringify(obj);
-
-const logDeletionReceipt = message => {
-  const interactionIdRegex = /eb:Action>(.*?)<\/eb:Action/;
-  logDebug(`Message acknowledged (deleted from SQS) with Interaction ID: ${message.match(interactionIdRegex)[1]}.`);
-}
