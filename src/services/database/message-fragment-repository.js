@@ -15,9 +15,10 @@ export const getAllMessageFragmentRecordsByMessageIds = async messageIds => {
     where: {
       messageId: messageIds
     }
-  }).then(messageFragments => {
-      verifyMessageFragmentWasFoundForEachMessageId(messageIds, messageFragments)
-      return messageFragments;
+  }).then(messageFragmentRecords => {
+      verifyMessageFragmentWasFoundForEachMessageId(messageIds, messageFragmentRecords);
+      logInfo(`Successfully retrieved ${messageFragmentRecords.length} Message Fragment record(s).`);
+      return messageFragmentRecords;
     });
 }
 
