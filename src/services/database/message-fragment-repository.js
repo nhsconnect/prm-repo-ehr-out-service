@@ -22,12 +22,13 @@ export const getAllMessageFragmentRecordsByMessageIds = messageIds => {
     });
 }
 
-const verifyMessageFragmentWasFoundForEachMessageId = (messageIds, messageFragments) => {
+const verifyMessageFragmentWasFoundForEachMessageId = (messageIds, messageFragmentRecords) => {
   logInfo("Verifying found Message Fragment records.");
-  if (messageFragments.length !== messageIds.length) {
-    const messageIdsWithNoMessageFragment = messageFragments.map(messageFragment => {
-      if (!messageIds.contains(messageFragment.messageId)) return messageFragments.messageId;
-    });
+  if (messageFragmentRecords.length !== messageIds.length) {
+    const messageIdsWithNoMessageFragment = messageFragmentRecords
+        .filter(record => !messageIds.includes(record.messageId))
+        .map(record => record.messageId);
+
     throw new FragmentMessageRecordNotFoundError(messageIdsWithNoMessageFragment);
   }
 }
