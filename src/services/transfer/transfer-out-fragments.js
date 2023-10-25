@@ -63,7 +63,7 @@ const getAndSendMessageFragments = async (messageIdsWithReplacements, conversati
 
 const getMessageIdsForAllFragmentsEligibleForSending = async messageIdsWithReplacements => {
   const newMessageIds = messageIdsWithReplacements.map(messageIdWithReplacement => messageIdWithReplacement.newMessageId);
-  const messageFragmentRecords = await getAllMessageFragmentRecordsByMessageIds(newMessageIds);
+  const messageFragmentRecords = getAllMessageFragmentRecordsByMessageIds(newMessageIds);
 
   const messageIdsOfFragmentsEligibleForSending = newMessageIds.filter(messageId => {
     const messageFragmentRecord = messageFragmentRecords.find(
