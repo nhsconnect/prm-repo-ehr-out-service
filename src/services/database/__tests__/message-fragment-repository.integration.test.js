@@ -8,12 +8,13 @@ import {
   Status as registrationRequestStatus
 } from '../../../models/registration-request';
 import {
+  getAllMessageFragmentRecordsByMessageIds,
   getMessageFragmentRecordByMessageId,
   updateMessageFragmentRecordStatus
 } from '../message-fragment-repository';
 import { v4 as uuidv4 } from 'uuid';
-import { logError, logInfo } from '../../../middleware/logging';
-import { errorMessages, FragmentMessageRecordNotFoundError } from '../../../errors/errors';
+import { logInfo } from '../../../middleware/logging';
+import { createRandomUUID } from "../../gp2gp/__tests__/test-utils";
 
 jest.mock('../../../middleware/logging');
 
@@ -25,14 +26,17 @@ describe('message-fragment-repository.js', () => {
 
   // Set Up
   beforeAll(async () => {
-    // clean and sync the table before test
+    await RegistrationRequest.truncate();
     await MessageFragment.truncate();
+    await RegistrationRequest.sync({ force: true });
     await MessageFragment.sync({ force: true });
   });
 
   // Tear Down
   afterAll(async () => {
+    await RegistrationRequest.sequelize.sync({ force: true });
     await MessageFragment.sequelize.sync({ force: true });
+    await RegistrationRequest.sequelize.close();
     await ModelFactory.sequelize.close();
   });
 
@@ -111,6 +115,34 @@ describe('message-fragment-repository.js', () => {
       expect(record.messageId).toBe(messageId);
       expect(record.status).toBe(updatedStatus);
       expect(logInfo).toHaveBeenCalledWith('Updated message fragment status has been stored');
+    });
+  });
+
+  describe('getAllMessageFragmentRecordsByMessageIds', () => {
+    it('should get all the fragment records successfully', async () => {
+      // given
+      const numberOfFragments = 10;
+      const conversationId = uuidv4();
+      const messageIds = createRandomUUID(numberOfFragments);
+      const nhsNumber = 1234567890;
+      const odsCode = "B14758";
+      const registrationStatus = registrationRequestStatus.REGISTRATION_REQUEST_RECEIVED;
+      const initialStatus = MessageFragmentStatus.FRAGMENT_REQUEST_RECEIVED;
+
+      // when
+      await RegistrationRequest.create({ conversationId, nhsNumber, odsCode, status: registrationStatus });
+
+      for (let i = 0; i < numberOfFragments; i++) {
+        const messageId = messageIds[i];
+        await MessageFragment.create({ messageId, conversationId, status: initialStatus });
+      }
+
+      const result = await getAllMessageFragmentRecordsByMessageIds(messageIds);
+      const messageIdsFromResult = result.map(record => record.messageId);
+
+      // then
+      expect(result.length).toEqual(messageIds.length);
+      expect(messageIdsFromResult).toEqual(messageIds);
     });
   });
 });
