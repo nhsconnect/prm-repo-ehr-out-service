@@ -16,6 +16,7 @@ export const getAllMessageFragmentRecordsByMessageIds = messageIds => {
       messageId: messageIds
     }
   }).then(messageFragmentRecords => {
+      logInfo(JSON.stringify(messageFragmentRecords));
       verifyMessageFragmentWasFoundForEachMessageId(messageIds, messageFragmentRecords);
       logInfo(`Successfully retrieved ${messageFragmentRecords.length} verified Message Fragment record(s).`);
       return messageFragmentRecords;
@@ -23,13 +24,14 @@ export const getAllMessageFragmentRecordsByMessageIds = messageIds => {
 }
 
 const verifyMessageFragmentWasFoundForEachMessageId = (messageIds, messageFragmentRecords) => {
+  logInfo(JSON.stringify(messageFragmentRecords));
   logInfo("Verifying found Message Fragment records.");
   if (messageFragmentRecords.length !== messageIds.length) {
-    const messageIdsWithNoMessageFragment = messageFragmentRecords
+    const providedMessageIdsWithNoMessageFragmentFound = messageFragmentRecords
         .filter(record => !messageIds.includes(record.messageId))
         .map(record => record.messageId);
 
-    throw new FragmentMessageRecordNotFoundError(messageIdsWithNoMessageFragment);
+    throw new FragmentMessageRecordNotFoundError(providedMessageIdsWithNoMessageFragmentFound);
   }
 }
 
