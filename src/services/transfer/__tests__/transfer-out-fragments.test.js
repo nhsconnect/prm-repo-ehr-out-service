@@ -132,7 +132,8 @@ describe('transferOutFragments', () => {
     // when
     getFragmentConversationAndMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
     getAllMessageIdReplacements.mockResolvedValueOnce(messageIdsWithReplacements);
-    getAllMessageFragmentRecordsByMessageIds.mockResolvedValueOnce([messageFragmentRecordSent, messageFragmentRecordUnsent])
+    getAllFragmentOutboundMessageIdsEligibleToBeSent.mockResolvedValueOnce([messageFragmentRecordUnsent.messageId]);
+    getAllMessageFragmentRecordsByMessageIds.mockResolvedValueOnce([messageFragmentRecordSent, messageFragmentRecordUnsent]);
     getFragment.mockResolvedValueOnce(fragment2);
     replaceMessageIdsInObject.mockReturnValueOnce(updatedFragment2);
     sendFragment.mockResolvedValue(undefined);
@@ -155,8 +156,7 @@ describe('transferOutFragments', () => {
     expect(replaceMessageIdsInObject).toHaveBeenCalledWith(fragment2, [messageIdsWithReplacements[1]]);
     expect(sendFragment).toHaveBeenCalledTimes(1);
     expect(sendFragment).toHaveBeenCalledWith(outboundConversationId, odsCode, updatedFragment2, updatedMessageId2);
-
-    expect(logInfo).nthCalledWith(3, 'Out of 2 message Ids, 1 have already been sent. 1 are eligible to be sent')
+    expect(logInfo).toHaveBeenCalledWith('All fragments have been successfully sent to GP2GP Messenger.');
   });
 
   it('should update fragment status to MISSING_FROM_REPO when unable to find fragment in repo', async () => {

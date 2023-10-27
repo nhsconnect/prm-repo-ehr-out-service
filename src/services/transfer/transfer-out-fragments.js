@@ -73,29 +73,31 @@ const getAndSendMessageFragments = async (messageIdsWithReplacements, conversati
     logInfo(`All fragments have been successfully sent to GP2GP Messenger.`);
 }
 
-const getMessageIdsForAllFragmentsEligibleForSending = async messageIdsWithReplacements => {
-  const newMessageIds = messageIdsWithReplacements.map(messageIdWithReplacement => messageIdWithReplacement.newMessageId);
-  const messageFragmentRecords = await getAllMessageFragmentRecordsByMessageIds(newMessageIds);
+// TODO PRMT-4074: Remove?
+// const getMessageIdsForAllFragmentsEligibleForSending = async messageIdsWithReplacements => {
+//   const newMessageIds = messageIdsWithReplacements.map(messageIdWithReplacement => messageIdWithReplacement.newMessageId);
+//   const messageFragmentRecords = await getAllMessageFragmentRecordsByMessageIds(newMessageIds);
+//
+//   const messageIdsOfFragmentsEligibleForSending = newMessageIds.filter(messageId => {
+//     const messageFragmentRecord = messageFragmentRecords.find(
+//       messageFragmentRecord => messageFragmentRecord.messageId === messageId);
+//
+//     return isFragmentEligibleToBeSent(messageFragmentRecord);
+//   });
+//
+//   logInfo(`Out of ${newMessageIds.length} message Ids, ` +
+//   `${newMessageIds.length - messageIdsOfFragmentsEligibleForSending.length} have already been sent. ` +
+//   `${messageIdsOfFragmentsEligibleForSending.length} are eligible to be sent`);
+//
+//   return messageIdsOfFragmentsEligibleForSending;
+// }
 
-  const messageIdsOfFragmentsEligibleForSending = newMessageIds.filter(messageId => {
-    const messageFragmentRecord = messageFragmentRecords.find(
-      messageFragmentRecord => messageFragmentRecord.messageId === messageId);
-
-    return isFragmentEligibleToBeSent(messageFragmentRecord);
-  });
-
-  logInfo(`Out of ${newMessageIds.length} message Ids, ` +
-  `${newMessageIds.length - messageIdsOfFragmentsEligibleForSending.length} have already been sent. ` +
-  `${messageIdsOfFragmentsEligibleForSending.length} are eligible to be sent`);
-
-  return messageIdsOfFragmentsEligibleForSending;
-}
-
-const isFragmentEligibleToBeSent = messageFragmentRecord => {
-  // if the fragment has no fragmentRecord stored in the database, it is considered eligible for sending
-  const fragmentStatus = messageFragmentRecord?.status;
-  return !(fragmentStatus === Status.SENT_FRAGMENT || fragmentStatus === Status.MISSING_FROM_REPO);
-}
+// TODO: PRMT-4074 REMOVE IF SUCCESSFUL.
+// const isFragmentEligibleToBeSent = messageFragmentRecord => {
+//   // if the fragment has no fragmentRecord stored in the database, it is considered eligible for sending
+//   const fragmentStatus = messageFragmentRecord?.status;
+//   return !(fragmentStatus === Status.SENT_FRAGMENT || fragmentStatus === Status.MISSING_FROM_REPO);
+// }
 
 const handleFragmentTransferError = async (error, conversationId, messageId) => {
   switch (true) {
