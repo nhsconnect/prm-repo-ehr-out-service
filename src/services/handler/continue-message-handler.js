@@ -13,7 +13,6 @@ import { parseConversationId } from "../parser/parsing-utilities";
 import { logError, logInfo, logWarning } from "../../middleware/logging";
 import { Status } from "../../models/registration-request";
 import { hasServiceStartedInTheLast5Minutes } from "../../config";
-import {getMessageIdsFromEhrRepo} from "../ehr-repo/get-fragment";
 
 export default async function continueMessageHandler(message) {
   const conversationId = await parseConversationId(message);

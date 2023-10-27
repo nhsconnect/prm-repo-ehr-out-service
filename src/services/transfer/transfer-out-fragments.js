@@ -1,22 +1,32 @@
-import { getFragment, getMessageIdsFromEhrRepo } from '../ehr-repo/get-fragment';
+import { getFragment, getFragmentConversationAndMessageIdsFromEhrRepo } from '../ehr-repo/get-fragment';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { replaceMessageIdsInObject, updateFragmentStatus } from './transfer-out-util';
 import { sendFragment } from '../gp2gp/send-fragment';
 import { logError, logInfo } from '../../middleware/logging';
 import { config } from '../../config';
 import { getAllMessageIdReplacements } from "../database/message-id-replacement-repository";
-import { getAllMessageFragmentRecordsByMessageIds } from "../database/message-fragment-repository";
+import {
+  getAllMessageFragmentRecordsByMessageIds,
+  getAllFragmentOutboundMessageIdsEligibleToBeSent
+} from "../database/message-fragment-repository";
 import { Status } from "../../models/message-fragment";
 import { DownloadError, PresignedUrlNotFoundError } from "../../errors/errors";
+import { createFragmentDbRecord } from "../database/create-fragment-db-record";
 
 export async function transferOutFragmentsForNewContinueRequest({ conversationId, nhsNumber, odsCode }) {
   setCurrentSpanAttributes({ conversationId });
   logInfo(`Initiated the EHR Fragment transfer.`);
-  const { conversationIdFromEhrIn, messageIds } = await getMessageIdsFromEhrRepo(nhsNumber);
+  const { conversationIdFromEhrIn, messageIds } = await getFragmentConversationAndMessageIdsFromEhrRepo(nhsNumber);
   logInfo('Retrieved all fragment Message IDs for transfer.');
 
   // returns an object with the inbound and outbound message IDs paired together
   const messageIdsWithReplacements = await getAllMessageIdReplacements(messageIds);
+  const newMessageIds = messageIdsWithReplacements.map(replacement => replacement.newMessageId);
+
+  // Create Message Fragment records.
+  for (let i = 0; i < newMessageIds.length; i++) {
+    await createFragmentDbRecord(newMessageIds[i], conversationId);
+  }
 
   await getAndSendMessageFragments(messageIdsWithReplacements, conversationIdFromEhrIn, conversationId, odsCode);
 }
@@ -24,16 +34,16 @@ export async function transferOutFragmentsForNewContinueRequest({ conversationId
 export async function transferOutFragmentsForRetriedContinueRequest({ conversationId, nhsNumber, odsCode }) {
   setCurrentSpanAttributes({ conversationId });
   logInfo(`Retrying the EHR Fragment transfer.`);
-  const { conversationIdFromEhrIn, messageIds } = await getMessageIdsFromEhrRepo(nhsNumber);
+  const { conversationIdFromEhrIn, messageIds } = await getFragmentConversationAndMessageIdsFromEhrRepo(nhsNumber);
   logInfo('Retrieved all fragment Message IDs for transfer.');
 
-  // returns an object with the inbound and outbound message IDs paired together
   const messageIdsWithReplacements = await getAllMessageIdReplacements(messageIds);
+  const eligibleOutboundMessageIds = await getAllFragmentOutboundMessageIdsEligibleToBeSent(conversationId);
 
-  const messageIdsOfFragmentsEligibleForSending = await getMessageIdsForAllFragmentsEligibleForSending(messageIdsWithReplacements);
-
-  const messageIdsWithReplacementsEligibleForSending = messageIdsWithReplacements.filter(messageIdWithReplacement =>
-    messageIdsOfFragmentsEligibleForSending.includes(messageIdWithReplacement.newMessageId));
+  const messageIdsWithReplacementsEligibleForSending = messageIdsWithReplacements
+      .filter(messageIdsWithReplacement => {
+        return eligibleOutboundMessageIds.includes(messageIdsWithReplacement.newMessageId);
+      });
 
   await getAndSendMessageFragments(messageIdsWithReplacementsEligibleForSending, conversationIdFromEhrIn, conversationId, odsCode);
 }
@@ -43,7 +53,8 @@ const getAndSendMessageFragments = async (messageIdsWithReplacements, conversati
 
     for (const messageIdWithReplacement of messageIdsWithReplacements) {
       try {
-        const {oldMessageId, newMessageId} = messageIdWithReplacement;
+        const { oldMessageId, newMessageId } = messageIdWithReplacement;
+
         let fragment = await getFragment(conversationIdFromEhrIn, oldMessageId);
         fragment = replaceMessageIdsInObject(fragment, messageIdsWithReplacements);
 
@@ -58,6 +69,7 @@ const getAndSendMessageFragments = async (messageIdsWithReplacements, conversati
         throw error;
       }
     }
+
     logInfo(`All fragments have been successfully sent to GP2GP Messenger.`);
 }
 

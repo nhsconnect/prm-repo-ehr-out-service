@@ -8,6 +8,7 @@ import {
   Status as registrationRequestStatus
 } from '../../../models/registration-request';
 import {
+  getAllFragmentOutboundMessageIdsEligibleToBeSent,
   getAllMessageFragmentRecordsByMessageIds,
   getMessageFragmentRecordByMessageId,
   updateMessageFragmentRecordStatus
@@ -37,6 +38,7 @@ describe('message-fragment-repository.js', () => {
     await RegistrationRequest.sequelize.sync({ force: true });
     await MessageFragment.sequelize.sync({ force: true });
     await RegistrationRequest.sequelize.close();
+    await MessageFragment.sequelize.close();
     await ModelFactory.sequelize.close();
   });
 
@@ -145,4 +147,75 @@ describe('message-fragment-repository.js', () => {
       expect(messageIdsFromResult).toEqual(messageIds);
     });
   });
+
+  describe('getAllFragmentOutboundMessageIdsEligibleToBeSent', () => {
+    it('should get all eligible fragment Message IDs successfully', async () => {
+      // given
+      const conversationId = await seedRegistrationRequest();
+      const fragmentMessageIds = await seedFragmentsForConversationId(conversationId, 10);
+
+      // when
+      const response = await getAllFragmentOutboundMessageIdsEligibleToBeSent(conversationId);
+
+      // then
+      expect(response.length).toEqual(fragmentMessageIds.length);
+      expect(fragmentMessageIds).toEqual(response);
+    });
+
+    it('should only return the eligible fragments', async () => {
+      // given
+      const conversationId = await seedRegistrationRequest();
+      const eligibleMessageIds = await seedFragmentsForConversationId(conversationId, 10);
+      const ineligibleMessageIds = await seedFragmentsForConversationId(
+          conversationId, 5, messageFragmentStatus.SENT_FRAGMENT);
+      const eligibleAndIneligibleMessageIds = [...eligibleMessageIds, ...ineligibleMessageIds];
+
+      // when
+      const response = await getAllFragmentOutboundMessageIdsEligibleToBeSent(conversationId);
+
+      // then
+      expect(response.length).not.toEqual(eligibleAndIneligibleMessageIds.length);
+      expect(response.length).toEqual(eligibleMessageIds.length);
+      expect(response).toEqual(eligibleMessageIds);
+    });
+  });
+
+  // Utility functions.
+  const seedRegistrationRequest = async (status) => {
+    const conversationId = uuidv4();
+    const nhsNumber = 1234567890;
+    const odsCode = "B00324";
+
+    // If no status is provided, default to REGISTRATION_REQUEST_RECEIVED.
+    status = status ? status : registrationRequestStatus.REGISTRATION_REQUEST_RECEIVED;
+
+    await RegistrationRequest.create({
+      conversationId,
+      nhsNumber,
+      odsCode,
+      status
+    });
+
+    console.log(`Created Registration Request successfully with Conversation ID ${conversationId}.`);
+
+    return conversationId;
+  }
+
+  const seedFragmentsForConversationId = async (conversationId, numberOfFragments, status) => {
+    const messageIds = createRandomUUID(numberOfFragments);
+
+    // If no status is provided, default to FRAGMENT_REQUEST_RECEIVED.
+    status = status ? status : messageFragmentStatus.FRAGMENT_REQUEST_RECEIVED;
+
+    for (let i = 0; i < numberOfFragments; i++)
+      await MessageFragment.create({
+        messageId: messageIds[i],
+        conversationId,
+        status
+      });
+
+    console.log(`Successfully created ${numberOfFragments} fragments associated with random Conversation ID ${conversationId}.`);
+
+    return messageIds;
+  }
 });

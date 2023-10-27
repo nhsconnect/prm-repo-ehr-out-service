@@ -22,7 +22,7 @@ import {
 } from "../services/transfer/transfer-out-util";
 import {
   getFragment,
-  getMessageIdsFromEhrRepo
+  getFragmentConversationAndMessageIdsFromEhrRepo
 } from "../services/ehr-repo/get-fragment";
 import nock from "nock";
 
@@ -243,7 +243,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
     });
 
     // when
-    getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
+    getFragmentConversationAndMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
     for (let messageId of fragmentMessageIds) {
       getFragment.mockReturnValueOnce(JSON.parse(originalFragments[messageId]));
     }
@@ -285,7 +285,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
     });
 
     // when
-    getMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
+    getFragmentConversationAndMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepoMessageIdResponse);
     for (let messageId of fragmentMessageIds) {
       getFragment.mockReturnValueOnce(JSON.parse(originalFragments[messageId]));
     }
