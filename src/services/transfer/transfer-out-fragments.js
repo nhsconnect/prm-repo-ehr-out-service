@@ -6,7 +6,6 @@ import { logError, logInfo } from '../../middleware/logging';
 import { config } from '../../config';
 import { getAllMessageIdReplacements } from "../database/message-id-replacement-repository";
 import {
-  getAllMessageFragmentRecordsByMessageIds,
   getAllFragmentOutboundMessageIdsEligibleToBeSent
 } from "../database/message-fragment-repository";
 import { Status } from "../../models/message-fragment";
