@@ -12,6 +12,7 @@ import expect from "expect";
 import nock from 'nock';
 import { sortBy } from 'lodash';
 import { replaceMessageIdsInObject } from "../services/transfer/transfer-out-util";
+import {createRegistrationRequest} from "../services/database/create-registration-request";
 
 describe('Replacement of message IDs', () => {
   const uuidRegexPattern = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/

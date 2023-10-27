@@ -4,7 +4,7 @@ import { logInfo, logError } from "../../middleware/logging";
 import { config } from "../../config";
 import axios from "axios";
 
-export const getMessageIdsFromEhrRepo = async (nhsNumber) => {
+export const getFragmentConversationAndMessageIdsFromEhrRepo = async (nhsNumber) => {
   const { ehrRepoServiceUrl, ehrRepoAuthKeys } = config();
   const repoUrl = `${ehrRepoServiceUrl}/patients/${nhsNumber}`;
 

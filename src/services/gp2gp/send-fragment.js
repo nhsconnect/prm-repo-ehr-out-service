@@ -17,8 +17,6 @@ export const sendFragment = async (conversationId, odsCode, fragmentMessage, mes
 
   logInfo(`Started to send fragment with Message ID: ${messageId}, outbound Conversation ID ${conversationId}.`);
 
-  await createFragmentDbRecord(messageId, conversationId);
-
   logInfo('POST request has been made to the GP2GP Messenger `/ehr-out-transfers/fragment` endpoint with request body as below:');
   logOutboundMessage(requestBody);
 

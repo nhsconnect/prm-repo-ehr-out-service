@@ -1,13 +1,10 @@
-import { getMessageFragmentRecordByMessageId } from '../../database/message-fragment-repository';
 import { FragmentSendingError } from '../../../errors/errors';
-import { Status } from '../../../models/message-fragment';
-import { logInfo, logWarning } from '../../../middleware/logging';
+import { logInfo } from '../../../middleware/logging';
 import { sendFragment } from '../send-fragment';
 import expect from 'expect';
 import nock from 'nock';
-import { createFragmentDbRecord } from '../../database/create-fragment-db-record';
 import { updateFragmentStatus } from '../../transfer/transfer-out-util';
-import {setupMockConfigForTest} from "./test-utils";
+import { setupMockConfigForTest } from "./test-utils";
 
 // Mocking
 jest.mock('../../../config', () => ({
@@ -15,7 +12,6 @@ jest.mock('../../../config', () => ({
 }));
 jest.mock('../../../middleware/logging');
 jest.mock('../../database/message-fragment-repository');
-jest.mock('../../database/create-fragment-db-record');
 jest.mock('../../transfer/transfer-out-util');
 
 describe('sendFragment', () => {
@@ -40,13 +36,11 @@ describe('sendFragment', () => {
       .post(`${REQUEST_ENDPOINT}/fragment`)
       .reply(204);
 
-    createFragmentDbRecord.mockResolvedValueOnce(undefined); // assume database record creation works fine
     updateFragmentStatus.mockResolvedValueOnce(undefined);
 
     await sendFragment(CONVERSATION_ID, ODS_CODE, FRAGMENT_MESSAGE, MESSAGE_ID);
 
     // then
-    expect(createFragmentDbRecord).toBeCalledTimes(1);
     expect(updateFragmentStatus).toBeCalledTimes(1);
     expect(mockUrlRequest.isDone()).toBe(true);
     expect(logInfo).toHaveBeenCalledWith('Successfully sent message fragment');
@@ -57,8 +51,6 @@ describe('sendFragment', () => {
     const mockUrlRequest = nock(REQUEST_BASE_URL, HEADERS)
       .post(`${REQUEST_ENDPOINT}/fragment`)
       .reply(404);
-
-    createFragmentDbRecord.mockResolvedValueOnce(undefined);
 
     await expect(() =>
       sendFragment(CONVERSATION_ID, ODS_CODE, FRAGMENT_MESSAGE, MESSAGE_ID)

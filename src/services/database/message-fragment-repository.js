@@ -1,7 +1,8 @@
 import { FragmentMessageRecordNotFoundError } from "../../errors/errors";
-import { modelName } from '../../models/message-fragment';
+import {modelName, Status} from '../../models/message-fragment';
 import { logInfo } from '../../middleware/logging';
 import ModelFactory from '../../models';
+import { Op } from "sequelize";
 
 const MessageFragment = ModelFactory.getByName(modelName);
 
@@ -13,26 +14,13 @@ export const getMessageFragmentRecordByMessageId = messageId => {
 export const getAllMessageFragmentRecordsByMessageIds = messageIds => {
   return MessageFragment.findAll({
     where: {
-      messageId: messageIds
+      messageId: messageIds,
     }
   }).then(messageFragmentRecords => {
       logInfo(JSON.stringify(messageFragmentRecords));
-      verifyMessageFragmentWasFoundForEachMessageId(messageIds, messageFragmentRecords);
       logInfo(`Successfully retrieved ${messageFragmentRecords.length} verified Message Fragment record(s).`);
       return messageFragmentRecords;
     });
-}
-
-const verifyMessageFragmentWasFoundForEachMessageId = (messageIds, messageFragmentRecords) => {
-  logInfo(JSON.stringify(messageFragmentRecords));
-  logInfo("Verifying found Message Fragment records.");
-  if (messageFragmentRecords.length !== messageIds.length) {
-    const providedMessageIdsWithNoMessageFragmentFound = messageFragmentRecords
-        .filter(record => !messageIds.includes(record.messageId))
-        .map(record => record.messageId);
-
-    throw new FragmentMessageRecordNotFoundError(providedMessageIdsWithNoMessageFragmentFound);
-  }
 }
 
 export const updateMessageFragmentRecordStatus = (messageId, status) => {
@@ -47,3 +35,17 @@ export const updateMessageFragmentRecordStatus = (messageId, status) => {
     })
     .then(() => logInfo('Updated message fragment status has been stored'));
 };
+
+export const getAllFragmentOutboundMessageIdsEligibleToBeSent = conversationId => {
+  return MessageFragment.findAll({
+    where: {
+      conversationId,
+      status: {
+        [Op.notIn]: [Status.SENT_FRAGMENT, Status.MISSING_FROM_REPO]
+      }
+    }
+  }).then(eligibleRecords => {
+    logInfo(`Found ${eligibleRecords.length} eligible records, returning the Outbound Message ID(s).`)
+    return eligibleRecords.map(record => record.messageId);
+  })
+}
