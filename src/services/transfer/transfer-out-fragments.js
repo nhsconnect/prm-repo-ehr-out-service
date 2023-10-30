@@ -44,6 +44,8 @@ export async function transferOutFragmentsForRetriedContinueRequest({ conversati
         return eligibleOutboundMessageIds.includes(messageIdsWithReplacement.newMessageId);
       });
 
+  logInfo(`Found ${messageIdsWithReplacementsEligibleForSending.length} Message ID replacements eligible to be sent.`);
+
   await getAndSendMessageFragments(messageIdsWithReplacementsEligibleForSending, conversationIdFromEhrIn, conversationId, odsCode);
 }
 
@@ -72,7 +74,7 @@ const getAndSendMessageFragments = async (messageIdsWithReplacements, conversati
     logInfo(`All fragments have been successfully sent to GP2GP Messenger.`);
 }
 
-// TODO PRMT-4074: Remove?
+// TODO PRMT-4074: PRMT-4074 REMOVE IF SUCCESSFUL.
 // const getMessageIdsForAllFragmentsEligibleForSending = async messageIdsWithReplacements => {
 //   const newMessageIds = messageIdsWithReplacements.map(messageIdWithReplacement => messageIdWithReplacement.newMessageId);
 //   const messageFragmentRecords = await getAllMessageFragmentRecordsByMessageIds(newMessageIds);
