@@ -216,6 +216,7 @@ describe('message-fragment-repository.js', () => {
 
     console.log(`Successfully created ${numberOfFragments} fragments associated with random Conversation ID ${conversationId}.`);
 
-    return messageIds;
+    return messageIds
+        .map(messageId => messageId.toUpperCase());
   }
 });

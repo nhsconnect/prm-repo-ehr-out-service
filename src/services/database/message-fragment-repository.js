@@ -46,6 +46,7 @@ export const getAllFragmentOutboundMessageIdsEligibleToBeSent = conversationId =
     }
   }).then(eligibleRecords => {
     logInfo(`Found ${eligibleRecords.length} eligible records, returning the Outbound Message ID(s).`)
-    return eligibleRecords.map(record => record.messageId);
+    return eligibleRecords
+        .map(record => record.messageId.toUpperCase())
   })
 }
