@@ -27,7 +27,7 @@ locals {
     { name = "USE_SSL_FOR_DB", value = "true" },
     { name = "LOG_LEVEL", value = var.log_level },
     { name = "SQS_EHR_OUT_INCOMING_QUEUE_URL", value = aws_sqs_queue.service_incoming.id },
-    { name = "FRAGMENT_TRANSFER_RATE_LIMIT_TIMEOUT_MILLISECONDS", value = "1000" }
+    { name = "FRAGMENT_TRANSFER_RATE_LIMIT_TIMEOUT_MILLISECONDS", value = "100" }
   ]
   secret_environment_variables = [
     { name      = "GP2GP_MESSENGER_AUTHORIZATION_KEYS",
