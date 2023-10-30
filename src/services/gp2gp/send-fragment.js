@@ -8,7 +8,7 @@ import { Status } from '../../models/message-fragment';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 
 export const sendFragment = async (conversationId, odsCode, fragmentMessage, messageId) => {
-  const { gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl} = config();
+  const {gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl} = config();
   const sendFragmentEndpoint = `${gp2gpMessengerServiceUrl}/ehr-out-transfers/fragment`;
   const requestBody = {conversationId, odsCode, fragmentMessage, messageId};
 
