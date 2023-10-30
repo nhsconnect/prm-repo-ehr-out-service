@@ -3,7 +3,6 @@ import { logInfo } from '../../middleware/logging';
 import { config } from '../../config';
 import { FragmentSendingError } from '../../errors/errors';
 import { logOutboundMessage } from './logging-utils';
-import { createFragmentDbRecord } from '../database/create-fragment-db-record';
 import { updateFragmentStatus } from '../transfer/transfer-out-util';
 import { Status } from '../../models/message-fragment';
 import { setCurrentSpanAttributes } from '../../config/tracing';

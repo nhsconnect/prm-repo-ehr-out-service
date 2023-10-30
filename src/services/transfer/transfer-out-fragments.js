@@ -18,11 +18,9 @@ export async function transferOutFragmentsForNewContinueRequest({ conversationId
   const { conversationIdFromEhrIn, messageIds } = await getFragmentConversationAndMessageIdsFromEhrRepo(nhsNumber);
   logInfo('Retrieved all fragment Message IDs for transfer.');
 
-  // returns an object with the inbound and outbound message IDs paired together
   const messageIdsWithReplacements = await getAllMessageIdReplacements(messageIds);
   const newMessageIds = messageIdsWithReplacements.map(replacement => replacement.newMessageId);
 
-  // Create Message Fragment records.
   for (let i = 0; i < newMessageIds.length; i++) {
     await createFragmentDbRecord(newMessageIds[i], conversationId);
   }
@@ -73,32 +71,6 @@ const getAndSendMessageFragments = async (messageIdsWithReplacements, conversati
 
     logInfo(`All fragments have been successfully sent to GP2GP Messenger.`);
 }
-
-// TODO PRMT-4074: PRMT-4074 REMOVE IF SUCCESSFUL.
-// const getMessageIdsForAllFragmentsEligibleForSending = async messageIdsWithReplacements => {
-//   const newMessageIds = messageIdsWithReplacements.map(messageIdWithReplacement => messageIdWithReplacement.newMessageId);
-//   const messageFragmentRecords = await getAllMessageFragmentRecordsByMessageIds(newMessageIds);
-//
-//   const messageIdsOfFragmentsEligibleForSending = newMessageIds.filter(messageId => {
-//     const messageFragmentRecord = messageFragmentRecords.find(
-//       messageFragmentRecord => messageFragmentRecord.messageId === messageId);
-//
-//     return isFragmentEligibleToBeSent(messageFragmentRecord);
-//   });
-//
-//   logInfo(`Out of ${newMessageIds.length} message Ids, ` +
-//   `${newMessageIds.length - messageIdsOfFragmentsEligibleForSending.length} have already been sent. ` +
-//   `${messageIdsOfFragmentsEligibleForSending.length} are eligible to be sent`);
-//
-//   return messageIdsOfFragmentsEligibleForSending;
-// }
-
-// TODO: PRMT-4074 REMOVE IF SUCCESSFUL.
-// const isFragmentEligibleToBeSent = messageFragmentRecord => {
-//   // if the fragment has no fragmentRecord stored in the database, it is considered eligible for sending
-//   const fragmentStatus = messageFragmentRecord?.status;
-//   return !(fragmentStatus === Status.SENT_FRAGMENT || fragmentStatus === Status.MISSING_FROM_REPO);
-// }
 
 const handleFragmentTransferError = async (error, conversationId, messageId) => {
   switch (true) {
