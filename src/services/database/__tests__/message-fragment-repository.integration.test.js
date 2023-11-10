@@ -186,8 +186,8 @@ describe('message-fragment-repository.js', () => {
     const nhsNumber = 1234567890;
     const odsCode = "B00324";
 
-    // If no status is provided, default to REGISTRATION_REQUEST_RECEIVED.
-    status = status ? status : registrationRequestStatus.REGISTRATION_REQUEST_RECEIVED;
+    // If no status is provided, default to REGISTRATION_REQUEST_RECEIVED via nullish coalescing operator ??=
+    status ??= registrationRequestStatus.REGISTRATION_REQUEST_RECEIVED;
 
     await RegistrationRequest.create({
       conversationId,
@@ -204,8 +204,9 @@ describe('message-fragment-repository.js', () => {
   const seedFragmentsForConversationId = async (conversationId, numberOfFragments, status) => {
     const messageIds = createRandomUUID(numberOfFragments);
 
-    // If no status is provided, default to FRAGMENT_REQUEST_RECEIVED.
-    status = status ? status : messageFragmentStatus.FRAGMENT_REQUEST_RECEIVED;
+    // If no status is provided, default to FRAGMENT_REQUEST_RECEIVED via nullish coalescing operator ??=
+    status ??= messageFragmentStatus.FRAGMENT_REQUEST_RECEIVED;
+
 
     for (let i = 0; i < numberOfFragments; i++)
       await MessageFragment.create({

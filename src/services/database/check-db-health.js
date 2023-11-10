@@ -14,7 +14,7 @@ export const checkDbHealth = async () => {
       writable: true
     };
   } catch (err) {
-    if (err.parent && err.parent.code) {
+    if (err.parent?.code) {
       return parseHealthCheckError(err.parent.code);
     }
 

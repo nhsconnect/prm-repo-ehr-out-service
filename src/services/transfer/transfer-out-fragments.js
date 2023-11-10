@@ -21,8 +21,8 @@ export async function transferOutFragmentsForNewContinueRequest({ conversationId
   const messageIdsWithReplacements = await getAllMessageIdReplacements(messageIds);
   const newMessageIds = messageIdsWithReplacements.map(replacement => replacement.newMessageId);
 
-  for (let i = 0; i < newMessageIds.length; i++) {
-    await createFragmentDbRecord(newMessageIds[i], conversationId);
+  for (const newMessageId of newMessageIds) {
+    await createFragmentDbRecord(newMessageId, conversationId);
   }
 
   await getAndSendMessageFragments(messageIdsWithReplacements, conversationIdFromEhrIn, conversationId, odsCode);

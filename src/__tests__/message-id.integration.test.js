@@ -12,7 +12,6 @@ import expect from "expect";
 import nock from 'nock';
 import { sortBy } from 'lodash';
 import { replaceMessageIdsInObject } from "../services/transfer/transfer-out-util";
-import {createRegistrationRequest} from "../services/database/create-registration-request";
 
 describe('Replacement of message IDs', () => {
   const uuidRegexPattern = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
@@ -187,12 +186,14 @@ describe('Replacement of message IDs', () => {
       // Message IDs within the POST Request bodies.
       const messageIdReplacements = await getAllMessageIdReplacements(fragmentOldMessageIds);
       const newFragmentMessageIds = messageIdReplacements
-          .map(replacement => replacement.newMessageId);
+        .map(replacement => replacement.newMessageId)
+        .sort();
 
       const newMessageIdsInPostRequests = gp2gpMessengerPostRequestBodies
-          .map(body => body.messageId);
+        .map(body => body.messageId)
+        .sort();
 
-      expect(newMessageIdsInPostRequests.sort()).toEqual(newFragmentMessageIds.sort());
+      expect(newMessageIdsInPostRequests).toEqual(newFragmentMessageIds);
 
       // manually replace all message ids in copied ver of original messages,
       // and compare those with the actual outbound fragment messages
@@ -226,7 +227,7 @@ describe('Replacement of message IDs', () => {
       });
 
   const getMessageIdFromMessage = message => {
-    const messageIdRegex = /<eb:MessageId>([A-F0-9\-]+)<\/eb:MessageId>/;
+    const messageIdRegex = /<eb:MessageId>([A-F0-9-]+)<\/eb:MessageId>/;
     const match = message.ebXML.match(messageIdRegex);
     if (!match) throw new Error('Failed to extract messageId from message');
     return match[1];

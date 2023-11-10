@@ -25,7 +25,6 @@ jest.mock('../../config', () => ({
 describe('auth', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
   const odsCode = 'A12345';
-  const coreEhrMessageUrl = 'fake-url';
   const nhsNumber = '1234567890';
   const conversationId = v4();
 
