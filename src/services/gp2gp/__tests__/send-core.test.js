@@ -1,7 +1,6 @@
 import { sendCore } from "../send-core";
 import { logInfo } from "../../../middleware/logging";
 import { SendCoreError } from "../../../errors/errors";
-import { config } from "../../../config/index";
 import nock from "nock";
 import expect from "expect";
 import {setupMockConfigForTest} from "./test-utils";
@@ -15,7 +14,6 @@ describe('sendCore', () => {
   const AUTH_KEYS = 'fake-keys';
   const REQUEST_BASE_URL = 'http://localhost';
   const REQUEST_ENDPOINT = '/ehr-out-transfers';
-  const FULL_URL = REQUEST_BASE_URL + REQUEST_ENDPOINT;
   const CONVERSATION_ID = '22d24155-c08c-4cac-a84a-4a5db46a2f99';
   const ODS_CODE = 'G67200';
   const CORE_EHR = { ebXML: "", payload: "", attachments: [] };
@@ -50,7 +48,7 @@ describe('sendCore', () => {
 
   it('should throw error if sending ehr core unsuccessful', async () => {
     // when
-    const mockUrlRequest = nock(REQUEST_BASE_URL, HEADERS)
+    nock(REQUEST_BASE_URL, HEADERS)
       .post(`${REQUEST_ENDPOINT}/core`)
       .reply(404);
 

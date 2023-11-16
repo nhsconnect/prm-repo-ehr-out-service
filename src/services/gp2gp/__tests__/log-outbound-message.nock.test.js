@@ -1,7 +1,7 @@
 import { sendCore } from '../send-core';
 import { sendFragment } from '../send-fragment';
 import { logInfo } from '../../../middleware/logging';
-import { logOutboundMessage, removeBase64Payloads } from '../logging-utils';
+import { removeBase64Payloads } from '../logging-utils';
 import {
   createMockGP2GPScope,
   createRandomUUID,

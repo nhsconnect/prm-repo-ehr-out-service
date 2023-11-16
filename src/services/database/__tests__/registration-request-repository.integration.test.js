@@ -101,7 +101,6 @@ describe('Registration request repository', () => {
       const messageId = '008ebc80-61f6-485b-b0af-3665343e5d6c';
       const odsCode = 'B12345';
       const nhsNumber = '1234567890'
-      const status = Status.REGISTRATION_REQUEST_RECEIVED
 
       // when
       await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
@@ -129,7 +128,6 @@ describe('Registration request repository', () => {
       const messageId = 'cb702eef-62e9-4636-a172-2535a0a02508';
       const odsCode = 'B23456';
       const nhsNumber = '1247415214'
-      const status = Status.REGISTRATION_REQUEST_RECEIVED
 
       // when
       await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);

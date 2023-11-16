@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { logInfo, logError } from '../../middleware/logging';
+import { logInfo } from '../../middleware/logging';
 import { config } from '../../config';
 import { SendCoreError } from "../../errors/errors";
 import { logOutboundMessage } from "./logging-utils";

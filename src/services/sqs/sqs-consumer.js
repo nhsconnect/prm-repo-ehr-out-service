@@ -70,7 +70,7 @@ async function deleteToAcknowledge(sqsClient, message) {
 
   const interactionIdRegex = /eb:Action>(.*?)<\/eb:Action/;
   logInfo(`Message acknowledged (deleted from SQS) with Interaction ID: ${
-    JSON.stringify(message).match(interactionIdRegex)[1]}.`
+    interactionIdRegex.exec(JSON.stringify(message))[1]}.`
   );
 }
 

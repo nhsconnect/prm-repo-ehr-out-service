@@ -4,7 +4,7 @@ import { modelName } from '../../../models/message-id-replacement';
 import { createMessageIdReplacements } from '../create-message-id-replacements';
 import { runWithinTransaction } from '../helper';
 import { v4 } from 'uuid';
-import { UniqueConstraintError, DatabaseError } from 'sequelize';
+import { UniqueConstraintError } from 'sequelize';
 import { errorMessages } from '../../../errors/errors';
 
 jest.mock('../../../middleware/logging');

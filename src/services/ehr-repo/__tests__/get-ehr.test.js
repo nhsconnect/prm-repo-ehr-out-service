@@ -108,7 +108,7 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
     it('should throw an error when failing to retrieve ehr core from presigned url', async () => {
       const expectedError = new Error('Request failed with status code 500');
 
-      const urlScope = nock(mockEhrRepoServiceUrl, headers)
+      nock(mockEhrRepoServiceUrl, headers)
         .get(`/patients/${nhsNumber}`)
         .reply(200, ehrIsPresentEhrRepoUrlResponse);
 
