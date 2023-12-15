@@ -24,7 +24,7 @@
     "db:teardown": "sequelize-cli db:migrate:undo:all"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.470.0",
+    "@aws-sdk/client-sqs": "^3.312.0",
     "@babel/runtime": "^7.17.8",
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
