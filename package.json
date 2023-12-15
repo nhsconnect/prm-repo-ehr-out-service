@@ -24,7 +24,7 @@
     "db:teardown": "sequelize-cli db:migrate:undo:all"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.312.0",
+    "@aws-sdk/client-sqs": "^3.470.0",
     "@babel/runtime": "^7.17.8",
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
@@ -46,18 +46,18 @@
     "xml2js": "^0.5.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.17.6",
-    "@babel/core": "^7.17.8",
-    "@babel/node": "^7.16.8",
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.0",
+    "@babel/node": "^7.22.19",
     "@babel/plugin-syntax-throw-expressions": "^7.22.5",
-    "@babel/plugin-transform-runtime": "^7.17.0",
-    "@babel/preset-env": "^7.16.11",
+    "@babel/plugin-transform-runtime": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
     "async-local-storage": "^2.3.1",
-    "eslint": "^8.11.0",
+    "eslint": "^8.52.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "^26.1.2",
     "eslint-plugin-prettier": "^4.0.0",
-    "jest": "^27.5.1",
+    "jest": "^28.1.3",
     "nock": "^13.2.4",
     "nodemon": "^2.0.19",
     "prettier": "2.6.0",
@@ -68,7 +68,8 @@
   "overrides": {
     "moment-timezone": "0.5.39",
     "json5": "2.2.2",
-    "superagent": "8.0.8"
+    "superagent": "8.0.8",
+    "semver": ">=7.5.2"
   },
   "repository": {
     "type": "git",
