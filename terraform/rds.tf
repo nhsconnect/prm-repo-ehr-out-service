@@ -40,8 +40,9 @@ resource "aws_ssm_parameter" "db_name" {
 }
 
 resource "aws_kms_key" "ehr_out_service_db_key" {
-
   description = "${var.component_name} DB KMS key in ${var.environment} environment"
+  enable_key_rotation = true
+
   tags = {
     Name        = "${var.environment}-ehr-out-service-db-key"
     CreatedBy   = var.repo_name
