@@ -36,7 +36,7 @@ describe('continueMessageHandler', () => {
   // ============ COMMON PROPERTIES ============
   const ODS_CODE = 'YGM24';
   const NHS_NUMBER = '1234567890';
-  const CONVERSATION_ID = 'DBC31D30-F984-11ED-A4C4-956AA80C6B4E';
+  const CONVERSATION_ID = 'DBC31D30-F984-41ED-A4C4-956AA80C6B4E';
   const CONTINUE_MESSAGE = readFileSync(path.join(__dirname, "data", "continue-requests", "COPC_IN000001UK01"), "utf-8");
   // =================== END ===================
 

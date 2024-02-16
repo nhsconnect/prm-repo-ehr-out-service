@@ -35,7 +35,7 @@ describe('createAcknowledgement', () => {
             )
         );
         const messageRef = "1800becd-710c-4e6e-871b-1f1844c32d00";
-        const acknowledgementMessageId = "BB8FC948-FA40-11ED-A594-F40343488B16";
+        const acknowledgementMessageId = "BB8FC948-FA40-41ED-A594-F40343488B16";
         const referencedMessageId = "608368A0-DEC0-496B-9C4F-47CA90B81B58";
         const acknowledgementDetail = "hl7:{interactionId}/hl7:communicationFunctionRcv/hl7:device/hl7:id/@extension is missing, empty, invalid or ACL violation";
         const acknowledgementTypeCode = "AR";

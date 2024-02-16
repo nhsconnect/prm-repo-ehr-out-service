@@ -196,11 +196,11 @@ describe('testTransferOutUtil', () => {
       const ehrCore = getValidEhrCore();
       const messageIdReplacements = [
         {
-          oldMessageId: 'DFBA6AC0-DDC7-11ED-808B-AC162D1F16F0',
+          oldMessageId: 'DFBA6AC0-DDC7-41ED-808B-AC162D1F16F0',
           newMessageId: '337EEC56-AE57-4C6A-B06A-3EFE17DD7481'
         },
         {
-          oldMessageId: 'DFEC7740-DDC7-11ED-808B-AC162D1F16F0',
+          oldMessageId: 'DFEC7740-DDC7-41ED-808B-AC162D1F16F0',
           newMessageId: '04486698-7644-4689-A281-3143AEF6C3EB'
         }
       ];
