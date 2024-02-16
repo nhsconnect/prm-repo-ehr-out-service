@@ -19,7 +19,7 @@ describe('parseCommonAcknowledgementFields', () => {
   it('should parse a negative acknowledgement from TPP successfully', async () => {
     // given
     const messageRef = "1800becd-710c-4e6e-871b-1f1844c32d00";
-    const acknowledgementMessageId = "BB8FC948-FA40-11ED-A594-F40343488B16";
+    const acknowledgementMessageId = "BB8FC948-FA40-41ED-A594-F40343488B16";
     const referencedMessageId = "608368A0-DEC0-496B-9C4F-47CA90B81B58";
     const acknowledgementDetail = "hl7:{interactionId}/hl7:communicationFunctionRcv/hl7:device/hl7:id/@extension is missing, empty, invalid or ACL violation";
     const acknowledgementTypeCode = "AR";
@@ -41,7 +41,7 @@ describe('parseCommonAcknowledgementFields', () => {
 
   it('should parse a negative acknowledgement from TPP with no referencedMessageId successfully', async () => {
     // given
-    const acknowledgementMessageId = "7E6C9590-FA4B-11ED-808B-AC162D1F16F0";
+    const acknowledgementMessageId = "7E6C9590-FA4B-41ED-808B-AC162D1F16F0";
     const messageRef = "4660EAE7-FEB6-4858-93F6-17A177472F2F";
     const referencedMessageId = "NOT FOUND";
     const acknowledgementDetail = "Large Message general failure";
@@ -64,7 +64,7 @@ describe('parseCommonAcknowledgementFields', () => {
 
   it('should parse a positive acknowledgement from TPP successfully', async () => {
     // given
-    const messageId = "3B768FD0-FECD-11ED-808B-AC162D1F16F0";
+    const messageId = "3B768FD0-FECD-41ED-808B-AC162D1F16F0";
     const messageRef = "82BFE6C0-56CE-4466-886A-3FDE9D08D0C2";
     const referencedMessageId = "NOT FOUND";
     const acknowledgementDetail = "NOT FOUND";

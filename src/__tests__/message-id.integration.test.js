@@ -29,10 +29,10 @@ describe('Replacement of message IDs', () => {
   const ehrRequestId = uuidv4();
 
   const fragmentMessageIds = [
-    'DFBA6AC0-DDC7-11ED-808B-AC162D1F16F0',
-    'DFEC7740-DDC7-11ED-808B-AC162D1F16F0',
-    'DFEC7741-DDC7-11ED-808B-AC162D1F16F0',
-    'DFF61430-DDC7-11ED-808B-AC162D1F16F0'
+    'DFBA6AC0-DDC7-41ED-808B-AC162D1F16F0',
+    'DFEC7740-DDC7-41ED-808B-AC162D1F16F0',
+    'DFEC7741-DDC7-41ED-808B-AC162D1F16F0',
+    'DFF61430-DDC7-41ED-808B-AC162D1F16F0'
   ];
   const conversationIdFromEhrIn = '5037ae3a-0ce2-4f47-adb5-8fdd92e6f5a4';
   const ehrCorePresignedUrl = 'http://fake-core-presigned-url';
@@ -139,10 +139,10 @@ describe('Replacement of message IDs', () => {
     it('should update the message IDs of the message fragment and nested fragments within the fragment', async () => {
       // given
       const fragmentFilenamesAndOldMessageIds = {
-        'fragment-1': 'DFBA6AC0-DDC7-11ED-808B-AC162D1F16F0',
-        'fragment-2': 'DFEC7740-DDC7-11ED-808B-AC162D1F16F0',
-        'fragment-2-1': 'DFEC7741-DDC7-11ED-808B-AC162D1F16F0',
-        'fragment-2-2': 'DFF61430-DDC7-11ED-808B-AC162D1F16F0'
+        'fragment-1': 'DFBA6AC0-DDC7-41ED-808B-AC162D1F16F0',
+        'fragment-2': 'DFEC7740-DDC7-41ED-808B-AC162D1F16F0',
+        'fragment-2-1': 'DFEC7741-DDC7-41ED-808B-AC162D1F16F0',
+        'fragment-2-2': 'DFF61430-DDC7-41ED-808B-AC162D1F16F0'
       };
       const fragmentFilenames = Object.keys(fragmentFilenamesAndOldMessageIds);
       const fragmentOldMessageIds = Object.values(fragmentFilenamesAndOldMessageIds);
