@@ -160,11 +160,6 @@ function configure_db_migration_envs {
   export USE_SSL_FOR_DB="true"
 }
 
-function use_fake_aws_creds_for_localstack {
-  export AWS_ACCESS_KEY_ID=fake-key-id
-  export AWS_SECRET_ACCESS_KEY=fake-key
-}
-
 function get_aws_account_id {
     AWS_ACCOUNT_ID=$(dojo -c Dojofile-infra "aws sts get-caller-identity | jq -r .Account")
 }
@@ -423,7 +418,6 @@ case "${command}" in
       ;;
   test_integration)
       configure_local_envs
-      use_fake_aws_creds_for_localstack
       die_postgres_die
       die_localstack_die
       die_repo_in_perf_die
@@ -431,7 +425,6 @@ case "${command}" in
       ;;
   test_integration_shell)
       configure_local_envs
-      use_fake_aws_creds_for_localstack
       die_postgres_die
       die_localstack_die
       dojo -c Dojofile-itest
@@ -453,7 +446,6 @@ case "${command}" in
       ;;
   test_coverage)
       configure_local_envs
-      use_fake_aws_creds_for_localstack
       die_postgres_die
       die_localstack_die
       die_repo_in_perf_die
