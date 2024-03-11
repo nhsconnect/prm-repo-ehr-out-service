@@ -9,6 +9,7 @@ services:
       - 3000:3000
     links:
       - db:db
+      - dynamodb-local:dynamodb-local
   db:
     image: postgres:12.1
     environment:
@@ -16,3 +17,8 @@ services:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_DB: deductions_test
       LC_ALL: C
+  dynamodb-local:
+    image: amazon/dynamodb-local
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+    ports:
+      - "4573:8000"
