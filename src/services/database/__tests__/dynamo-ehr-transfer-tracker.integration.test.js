@@ -2,7 +2,6 @@ import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import { v4 as uuid } from 'uuid';
 import { RecordType } from '../../../constants/enums';
 import { cleanupRecordsForTest } from '../../../utilities/integration-test-utilities';
-// import { buildCore } from '../../../models/core';
 
 describe('EhrTransferTracker', () => {
   const testConversationId = uuid();
