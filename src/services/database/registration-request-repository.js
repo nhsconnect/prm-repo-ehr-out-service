@@ -8,10 +8,12 @@ import { Op } from "sequelize";
 const RegistrationRequest = ModelFactory.getByName(modelName);
 
 export const getRegistrationRequestByConversationId = async conversationId => {
+  // to be replaced by getOutboundConversationById
   return await RegistrationRequest.findByPk(conversationId);
 };
 
 export const getNhsNumberByConversationId = conversationId => {
+  // to be replaced by getNhsNumberByOutboundConversationId
     return RegistrationRequest.findByPk(conversationId)
       .then(record => {
         if (!record) {
@@ -22,6 +24,7 @@ export const getNhsNumberByConversationId = conversationId => {
 };
 
 export const updateRegistrationRequestStatus = async (conversationId, status) => {
+  // to be replaced by updateOutboundConversationStatus
   logInfo(`Updating registration request status ${status}, conversationId: ${conversationId}`);
   await runWithinTransaction(async transaction => {
     const options = {
@@ -34,6 +37,7 @@ export const updateRegistrationRequestStatus = async (conversationId, status) =>
 };
 
 export const updateRegistrationRequestMessageId = async (originalMessageId, updatedMessageId) => {
+  // to be replaced by new method at core level
   logInfo(`Updating Message ID from ${originalMessageId}, to: ${updatedMessageId}`);
   await runWithinTransaction(async transaction => {
     const options = {
@@ -46,6 +50,7 @@ export const updateRegistrationRequestMessageId = async (originalMessageId, upda
 };
 
 export const registrationRequestExistsWithMessageId = async messageId => {
+  // to be replaced by new method at core level
   const foundRecord = await RegistrationRequest.findOne({
         where: {
             messageId: {

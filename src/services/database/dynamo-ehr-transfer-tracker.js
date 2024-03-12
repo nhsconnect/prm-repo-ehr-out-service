@@ -1,4 +1,9 @@
-import { TransactWriteCommand, QueryCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  TransactWriteCommand,
+  QueryCommand,
+  GetCommand,
+  UpdateCommand
+} from '@aws-sdk/lib-dynamodb';
 
 import { logError, logInfo } from '../../middleware/logging';
 import { RecordType } from '../../constants/enums';
@@ -43,6 +48,7 @@ export class EhrTransferTracker {
     if (!items || !Array.isArray(items)) {
       throw new TypeError('The given argument `items` is not an array');
     }
+
     const command = new TransactWriteCommand({
       TransactItems: items.map(item => ({
         Put: {
@@ -52,6 +58,14 @@ export class EhrTransferTracker {
       }))
     });
 
+    await this.client.send(command);
+  }
+
+  async updateSingleItem(updateParams) {
+    const command = new UpdateCommand({
+      TableName: this.tableName,
+      ...updateParams
+    });
     await this.client.send(command);
   }
 
@@ -82,6 +96,32 @@ export class EhrTransferTracker {
         '#NhsNumber': 'NhsNumber'
       },
       KeyConditionExpression: '#NhsNumber = :nhsNumber'
+    };
+    if (!includeDeletedRecord) {
+      params.FilterExpression = 'attribute_not_exists(DeletedAt)';
+    }
+    const command = new QueryCommand(params);
+
+    const response = await this.client.send(command);
+    const items = response?.Items;
+    if (!items) {
+      logError('Received an empty response from dynamodb during query');
+      return [];
+    }
+    return items;
+  }
+
+  async queryTableByOutboundConversationId(outboundConversationId, includeDeletedRecord = false) {
+    const params = {
+      TableName: this.tableName,
+      IndexName: 'OutboundConversationIdSecondaryIndex',
+      ExpressionAttributeValues: {
+        ':outboundConversationId': outboundConversationId
+      },
+      ExpressionAttributeNames: {
+        '#OutboundConversationId': 'OutboundConversationId'
+      },
+      KeyConditionExpression: '#OutboundConversationId = :outboundConversationId'
     };
     if (!includeDeletedRecord) {
       params.FilterExpression = 'attribute_not_exists(DeletedAt)';

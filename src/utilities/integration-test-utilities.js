@@ -27,27 +27,30 @@ export const createCompleteRecordForTest = async (
     NhsNumber: nhsNumber,
     CreatedAt: timestamp,
     UpdatedAt: timestamp,
-    TransferStatus: ConversationStatus.COMPLETE
+    TransferStatus: ConversationStatus.INBOUND_COMPLETE
   };
 
   const core = {
     InboundConversationId: conversationId,
     Layer: [RecordType.CORE, coreMessageId].join('#'),
+    InboundMessageId: coreMessageId,
     CreatedAt: timestamp,
     UpdatedAt: timestamp,
     ReceivedAt: timestamp,
-    TransferStatus: CoreStatus.COMPLETE
+    TransferStatus: CoreStatus.INBOUND_COMPLETE
   };
 
   const fragments = fragmentMessageIds.map(fragmentId => ({
     InboundConversationId: conversationId,
     Layer: [RecordType.FRAGMENT, fragmentId].join('#'),
+    InboundMessageId: fragmentId,
     ParentId: coreMessageId,
     CreatedAt: timestamp,
     UpdatedAt: timestamp,
     ReceivedAt: timestamp,
-    TransferStatus: FragmentStatus.COMPLETE
+    TransferStatus: FragmentStatus.INBOUND_COMPLETE
   }));
+
 
   await db.writeItemsInTransaction([conversation, core, ...fragments]);
 };

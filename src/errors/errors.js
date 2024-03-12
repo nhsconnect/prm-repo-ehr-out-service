@@ -17,9 +17,10 @@ export const errorMessages = {
   FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR:
     'Cannot find the fragment message record within the database',
   ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR:
-      'Cannot find an acknowledgement record within the database',
+    'Cannot find an acknowledgement record within the database',
   FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR:
-    'Cannot find one or more newMessageId for message fragment within the database'
+    'Cannot find one or more newMessageId for message fragment within the database',
+  OUTBOUND_CONVERSATION_NOT_FOUND_ERROR: 'Cannot find the outbound conversation in record'
 };
 
 export class ParsingError extends Error {
@@ -119,5 +120,12 @@ export class FragmentMessageIdReplacementRecordNotFoundError extends Error {
     logError(
       errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR +
       ` expected ${numberOfOldMessageIds} message ID replacements but found ${numberOfMessageIdReplacements}`);
+  };
+}
+
+export class OutboundConversationNotFoundError extends Error {
+  constructor(error) {
+    super(errorMessages.OUTBOUND_CONVERSATION_NOT_FOUND_ERROR);
+    logError(errorMessages.OUTBOUND_CONVERSATION_NOT_FOUND_ERROR, error);
   };
 }
