@@ -41,7 +41,7 @@ export class EhrTransferTracker {
 
   async writeItemsInTransaction(items) {
     if (!items || !Array.isArray(items)) {
-      throw new Error('The given argument `items` is not an array');
+      throw new TypeError('The given argument `items` is not an array');
     }
     const command = new TransactWriteCommand({
       TransactItems: items.map(item => ({
@@ -57,7 +57,7 @@ export class EhrTransferTracker {
 
   async updateItemsInTransaction(updateParams) {
     if (!updateParams || !Array.isArray(updateParams)) {
-      throw new Error('The given argument `updateParams` is not an array');
+      throw new TypeError('The given argument `updateParams` is not an array');
     }
     const command = new TransactWriteCommand({
       TransactItems: updateParams.map(params => ({
@@ -141,7 +141,7 @@ export class EhrTransferTracker {
     return items;
   }
 
-  async getItemByKey(inboundConversationId, inboundMessageId, recordType = RecordType.FRAGMENT) {
+  async getItemByKey(inboundConversationId, inboundMessageId, recordType) {
     const expectedTypes = [RecordType.CORE, RecordType.FRAGMENT];
 
     if (!expectedTypes.includes(recordType)) {
@@ -161,7 +161,7 @@ export class EhrTransferTracker {
 
     const response = await this.client.send(command);
 
-    if (response?.Item) {
+    if (!response?.Item) {
       logError('Received an empty response from dynamodb during query');
     }
     return response?.Item ?? null;
