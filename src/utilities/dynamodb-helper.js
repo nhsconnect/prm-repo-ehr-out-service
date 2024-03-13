@@ -3,20 +3,11 @@ import { validate } from 'uuid';
 import { getEpochTimeInSecond, getUKTimestamp } from '../services/time';
 import moment from 'moment-timezone';
 import { INTERACTION_IDS } from '../constants/interaction-ids';
-import ehrRequestHandler from '../services/handler/ehr-request-handler';
-import continueMessageHandler from '../services/handler/continue-message-handler';
-import { acknowledgementMessageHandler } from '../services/handler/acknowledgement-handler';
 import { ConversationStatus, CoreStatus, FragmentStatus, RecordType } from '../constants/enums';
 import { isConversation } from '../models/conversation';
 import { isCore } from '../models/core';
 import { isFragment } from '../models/fragment';
 
-// export const validateIds = (conversationId, messageId) => {
-//   const uuidsAreValid = validate(conversationId) && validate(messageId);
-//   if (!uuidsAreValid) {
-//     throw new Error('received invalid uuid as either conversationId or messageId');
-//   }
-// };
 export const addChangesToUpdateParams = (params, changes, fieldsAllowedToUpdate) => {
   for (const [fieldName, updatedValue] of Object.entries(changes)) {
     if (!fieldsAllowedToUpdate.includes(fieldName)) {
