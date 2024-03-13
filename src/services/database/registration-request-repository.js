@@ -8,12 +8,20 @@ import { Op } from "sequelize";
 const RegistrationRequest = ModelFactory.getByName(modelName);
 
 export const getRegistrationRequestByConversationId = async conversationId => {
-  // to be replaced by getOutboundConversationById
+  /**
+   * @deprecated
+   * replaced by new method `getOutboundConversationById`
+   * to be deleted in PRMT-4588
+   */
   return await RegistrationRequest.findByPk(conversationId);
 };
 
 export const getNhsNumberByConversationId = conversationId => {
-  // to be replaced by getNhsNumberByOutboundConversationId
+  /**
+   * @deprecated
+   * replaced by new method `getNhsNumberByOutboundConversationId`
+   * to be deleted in PRMT-4588
+   */
     return RegistrationRequest.findByPk(conversationId)
       .then(record => {
         if (!record) {
@@ -24,7 +32,11 @@ export const getNhsNumberByConversationId = conversationId => {
 };
 
 export const updateRegistrationRequestStatus = async (conversationId, status) => {
-  // to be replaced by updateOutboundConversationStatus
+  /**
+   * @deprecated
+   * replaced by new method `updateOutboundConversationStatus`
+   * to be deleted in PRMT-4588
+   */
   logInfo(`Updating registration request status ${status}, conversationId: ${conversationId}`);
   await runWithinTransaction(async transaction => {
     const options = {
@@ -37,7 +49,12 @@ export const updateRegistrationRequestStatus = async (conversationId, status) =>
 };
 
 export const updateRegistrationRequestMessageId = async (originalMessageId, updatedMessageId) => {
-  // to be replaced by new method at core level
+  /**
+   * @deprecated
+   * redundant in new database schema, as the core messageId will be stored at core level
+   * no need replacement method
+   * to be deleted in PRMT-4588
+   */
   logInfo(`Updating Message ID from ${originalMessageId}, to: ${updatedMessageId}`);
   await runWithinTransaction(async transaction => {
     const options = {
@@ -50,7 +67,11 @@ export const updateRegistrationRequestMessageId = async (originalMessageId, upda
 };
 
 export const registrationRequestExistsWithMessageId = async messageId => {
-  // to be replaced by new method at core level
+  /**
+   * @deprecated
+   * to be replaced by new method at core level
+   * to be deleted in PRMT-4588
+   */
   const foundRecord = await RegistrationRequest.findOne({
         where: {
             messageId: {

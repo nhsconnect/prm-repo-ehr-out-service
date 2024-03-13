@@ -9,8 +9,7 @@ export const createCompleteRecordForTest = async (
   conversationId,
   nhsNumber,
   coreMessageId,
-  fragmentMessageIds = [],
-  isOutboundComplete = false
+  fragmentMessageIds = []
 ) => {
   // This method is only meant for testing purpose.
   // the inbound conversation record is supposed to be created by other service.
@@ -33,7 +32,7 @@ export const createCompleteRecordForTest = async (
 
   const core = {
     InboundConversationId: conversationId,
-    Layer: [RecordType.CORE, coreMessageId].join('#'),
+    Layer: RecordType.CORE,
     InboundMessageId: coreMessageId,
     CreatedAt: timestamp,
     UpdatedAt: timestamp,
@@ -51,7 +50,6 @@ export const createCompleteRecordForTest = async (
     ReceivedAt: timestamp,
     TransferStatus: FragmentStatus.INBOUND_COMPLETE
   }));
-
 
   await db.writeItemsInTransaction([conversation, core, ...fragments]);
 };

@@ -20,7 +20,7 @@ describe('EhrTransferTracker', () => {
     const ehrCore = {
       InboundConversationId: testConversationId,
       InboundMessageId: testMessageId,
-      Layer: `CORE#${testMessageId}`
+      Layer: 'CORE'
     };
 
     await db.writeItemsInTransaction([ehrCore]);
@@ -32,7 +32,7 @@ describe('EhrTransferTracker', () => {
     expect(actual[0]).toMatchObject({
       InboundConversationId: testConversationId,
       InboundMessageId: testMessageId,
-      Layer: `CORE#${testMessageId}`
+      Layer: 'CORE'
     });
   });
 
