@@ -12,7 +12,7 @@ export const errorMessages = {
   FILE_READ_ERROR: 'Failed to read file',
   DUPLICATED_REQUEST_ERROR: 'Got a duplicated request',
   PARSING_ERROR: 'Unable to parse XML',
-  MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to update message id to new ones',
+  MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to store outbound message ids in database',
   MESSAGE_ID_RECORD_CREATION_ERROR: 'Failed to record the message id replacements in database',
   FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR:
     'Cannot find the fragment message record within the database',
@@ -91,7 +91,7 @@ export class StatusUpdateError extends Error {
 export class MessageIdUpdateError extends Error {
   constructor(error) {
     super(errorMessages.MESSAGE_ID_UPDATE_ERROR);
-    logError(errorMessages.MESSAGE_ID_UPDATE_ERROR, error?.message);
+    logError(errorMessages.MESSAGE_ID_UPDATE_ERROR, error);
   };
 }
 

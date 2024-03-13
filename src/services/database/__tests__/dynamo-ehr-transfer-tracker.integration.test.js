@@ -2,7 +2,7 @@ import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import { v4 as uuid } from 'uuid';
 import { RecordType } from '../../../constants/enums';
 import {
-  createCompleteRecordForTest,
+  createInboundRecordForTest,
 } from '../../../utilities/integration-test-utilities';
 
 describe('EhrTransferTracker', () => {
@@ -37,6 +37,6 @@ describe('EhrTransferTracker', () => {
   });
 
   it('temp method to create dummy record in local dynamo for dev purpose', async () => {
-    await createCompleteRecordForTest(testConversationId, '9000000003', uuid(), [uuid(), uuid()]);
+    await createInboundRecordForTest(testConversationId, '9000000003', uuid(), [uuid(), uuid()]);
   });
 });

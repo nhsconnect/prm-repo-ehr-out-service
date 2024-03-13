@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { OutboundConversationNotFoundError } from '../../../errors/errors';
 import {
   cleanupRecordsForTest,
-  createCompleteRecordForTest
+  createInboundRecordForTest
 } from '../../../utilities/integration-test-utilities';
 import {
   createOutboundConversation,
@@ -28,7 +28,7 @@ import { isFragment } from '../../../models/fragment';
 jest.mock('../../../middleware/logging');
 
 describe('outbound-conversation-repository', () => {
-  // CONSTANTS AND SETUPS
+  // ================ CONSTANTS AND SETUPS =====================
   const INBOUND_CONVERSATION_ID = uuid();
   const NHS_NUMBER = '9000000001';
   const INBOUND_CORE_MESSAGE_ID = uuid();
@@ -37,7 +37,7 @@ describe('outbound-conversation-repository', () => {
   const db = EhrTransferTracker.getInstance();
 
   beforeEach(async () => {
-    await createCompleteRecordForTest(
+    await createInboundRecordForTest(
       INBOUND_CONVERSATION_ID,
       NHS_NUMBER,
       INBOUND_CORE_MESSAGE_ID,
@@ -49,6 +49,7 @@ describe('outbound-conversation-repository', () => {
     await cleanupRecordsForTest(INBOUND_CONVERSATION_ID);
   });
 
+  // ================ TEST STARTS HERE =====================
   describe('createOutboundConversation', () => {
     it('should create outboundConversation with correct values', async () => {
       // given

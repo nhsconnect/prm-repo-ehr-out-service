@@ -5,7 +5,7 @@ import { ConversationStatus, CoreStatus, FragmentStatus, RecordType } from '../c
 
 export const IS_IN_LOCAL = process.env.NHS_ENVIRONMENT === 'local' || !process.env.NHS_ENVIRONMENT;
 
-export const createCompleteRecordForTest = async (
+export const createInboundRecordForTest = async (
   conversationId,
   nhsNumber,
   coreMessageId,
