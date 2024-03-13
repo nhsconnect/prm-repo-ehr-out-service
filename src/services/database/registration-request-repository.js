@@ -69,7 +69,7 @@ export const updateRegistrationRequestMessageId = async (originalMessageId, upda
 export const registrationRequestExistsWithMessageId = async messageId => {
   /**
    * @deprecated
-   * to be replaced by new method at core level
+   * to be replaced by new method `messageIdMatchOutboundCore`
    * to be deleted in PRMT-4588
    */
   const foundRecord = await RegistrationRequest.findOne({

@@ -1,12 +1,35 @@
 import { logError } from '../middleware/logging';
-import { validate } from 'uuid';
-import { getEpochTimeInSecond, getUKTimestamp } from '../services/time';
-import moment from 'moment-timezone';
-import { INTERACTION_IDS } from '../constants/interaction-ids';
-import { ConversationStatus, CoreStatus, FragmentStatus, RecordType } from '../constants/enums';
+import { getUKTimestamp } from '../services/time';
+import { ConversationStatus, CoreStatus, FragmentStatus, QueryKeyType } from '../constants/enums';
 import { isConversation } from '../models/conversation';
 import { isCore } from '../models/core';
 import { isFragment } from '../models/fragment';
+
+export const buildBaseQueryParams = (
+  keyValue,
+  queryKeyType = QueryKeyType.InboundConversationId
+) => {
+  const keyToken = `#${queryKeyType}`;
+  const valueToken = `:${queryKeyType}`;
+
+  const queryParams = {
+    ExpressionAttributeValues: {
+      [valueToken]: keyValue
+    },
+    ExpressionAttributeNames: {
+      [keyToken]: queryKeyType
+    },
+    KeyConditionExpression: `${keyToken} = ${valueToken}`
+  };
+
+  switch (queryKeyType) {
+    case QueryKeyType.NhsNumber:
+    case QueryKeyType.OutboundConversationId:
+      queryParams.IndexName = `${queryKeyType}SecondaryIndex`;
+  }
+
+  return queryParams;
+};
 
 export const addChangesToUpdateParams = (params, changes, fieldsAllowedToUpdate) => {
   for (const [fieldName, updatedValue] of Object.entries(changes)) {
@@ -41,7 +64,7 @@ export const buildUpdateParamFromItem = (item, changes) => {
   return addChangesToUpdateParams(baseParams, changes, Object.keys(changes));
 };
 
-export const buildParamsToClearPreviousOutboundRecord = (item) => {
+export const buildParamsToClearPreviousOutboundRecord = item => {
   let restoredStatus;
   if (isConversation(item)) {
     restoredStatus = ConversationStatus.INBOUND_COMPLETE;

@@ -33,6 +33,12 @@ export const FragmentStatus = {
   OUTBOUND_FAILED: 'OUTBOUND_FAILED'
 };
 
+export const QueryKeyType = {
+  InboundConversationId: 'InboundConversationId',
+  NhsNumber: 'NhsNumber',
+  OutboundConversationId: 'OutboundConversationId'
+};
+
 Object.freeze(RecordType);
 Object.freeze(ConversationStatus);
 Object.freeze(CoreStatus);

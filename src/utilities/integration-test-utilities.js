@@ -87,3 +87,10 @@ export const cleanupRecordsForTestByNhsNumber = async nhsNumber => {
   );
   return Promise.all(removeAllRecords);
 };
+
+export const buildMessageIdReplacement = (inboundMessageIds, outboundMessageIds) => {
+  return inboundMessageIds.map((_, i) => ({
+    oldMessageId: inboundMessageIds[i],
+    newMessageId: outboundMessageIds[i]
+  }));
+};

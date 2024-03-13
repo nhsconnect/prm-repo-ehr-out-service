@@ -211,31 +211,6 @@ describe('outbound-conversation-repository', () => {
     });
   });
 
-  describe.skip('updateRegistrationRequestMessageId', () => {
-    // TODO: replacement method not implemented yet
-    it('should update the message id successfully', async () => {
-      // given
-      const conversationId = 'e7a1b0ea-c51d-499e-a25a-d155b6df9904';
-      const inboundMessageId = '0d3ff0e6-27a1-4e98-a3e8-ac67c930df5e';
-      const outboundMessageId = '37bfaf7e-cfe2-4300-8804-a6629f8db1fc';
-      const odsCode = 'B23456';
-      const nhsNumber = '1478541274';
-      const status = Status.REGISTRATION_REQUEST_RECEIVED;
-
-      // when
-      await createRegistrationRequest(conversationId, inboundMessageId, nhsNumber, odsCode);
-      await updateRegistrationRequestMessageId(inboundMessageId, outboundMessageId);
-      const registrationRequest = await getRegistrationRequestByConversationId(conversationId);
-
-      // then
-      expect(registrationRequest.nhsNumber).toBe(nhsNumber);
-      expect(registrationRequest.status).toBe(status);
-      expect(registrationRequest.odsCode).toBe(odsCode);
-      expect(registrationRequest.conversationId).toBe(conversationId);
-      expect(registrationRequest.messageId).toBe(outboundMessageId);
-    });
-  });
-
   describe('getNhsNumberByOutboundConversationId', () => {
     it('should return the nhs number of a registration-request', async () => {
       // given
@@ -257,36 +232,6 @@ describe('outbound-conversation-repository', () => {
       await expect(getNhsNumberByOutboundConversationId(conversationId))
         // then
         .rejects.toThrow(OutboundConversationNotFoundError);
-    });
-  });
-
-  describe.skip('registrationRequestExistsWithMessageId', () => {
-    // TODO: replacement method not implemented yet
-    it('should return true if a registration request is found, given a valid messageId', async () => {
-      // given
-      const conversationId = 'c511e4dd-f278-4a9d-ad2d-1ac547e9f990';
-      const messageId = 'cb702eef-62e9-4636-a172-2535a0a02508';
-      const odsCode = 'B23456';
-      const nhsNumber = '1247415214';
-
-      // when
-      await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
-
-      const foundRecord = await registrationRequestExistsWithMessageId(messageId);
-
-      // then
-      expect(foundRecord).toEqual(true);
-    });
-
-    it('should return false if a registration request is not found, given an non-existent messageId', async () => {
-      // given
-      const nonExistentMessageId = 'bcd566db-2044-4dfc-88e7-5487ccb80f7e';
-
-      // when
-      const foundRecord = await registrationRequestExistsWithMessageId(nonExistentMessageId);
-
-      // then
-      expect(foundRecord).toEqual(false);
     });
   });
 });
