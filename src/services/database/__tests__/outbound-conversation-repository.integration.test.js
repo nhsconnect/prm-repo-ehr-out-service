@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-import { NhsNumberNotFoundError, OutboundConversationNotFoundError } from '../../../errors/errors';
+import { OutboundConversationNotFoundError } from '../../../errors/errors';
 import {
   cleanupRecordsForTest,
   createCompleteRecordForTest
@@ -11,7 +11,21 @@ import {
   getOutboundConversationById,
   updateOutboundConversationStatus
 } from '../outbound-conversation-repository';
-import { ConversationStatus } from '../../../constants/enums';
+import {
+  ConversationStatus,
+  CoreStatus,
+  FragmentStatus,
+  RecordType
+} from '../../../constants/enums';
+import { logError, logInfo } from '../../../middleware/logging';
+import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
+import { buildUpdateParamFromItem } from '../../../utilities/dynamodb-helper';
+import { isConversation } from '../../../models/conversation';
+import { isCore } from '../../../models/core';
+import { isFragment } from '../../../models/fragment';
+
+// Mocking
+jest.mock('../../../middleware/logging');
 
 describe('outbound-conversation-repository', () => {
   // CONSTANTS AND SETUPS
@@ -20,6 +34,7 @@ describe('outbound-conversation-repository', () => {
   const INBOUND_CORE_MESSAGE_ID = uuid();
   const INBOUND_FRAGMENT_IDS = [uuid(), uuid(), uuid()];
   const ODS_CODE = 'B12345';
+  const db = EhrTransferTracker.getInstance();
 
   beforeEach(async () => {
     await createCompleteRecordForTest(
@@ -32,6 +47,122 @@ describe('outbound-conversation-repository', () => {
 
   afterAll(async () => {
     await cleanupRecordsForTest(INBOUND_CONVERSATION_ID);
+  });
+
+  describe('createOutboundConversation', () => {
+    it('should create outboundConversation with correct values', async () => {
+      // given
+      const conversationId = uuid();
+
+      // when
+      await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
+
+      // then
+      const conversation = await getOutboundConversationById(conversationId);
+
+      expect(conversation).not.toBeNull();
+      expect(conversation.OutboundConversationId).toBe(conversationId);
+      expect(conversation.NhsNumber).toBe(NHS_NUMBER);
+      expect(conversation.DestinationGp).toBe(ODS_CODE);
+      expect(conversation.InboundConversationId).toBe(INBOUND_CONVERSATION_ID);
+      expect(conversation.TransferStatus).toBe(ConversationStatus.OUTBOUND_STARTED);
+    });
+
+    it('should log event if data persisted correctly', async () => {
+      // given
+      const conversationId = uuid();
+
+      // when
+      await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
+
+      // then
+      expect(logInfo).toHaveBeenCalled();
+      expect(logInfo).toHaveBeenCalledWith('Outbound conversation has been stored');
+    });
+
+    it('should log errors when nhs number is invalid', async () => {
+      // given
+      const conversationId = uuid();
+
+      try {
+        // when
+        await createOutboundConversation(conversationId, '123', ODS_CODE);
+      } catch (err) {
+        // then
+        expect(logError).toHaveBeenCalled();
+        expect(err.message).toContain('NhsNumber must be a 10 digits number');
+      }
+    });
+
+    it('should log errors when conversationId is invalid', async () => {
+      try {
+        // when
+        await createOutboundConversation('invalid-conversation-id', NHS_NUMBER, ODS_CODE);
+      } catch (err) {
+        // then
+        expect(logError).toHaveBeenCalled();
+        expect(err.message).toContain('OutboundConversationId is not a valid UUID');
+      }
+    });
+
+    it('should clear any previous outbound record before starting new outbound transfer', async () => {
+      // ========================= GIVEN =============================
+      const previousOutboundConversationId = uuid();
+      const previousDestinationGp = 'A12345';
+      const newOutboundConversationId = uuid();
+      const items = await db.queryTableByInboundConversationId(
+        INBOUND_CONVERSATION_ID,
+        RecordType.ALL
+      );
+      const mockPreviousOutboundTransfer = items.map(item => {
+        let changes = { OutboundConversationId: previousOutboundConversationId };
+        if (isConversation(item)) {
+          changes.TransferStatus = ConversationStatus.OUTBOUND_COMPLETE;
+          changes.DestinationGp = previousDestinationGp;
+        } else {
+          changes.TransferStatus = FragmentStatus.OUTBOUND_COMPLETE;
+          changes.OutboundMessageId = uuid();
+        }
+        return buildUpdateParamFromItem(item, changes);
+      });
+      await db.updateItemsInTransaction(mockPreviousOutboundTransfer);
+
+      // to verify the mock previous outbound record was created correctly
+      const previousRecord = await db.queryTableByOutboundConversationId(
+        previousOutboundConversationId
+      );
+      expect(previousRecord).toHaveLength(5);
+
+      // ========================= WHEN =============================
+      await createOutboundConversation(newOutboundConversationId, NHS_NUMBER, ODS_CODE);
+
+      // ========================= THEN =============================
+      const conversation = await getOutboundConversationById(newOutboundConversationId);
+
+      expect(conversation.OutboundConversationId).toBe(newOutboundConversationId);
+      expect(conversation.InboundConversationId).toBe(INBOUND_CONVERSATION_ID);
+      expect(conversation.NhsNumber).toBe(NHS_NUMBER);
+      expect(conversation.DestinationGp).toBe(ODS_CODE);
+      expect(conversation.TransferStatus).toBe(ConversationStatus.OUTBOUND_STARTED);
+
+      const updatedRecords = await db.queryTableByOutboundConversationId(newOutboundConversationId);
+      expect(updatedRecords).toHaveLength(5); // conversation + core + 3 fragments
+      const coreAndFragments = [
+        ...updatedRecords.filter(isCore),
+        ...updatedRecords.filter(isFragment)
+      ];
+
+      for (const item of coreAndFragments) {
+        expect(item.OutboundConversationId).toBe(newOutboundConversationId);
+        expect(item.InboundConversationId).toBe(INBOUND_CONVERSATION_ID);
+        expect(item.TransferStatus).toBe(CoreStatus.INBOUND_COMPLETE);
+        expect(item.OutboundMessageId).toBeUndefined();
+      }
+
+      await expect(getOutboundConversationById(previousOutboundConversationId)).rejects.toThrow(
+        OutboundConversationNotFoundError
+      );
+    });
   });
 
   describe('getOutboundConversationById', () => {

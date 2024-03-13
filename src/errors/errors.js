@@ -20,7 +20,9 @@ export const errorMessages = {
     'Cannot find an acknowledgement record within the database',
   FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR:
     'Cannot find one or more newMessageId for message fragment within the database',
-  OUTBOUND_CONVERSATION_NOT_FOUND_ERROR: 'Cannot find the outbound conversation in record'
+  OUTBOUND_CONVERSATION_NOT_FOUND_ERROR: 'Cannot find the outbound conversation in record',
+  OUTBOUND_CONVERSATION_RESET_ERROR: 'Failed to clear the previous record of outbound ehr transfer',
+  VALIDATION_ERROR: 'Validation error, details: '
 };
 
 export class ParsingError extends Error {
@@ -127,5 +129,20 @@ export class OutboundConversationNotFoundError extends Error {
   constructor(error) {
     super(errorMessages.OUTBOUND_CONVERSATION_NOT_FOUND_ERROR);
     logError(errorMessages.OUTBOUND_CONVERSATION_NOT_FOUND_ERROR, error);
+  };
+}
+
+export class OutboundConversationResetError extends Error {
+  constructor(error) {
+    super(errorMessages.OUTBOUND_CONVERSATION_RESET_ERROR);
+    logError(errorMessages.OUTBOUND_CONVERSATION_RESET_ERROR, error);
+  };
+}
+
+export class ValidationError extends Error {
+  constructor(details) {
+    const fullErrorMessage = errorMessages.VALIDATION_ERROR + details.join(', ');
+    super(fullErrorMessage);
+    logError(fullErrorMessage);
   };
 }

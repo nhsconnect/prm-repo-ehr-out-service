@@ -26,7 +26,7 @@ describe('EhrTransferTracker', () => {
     await db.writeItemsInTransaction([ehrCore]);
 
     // then
-    const actual = await db.queryTableByConversationId(testConversationId, RecordType.CORE);
+    const actual = await db.queryTableByInboundConversationId(testConversationId, RecordType.CORE);
 
     expect(actual).toHaveLength(1);
     expect(actual[0]).toMatchObject({

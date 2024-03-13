@@ -9,7 +9,8 @@ export const createCompleteRecordForTest = async (
   conversationId,
   nhsNumber,
   coreMessageId,
-  fragmentMessageIds = []
+  fragmentMessageIds = [],
+  isOutboundComplete = false
 ) => {
   // This method is only meant for testing purpose.
   // the inbound conversation record is supposed to be created by other service.
@@ -63,7 +64,7 @@ export const cleanupRecordsForTest = async conversationId => {
   }
 
   const db = EhrTransferTracker.getInstance();
-  const records = await db.queryTableByConversationId(conversationId, RecordType.ALL, true);
+  const records = await db.queryTableByInboundConversationId(conversationId, RecordType.ALL, true);
   const deleteCommand = new TransactWriteCommand({
     TransactItems: records.map(item => ({
       Delete: {

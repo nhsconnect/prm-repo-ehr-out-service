@@ -137,7 +137,7 @@ export class EhrTransferTracker {
     return items;
   }
 
-  async queryTableByConversationId(
+  async queryTableByInboundConversationId(
     inboundConversationId,
     recordType = RecordType.ALL,
     includeDeletedRecord = false
