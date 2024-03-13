@@ -1,9 +1,9 @@
 import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import { v4 as uuid } from 'uuid';
-import { RecordType } from '../../../constants/enums';
+import { RecordType } from '../../../../constants/enums';
 import {
   createInboundRecordForTest,
-} from '../../../utilities/integration-test-utilities';
+} from '../../../../utilities/integration-test-utilities';
 
 describe('EhrTransferTracker', () => {
   const testConversationId = uuid();

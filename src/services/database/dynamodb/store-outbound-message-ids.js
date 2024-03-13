@@ -1,8 +1,8 @@
 import { EhrTransferTracker } from './dynamo-ehr-transfer-tracker';
-import { isCoreOrFragment } from '../../models/core';
-import { MessageIdUpdateError, ValidationError } from '../../errors/errors';
-import { buildUpdateParamFromItem } from '../../utilities/dynamodb-helper';
-import { logInfo } from '../../middleware/logging';
+import { isCoreOrFragment } from '../../../models/core';
+import { MessageIdUpdateError, ValidationError } from '../../../errors/errors';
+import { buildUpdateParamFromItem } from '../../../utilities/dynamodb-helper';
+import { logInfo } from '../../../middleware/logging';
 import { validate as isValidUuid } from 'uuid';
 
 export const storeOutboundMessageIds = async (messageIdReplacements, inboundConversationId) => {

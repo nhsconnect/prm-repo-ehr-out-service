@@ -1,13 +1,12 @@
 // to replace below old files:
 // create-fragment-db-record.js, message-fragment-repository.js, message-id-replacement-repository.js
 
-import { logInfo } from '../../middleware/logging';
+import { logInfo } from '../../../middleware/logging';
 import { EhrTransferTracker } from './dynamo-ehr-transfer-tracker';
-import { isCoreOrFragment } from '../../models/core';
-import { FragmentMessageIdReplacementRecordNotFoundError } from '../../errors/errors';
-import { getUKTimestamp } from '../time';
-import { buildFragmentUpdateParams, isNotSentOut, isSentOut } from '../../models/fragment';
-import { RecordType } from '../../constants/enums';
+import { isCoreOrFragment } from '../../../models/core';
+import { FragmentMessageIdReplacementRecordNotFoundError } from '../../../errors/errors';
+import { buildFragmentUpdateParams, isNotSentOut  } from '../../../models/fragment';
+import { RecordType } from '../../../constants/enums';
 
 export const getAllMessageIdPairs = async (oldMessageIds, inboundConversationId) => {
   if (!inboundConversationId) {

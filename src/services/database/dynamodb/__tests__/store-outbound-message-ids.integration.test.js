@@ -1,18 +1,18 @@
-import { logInfo, logError } from '../../../middleware/logging';
+import { logInfo, logError } from '../../../../middleware/logging';
 import { v4 } from 'uuid';
-import { MessageIdUpdateError, ValidationError } from '../../../errors/errors';
+import { MessageIdUpdateError, ValidationError } from '../../../../errors/errors';
 import { storeOutboundMessageIds } from '../store-outbound-message-ids';
 import {
   cleanupRecordsForTest,
   createInboundRecordForTest
-} from '../../../utilities/integration-test-utilities';
+} from '../../../../utilities/integration-test-utilities';
 import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import { createOutboundConversation } from '../outbound-conversation-repository';
-import { isCore } from '../../../models/core';
-import { RecordType } from '../../../constants/enums';
-import { isFragment } from '../../../models/fragment';
+import { isCore } from '../../../../models/core';
+import { RecordType } from '../../../../constants/enums';
+import { isFragment } from '../../../../models/fragment';
 
-jest.mock('../../../middleware/logging');
+jest.mock('../../../../middleware/logging');
 
 describe('storeOutboundMessageIds', () => {
   // ================ CONSTANTS AND SETUPS =====================

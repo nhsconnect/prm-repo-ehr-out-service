@@ -1,24 +1,22 @@
-import { FragmentMessageIdReplacementRecordNotFoundError } from '../../../errors/errors';
+import { FragmentMessageIdReplacementRecordNotFoundError } from '../../../../errors/errors';
 import { v4 } from 'uuid';
 import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import {
   cleanupRecordsForTest,
   createInboundRecordForTest
-} from '../../../utilities/integration-test-utilities';
+} from '../../../../utilities/integration-test-utilities';
 import {
   getAllMessageIdPairs,
   getAllFragmentIdsToBeSent,
   updateFragmentStatusInDb
-} from '../dynamodb-fragment-repository';
+} from '../ehr-fragment-repository';
 import { createOutboundConversation } from '../outbound-conversation-repository';
 import { storeOutboundMessageIds } from '../store-outbound-message-ids';
-import { FragmentStatus, RecordType } from '../../../constants/enums';
-import { logInfo } from '../../../middleware/logging';
-import { getAllFragmentOutboundMessageIdsEligibleToBeSent } from '../message-fragment-repository';
-import { Status as messageFragmentStatus } from '../../../models/message-fragment';
-import { buildUpdateParamFromItem } from '../../../utilities/dynamodb-helper';
+import { FragmentStatus, RecordType } from '../../../../constants/enums';
+import { logInfo } from '../../../../middleware/logging';
+import { buildUpdateParamFromItem } from '../../../../utilities/dynamodb-helper';
 
-jest.mock('../../../middleware/logging');
+jest.mock('../../../../middleware/logging');
 
 const uuid = () => v4().toUpperCase();
 describe('dynamodb-fragment-repository', () => {

@@ -1,10 +1,10 @@
 import { v4 as uuid } from 'uuid';
 
-import { OutboundConversationNotFoundError } from '../../../errors/errors';
+import { OutboundConversationNotFoundError } from '../../../../errors/errors';
 import {
   cleanupRecordsForTest,
   createInboundRecordForTest
-} from '../../../utilities/integration-test-utilities';
+} from '../../../../utilities/integration-test-utilities';
 import {
   createOutboundConversation,
   getNhsNumberByOutboundConversationId,
@@ -16,16 +16,16 @@ import {
   CoreStatus,
   FragmentStatus,
   RecordType
-} from '../../../constants/enums';
-import { logError, logInfo } from '../../../middleware/logging';
+} from '../../../../constants/enums';
+import { logError, logInfo } from '../../../../middleware/logging';
 import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
-import { buildUpdateParamFromItem } from '../../../utilities/dynamodb-helper';
-import { isConversation } from '../../../models/conversation';
-import { isCore } from '../../../models/core';
-import { isFragment } from '../../../models/fragment';
+import { buildUpdateParamFromItem } from '../../../../utilities/dynamodb-helper';
+import { isConversation } from '../../../../models/conversation';
+import { isCore } from '../../../../models/core';
+import { isFragment } from '../../../../models/fragment';
 
 // Mocking
-jest.mock('../../../middleware/logging');
+jest.mock('../../../../middleware/logging');
 
 describe('outbound-conversation-repository', () => {
   // ================ CONSTANTS AND SETUPS =====================

@@ -7,22 +7,22 @@ import {
   buildConversationUpdateParams,
   isComplete,
   isConversation
-} from '../../models/conversation';
+} from '../../../models/conversation';
 import {
   NhsNumberNotFoundError,
   OutboundConversationNotFoundError,
   OutboundConversationResetError,
   PatientRecordNotFoundError,
   ValidationError
-} from '../../errors/errors';
-import { logInfo } from '../../middleware/logging';
-import { ConversationStatus } from '../../constants/enums';
+} from '../../../errors/errors';
+import { logInfo } from '../../../middleware/logging';
+import { ConversationStatus } from '../../../constants/enums';
 import {
   buildParamsToClearPreviousOutboundRecord,
   buildUpdateParamFromItem
-} from '../../utilities/dynamodb-helper';
-import { isCore } from '../../models/core';
-import { isFragment } from '../../models/fragment';
+} from '../../../utilities/dynamodb-helper';
+import { isCore } from '../../../models/core';
+import { isFragment } from '../../../models/fragment';
 
 export const createOutboundConversation = async (outboundConversationId, nhsNumber, odsCode) => {
   validateInputValues(outboundConversationId, nhsNumber, odsCode);

@@ -1,5 +1,5 @@
 import { getUKTimestamp } from '../services/time';
-import { EhrTransferTracker } from '../services/database/dynamo-ehr-transfer-tracker';
+import { EhrTransferTracker } from '../services/database/dynamodb/dynamo-ehr-transfer-tracker';
 import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { ConversationStatus, CoreStatus, FragmentStatus, RecordType } from '../constants/enums';
 
