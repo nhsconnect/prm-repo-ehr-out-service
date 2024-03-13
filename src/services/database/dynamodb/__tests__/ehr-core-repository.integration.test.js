@@ -1,5 +1,3 @@
-import { createRegistrationRequest } from '../../create-registration-request';
-import { registrationRequestExistsWithMessageId } from '../../registration-request-repository';
 import { v4 as uuid } from 'uuid';
 import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import {

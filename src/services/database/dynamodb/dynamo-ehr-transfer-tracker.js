@@ -46,6 +46,7 @@ export class EhrTransferTracker {
   }
 
   async writeItemsInTransaction(items) {
+    logInfo(`Writing ${items.length} items to dynamodb table`);
     if (!items || !Array.isArray(items)) {
       throw new TypeError('The given argument `items` is not an array');
     }
@@ -63,6 +64,7 @@ export class EhrTransferTracker {
   }
 
   async updateSingleItem(updateParams) {
+    logInfo(`Updating dynamodb record with params: ${updateParams}`);
     const command = new UpdateCommand({
       TableName: this.tableName,
       ...updateParams
@@ -74,6 +76,8 @@ export class EhrTransferTracker {
     if (!updateParams || !Array.isArray(updateParams)) {
       throw new TypeError('The given argument `updateParams` is not an array');
     }
+
+    logInfo(`Updating dynamodb record with params: ${updateParams}`);
     const command = new TransactWriteCommand({
       TransactItems: updateParams.map(params => ({
         Update: {
@@ -107,6 +111,7 @@ export class EhrTransferTracker {
         logInfo(`Received unexpected queryType: ${recordType}. Will treat it as 'ALL'.`);
     }
 
+    logInfo(`Running a query to dynamodb table with below params: ${params}`);
     const command = new QueryCommand(params);
 
     const response = await this.client.send(command);
@@ -121,7 +126,7 @@ export class EhrTransferTracker {
   async queryTableByNhsNumber(nhsNumber, includeDeletedRecord = false) {
     const baseQueryParams = buildBaseQueryParams(nhsNumber, QueryKeyType.NhsNumber);
 
-    // Note: 2nd argument is fixed to be RecordType.ALL,
+    // Note: 2nd argument for below call should fixed as RecordType.ALL,
     // As dynamodb currently does not support GSI query with sort key in key condition filter
     return this.queryTable(baseQueryParams, RecordType.ALL, includeDeletedRecord);
   }
@@ -164,10 +169,17 @@ export class EhrTransferTracker {
       }
     });
 
+    logInfo(
+      `Running a getItem action with below key: ${{
+        inboundConversationId,
+        layer: recordType,
+        inboundMessageId
+      }}`
+    );
     const response = await this.client.send(command);
 
     if (!response?.Item) {
-      logError('Received an empty response from dynamodb during query');
+      logError('Received an empty response from dynamodb during getItem');
     }
     return response?.Item ?? null;
   }
