@@ -13,7 +13,7 @@ import {
 } from '../outbound-conversation-repository';
 import {
   ConversationStatus,
-  CoreStatus,
+  CoreStatus, FailureReason,
   FragmentStatus,
   RecordType
 } from '../../../../constants/enums';
@@ -200,7 +200,7 @@ describe('outbound-conversation-repository', () => {
     it('should change the TransferStatus of conversation', async () => {
       // given
       const conversationId = uuid();
-      const status = ConversationStatus.OUTBOUND_FAILED;
+      const status = ConversationStatus.OUTBOUND_CONTINUE_REQUEST_RECEIVED;
       await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
 
       // when
@@ -211,6 +211,24 @@ describe('outbound-conversation-repository', () => {
       // then
       expect(outboundConversation.TransferStatus).toBe(status);
     });
+
+    it('should be able to store a failure reason if given', async () => {
+      // given
+      const conversationId = uuid();
+      const status = ConversationStatus.OUTBOUND_FAILED;
+      const failureReason = FailureReason.FRAGMENTS_SENDING_FAILED;
+      await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
+
+      // when
+      await updateOutboundConversationStatus(conversationId, status, failureReason);
+
+      const outboundConversation = await getOutboundConversationById(conversationId);
+
+      // then
+      expect(outboundConversation.TransferStatus).toBe(status);
+      expect(outboundConversation.FailureReason).toBe(failureReason);
+    });
+
   });
 
   describe('getNhsNumberByOutboundConversationId', () => {

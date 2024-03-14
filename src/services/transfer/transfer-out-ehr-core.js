@@ -16,6 +16,7 @@ import {
   createOutboundConversation,
   getOutboundConversationById
 } from '../database/dynamodb/outbound-conversation-repository';
+import { ConversationStatus, FailureReason } from '../../constants/enums';
 
 export async function transferOutEhrCore({
   conversationId,
@@ -34,14 +35,15 @@ export async function transferOutEhrCore({
     if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
       await updateConversationStatus(
         conversationId,
-        Status.INCORRECT_ODS_CODE,
+        ConversationStatus.OUTBOUND_FAILED,
+        FailureReason.INCORRECT_ODS_CODE,
         "The patient's ODS Code in PDS does not match the requesting practice's ODS Code."
       );
 
       return;
     }
 
-    await updateConversationStatus(conversationId, Status.ODS_VALIDATION_CHECKS_PASSED);
+    await updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_STARTED);
 
     logInfo("Retrieving the patient's health record from the EHR Repository.");
 
@@ -63,6 +65,7 @@ export async function transferOutEhrCore({
     await updateConversationStatus(
       conversationId,
       Status.SENT_EHR,
+      null,
       'The EHR Core has successfully been sent.'
     );
   } catch (error) {
@@ -102,13 +105,25 @@ const isEhrRequestDuplicate = async conversationId => {
 const handleCoreTransferError = async (error, conversationId) => {
   switch (true) {
     case error instanceof PresignedUrlNotFoundError:
-      await updateConversationStatus(conversationId, Status.MISSING_FROM_REPO);
+      await updateConversationStatus(
+        conversationId,
+        ConversationStatus.OUTBOUND_FAILED,
+        FailureReason.MISSING_FROM_REPO
+      );
       break;
     case error instanceof DownloadError:
-      await updateConversationStatus(conversationId, Status.EHR_DOWNLOAD_FAILED);
+      await updateConversationStatus(
+        conversationId,
+        ConversationStatus.OUTBOUND_FAILED,
+        FailureReason.EHR_DOWNLOAD_FAILED
+      );
       break;
     default:
-      await updateConversationStatus(conversationId, Status.CORE_SENDING_FAILED);
+      await updateConversationStatus(
+        conversationId,
+        ConversationStatus.OUTBOUND_FAILED,
+        FailureReason.CORE_SENDING_FAILED
+      );
       logError('EHR transfer out request failed', error);
   }
 };

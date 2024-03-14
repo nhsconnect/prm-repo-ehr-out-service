@@ -1,5 +1,4 @@
 import { logError, logInfo, logWarning } from '../../../middleware/logging';
-import { Status } from '../../../models/registration-request';
 import { transferOutEhrCore } from '../transfer-out-ehr-core';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../../ehr-repo/get-ehr';
 import expect from 'expect';
@@ -25,6 +24,7 @@ import {
   createOutboundConversation,
   getOutboundConversationById
 } from '../../database/dynamodb/outbound-conversation-repository';
+import { ConversationStatus, FailureReason } from '../../../constants/enums';
 
 // Mocking
 jest.mock('../../../services/database/create-registration-request');
@@ -119,11 +119,12 @@ describe('transferOutEhrCore', () => {
       expect(updateConversationStatus).toHaveBeenCalledTimes(2);
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
-        Status.ODS_VALIDATION_CHECKS_PASSED
+        ConversationStatus.OUTBOUND_STARTED
       );
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
-        Status.MISSING_FROM_REPO
+        ConversationStatus.OUTBOUND_FAILED,
+        FailureReason.MISSING_FROM_REPO
       );
       expect(logInfo).toBeCalledTimes(2);
       expect(logError).toHaveBeenCalledTimes(1);
@@ -158,14 +159,15 @@ describe('transferOutEhrCore', () => {
       expect(patientAndPracticeOdsCodesMatch).toHaveBeenCalledWith(nhsNumber, odsCode);
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
-        Status.ODS_VALIDATION_CHECKS_PASSED
+        ConversationStatus.OUTBOUND_STARTED
       );
       expect(logInfo).toHaveBeenCalledTimes(2);
       expect(logInfo).toHaveBeenCalledWith(logInfoMessages[0]);
       expect(logInfo).toHaveBeenCalledWith(logInfoMessages[1]);
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
-        Status.EHR_DOWNLOAD_FAILED
+        ConversationStatus.OUTBOUND_FAILED,
+        FailureReason.EHR_DOWNLOAD_FAILED
       );
       expect(logError).toHaveBeenCalledWith(errorMessages.DOWNLOAD_ERROR, undefined);
     });
@@ -311,7 +313,8 @@ describe('transferOutEhrCore', () => {
       );
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
-        Status.INCORRECT_ODS_CODE,
+        ConversationStatus.OUTBOUND_FAILED,
+        FailureReason.INCORRECT_ODS_CODE,
         message
       );
       expect(sendCore).not.toHaveBeenCalled();
@@ -362,11 +365,12 @@ describe('transferOutEhrCore', () => {
       expect(updateConversationStatus).toHaveBeenCalledTimes(2);
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
-        Status.ODS_VALIDATION_CHECKS_PASSED
+        ConversationStatus.OUTBOUND_STARTED
       );
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
-        Status.CORE_SENDING_FAILED
+        ConversationStatus.OUTBOUND_FAILED,
+        FailureReason.CORE_SENDING_FAILED
       );
       expect(sendCore).not.toHaveBeenCalled();
     });

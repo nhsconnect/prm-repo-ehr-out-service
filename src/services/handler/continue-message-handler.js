@@ -1,18 +1,26 @@
-import { patientAndPracticeOdsCodesMatch, updateConversationStatus } from "../transfer/transfer-out-util";
 import {
-  getNhsNumberByConversationId,
-  getRegistrationRequestByConversationId
-} from "../database/registration-request-repository";
-import { parseContinueRequestMessage } from "../parser/continue-request-parser";
+  patientAndPracticeOdsCodesMatch,
+  updateConversationStatus
+} from '../transfer/transfer-out-util';
+// import {
+//   getNhsNumberByOutboundConversationId,
+//   getOutboundConversationById
+// } from "../database/registration-request-repository";
+import { parseContinueRequestMessage } from '../parser/continue-request-parser';
 import {
   transferOutFragmentsForNewContinueRequest,
   transferOutFragmentsForRetriedContinueRequest
-} from "../transfer/transfer-out-fragments";
-import { setCurrentSpanAttributes } from "../../config/tracing";
-import { parseConversationId } from "../parser/parsing-utilities";
-import { logError, logInfo, logWarning } from "../../middleware/logging";
-import { Status } from "../../models/registration-request";
-import { hasServiceStartedInTheLast5Minutes } from "../../config";
+} from '../transfer/transfer-out-fragments';
+import { setCurrentSpanAttributes } from '../../config/tracing';
+import { parseConversationId } from '../parser/parsing-utilities';
+import { logError, logInfo, logWarning } from '../../middleware/logging';
+// import { Status } from "../../models/registration-request";
+import { hasServiceStartedInTheLast5Minutes } from '../../config';
+import {
+  getNhsNumberByOutboundConversationId,
+  getOutboundConversationById
+} from '../database/dynamodb/outbound-conversation-repository';
+import { ConversationStatus } from '../../constants/enums';
 
 export default async function continueMessageHandler(message) {
   const conversationId = await parseConversationId(message);
@@ -21,29 +29,31 @@ export default async function continueMessageHandler(message) {
 
   logInfo('Trying to handle continue request');
 
-  const registrationRequest = await getRegistrationRequestByConversationId(conversationId);
+  const conversation = await getOutboundConversationById(conversationId);
 
-  switch (registrationRequest?.status) {
-    case Status.SENT_FRAGMENTS:
-    case Status.EHR_INTEGRATED:
-      logWarning(`Ignoring duplicate continue request. Conversation ID ${conversationId} already completed successfully`);
+  switch (conversation?.TransferStatus) {
+    case ConversationStatus.OUTBOUND_SENT_ALL_MESSAGES:
+    case ConversationStatus.OUTBOUND_COMPLETE:
+      logWarning(
+        `Ignoring duplicate continue request. Conversation ID ${conversationId} already completed successfully`
+      );
       break;
 
-    case Status.INCORRECT_ODS_CODE:
-    case Status.MISSING_FROM_REPO:
-    case Status.EHR_DOWNLOAD_FAILED:
-    case Status.CORE_SENDING_FAILED:
-    case Status.EHR_INTEGRATION_FAILED:
-      logWarning(`Ignoring duplicate continue request. Conversation ID ${conversationId} already failed and is unable to retry`);
+    case ConversationStatus.OUTBOUND_FAILED:
+      logWarning(
+        `Ignoring duplicate continue request. Conversation ID ${conversationId} already failed and is unable to retry`
+      );
       break;
 
-    case Status.CONTINUE_REQUEST_RECEIVED:
+    case ConversationStatus.OUTBOUND_CONTINUE_REQUEST_RECEIVED:
       hasServiceStartedInTheLast5Minutes()
         ? await handleRetriedContinueRequest(conversationId, continueRequestMessage)
-        : logWarning(`Fragment transfer with conversation ID ${conversationId} is already in progress`);
+        : logWarning(
+            `Fragment transfer with conversation ID ${conversationId} is already in progress`
+          );
       break;
 
-    case Status.FRAGMENTS_SENDING_FAILED:
+    case ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED:
       await handleRetriedContinueRequest(conversationId, continueRequestMessage);
       break;
 
@@ -51,18 +61,19 @@ export default async function continueMessageHandler(message) {
       await handleNewContinueRequest(conversationId, continueRequestMessage);
       break;
   }
-};
+}
 
 const handleNewContinueRequest = async (conversationId, continueRequestMessage) => {
-  const nhsNumber = await getNhsNumberByConversationId(conversationId);
+  const nhsNumber = await getNhsNumberByOutboundConversationId(conversationId);
 
   logInfo('Found NHS number for the given conversation ID');
 
-  if (!await patientAndPracticeOdsCodesMatch(nhsNumber, continueRequestMessage.odsCode)) {
+  if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, continueRequestMessage.odsCode))) {
     await updateConversationStatus(
       conversationId,
       Status.INCORRECT_ODS_CODE,
-      'Patients ODS Code in PDS does not match requesting practices ODS Code');
+      'Patients ODS Code in PDS does not match requesting practices ODS Code'
+    );
     return;
   }
 
@@ -74,30 +85,32 @@ const handleNewContinueRequest = async (conversationId, continueRequestMessage) 
     odsCode: continueRequestMessage.odsCode
   })
     .then(() => {
-      logInfo("Finished transferOutFragment");
-      updateConversationStatus(conversationId, Status.SENT_FRAGMENTS)
+      logInfo('Finished transferOutFragment');
+      updateConversationStatus(conversationId, Status.SENT_FRAGMENTS);
     })
     .catch(error => {
-      logError("Encountered error while sending out fragments", error);
+      logError('Encountered error while sending out fragments', error);
       updateConversationStatus(
         conversationId,
         Status.FRAGMENTS_SENDING_FAILED,
-        'A fragment failed to send, aborting transfer');
+        'A fragment failed to send, aborting transfer'
+      );
     });
-}
+};
 
 const handleRetriedContinueRequest = async (conversationId, continueRequestMessage) => {
   logInfo(`Resuming failed continue request for conversation ID ${conversationId}`);
 
-  const nhsNumber = await getNhsNumberByConversationId(conversationId);
+  const nhsNumber = await getNhsNumberByOutboundConversationId(conversationId);
 
   logInfo('Found NHS number for the given conversation ID');
 
-  if (!await patientAndPracticeOdsCodesMatch(nhsNumber, continueRequestMessage.odsCode)) {
+  if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, continueRequestMessage.odsCode))) {
     await updateConversationStatus(
       conversationId,
       Status.INCORRECT_ODS_CODE,
-      'Patients ODS Code in PDS does not match requesting practices ODS Code');
+      'Patients ODS Code in PDS does not match requesting practices ODS Code'
+    );
     return;
   }
 
@@ -105,15 +118,17 @@ const handleRetriedContinueRequest = async (conversationId, continueRequestMessa
     conversationId,
     nhsNumber,
     odsCode: continueRequestMessage.odsCode
-  }).then(() => {
-    logInfo("Finished transferOutFragment");
-    updateConversationStatus(conversationId, Status.SENT_FRAGMENTS)
   })
+    .then(() => {
+      logInfo('Finished transferOutFragment');
+      updateConversationStatus(conversationId, Status.SENT_FRAGMENTS);
+    })
     .catch(error => {
-      logError("Encountered error while sending out fragments", error);
+      logError('Encountered error while sending out fragments', error);
       updateConversationStatus(
         conversationId,
         Status.FRAGMENTS_SENDING_FAILED,
-        'A fragment failed to send, aborting transfer');
+        'A fragment failed to send, aborting transfer'
+      );
     });
-}
+};

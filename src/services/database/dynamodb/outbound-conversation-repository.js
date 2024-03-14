@@ -125,7 +125,11 @@ export const getNhsNumberByOutboundConversationId = async outboundConversationId
   return conversation.NhsNumber;
 };
 
-export const updateOutboundConversationStatus = async (outboundConversationId, status) => {
+export const updateOutboundConversationStatus = async (
+  outboundConversationId,
+  status,
+  failureReason = null
+) => {
   const db = await EhrTransferTracker.getInstance();
 
   logInfo(
@@ -137,9 +141,14 @@ export const updateOutboundConversationStatus = async (outboundConversationId, s
   }
 
   const inboundConversationId = conversation.InboundConversationId;
-  const updateParam = buildConversationUpdateParams(inboundConversationId, {
+  const updateContent = {
     TransferStatus: status
-  });
+  };
+  if (status === ConversationStatus.OUTBOUND_FAILED && failureReason) {
+    updateContent.FailureReason = failureReason;
+  }
+
+  const updateParam = buildConversationUpdateParams(inboundConversationId, updateContent);
 
   await db.updateSingleItem(updateParam);
 };

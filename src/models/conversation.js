@@ -6,6 +6,7 @@ const fieldsAllowedToUpdate = [
   'TransferStatus',
   'OutboundConversationId',
   'FailureCode',
+  'FailureReason',
   'DestinationGp'
 ];
 

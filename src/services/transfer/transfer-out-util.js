@@ -23,11 +23,16 @@ export const patientAndPracticeOdsCodesMatch = async (patientNhsNumber, gpPracti
   return patientOdsCode === gpPracticeOdsCode;
 };
 
-export const updateConversationStatus = async (conversationId, status, logMessage) => {
+export const updateConversationStatus = async (
+  conversationId,
+  status,
+  failureReason = null,
+  logMessage
+) => {
   setCurrentSpanAttributes({ conversationId });
   logInfo(`Updating conversation with status: ${status}`);
 
-  await updateOutboundConversationStatus(conversationId, status)
+  await updateOutboundConversationStatus(conversationId, status, failureReason)
     .then()
     .catch(error => {
       throw new StatusUpdateError(error);
@@ -36,7 +41,12 @@ export const updateConversationStatus = async (conversationId, status, logMessag
   if (logMessage) logInfo(logMessage);
 };
 
-export const updateFragmentStatus = async (conversationId, messageId, status, failureReason = null) => {
+export const updateFragmentStatus = async (
+  conversationId,
+  messageId,
+  status,
+  failureReason = null
+) => {
   setCurrentSpanAttributes({ conversationId, messageId });
   logInfo(`Updating fragment with status: ${status}`);
 
