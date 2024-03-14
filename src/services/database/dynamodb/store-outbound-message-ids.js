@@ -10,7 +10,7 @@ export const storeOutboundMessageIds = async (messageIdReplacements, inboundConv
   const wholeRecord = await db.queryTableByInboundConversationId(inboundConversationId);
   const coreAndFragment = wholeRecord.filter(isCoreOrFragment);
 
-  validateInputValues(messageIdReplacements, inboundConversationId, coreAndFragment);
+  validateInputValues(messageIdReplacements, inboundConversationId);
 
   const lookupDictionary = messageIdReplacements.reduce((dictionary, curr) => {
     const { oldMessageId, newMessageId } = curr;

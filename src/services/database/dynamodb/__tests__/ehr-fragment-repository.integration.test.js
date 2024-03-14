@@ -62,14 +62,15 @@ describe('dynamodb-fragment-repository', () => {
   describe('getAllMessageIdPairs', () => {
     it('should retrieve all of the message ids with replacements successfully', async () => {
       // given
-      const oldMessageIds = getAllOldMessageIds(messageIdReplacementRecords);
+      const expectedFragmentIdPairs = messageIdReplacementRecords.slice(1);
+      const oldFragmentIds = getAllOldMessageIds(expectedFragmentIdPairs);
 
       // when
-      const result = await getAllMessageIdPairs(oldMessageIds, INBOUND_CONVERSATION_ID);
+      const result = await getAllMessageIdPairs(oldFragmentIds, INBOUND_CONVERSATION_ID);
 
       // then
-      expect(result.length).toEqual(messageIdReplacementRecords.length);
-      expect(result).toEqual(expect.arrayContaining(messageIdReplacementRecords));
+      expect(result.length).toEqual(oldFragmentIds.length);
+      expect(result).toEqual(expect.arrayContaining(expectedFragmentIdPairs));
     });
 
     it('should throw FragmentMessageIdReplacementRecordNotFoundError if provided a non-existent message id', async () => {

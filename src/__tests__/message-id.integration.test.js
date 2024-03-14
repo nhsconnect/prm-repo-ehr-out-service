@@ -52,15 +52,10 @@ describe('Replacement of message IDs', () => {
 
   afterAll(async () => {
     await cleanupRecordsForTestByNhsNumber(nhsNumber);
-  });
-
-  afterAll(async () => {
     delete process.env.GP2GP_MESSENGER_SERVICE_URL;
     delete process.env.GP2GP_MESSENGER_AUTHORIZATION_KEYS;
     delete process.env.EHR_REPO_SERVICE_URL;
     delete process.env.EHR_REPO_AUTHORIZATION_KEYS;
-
-    // await ModelFactory.sequelize.close();
   });
 
   describe('EHR core uses new message IDs', () => {
