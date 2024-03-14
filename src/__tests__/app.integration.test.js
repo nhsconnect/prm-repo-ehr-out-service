@@ -174,7 +174,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
   const fragmentMessageIds = Object.keys(originalFragments);
 
   const ehrRepoMessageIdResponse = {
-    conversationIdFromEhrIn: inboundConversationId,
+    inboundConversationId: inboundConversationId,
     messageIds: fragmentMessageIds
   }
 

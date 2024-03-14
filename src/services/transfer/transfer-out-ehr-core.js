@@ -1,4 +1,7 @@
-import { PresignedUrlNotFoundError, DownloadError } from '../../errors/errors';
+import {
+  PresignedUrlNotFoundError,
+  DownloadError,
+} from '../../errors/errors';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../ehr-repo/get-ehr';
 import { setCurrentSpanAttributes } from '../../config/tracing';
@@ -17,19 +20,13 @@ import {
 } from '../database/dynamodb/outbound-conversation-repository';
 import { ConversationStatus, FailureReason } from '../../constants/enums';
 
-export async function transferOutEhrCore({
-  conversationId,
-  nhsNumber,
-  messageId,
-  odsCode,
-  ehrRequestId
-}) {
+export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
   setCurrentSpanAttributes({ conversationId });
   logInfo('EHR transfer out request received');
 
   try {
     if (await isEhrRequestDuplicate(conversationId)) return;
-    await createOutboundConversation(conversationId, messageId, nhsNumber, odsCode);
+    await createOutboundConversation(conversationId, nhsNumber, odsCode);
 
     if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
       await updateConversationStatus(
@@ -118,11 +115,14 @@ const handleCoreTransferError = async (error, conversationId) => {
       );
       break;
     default:
-      await updateConversationStatus(
-        conversationId,
-        ConversationStatus.OUTBOUND_FAILED,
-        FailureReason.CORE_SENDING_FAILED
-      );
-      logError('EHR transfer out request failed', error);
+      try {
+        await updateConversationStatus(
+          conversationId,
+          ConversationStatus.OUTBOUND_FAILED,
+          FailureReason.CORE_SENDING_FAILED
+        );
+      } catch (e) {
+        logError('EHR transfer out request failed', error);
+      }
   }
 };

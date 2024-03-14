@@ -21,7 +21,7 @@ jest.mock('../../transfer/transfer-out-util');
 describe('getFragment', () => {
   const messageId = 'fake-messageId';
   const mockEhrRepoServiceUrl = 'http://fake-ehr-repo-url';
-  const conversationIdFromEhrIn = 'fake-conversation-id'
+  const inboundConversationId = 'fake-conversation-id'
   const headers = {reqheaders: { Authorization: 'fake-keys'}};
   const fragmentPresignedUrlRoot = 'http://fake-presigned-url/';
   const ehrFragment = {
@@ -59,10 +59,10 @@ describe('getFragment', () => {
 
     // when
     const repoScope = nock(mockEhrRepoServiceUrl, headers)
-      .get(`/fragments/${conversationIdFromEhrIn}/${messageId}`)
+      .get(`/fragments/${inboundConversationId}/${messageId}`)
       .reply(404);
 
-    await expect(getFragment(conversationIdFromEhrIn, messageId)).rejects.toThrow(PresignedUrlNotFoundError)
+    await expect(getFragment(inboundConversationId, messageId)).rejects.toThrow(PresignedUrlNotFoundError)
 
     // then
     expect(repoScope.isDone()).toBe(true);

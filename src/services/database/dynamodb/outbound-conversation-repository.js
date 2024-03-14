@@ -10,7 +10,6 @@ import {
 } from '../../../models/conversation';
 import {
   NhsNumberNotFoundError,
-  OutboundConversationNotFoundError,
   OutboundConversationResetError,
   PatientRecordNotFoundError,
   ValidationError
@@ -30,6 +29,10 @@ export const createOutboundConversation = async (outboundConversationId, nhsNumb
   const db = EhrTransferTracker.getInstance();
   const conversation = await getCurrentConversationForPatient(nhsNumber);
   const inboundConversationId = conversation.InboundConversationId;
+
+  if (!inboundConversationId) {
+    throw new PatientRecordNotFoundError();
+  }
 
   const wholeRecord = await db.queryTableByInboundConversationId(inboundConversationId);
 

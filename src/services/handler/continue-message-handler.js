@@ -26,6 +26,12 @@ export default async function continueMessageHandler(message) {
 
   const conversation = await getOutboundConversationById(conversationId);
 
+  if (!conversation) {
+    logError(
+      'Received a continue request for an unknown conversationId. Will not proceed further.'
+    );
+  }
+
   switch (conversation?.TransferStatus) {
     case ConversationStatus.OUTBOUND_SENT_FRAGMENTS:
     case ConversationStatus.OUTBOUND_COMPLETE:

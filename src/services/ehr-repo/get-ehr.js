@@ -31,7 +31,8 @@ const retrievePresignedUrlFromRepo = (nhsNumber, conversationId) => {
     .then(response => {
       return {
         coreMessageUrl: response.data.coreMessageUrl,
-        fragmentMessageIds: response.data.fragmentMessageIds
+        fragmentMessageIds: response.data.fragmentMessageIds,
+        inboundConversationId: response.data.inboundConversationId
       };
     })
     .catch(error => {
