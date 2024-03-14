@@ -6,7 +6,7 @@ import { parseMessageId } from '../parser/parsing-utilities';
 import { Status } from '../../models/registration-request';
 import { sendCore } from '../gp2gp/send-core';
 import {
-  createNewMessageIds,
+  createAndStoreOutboundMessageIds,
   getNewMessageIdForOldMessageId,
   patientAndPracticeOdsCodesMatch,
   replaceMessageIdsInObject,
@@ -16,6 +16,7 @@ import {
   createOutboundConversation,
   getOutboundConversationById
 } from '../database/dynamodb/outbound-conversation-repository';
+import { storeOutboundMessageIds } from '../database/dynamodb/store-outbound-message-ids';
 
 export async function transferOutEhrCore({
   conversationId,
@@ -50,8 +51,6 @@ export async function transferOutEhrCore({
       conversationId
     );
 
-    // await updateRegistrationRequestMessageId(messageId, newMessageId);
-
     logInfo('Sending the EHR Core to GP2GP Messenger.');
 
     await sendCore(
@@ -73,19 +72,21 @@ export async function transferOutEhrCore({
 }
 
 const getEhrCoreAndUpdateMessageIds = async (nhsNumber, conversationId) => {
-  const { ehrCore, fragmentMessageIds } = await getEhrCoreAndFragmentIdsFromRepo(
-    nhsNumber,
-    conversationId
-  );
+  const { ehrCore, fragmentMessageIds, inboundConversationId } =
+    await getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId);
   const ehrCoreMessageId = await parseMessageId(ehrCore);
-  const messageIdReplacements = await createNewMessageIds([
-    ehrCoreMessageId,
-    ...fragmentMessageIds
-  ]);
-  const ehrCoreWithUpdatedMessageId = replaceMessageIdsInObject(ehrCore, messageIdReplacements);
-  const newMessageId = getNewMessageIdForOldMessageId(ehrCoreMessageId, messageIdReplacements);
+  const messageIdReplacements = await createAndStoreOutboundMessageIds(
+    [ehrCoreMessageId, ...fragmentMessageIds],
+    inboundConversationId
+  );
 
-  return { ehrCoreWithUpdatedMessageId, newMessageId };
+  const ehrCoreWithUpdatedMessageId = replaceMessageIdsInObject(ehrCore, messageIdReplacements);
+  const ehrCoreOutboundMessageId = getNewMessageIdForOldMessageId(
+    ehrCoreMessageId,
+    messageIdReplacements
+  );
+
+  return { ehrCoreWithUpdatedMessageId, newMessageId: ehrCoreOutboundMessageId };
 };
 
 const isEhrRequestDuplicate = async conversationId => {

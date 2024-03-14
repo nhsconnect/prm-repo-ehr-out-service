@@ -10,7 +10,11 @@ import {
 } from '../registration-request-repository';
 import ModelFactory from '../../../models';
 
-describe('Registration request repository', () => {
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+describe.skip('Registration request repository', () => {
   const RegistrationRequest = ModelFactory.getByName(modelName);
 
   beforeEach(async () => {

@@ -13,7 +13,7 @@ import {
   errorMessages
 } from '../../../errors/errors';
 import {
-  createNewMessageIds,
+  createAndStoreOutboundMessageIds,
   getNewMessageIdForOldMessageId,
   patientAndPracticeOdsCodesMatch,
   replaceMessageIdsInObject,
@@ -40,6 +40,7 @@ jest.mock('../../parser/parsing-utilities');
 describe('transferOutEhrCore', () => {
   // ========================== CONSTANTS AND SETUP  ========================================
   const conversationId = '5bb36755-279f-43d5-86ab-defea717d93f';
+  const inboundConversationId = uuid();
   const ehrRequestId = '870f6ef9-746f-4e81-b51f-884d64530bed';
   const messageId = '835a2b69-bac0-4f6f-97a8-897350604380';
   const newMessageId = uuid();
@@ -176,7 +177,9 @@ describe('transferOutEhrCore', () => {
       updateConversationStatus.mockResolvedValueOnce(undefined);
       getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds: [] });
       parseMessageId.mockResolvedValueOnce(messageId);
-      createNewMessageIds.mockResolvedValueOnce(messageIdWithReplacementsEhrCoreWithNoFragments);
+      createAndStoreOutboundMessageIds.mockResolvedValueOnce(
+        messageIdWithReplacementsEhrCoreWithNoFragments
+      );
       replaceMessageIdsInObject.mockReturnValueOnce(ehrCoreWithUpdatedMessageId);
       getNewMessageIdForOldMessageId.mockReturnValueOnce(newMessageId);
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
@@ -201,9 +204,15 @@ describe('transferOutEhrCore', () => {
       createOutboundConversation.mockResolvedValueOnce(undefined);
       patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
       updateConversationStatus.mockResolvedValueOnce(undefined);
-      getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds });
+      getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({
+        ehrCore,
+        fragmentMessageIds,
+        inboundConversationId
+      });
       parseMessageId.mockResolvedValueOnce(messageId);
-      createNewMessageIds.mockResolvedValueOnce(messageIdWithReplacementsEhrCoreWithFragments);
+      createAndStoreOutboundMessageIds.mockResolvedValueOnce(
+        messageIdWithReplacementsEhrCoreWithFragments
+      );
       replaceMessageIdsInObject.mockReturnValueOnce(ehrCoreWithUpdatedReferencedFragmentMessageId);
       getNewMessageIdForOldMessageId.mockReturnValueOnce(newMessageId);
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
@@ -211,7 +220,10 @@ describe('transferOutEhrCore', () => {
       // then
       expect(getEhrCoreAndFragmentIdsFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
       expect(parseMessageId).toHaveBeenCalledWith(ehrCore);
-      expect(createNewMessageIds).toHaveBeenCalledWith([messageId, ...fragmentMessageIds]);
+      expect(createAndStoreOutboundMessageIds).toHaveBeenCalledWith(
+        [messageId, ...fragmentMessageIds],
+        inboundConversationId
+      );
       expect(replaceMessageIdsInObject).toHaveBeenCalledWith(
         ehrCore,
         messageIdWithReplacementsEhrCoreWithFragments

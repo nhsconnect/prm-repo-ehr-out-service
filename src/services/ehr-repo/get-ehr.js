@@ -5,7 +5,7 @@ import { downloadFromUrl } from '../transfer/transfer-out-util';
 import { PresignedUrlNotFoundError } from '../../errors/errors';
 
 export const getEhrCoreAndFragmentIdsFromRepo = async (nhsNumber, conversationId) => {
-  const { coreMessageUrl, fragmentMessageIds } = await retrievePresignedUrlFromRepo(
+  const { coreMessageUrl, fragmentMessageIds, inboundConversationId } = await retrievePresignedUrlFromRepo(
     nhsNumber,
     conversationId
   );
@@ -17,7 +17,7 @@ export const getEhrCoreAndFragmentIdsFromRepo = async (nhsNumber, conversationId
 
   logInfo(`Successfully retrieved EHR core`);
 
-  return { ehrCore, fragmentMessageIds };
+  return { ehrCore, fragmentMessageIds, inboundConversationId };
 };
 
 const retrievePresignedUrlFromRepo = (nhsNumber, conversationId) => {

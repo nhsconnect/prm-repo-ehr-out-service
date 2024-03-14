@@ -31,7 +31,7 @@ export const getNhsNumberByConversationId = conversationId => {
     });
 };
 
-export const updateRegistrationRequestStatus = async (conversationId, status) => {
+const updateRegistrationRequestStatus = async (conversationId, status) => {
   /**
    * @deprecated
    * replaced by new method `updateOutboundConversationStatus`

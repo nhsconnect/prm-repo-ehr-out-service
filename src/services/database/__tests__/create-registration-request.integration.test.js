@@ -7,7 +7,11 @@ import ModelFactory from '../../../models';
 // Mocking
 jest.mock('../../../middleware/logging');
 
-describe('createRegistrationRequest', () => {
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+describe.skip('createRegistrationRequest', () => {
   const nhsNumber = '1234567890';
   const odsCode = 'B1234';
   const messageId = 'a9b69e0e-b654-407d-8389-2bac30be985d';
