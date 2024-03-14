@@ -42,15 +42,15 @@ export const updateConversationStatus = async (
 };
 
 export const updateFragmentStatus = async (
-  conversationId,
-  messageId,
+  inboundConversationId,
+  inboundMessageId,
   status,
   failureReason = null
 ) => {
-  setCurrentSpanAttributes({ conversationId, messageId });
+  setCurrentSpanAttributes({ conversationId: inboundConversationId, messageId: inboundMessageId });
   logInfo(`Updating fragment with status: ${status}`);
 
-  await updateFragmentStatusInDb(messageId, status, failureReason)
+  await updateFragmentStatusInDb(inboundConversationId, inboundMessageId, status, failureReason)
     .then()
     .catch(error => {
       throw new StatusUpdateError(error);

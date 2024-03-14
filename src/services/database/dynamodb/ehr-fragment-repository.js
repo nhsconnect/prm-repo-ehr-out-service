@@ -46,7 +46,11 @@ export const updateFragmentStatusInDb = async (
     updateContent.FailureReason = failureReason;
   }
 
-  const updateParams = buildFragmentUpdateParams(inboundConversationId, inboundMessageId, updateContent);
+  const updateParams = buildFragmentUpdateParams(
+    inboundConversationId,
+    inboundMessageId,
+    updateContent
+  );
 
   await db.updateSingleItem(updateParams);
   logInfo('Updated message fragment status has been stored');

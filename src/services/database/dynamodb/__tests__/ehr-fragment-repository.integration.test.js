@@ -119,7 +119,7 @@ describe('dynamodb-fragment-repository', () => {
     it('should update message fragment status with a failure reason if given', async () => {
       // given
       const updatedStatus = FragmentStatus.OUTBOUND_FAILED;
-      const failureReason = FailureReason.FRAGMENT_SENDING_FAILED;
+      const failureReason = FailureReason.CORE_SENDING_FAILED;
       const inboundMessageId = getAllOldMessageIds(messageIdReplacementRecords)[1];
       const outboundMessageId = getAllNewMessageIds(messageIdReplacementRecords)[1];
 

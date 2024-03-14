@@ -4,8 +4,9 @@ import {
   GetCommand,
   UpdateCommand
 } from '@aws-sdk/lib-dynamodb';
+import chunk from 'lodash.chunk';
 
-import { logError, logInfo } from '../../../middleware/logging';
+import { logError, logInfo, logWarning } from '../../../middleware/logging';
 import { QueryKeyType, RecordType } from '../../../constants/enums';
 import { getDynamodbClient } from './dynamodb-client';
 import { IS_IN_LOCAL } from '../../../utilities/integration-test-utilities';
@@ -50,17 +51,25 @@ export class EhrTransferTracker {
     if (!items || !Array.isArray(items)) {
       throw new TypeError('The given argument `items` is not an array');
     }
+    if (items.length > 100) {
+      logWarning('Cannot write all items in a single transaction due to limitation of dynamodb.');
+      logWarning('Will write the items in multiple transactions');
+      logWarning('If failed, a complete rollback cannot be guaranteed.');
+    }
 
-    const command = new TransactWriteCommand({
-      TransactItems: items.map(item => ({
-        Put: {
-          TableName: this.tableName,
-          Item: item
-        }
-      }))
-    });
+    const splitItemBy100 = chunk(items, 100);
 
-    await this.client.send(command);
+    for (const batch of splitItemBy100) {
+      const command = new TransactWriteCommand({
+        TransactItems: batch.map(item => ({
+          Put: {
+            TableName: this.tableName,
+            Item: item
+          }
+        }))
+      });
+      await this.client.send(command);
+    }
   }
 
   async updateSingleItem(updateParams) {
@@ -73,6 +82,7 @@ export class EhrTransferTracker {
   }
 
   async updateItemsInTransaction(updateParams) {
+    // TODO: address the issue of max 100 items in transaction
     if (!updateParams || !Array.isArray(updateParams)) {
       throw new TypeError('The given argument `updateParams` is not an array');
     }
@@ -111,7 +121,7 @@ export class EhrTransferTracker {
         logInfo(`Received unexpected queryType: ${recordType}. Will treat it as 'ALL'.`);
     }
 
-    logInfo(`Running a query to dynamodb table with below params: ${params}`);
+    logInfo(`Running a query to dynamodb table with below params: ${JSON.stringify(params)}`);
     const command = new QueryCommand(params);
 
     const response = await this.client.send(command);

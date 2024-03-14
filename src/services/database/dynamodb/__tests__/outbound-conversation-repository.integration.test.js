@@ -216,7 +216,7 @@ describe('outbound-conversation-repository', () => {
       // given
       const conversationId = uuid();
       const status = ConversationStatus.OUTBOUND_FAILED;
-      const failureReason = FailureReason.FRAGMENTS_SENDING_FAILED;
+      const failureReason = FailureReason.EHR_DOWNLOAD_FAILED;
       await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
 
       // when
