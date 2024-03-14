@@ -9,7 +9,11 @@ import expect from "expect";
 import path from "path";
 import { AcknowledgementRecordNotFoundError } from "../../../errors/errors";
 
-describe('acknowledgementRepository', () => {
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+describe.skip('acknowledgementRepository', () => {
     // ============ COMMON PROPERTIES ============
     const Acknowledgement = ModelFactory.getByName(modelName);
     // =================== END ===================

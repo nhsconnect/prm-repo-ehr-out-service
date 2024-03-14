@@ -12,7 +12,11 @@ import path from "path";
 // Mocking
 jest.mock("../../../middleware/logging");
 
-describe('createAcknowledgement', () => {
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+describe.skip('createAcknowledgement', () => {
     // ============ COMMON PROPERTIES ============
     const Acknowledgement = ModelFactory.getByName(modelName);
     // =================== END ===================

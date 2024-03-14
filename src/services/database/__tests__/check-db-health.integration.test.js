@@ -1,7 +1,11 @@
 import { checkDbHealth } from '../check-db-health';
 import ModelFactory from '../../../models';
 
-describe('db', () => {
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+describe.skip('db', () => {
   afterAll(() => {
     ModelFactory.sequelize.close();
   });

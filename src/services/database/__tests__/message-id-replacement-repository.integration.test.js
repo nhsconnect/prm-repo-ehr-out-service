@@ -7,7 +7,11 @@ import ModelFactory from '../../../models';
 import { v4 as uuidv4 } from 'uuid';
 import expect from "expect";
 
-describe('message-id-replacement-repository', () => {
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+describe.skip('message-id-replacement-repository', () => {
   // Global test variables.
   let messageIdReplacementRecords;
   const numberOfRecordsToSeed = 10;

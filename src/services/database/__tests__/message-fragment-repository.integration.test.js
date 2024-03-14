@@ -19,7 +19,11 @@ import { createRandomUUID } from "../../gp2gp/__tests__/test-utils";
 
 jest.mock('../../../middleware/logging');
 
-describe('message-fragment-repository.js', () => {
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+describe.skip('message-fragment-repository.js', () => {
   // ============ COMMON PROPERTIES ============
   const MessageFragment = ModelFactory.getByName(messageFragmentModel);
   const RegistrationRequest = ModelFactory.getByName(registrationRequestModel);
