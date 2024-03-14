@@ -3,7 +3,13 @@ import { validate } from 'uuid';
 import { getUKTimestamp } from '../services/time';
 import { addChangesToUpdateParams } from '../utilities/dynamodb-helper';
 
-const fieldsAllowedToUpdate = ['TransferStatus', 'OutboundMessageId'];
+const fieldsAllowedToUpdate = [
+  'TransferStatus',
+  'OutboundMessageId',
+  'AcknowledgementReceivedAt',
+  'AcknowledgementTypeCode',
+  'AcknowledgementDetail'
+];
 
 export const buildFragmentUpdateParams = (inboundConversationId, inboundMessageId, changes) => {
   validateIds(inboundConversationId, inboundMessageId);

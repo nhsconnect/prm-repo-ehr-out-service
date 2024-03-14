@@ -6,6 +6,11 @@ import { modelName } from '../../models/acknowledgements';
 const Acknowledgement = ModelFactory.getByName(modelName);
 
 export const createAcknowledgement = (parsedAcknowledgementMessage) =>
+  /**
+   * @deprecated
+   * replaced by new method `storeAcknowledgement`
+   * to be deleted in PRMT-4588
+   */
     runWithinTransaction(transaction =>
         Acknowledgement.create(
             {

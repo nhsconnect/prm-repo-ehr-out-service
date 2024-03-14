@@ -169,13 +169,13 @@ export class EhrTransferTracker {
       }
     });
 
-    logInfo(
-      `Running a getItem action with below key: ${{
-        inboundConversationId,
-        layer: recordType,
-        inboundMessageId
-      }}`
-    );
+    const queryKeyAsString = JSON.stringify({
+      inboundConversationId,
+      recordType,
+      inboundMessageId
+    });
+    logInfo(`Running a getItem action with below key: ${queryKeyAsString}`);
+
     const response = await this.client.send(command);
 
     if (!response?.Item) {

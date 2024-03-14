@@ -8,13 +8,16 @@ import {
 import {
   getAllMessageIdPairs,
   getAllFragmentIdsToBeSent,
-  updateFragmentStatusInDb
+  updateFragmentStatusInDb,
+  storeAcknowledgement
 } from '../ehr-fragment-repository';
 import { createOutboundConversation } from '../outbound-conversation-repository';
 import { storeOutboundMessageIds } from '../store-outbound-message-ids';
 import { FragmentStatus, RecordType } from '../../../../constants/enums';
-import { logInfo } from '../../../../middleware/logging';
+import { logError, logInfo } from '../../../../middleware/logging';
 import { buildUpdateParamFromItem } from '../../../../utilities/dynamodb-helper';
+import expect from 'expect';
+import { TIMESTAMP_REGEX } from '../../../time';
 
 jest.mock('../../../../middleware/logging');
 
@@ -155,6 +158,60 @@ describe('dynamodb-fragment-repository', () => {
       expect(response.length).not.toEqual(allFragmentMessageIds.length);
       expect(response.length).toEqual(eligibleMessageIds.length);
       expect(response).toEqual(expect.arrayContaining(eligibleMessageIds));
+    });
+  });
+
+  describe('storeAcknowledgement', () => {
+    it('should create an acknowledgement with the correct values', async () => {
+      const outboundMessageIdOfFragment = getAllNewMessageIds(messageIdReplacementRecords)[1];
+      const inboundMessageIdOfFragment = messageIdReplacementRecords.find(
+        pair => pair.newMessageId === outboundMessageIdOfFragment
+      ).oldMessageId;
+      const acknowledgementDetail =
+        'hl7:{interactionId}/hl7:communicationFunctionRcv/hl7:device/hl7:id/@extension is missing, empty, invalid or ACL violation';
+      const acknowledgementTypeCode = 'AR';
+      // given
+      const parsedAcknowledgement = {
+        service: 'urn:nhs:names:services:gp2gp',
+        messageId: uuid(),
+        referencedMessageId: uuid(),
+        messageRef: outboundMessageIdOfFragment,
+        acknowledgementTypeCode,
+        acknowledgementDetail
+      };
+
+      // when
+      await storeAcknowledgement(parsedAcknowledgement, OUTBOUND_CONVERSATION_ID);
+
+      // then
+      const allRecords = await db.queryTableByOutboundConversationId(OUTBOUND_CONVERSATION_ID);
+      const updatedFragment = allRecords.find(
+        item => item.OutboundMessageId === outboundMessageIdOfFragment
+      );
+      expect(updatedFragment).not.toBeUndefined();
+      expect(updatedFragment).toMatchObject({
+        InboundConversationId: INBOUND_CONVERSATION_ID,
+        OutboundConversationId: OUTBOUND_CONVERSATION_ID,
+        OutboundMessageId: outboundMessageIdOfFragment,
+        InboundMessageId: inboundMessageIdOfFragment,
+        AcknowledgementTypeCode: acknowledgementTypeCode,
+        AcknowledgementDetail: acknowledgementDetail,
+        AcknowledgementReceivedAt: expect.stringMatching(TIMESTAMP_REGEX),
+        TransferStatus: FragmentStatus.OUTBOUND_FAILED
+      });
+
+      expect(logInfo).toHaveBeenCalled();
+      expect(logInfo).toHaveBeenCalledWith('Acknowledgement has been stored');
+    });
+
+    it('should log errors when invalid parsed acknowledgement is passed', async () => {
+      // when
+      await storeAcknowledgement({ messageId: 'hello-world' }, INBOUND_CONVERSATION_ID);
+
+      // then
+      const errorMessage =
+        'Received an acknowledgement message that refers to unknown messageId. Will not proceed further.';
+      expect(logError).toHaveBeenCalledWith(errorMessage);
     });
   });
 });
