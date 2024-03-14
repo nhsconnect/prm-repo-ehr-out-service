@@ -1,5 +1,5 @@
-import { FragmentMessageIdReplacementRecordNotFoundError } from '../../../../errors/errors';
 import { v4 } from 'uuid';
+import { FragmentMessageIdReplacementRecordNotFoundError } from '../../../../errors/errors';
 import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import {
   cleanupRecordsForTest,
@@ -16,7 +16,6 @@ import { storeOutboundMessageIds } from '../store-outbound-message-ids';
 import { FragmentStatus, RecordType } from '../../../../constants/enums';
 import { logError, logInfo } from '../../../../middleware/logging';
 import { buildUpdateParamFromItem } from '../../../../utilities/dynamodb-helper';
-import expect from 'expect';
 import { TIMESTAMP_REGEX } from '../../../time';
 
 jest.mock('../../../../middleware/logging');

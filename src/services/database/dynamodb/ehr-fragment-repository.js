@@ -119,7 +119,6 @@ export const storeAcknowledgement = async (
     await db.updateSingleItem(updateParams);
     logInfo('Acknowledgement has been stored');
   } catch (e) {
-    console.error(e);
     logError('Failed to store acknowledgement due to error', e);
   }
 };
