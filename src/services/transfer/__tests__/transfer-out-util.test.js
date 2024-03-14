@@ -140,7 +140,7 @@ describe('testTransferOutUtil', () => {
     it('should log the provided message successfully', async () => {
       // when
       updateOutboundConversationStatus.mockResolvedValueOnce(undefined);
-      await updateConversationStatus(CONVERSATION_ID, STATUS, LOG_MESSAGE);
+      await updateConversationStatus(CONVERSATION_ID, STATUS, null, LOG_MESSAGE);
 
       // then
       expect(setCurrentSpanAttributes).toBeCalledTimes(1);

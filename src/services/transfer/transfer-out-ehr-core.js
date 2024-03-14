@@ -3,7 +3,6 @@ import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../ehr-repo/get-ehr';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { parseMessageId } from '../parser/parsing-utilities';
-import { Status } from '../../models/registration-request';
 import { sendCore } from '../gp2gp/send-core';
 import {
   createAndStoreOutboundMessageIds,
@@ -64,7 +63,7 @@ export async function transferOutEhrCore({
 
     await updateConversationStatus(
       conversationId,
-      Status.SENT_EHR,
+      ConversationStatus.OUTBOUND_SENT_EHR_CORE,
       null,
       'The EHR Core has successfully been sent.'
     );
