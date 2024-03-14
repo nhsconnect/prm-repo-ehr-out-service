@@ -57,7 +57,7 @@ export const updateMessageFragmentRecordStatus = (messageId, status) => {
 export const getAllFragmentOutboundMessageIdsEligibleToBeSent = conversationId => {
   /**
    * @deprecated
-   * replaced by new method `getAllFragmentIdsToBeSentAgain`
+   * replaced by new method `getAllFragmentIdsToBeSent`
    * to be deleted in PRMT-4588
    */
 

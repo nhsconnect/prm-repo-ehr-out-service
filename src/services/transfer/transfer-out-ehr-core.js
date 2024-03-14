@@ -16,7 +16,6 @@ import {
   createOutboundConversation,
   getOutboundConversationById
 } from '../database/dynamodb/outbound-conversation-repository';
-import { storeOutboundMessageIds } from '../database/dynamodb/store-outbound-message-ids';
 
 export async function transferOutEhrCore({
   conversationId,
