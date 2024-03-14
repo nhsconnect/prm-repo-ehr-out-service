@@ -2,10 +2,10 @@ import {
   patientAndPracticeOdsCodesMatch,
   updateConversationStatus
 } from '../transfer/transfer-out-util';
-// import {
-//   getNhsNumberByOutboundConversationId,
-//   getOutboundConversationById
-// } from "../database/registration-request-repository";
+import {
+  getNhsNumberByOutboundConversationId,
+  getOutboundConversationById
+} from '../database/dynamodb/outbound-conversation-repository';
 import { parseContinueRequestMessage } from '../parser/continue-request-parser';
 import {
   transferOutFragmentsForNewContinueRequest,
@@ -14,13 +14,8 @@ import {
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { parseConversationId } from '../parser/parsing-utilities';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
-// import { Status } from "../../models/registration-request";
+import { ConversationStatus, FailureReason } from '../../constants/enums';
 import { hasServiceStartedInTheLast5Minutes } from '../../config';
-import {
-  getNhsNumberByOutboundConversationId,
-  getOutboundConversationById
-} from '../database/dynamodb/outbound-conversation-repository';
-import { ConversationStatus } from '../../constants/enums';
 
 export default async function continueMessageHandler(message) {
   const conversationId = await parseConversationId(message);
@@ -32,7 +27,7 @@ export default async function continueMessageHandler(message) {
   const conversation = await getOutboundConversationById(conversationId);
 
   switch (conversation?.TransferStatus) {
-    case ConversationStatus.OUTBOUND_SENT_ALL_MESSAGES:
+    case ConversationStatus.OUTBOUND_SENT_FRAGMENTS:
     case ConversationStatus.OUTBOUND_COMPLETE:
       logWarning(
         `Ignoring duplicate continue request. Conversation ID ${conversationId} already completed successfully`
@@ -71,13 +66,17 @@ const handleNewContinueRequest = async (conversationId, continueRequestMessage) 
   if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, continueRequestMessage.odsCode))) {
     await updateConversationStatus(
       conversationId,
-      Status.INCORRECT_ODS_CODE,
+      ConversationStatus.OUTBOUND_FAILED,
+      FailureReason.INCORRECT_ODS_CODE,
       'Patients ODS Code in PDS does not match requesting practices ODS Code'
     );
     return;
   }
 
-  await updateConversationStatus(conversationId, Status.CONTINUE_REQUEST_RECEIVED);
+  await updateConversationStatus(
+    conversationId,
+    ConversationStatus.OUTBOUND_CONTINUE_REQUEST_RECEIVED
+  );
 
   await transferOutFragmentsForNewContinueRequest({
     conversationId,
@@ -86,13 +85,14 @@ const handleNewContinueRequest = async (conversationId, continueRequestMessage) 
   })
     .then(() => {
       logInfo('Finished transferOutFragment');
-      updateConversationStatus(conversationId, Status.SENT_FRAGMENTS);
+      updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_SENT_FRAGMENTS);
     })
     .catch(error => {
       logError('Encountered error while sending out fragments', error);
       updateConversationStatus(
         conversationId,
-        Status.FRAGMENTS_SENDING_FAILED,
+        ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
+        null,
         'A fragment failed to send, aborting transfer'
       );
     });
@@ -108,7 +108,8 @@ const handleRetriedContinueRequest = async (conversationId, continueRequestMessa
   if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, continueRequestMessage.odsCode))) {
     await updateConversationStatus(
       conversationId,
-      Status.INCORRECT_ODS_CODE,
+      ConversationStatus.OUTBOUND_FAILED,
+      FailureReason.INCORRECT_ODS_CODE,
       'Patients ODS Code in PDS does not match requesting practices ODS Code'
     );
     return;
@@ -121,13 +122,14 @@ const handleRetriedContinueRequest = async (conversationId, continueRequestMessa
   })
     .then(() => {
       logInfo('Finished transferOutFragment');
-      updateConversationStatus(conversationId, Status.SENT_FRAGMENTS);
+      updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_SENT_FRAGMENTS);
     })
     .catch(error => {
       logError('Encountered error while sending out fragments', error);
       updateConversationStatus(
         conversationId,
-        Status.FRAGMENTS_SENDING_FAILED,
+        ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
+        null,
         'A fragment failed to send, aborting transfer'
       );
     });
