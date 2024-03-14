@@ -13,7 +13,7 @@ import {
 } from '../ehr-fragment-repository';
 import { createOutboundConversation } from '../outbound-conversation-repository';
 import { storeOutboundMessageIds } from '../store-outbound-message-ids';
-import { FragmentStatus, RecordType } from '../../../../constants/enums';
+import { FailureReason, FragmentStatus, RecordType } from '../../../../constants/enums';
 import { logError, logInfo } from '../../../../middleware/logging';
 import { buildUpdateParamFromItem } from '../../../../utilities/dynamodb-helper';
 import { TIMESTAMP_REGEX } from '../../../time';
@@ -91,7 +91,7 @@ describe('dynamodb-fragment-repository', () => {
   describe('updateFragmentStatusInDb', () => {
     it('should update message fragment status successfully', async () => {
       // given
-      const updatedStatus = FragmentStatus.OUTBOUND_FAILED;
+      const updatedStatus = FragmentStatus.OUTBOUND_COMPLETE;
       const inboundMessageId = getAllOldMessageIds(messageIdReplacementRecords)[1];
       const outboundMessageId = getAllNewMessageIds(messageIdReplacementRecords)[1];
 
@@ -111,6 +111,40 @@ describe('dynamodb-fragment-repository', () => {
         InboundMessageId: inboundMessageId,
         OutboundMessageId: outboundMessageId,
         TransferStatus: updatedStatus
+      });
+
+      expect(logInfo).toHaveBeenCalledWith('Updated message fragment status has been stored');
+    });
+
+    it('should update message fragment status with a failure reason if given', async () => {
+      // given
+      const updatedStatus = FragmentStatus.OUTBOUND_FAILED;
+      const failureReason = FailureReason.FRAGMENT_SENDING_FAILED;
+      const inboundMessageId = getAllOldMessageIds(messageIdReplacementRecords)[1];
+      const outboundMessageId = getAllNewMessageIds(messageIdReplacementRecords)[1];
+
+      // when
+      await updateFragmentStatusInDb(
+        INBOUND_CONVERSATION_ID,
+        inboundMessageId,
+        updatedStatus,
+        failureReason
+      );
+
+      // then
+      const updatedFragment = await db.getItemByKey(
+        INBOUND_CONVERSATION_ID,
+        inboundMessageId,
+        RecordType.FRAGMENT
+      );
+
+      expect(updatedFragment).toMatchObject({
+        InboundConversationId: INBOUND_CONVERSATION_ID,
+        OutboundConversationId: OUTBOUND_CONVERSATION_ID,
+        InboundMessageId: inboundMessageId,
+        OutboundMessageId: outboundMessageId,
+        TransferStatus: updatedStatus,
+        FailureReason: failureReason
       });
 
       expect(logInfo).toHaveBeenCalledWith('Updated message fragment status has been stored');

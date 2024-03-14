@@ -13,7 +13,7 @@ import {
   getAllFragmentIdsToBeSent,
   getAllMessageIdPairs
 } from '../database/dynamodb/ehr-fragment-repository';
-import { FragmentStatus } from '../../constants/enums';
+import { FailureReason, FragmentStatus } from '../../constants/enums';
 // import { createFragmentDbRecord } from "../database/create-fragment-db-record";
 
 export async function transferOutFragmentsForNewContinueRequest({
@@ -28,12 +28,6 @@ export async function transferOutFragmentsForNewContinueRequest({
   logInfo('Retrieved all fragment Message IDs for transfer.');
 
   const messageIdsWithReplacements = await getAllMessageIdPairs(messageIds, inboundConversationId);
-  // const newMessageIds = messageIdsWithReplacements.map(replacement => replacement.newMessageId);
-  // const inboundMessageIds = messageIdsWithReplacements.map(replacement => replacement.newMessageId);
-  //
-  // for (const newMessageId of newMessageIds) {
-  //   await createFragmentDbRecord(newMessageId, conversationId);
-  // }
 
   await getAndSendMessageFragments(
     messageIdsWithReplacements,
@@ -50,12 +44,14 @@ export async function transferOutFragmentsForRetriedContinueRequest({
 }) {
   setCurrentSpanAttributes({ conversationId });
   logInfo(`Retrying the EHR Fragment transfer.`);
-  const { inboundConversationId, messageIds } =
-    await getFragmentConversationAndMessageIdsFromEhrRepo(nhsNumber);
+  const { inboundConversationId } = await getFragmentConversationAndMessageIdsFromEhrRepo(
+    nhsNumber
+  );
   logInfo('Retrieved all fragment Message IDs for transfer.');
 
-  const messageIdsWithReplacements = await getAllMessageIdPairs(messageIds, inboundConversationId);
-  const messageIdsWithReplacementsEligibleForSending = await getAllFragmentIdsToBeSent(inboundConversationId);
+  const messageIdsWithReplacementsEligibleForSending = await getAllFragmentIdsToBeSent(
+    inboundConversationId
+  );
 
   logInfo(
     `Found ${messageIdsWithReplacementsEligibleForSending.length} Message ID replacements eligible to be sent.`
@@ -110,28 +106,25 @@ const getAndSendMessageFragments = async (
 };
 
 const handleFragmentTransferError = async (error, inboundConversationId, inboundMessageId) => {
-  // TODO: change updateFragmentStatus to store an extra field of different error reason
+  let failureReason;
+
   switch (true) {
     case error instanceof PresignedUrlNotFoundError:
-      await updateFragmentStatus(
-        inboundConversationId,
-        inboundMessageId,
-        FragmentStatus.OUTBOUND_FAILED
-      );
+      failureReason = FailureReason.MISSING_FROM_REPO;
       break;
     case error instanceof DownloadError:
-      await updateFragmentStatus(
-        inboundConversationId,
-        inboundMessageId,
-        FragmentStatus.OUTBOUND_FAILED
-      );
+      failureReason = FailureReason.DOWNLOAD_FAILED;
       break;
     default:
-      await updateFragmentStatus(
-        inboundConversationId,
-        inboundMessageId,
-        FragmentStatus.OUTBOUND_FAILED
-      );
+      failureReason = FailureReason.SENDING_FAILED;
       logError('Fragment transfer request failed', error);
+      break;
   }
+
+  await updateFragmentStatus(
+    inboundConversationId,
+    inboundMessageId,
+    FragmentStatus.OUTBOUND_FAILED,
+    failureReason
+  );
 };

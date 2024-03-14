@@ -36,11 +36,11 @@ export const updateConversationStatus = async (conversationId, status, logMessag
   if (logMessage) logInfo(logMessage);
 };
 
-export const updateFragmentStatus = async (conversationId, messageId, status) => {
+export const updateFragmentStatus = async (conversationId, messageId, status, failureReason = null) => {
   setCurrentSpanAttributes({ conversationId, messageId });
   logInfo(`Updating fragment with status: ${status}`);
 
-  await updateFragmentStatusInDb(messageId, status)
+  await updateFragmentStatusInDb(messageId, status, failureReason)
     .then()
     .catch(error => {
       throw new StatusUpdateError(error);

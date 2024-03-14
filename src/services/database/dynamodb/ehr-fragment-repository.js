@@ -30,13 +30,23 @@ export const getAllMessageIdPairs = async (oldMessageIds, inboundConversationId)
   return messageIdReplacements;
 };
 
-export const updateFragmentStatusInDb = async (inboundConversationId, inboundMessageId, status) => {
+export const updateFragmentStatusInDb = async (
+  inboundConversationId,
+  inboundMessageId,
+  status,
+  failureReason = null
+) => {
   logInfo(`Updating message fragment status to ${status}`);
 
   const db = EhrTransferTracker.getInstance();
-  const updateParams = buildFragmentUpdateParams(inboundConversationId, inboundMessageId, {
+  const updateContent = {
     TransferStatus: status
-  });
+  };
+  if (status === FragmentStatus.OUTBOUND_FAILED && failureReason) {
+    updateContent.FailureReason = failureReason;
+  }
+
+  const updateParams = buildFragmentUpdateParams(inboundConversationId, inboundMessageId, updateContent);
 
   await db.updateSingleItem(updateParams);
   logInfo('Updated message fragment status has been stored');

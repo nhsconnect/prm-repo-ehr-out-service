@@ -7,6 +7,7 @@ import { logInfo } from '../middleware/logging';
 
 const fieldsAllowedToUpdate = [
   'TransferStatus',
+  'FailureReason',
   'OutboundMessageId',
   'AcknowledgementReceivedAt',
   'AcknowledgementTypeCode',

@@ -25,7 +25,7 @@ import {
   getAllFragmentIdsToBeSent,
   getAllMessageIdPairs
 } from '../../database/dynamodb/ehr-fragment-repository';
-import { FragmentStatus } from '../../../constants/enums';
+import { FailureReason, FragmentStatus } from '../../../constants/enums';
 
 // Mocking
 jest.mock('../transfer-out-util');
@@ -182,10 +182,6 @@ describe('transferOutFragments', () => {
     expect(result).toBe(undefined);
 
     expect(getFragmentConversationAndMessageIdsFromEhrRepo).toHaveBeenCalledWith(nhsNumber);
-    expect(getAllMessageIdPairs).toHaveBeenCalledWith(
-      ehrRepositoryResponse.messageIds,
-      inboundConversationId
-    );
     expect(getAllFragmentIdsToBeSent).toHaveBeenCalledWith(inboundConversationId);
     expect(getFragment).toHaveBeenCalledTimes(1);
     expect(getFragment).toHaveBeenCalledWith(
@@ -239,7 +235,8 @@ describe('transferOutFragments', () => {
     expect(updateFragmentStatus).toHaveBeenCalledWith(
       inboundConversationId,
       originalMessageId1,
-      FragmentStatus.OUTBOUND_FAILED
+      FragmentStatus.OUTBOUND_FAILED,
+      FailureReason.MISSING_FROM_REPO
     );
 
     expect(replaceMessageIdsInObject).not.toHaveBeenCalled();
@@ -277,7 +274,8 @@ describe('transferOutFragments', () => {
     expect(updateFragmentStatus).toHaveBeenCalledWith(
       inboundConversationId,
       originalMessageId1,
-      FragmentStatus.OUTBOUND_FAILED
+      FragmentStatus.OUTBOUND_FAILED,
+      FailureReason.DOWNLOAD_FAILED
     );
 
     expect(replaceMessageIdsInObject).not.toHaveBeenCalled();
@@ -305,7 +303,10 @@ describe('transferOutFragments', () => {
     ).rejects.toThrow(error);
 
     expect(getFragmentConversationAndMessageIdsFromEhrRepo).toHaveBeenCalledWith(nhsNumber);
-    expect(getAllMessageIdPairs).toHaveBeenCalledWith(ehrRepositoryResponse.messageIds, inboundConversationId);
+    expect(getAllMessageIdPairs).toHaveBeenCalledWith(
+      ehrRepositoryResponse.messageIds,
+      inboundConversationId
+    );
     expect(getFragment).toHaveBeenCalledTimes(1);
     expect(getFragment).toHaveBeenCalledWith(
       inboundConversationId,
@@ -317,7 +318,8 @@ describe('transferOutFragments', () => {
     expect(updateFragmentStatus).toHaveBeenCalledWith(
       inboundConversationId,
       originalMessageId1,
-      FragmentStatus.OUTBOUND_FAILED
+      FragmentStatus.OUTBOUND_FAILED,
+      FailureReason.SENDING_FAILED
     );
   });
 });

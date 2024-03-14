@@ -44,6 +44,20 @@ export const QueryKeyType = {
   OutboundConversationId: 'OutboundConversationId'
 };
 
+export const FailureReason = {
+  // Conversation / Core level
+  INCORRECT_ODS_CODE: 'OUTBOUND:incorrect_ods_code',
+  MISSING_FROM_REPO: 'OUTBOUND:missing_from_repo',
+  EHR_DOWNLOAD_FAILED: 'OUTBOUND:ehr_download_failed',
+  CORE_SENDING_FAILED: 'OUTBOUND:core_sending_failed',
+  FRAGMENTS_SENDING_FAILED: 'OUTBOUND:fragments_sending_failed',
+  EHR_INTEGRATION_FAILED: 'OUTBOUND:ehr_integration_failed',
+
+  // Fragment level
+  DOWNLOAD_FAILED: 'OUTBOUND:download_failed',
+  SENDING_FAILED: 'OUTBOUND:sending_failed'
+};
+
 Object.freeze(RecordType);
 Object.freeze(ConversationStatus);
 Object.freeze(CoreStatus);
