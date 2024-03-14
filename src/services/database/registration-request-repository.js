@@ -7,7 +7,7 @@ import { Op } from "sequelize";
 
 const RegistrationRequest = ModelFactory.getByName(modelName);
 
-export const getRegistrationRequestByConversationId = async conversationId => {
+const getRegistrationRequestByConversationId = async conversationId => {
   /**
    * @deprecated
    * replaced by new method `getOutboundConversationById`

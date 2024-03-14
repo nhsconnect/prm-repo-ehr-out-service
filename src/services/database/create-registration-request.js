@@ -5,7 +5,7 @@ import ModelFactory from '../../models';
 
 const RegistrationRequest = ModelFactory.getByName(modelName);
 
-export const createRegistrationRequest = (conversationId, messageId, nhsNumber, odsCode) =>
+const createRegistrationRequest = (conversationId, messageId, nhsNumber, odsCode) =>
   /**
    * @deprecated
    * to be replaced by new method `createOutboundConversation`

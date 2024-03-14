@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-import { OutboundConversationNotFoundError } from '../../../../errors/errors';
+import { NhsNumberNotFoundError, OutboundConversationNotFoundError } from '../../../../errors/errors';
 import {
   cleanupRecordsForTest,
   createInboundRecordForTest
@@ -160,9 +160,10 @@ describe('outbound-conversation-repository', () => {
         expect(item.OutboundMessageId).toBeUndefined();
       }
 
-      await expect(getOutboundConversationById(previousOutboundConversationId)).rejects.toThrow(
-        OutboundConversationNotFoundError
+      const previousRecordAfterward = await getOutboundConversationById(
+        previousOutboundConversationId
       );
+      expect(previousRecordAfterward).toBeNull();
     });
   });
 
@@ -183,14 +184,15 @@ describe('outbound-conversation-repository', () => {
       expect(outboundConversation.OutboundConversationId).toBe(conversationId);
     });
 
-    it('should throw an error when it cannot find the outbound conversation', async () => {
+    it('should return null when it cannot find the outbound conversation', async () => {
       // given
       const nonExistentConversationId = uuid();
 
       // when
-      await expect(getOutboundConversationById(nonExistentConversationId))
-        // then
-        .rejects.toThrow(OutboundConversationNotFoundError);
+      const result = await getOutboundConversationById(nonExistentConversationId);
+
+      // then
+      expect(result).toBeNull();
     });
   });
 
@@ -231,7 +233,7 @@ describe('outbound-conversation-repository', () => {
       // when
       await expect(getNhsNumberByOutboundConversationId(conversationId))
         // then
-        .rejects.toThrow(OutboundConversationNotFoundError);
+        .rejects.toThrow(NhsNumberNotFoundError);
     });
   });
 });

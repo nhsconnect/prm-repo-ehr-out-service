@@ -15,7 +15,7 @@ import {
   PatientRecordNotFoundError,
   ValidationError
 } from '../../../errors/errors';
-import { logInfo } from '../../../middleware/logging';
+import { logError, logInfo } from '../../../middleware/logging';
 import { ConversationStatus } from '../../../constants/enums';
 import {
   buildParamsToClearPreviousOutboundRecord,
@@ -110,7 +110,9 @@ export const getOutboundConversationById = async outboundConversationId => {
   const outboundRecords = await db.queryTableByOutboundConversationId(outboundConversationId);
   const outboundConversation = outboundRecords?.filter(isConversation)?.[0];
   if (!outboundConversation) {
-    throw new OutboundConversationNotFoundError();
+    logError('cannot find any record of provided outboundConversationId');
+    // return null to match the previous implementation by sequelize
+    return null;
   }
   return outboundConversation;
 };

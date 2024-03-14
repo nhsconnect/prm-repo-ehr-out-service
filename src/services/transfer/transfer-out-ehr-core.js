@@ -1,25 +1,35 @@
-import { getRegistrationRequestByConversationId, updateRegistrationRequestMessageId } from '../database/registration-request-repository';
-import { createRegistrationRequest } from '../database/create-registration-request';
 import { PresignedUrlNotFoundError, DownloadError } from '../../errors/errors';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../ehr-repo/get-ehr';
 import { setCurrentSpanAttributes } from '../../config/tracing';
-import { parseMessageId } from "../parser/parsing-utilities";
+import { parseMessageId } from '../parser/parsing-utilities';
 import { Status } from '../../models/registration-request';
 import { sendCore } from '../gp2gp/send-core';
 import {
-  createNewMessageIds, getNewMessageIdForOldMessageId,
-  patientAndPracticeOdsCodesMatch, replaceMessageIdsInObject,
-  updateConversationStatus,
+  createNewMessageIds,
+  getNewMessageIdForOldMessageId,
+  patientAndPracticeOdsCodesMatch,
+  replaceMessageIdsInObject,
+  updateConversationStatus
 } from './transfer-out-util';
+import {
+  createOutboundConversation,
+  getOutboundConversationById
+} from '../database/dynamodb/outbound-conversation-repository';
 
-export async function transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId }) {
+export async function transferOutEhrCore({
+  conversationId,
+  nhsNumber,
+  messageId,
+  odsCode,
+  ehrRequestId
+}) {
   setCurrentSpanAttributes({ conversationId });
   logInfo('EHR transfer out request received');
-  
+
   try {
     if (await isEhrRequestDuplicate(conversationId)) return;
-    await createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode);
+    await createOutboundConversation(conversationId, messageId, nhsNumber, odsCode);
 
     if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
       await updateConversationStatus(
@@ -40,7 +50,7 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, messageId,
       conversationId
     );
 
-    await updateRegistrationRequestMessageId(messageId, newMessageId);
+    // await updateRegistrationRequestMessageId(messageId, newMessageId);
 
     logInfo('Sending the EHR Core to GP2GP Messenger.');
 
@@ -63,9 +73,15 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, messageId,
 }
 
 const getEhrCoreAndUpdateMessageIds = async (nhsNumber, conversationId) => {
-  const { ehrCore, fragmentMessageIds } = await getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId);
+  const { ehrCore, fragmentMessageIds } = await getEhrCoreAndFragmentIdsFromRepo(
+    nhsNumber,
+    conversationId
+  );
   const ehrCoreMessageId = await parseMessageId(ehrCore);
-  const messageIdReplacements = await createNewMessageIds([ehrCoreMessageId, ...fragmentMessageIds]);
+  const messageIdReplacements = await createNewMessageIds([
+    ehrCoreMessageId,
+    ...fragmentMessageIds
+  ]);
   const ehrCoreWithUpdatedMessageId = replaceMessageIdsInObject(ehrCore, messageIdReplacements);
   const newMessageId = getNewMessageIdForOldMessageId(ehrCoreMessageId, messageIdReplacements);
 
@@ -73,7 +89,7 @@ const getEhrCoreAndUpdateMessageIds = async (nhsNumber, conversationId) => {
 };
 
 const isEhrRequestDuplicate = async conversationId => {
-  const previousTransferOut = await getRegistrationRequestByConversationId(conversationId);
+  const previousTransferOut = await getOutboundConversationById(conversationId);
 
   if (previousTransferOut !== null) {
     logWarning(`EHR out transfer with conversation ID ${conversationId} is already in progress`);
@@ -95,4 +111,4 @@ const handleCoreTransferError = async (error, conversationId) => {
       await updateConversationStatus(conversationId, Status.CORE_SENDING_FAILED);
       logError('EHR transfer out request failed', error);
   }
-}
+};
