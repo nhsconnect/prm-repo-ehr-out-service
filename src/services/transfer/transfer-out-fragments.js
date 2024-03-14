@@ -7,14 +7,12 @@ import { replaceMessageIdsInObject, updateFragmentStatus } from './transfer-out-
 import { sendFragment } from '../gp2gp/send-fragment';
 import { logError, logInfo } from '../../middleware/logging';
 import { config } from '../../config';
-// import { Status } from '../../models/message-fragment';
 import { DownloadError, PresignedUrlNotFoundError } from '../../errors/errors';
 import {
   getAllFragmentIdsToBeSent,
   getAllMessageIdPairs
 } from '../database/dynamodb/ehr-fragment-repository';
 import { FailureReason, FragmentStatus } from '../../constants/enums';
-// import { createFragmentDbRecord } from "../database/create-fragment-db-record";
 
 export async function transferOutFragmentsForNewContinueRequest({
   conversationId,

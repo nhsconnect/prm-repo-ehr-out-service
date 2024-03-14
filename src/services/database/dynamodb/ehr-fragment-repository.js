@@ -3,7 +3,6 @@
 
 import { logError, logInfo } from '../../../middleware/logging';
 import { EhrTransferTracker } from './dynamo-ehr-transfer-tracker';
-import { isCoreOrFragment } from '../../../models/core';
 import { FragmentMessageIdReplacementRecordNotFoundError } from '../../../errors/errors';
 import { buildFragmentUpdateParams, isFragment, isNotSentOut } from '../../../models/fragment';
 import { FragmentStatus, RecordType } from '../../../constants/enums';
@@ -16,16 +15,16 @@ export const getAllMessageIdPairs = async (oldMessageIds, inboundConversationId)
   }
   const db = EhrTransferTracker.getInstance();
   const wholeRecord = await db.queryTableByInboundConversationId(inboundConversationId);
-  const coreAndFragments = wholeRecord.filter(isCoreOrFragment);
+  const fragments = wholeRecord.filter(isFragment);
 
-  const messageIdReplacements = coreAndFragments.map(item => ({
+  const messageIdReplacements = fragments.map(item => ({
     oldMessageId: item.InboundMessageId,
     newMessageId: item.OutboundMessageId
   }));
 
   verifyMessageIdReplacementWasFoundForEachMessageId(oldMessageIds, messageIdReplacements);
 
-  logInfo(`Successfully retrieved ${coreAndFragments.length} message record(s).`);
+  logInfo(`Successfully retrieved ${fragments.length} message record(s).`);
 
   return messageIdReplacements;
 };

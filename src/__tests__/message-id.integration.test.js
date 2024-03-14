@@ -11,9 +11,12 @@ import nock from 'nock';
 import { sortBy } from 'lodash';
 import { replaceMessageIdsInObject } from '../services/transfer/transfer-out-util';
 import {
+  buildMessageIdReplacement,
   cleanupRecordsForTestByNhsNumber,
   createInboundRecordForTest
 } from '../utilities/integration-test-utilities';
+import { storeOutboundMessageIds } from '../services/database/dynamodb/store-outbound-message-ids';
+import { getAllMessageIdPairs } from '../services/database/dynamodb/ehr-fragment-repository';
 
 describe('Replacement of message IDs', () => {
   const uuidRegexPattern =
@@ -135,7 +138,7 @@ describe('Replacement of message IDs', () => {
       const ehrFragmentPresignedUrl = getPresignedUrlForFragment(messageId);
 
       return nock(ehrRepoUrl, ehrRepoHeaders)
-        .get(`/fragments/${inboundConversationId}/${messageId.toLowerCase()}`)
+        .get(`/fragments/${inboundConversationId}/${messageId}`)
         .reply(200, ehrFragmentPresignedUrl);
     }
 
@@ -149,8 +152,20 @@ describe('Replacement of message IDs', () => {
 
     it('should update the message IDs of the message fragment and nested fragments within the fragment', async () => {
       // given
+      const fragmentFilenamesAndOldMessageIds = {
+        'fragment-1': 'DFBA6AC0-DDC7-41ED-808B-AC162D1F16F0',
+        'fragment-2': 'DFEC7740-DDC7-41ED-808B-AC162D1F16F0',
+        'fragment-2-1': 'DFEC7741-DDC7-41ED-808B-AC162D1F16F0',
+        'fragment-2-2': 'DFF61430-DDC7-41ED-808B-AC162D1F16F0'
+      };
       const fragmentFilenames = Object.keys(fragmentFilenamesAndOldMessageIds);
       const fragmentOldMessageIds = Object.values(fragmentFilenamesAndOldMessageIds);
+      const inboundCoreMessageId = 'DF91D420-DDC7-41ED-808B-AC162D1F16F0';
+      const outboundFragmentMessageIds = inboundFragmentMessageIds.map(() => uuidv4().toUpperCase());
+      const messageIdReplacement = buildMessageIdReplacement(
+        [inboundCoreMessageId, ...inboundFragmentMessageIds],
+        [uuidv4().toUpperCase(), ...outboundFragmentMessageIds]
+      );
 
       // when
       await createInboundRecordForTest(
@@ -159,6 +174,8 @@ describe('Replacement of message IDs', () => {
         inboundCoreMessageId,
         inboundFragmentMessageIds
       );
+      await storeOutboundMessageIds(messageIdReplacement, inboundConversationId);
+
       const ehrRepoPatientRecordScope = createNockForEhrRepoCoreMessage();
       const s3Scopes = Object.entries(fragmentFilenamesAndOldMessageIds).map(
         ([filename, messageId]) => {
@@ -203,7 +220,7 @@ describe('Replacement of message IDs', () => {
 
       // Get the new Message IDs from the database, compare with the
       // Message IDs within the POST Request bodies.
-      const messageIdReplacements = await getAllMessageIdReplacements(fragmentOldMessageIds);
+      const messageIdReplacements = await getAllMessageIdPairs(fragmentOldMessageIds, inboundConversationId);
       const newFragmentMessageIds = messageIdReplacements
         .map(replacement => replacement.newMessageId)
         .sort();
