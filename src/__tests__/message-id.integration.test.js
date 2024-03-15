@@ -2,7 +2,6 @@ import {
   extractReferencedFragmentMessageIds,
   parseMessageId
 } from '../services/parser/parsing-utilities';
-// import { getAllMessageIdReplacements } from '../services/database/message-id-replacement-repository';
 import { transferOutFragmentsForNewContinueRequest } from '../services/transfer/transfer-out-fragments';
 import { transferOutEhrCore } from '../services/transfer/transfer-out-ehr-core';
 import { v4 as uuidv4 } from 'uuid';

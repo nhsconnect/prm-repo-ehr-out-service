@@ -1,23 +1,13 @@
-// import {
-//   modelName as registrationRequestModel,
-//   modelName,
-//   Status
-// } from '../models/registration-request';
-// import { storeOutboundMessageIds } from '../services/database/create-message-id-replacements';
-// import { createOutboundConversation } from '../services/database/create-registration-request';
 import { createOutboundConversation } from '../services/database/dynamodb/outbound-conversation-repository';
 import { expectStructuredLogToContain, transportSpy } from '../__builders__/logging-helper';
 import { readFile, validateMessageEquality } from './utilities/integration-test.utilities';
-// import { modelName as messageIdReplacementModel } from '../models/message-id-replacement';
 import { transferOutFragmentsForNewContinueRequest } from '../services/transfer/transfer-out-fragments';
 import { transferOutEhrCore } from '../services/transfer/transfer-out-ehr-core';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../services/ehr-repo/get-ehr';
-// import { modelName as messageFragmentModel } from '../models/message-fragment';
 import { sendFragment } from '../services/gp2gp/send-fragment';
 import { sendCore } from '../services/gp2gp/send-core';
 import { agent as request } from 'supertest';
 import { logger } from '../config/logging';
-// import ModelFactory from '../models';
 import { config } from '../config';
 import expect from 'expect';
 import { v4 } from 'uuid';
@@ -47,7 +37,6 @@ jest.mock('../services/transfer/transfer-out-util', () => {
     __esModule: true,
     ...originalModule,
     patientAndPracticeOdsCodesMatch: jest.fn()
-    // updateConversationStatus: jest.fn()
   };
 });
 

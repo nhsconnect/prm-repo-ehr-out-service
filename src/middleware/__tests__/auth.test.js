@@ -3,17 +3,15 @@ import { v4 } from 'uuid';
 import { config } from '../../config';
 import { buildTestApp } from '../../__builders__/test-app';
 import { registrationRequests } from '../../api/registration-request';
-import { getRegistrationRequestByConversationId } from '../../services/database/registration-request-repository';
+import { getOutboundConversationById } from '../../services/database/dynamodb/outbound-conversation-repository';
 import { getPdsOdsCode } from '../../services/gp2gp/pds-retrieval-request';
 import { logInfo, logWarning } from '../logging';
 
-jest.mock('../../services/database/create-registration-request');
-jest.mock('../../services/database/registration-request-repository');
+jest.mock('../../services/database/dynamodb/outbound-conversation-repository');
 jest.mock('../../services/gp2gp/pds-retrieval-request');
 jest.mock('../../middleware/logging');
 jest.mock('../../config', () => ({
   config: jest.fn().mockReturnValue({
-    sequelize: { dialect: 'postgres' },
     consumerApiKeys: {
       TEST_USER: 'correct-key',
       DUPLICATE_TEST_USER: 'correct-key',
@@ -31,14 +29,19 @@ describe('auth', () => {
   describe('authenticated successfully', () => {
     it('should return HTTP 204 when correctly authenticated', async () => {
       // given
-      const registrationRequestRecord = { conversationId, nhsNumber, odsCode, status: "test-record" };
+      const registrationRequestRecord = {
+        OutboundConversationId: conversationId,
+        NhsNumber: nhsNumber,
+        DestinationGp: odsCode,
+        TransferStatus: 'test-record'
+      };
 
-      getRegistrationRequestByConversationId.mockResolvedValue(registrationRequestRecord);
+      getOutboundConversationById.mockResolvedValue(registrationRequestRecord);
       getPdsOdsCode.mockResolvedValue({ data: { data: { odsCode } } });
 
       const res = await request(testApp)
         .get(`/registration-requests/${conversationId}`)
-        .set('Authorization', 'correct-key')
+        .set('Authorization', 'correct-key');
 
       expect(res.statusCode).toBe(200);
     });
@@ -90,22 +93,27 @@ describe('auth', () => {
   describe('Auth logging', () => {
     it('should log consumer, method and url for correctly authenticated request', async () => {
       const logMessage = `Consumer: USER_2, Request: GET /registration-requests/${conversationId}`;
-      await request(testApp).get(`/registration-requests/${conversationId}`).set('Authorization', 'key_2');
+      await request(testApp)
+        .get(`/registration-requests/${conversationId}`)
+        .set('Authorization', 'key_2');
 
       expect(logInfo).toHaveBeenCalledWith(logMessage);
     });
 
     it('should log multiple consumers when they use the same key value', async () => {
-      const logMessage =
-        `Consumer: TEST_USER/DUPLICATE_TEST_USER, Request: GET /registration-requests/${conversationId}`;
-      await request(testApp).get(`/registration-requests/${conversationId}`).set('Authorization', 'correct-key');
+      const logMessage = `Consumer: TEST_USER/DUPLICATE_TEST_USER, Request: GET /registration-requests/${conversationId}`;
+      await request(testApp)
+        .get(`/registration-requests/${conversationId}`)
+        .set('Authorization', 'correct-key');
 
       expect(logInfo).toHaveBeenCalledWith(logMessage);
     });
 
     it('should log the method, url and partial api key when a request is unsuccessful', async () => {
       const logMessage = `Unsuccessful Request: GET /registration-requests/${conversationId}, API Key: ******key`;
-      await request(testApp).get(`/registration-requests/${conversationId}`).set('Authorization', 'incorrect-key');
+      await request(testApp)
+        .get(`/registration-requests/${conversationId}`)
+        .set('Authorization', 'incorrect-key');
 
       expect(logWarning).toHaveBeenCalledWith(logMessage);
     });

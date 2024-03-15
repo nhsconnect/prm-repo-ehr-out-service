@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 
-import { NhsNumberNotFoundError, OutboundConversationNotFoundError } from '../../../../errors/errors';
+import { NhsNumberNotFoundError } from '../../../../errors/errors';
 import {
   cleanupRecordsForTest,
   createInboundRecordForTest
