@@ -19,17 +19,22 @@ describe('GET /health', () => {
     expect(logDebug).toHaveBeenCalledWith('Health check completed');
   });
 
-  it('should return 503 status if db writable is false', async () => {
-    getHealthCheck.mockResolvedValue(expectedHealthCheckBase(false, true));
-    const res = await request(testApp).get('/health');
-
-    expect(res.statusCode).toBe(503);
-    expect(res.body).toEqual(expectedHealthCheckBase(false, true));
-    expect(logError).toHaveBeenCalledWith(
-      'Health check failed',
-      expectedHealthCheckBase(false, true)
-    );
-  });
+  /**
+   * @deprecated
+   * to be deleted in PRMT-4588
+   * it was decided that we will not carry out db writable test when migrated to dynamodb
+   */
+  // it('should return 503 status if db writable is false'), async () => {
+  //   getHealthCheck.mockResolvedValue(expectedHealthCheckBase(false, true));
+  //   const res = await request(testApp).get('/health');
+  //
+  //   expect(res.statusCode).toBe(503);
+  //   expect(res.body).toEqual(expectedHealthCheckBase(false, true));
+  //   expect(logError).toHaveBeenCalledWith(
+  //     'Health check failed',
+  //     expectedHealthCheckBase(false, true)
+  //   );
+  // });
 
   it('should return 500 if getHealthCheck if it cannot provide a health check', async () => {
     getHealthCheck.mockRejectedValue('some-error');
