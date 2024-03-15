@@ -1,3 +1,8 @@
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+
 import ModelFactory from '../src/models';
 
 const INTERVAL = 1000;

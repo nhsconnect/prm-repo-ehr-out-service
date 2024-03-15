@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# @deprecated
+# to be deleted in PRMT-4588
+
 NHS_SERVICE=ehr-out-service
 DB_CONNECTION_TIMEOUT=30
 
