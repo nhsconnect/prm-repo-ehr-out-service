@@ -24,7 +24,9 @@
     "db:teardown": "sequelize-cli db:migrate:undo:all"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.529.1",
     "@aws-sdk/client-sqs": "3.441.0",
+    "@aws-sdk/lib-dynamodb": "^3.529.1",
     "@babel/runtime": "^7.17.8",
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
@@ -34,6 +36,7 @@
     "fast-xml-parser": "^4.2.5",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
+    "moment-timezone": "^0.5.45",
     "npm-audit-resolver": "3.0.0-7",
     "pg": "^8.8.0",
     "sequelize": "^6.26.0",
@@ -66,7 +69,6 @@
     "wait-for-expect": "^3.0.2"
   },
   "overrides": {
-    "moment-timezone": "0.5.39",
     "json5": "2.2.2",
     "superagent": "8.0.8",
     "semver": ">=7.5.2"

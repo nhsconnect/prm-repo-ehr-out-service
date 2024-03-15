@@ -44,6 +44,10 @@ data "aws_ssm_parameter" "db-password" {
   name = "/repo/${var.environment}/user-input/${var.component_name}-db-password"
 }
 
+data "aws_ssm_parameter" "dynamodb_name" {
+  name = "/repo/${var.environment}/output/prm-deductions-infra/ehr-transfer-tracker-db-name"
+}
+
 data "aws_ssm_parameter" "deductions_private_db_subnets" {
   name = "/repo/${var.environment}/output/prm-deductions-infra/deductions-private-database-subnets"
 }
