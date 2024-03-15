@@ -1,6 +1,11 @@
 FROM node:18.2-alpine AS builder
 
+
+# PRMT-4588
+# remove postgres db dependencies in this file
+
 # install python and postgres native requirements
+
 RUN apk update && \
     apk add --no-cache bash tini postgresql-client && \
     rm -rf /var/cache/apk/*
@@ -45,9 +50,12 @@ RUN apk add --no-cache \
     && rm -rf /var/cache/apk/*
 
 COPY build/                   /app/build
-COPY database/                /app/database
-COPY build/config/database.js /app/src/config/
-COPY .sequelizerc             /app/
+#
+# @deprecated
+# to be deleted in PRMT-4588
+# COPY database/                /app/database
+# COPY build/config/database.js /app/src/config/
+# COPY .sequelizerc             /app/
 
 COPY scripts/run-server-with-db.sh /usr/bin/run-ehr-out-service
 COPY scripts/load-api-keys.sh      /app/scripts/load-api-keys.sh
