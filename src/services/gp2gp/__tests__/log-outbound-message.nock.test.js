@@ -16,8 +16,6 @@ jest.mock('../../../config', () => ({
   config: jest.fn().mockReturnValue({})
 }));
 jest.mock('../../../middleware/logging');
-// jest.mock('../../database/message-fragment-repository');
-// jest.mock('../../database/create-fragment-db-record');
 jest.mock('../../transfer/transfer-out-util');
 
 describe('logOutboundMessage', () => {

@@ -27,11 +27,9 @@ import {
 import { ConversationStatus, FailureReason } from '../../../constants/enums';
 
 // Mocking
-jest.mock('../../../services/database/create-registration-request');
 jest.mock('../../gp2gp/send-core');
 jest.mock('../../gp2gp/pds-retrieval-request');
 jest.mock('../../ehr-repo/get-ehr');
-jest.mock('../../database/registration-request-repository');
 jest.mock('../../database/dynamodb/outbound-conversation-repository');
 jest.mock('../../../middleware/logging');
 jest.mock('../transfer-out-util');
