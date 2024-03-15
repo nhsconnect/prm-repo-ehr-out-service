@@ -10,22 +10,16 @@ import {
   getFragment,
   getFragmentConversationAndMessageIdsFromEhrRepo
 } from '../../ehr-repo/get-fragment';
-// import {
-//   getAllMessageFragmentRecordsByMessageIds,
-//   getAllFragmentIdsToBeSent
-// } from '../../database/message-fragment-repository';
-// import { Status } from '../../../models/message-fragment';
-import {
-  DownloadError,
-  FragmentSendingError,
-  PresignedUrlNotFoundError
-} from '../../../errors/errors';
-// import { createFragmentDbRecord } from '../../database/create-fragment-db-record';
 import {
   getAllFragmentIdsToBeSent,
   getAllMessageIdPairs
 } from '../../database/dynamodb/ehr-fragment-repository';
 import { FailureReason, FragmentStatus } from '../../../constants/enums';
+import {
+  DownloadError,
+  FragmentSendingError,
+  PresignedUrlNotFoundError
+} from '../../../errors/errors';
 
 // Mocking
 jest.mock('../transfer-out-util');
