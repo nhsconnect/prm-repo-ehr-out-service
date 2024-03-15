@@ -73,7 +73,8 @@ describe('transferOutEhrCore', () => {
   afterEach(async () => {
     jest.resetAllMocks();
     try {
-      await cleanupRecordsForTest(INBOUND_CONVERSATION_ID);
+      await cleanupRecordsForTest(inboundConversationId);
+      // eslint-disable-next-line no-empty
     } catch (e) {}
   });
 
@@ -150,11 +151,7 @@ describe('transferOutEhrCore', () => {
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
       // then
-      expect(createOutboundConversation).toHaveBeenCalledWith(
-        conversationId,
-        nhsNumber,
-        odsCode
-      );
+      expect(createOutboundConversation).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
       expect(patientAndPracticeOdsCodesMatch).toHaveBeenCalledWith(nhsNumber, odsCode);
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
@@ -305,11 +302,7 @@ describe('transferOutEhrCore', () => {
 
       // then
       expect(getOutboundConversationById).toHaveBeenCalledWith(conversationId);
-      expect(createOutboundConversation).toHaveBeenCalledWith(
-        conversationId,
-        nhsNumber,
-        odsCode
-      );
+      expect(createOutboundConversation).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
       expect(updateConversationStatus).toHaveBeenCalledWith(
         conversationId,
         ConversationStatus.OUTBOUND_FAILED,
@@ -334,11 +327,7 @@ describe('transferOutEhrCore', () => {
 
       // then
       expect(getOutboundConversationById).toHaveBeenCalledWith(conversationId);
-      expect(createOutboundConversation).toHaveBeenCalledWith(
-        conversationId,
-        nhsNumber,
-        odsCode
-      );
+      expect(createOutboundConversation).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
       expect(patientAndPracticeOdsCodesMatch).toHaveBeenCalledWith(nhsNumber, odsCode);
       expect(logError).toHaveBeenCalledWith(errorMessage, error);
       expect(sendCore).not.toBeCalled();
