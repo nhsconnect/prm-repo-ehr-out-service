@@ -27,7 +27,7 @@ export const updateConversationStatus = async (
   conversationId,
   status,
   failureReason = null,
-  logMessage
+  logMessage = null
 ) => {
   setCurrentSpanAttributes({ conversationId });
   logInfo(`Updating conversation with status: ${status}`);

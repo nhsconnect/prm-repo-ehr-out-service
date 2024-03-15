@@ -87,8 +87,8 @@ export const buildParamsToClearPreviousOutboundRecord = item => {
       Layer: item.Layer
     },
     UpdateExpression:
-      'SET UpdatedAt = :now, TransferStatus = :restoredStatus \
-       REMOVE OutboundConversationId, OutboundMessageId',
+      'SET UpdatedAt = :now, TransferStatus = :restoredStatus ' +
+      'REMOVE OutboundConversationId, OutboundMessageId',
     ExpressionAttributeValues: {
       ':now': getUKTimestamp(),
       ':restoredStatus': restoredStatus
