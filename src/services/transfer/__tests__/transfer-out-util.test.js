@@ -4,8 +4,7 @@ import nock from 'nock';
 import { setCurrentSpanAttributes } from '../../../config/tracing';
 import { errorMessages, StatusUpdateError } from '../../../errors/errors';
 import { logError, logInfo } from '../../../middleware/logging';
-import { Status } from '../../../models/message-fragment';
-// import { storeOutboundMessageIds } from '../../database/create-message-id-replacements';
+import { ConversationStatus, FragmentStatus } from '../../../constants/enums';
 import { getPdsOdsCode } from '../../gp2gp/pds-retrieval-request';
 import {
   createAndStoreOutboundMessageIds,
@@ -120,7 +119,7 @@ describe('testTransferOutUtil', () => {
 
   describe('updateConversationStatus', () => {
     // ============ COMMON PROPERTIES ============
-    const STATUS = Status.FRAGMENT_REQUEST_RECEIVED;
+    const STATUS = ConversationStatus.OUTBOUND_STARTED;
     const LOG_MESSAGE = 'This is an example log message';
     // =================== END ===================
 
@@ -163,7 +162,7 @@ describe('testTransferOutUtil', () => {
 
   describe('updateFragmentStatus', () => {
     // ============ COMMON PROPERTIES ============
-    const STATUS = Status.INCORRECT_ODS_CODE;
+    const STATUS = FragmentStatus.OUTBOUND_FAILED;
     // =================== END ===================
 
     it('should update the fragment status successfully', async () => {
