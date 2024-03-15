@@ -68,12 +68,16 @@ export class EhrTransferTracker {
           }
         }))
       });
-      await this.client.send(command);
+      try {
+        await this.client.send(command);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
   async updateSingleItem(updateParams) {
-    logInfo(`Updating dynamodb record with params: ${updateParams}`);
+    logInfo(`Updating dynamodb record with params: ${JSON.stringify(updateParams)}`);
     const command = new UpdateCommand({
       TableName: this.tableName,
       ...updateParams
@@ -87,7 +91,7 @@ export class EhrTransferTracker {
       throw new TypeError('The given argument `updateParams` is not an array');
     }
 
-    logInfo(`Updating dynamodb record with params: ${updateParams}`);
+    logInfo(`Updating dynamodb record with params: ${JSON.stringify(updateParams)}`);
     const command = new TransactWriteCommand({
       TransactItems: updateParams.map(params => ({
         Update: {
