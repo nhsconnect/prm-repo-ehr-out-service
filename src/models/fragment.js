@@ -2,6 +2,8 @@ import { FragmentStatus, RecordType } from '../constants/enums';
 import { validate } from 'uuid';
 import { getUKTimestamp } from '../services/time';
 import { addChangesToUpdateParams } from '../utilities/dynamodb-helper';
+import { ValidationError } from '../errors/errors';
+import { logInfo } from '../middleware/logging';
 
 const fieldsAllowedToUpdate = [
   'TransferStatus',
@@ -31,7 +33,10 @@ export const buildFragmentUpdateParams = (inboundConversationId, inboundMessageI
 const validateIds = (conversationId, messageId) => {
   const uuidsAreValid = validate(conversationId) && validate(messageId);
   if (!uuidsAreValid) {
-    throw new Error('received invalid uuid as either conversationId or messageId');
+    throw new ValidationError(
+      'received invalid uuid as either conversationId or messageId. ' +
+        `ConversationId: ${conversationId}, messageId: ${messageId}`
+    );
   }
 };
 

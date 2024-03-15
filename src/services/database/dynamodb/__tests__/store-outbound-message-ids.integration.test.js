@@ -143,8 +143,4 @@ describe('storeOutboundMessageIds', () => {
       expect.stringMatching('OutboundMessageIds must be valid UUID')
     );
   });
-
-  // Note: Not migrating old test:
-  // it('should throw an error when try to register again with the same oldMessageId')
-  // as irrelavant in new database scheme
 });

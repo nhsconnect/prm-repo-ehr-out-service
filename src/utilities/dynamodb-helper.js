@@ -26,6 +26,11 @@ export const buildBaseQueryParams = (
     case QueryKeyType.NhsNumber:
     case QueryKeyType.OutboundConversationId:
       queryParams.IndexName = `${queryKeyType}SecondaryIndex`;
+      break;
+    case QueryKeyType.InboundConversationId:
+      break;
+    default:
+      logError(`Got unexpected queryKeyType: ${queryKeyType}`);
   }
 
   return queryParams;
