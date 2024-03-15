@@ -1,7 +1,4 @@
-import {
-  PresignedUrlNotFoundError,
-  DownloadError,
-} from '../../errors/errors';
+import { PresignedUrlNotFoundError, DownloadError } from '../../errors/errors';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../ehr-repo/get-ehr';
 import { setCurrentSpanAttributes } from '../../config/tracing';
@@ -115,14 +112,13 @@ const handleCoreTransferError = async (error, conversationId) => {
       );
       break;
     default:
-      try {
-        await updateConversationStatus(
-          conversationId,
-          ConversationStatus.OUTBOUND_FAILED,
-          FailureReason.CORE_SENDING_FAILED
-        );
-      } catch (e) {
-        logError('EHR transfer out request failed', error);
-      }
+      logError('EHR transfer out request failed', error);
+      await updateConversationStatus(
+        conversationId,
+        ConversationStatus.OUTBOUND_FAILED,
+        FailureReason.CORE_SENDING_FAILED
+      ).catch(error => {
+        logError('Could not update status due to error', error);
+      });
   }
 };

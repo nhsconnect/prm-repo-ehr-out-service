@@ -152,7 +152,6 @@ describe('transferOutEhrCore', () => {
       // then
       expect(createOutboundConversation).toHaveBeenCalledWith(
         conversationId,
-        messageId,
         nhsNumber,
         odsCode
       );
@@ -271,6 +270,7 @@ describe('transferOutEhrCore', () => {
       const error = new Error('test error message');
 
       // when
+      updateConversationStatus.mockResolvedValueOnce();
       getOutboundConversationById.mockRejectedValueOnce(error);
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
@@ -307,7 +307,6 @@ describe('transferOutEhrCore', () => {
       expect(getOutboundConversationById).toHaveBeenCalledWith(conversationId);
       expect(createOutboundConversation).toHaveBeenCalledWith(
         conversationId,
-        messageId,
         nhsNumber,
         odsCode
       );
@@ -329,7 +328,7 @@ describe('transferOutEhrCore', () => {
       getOutboundConversationById.mockResolvedValueOnce(null);
       createOutboundConversation.mockResolvedValueOnce(undefined);
       patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
-      updateConversationStatus.mockRejectedValueOnce(error);
+      updateConversationStatus.mockRejectedValue(error);
 
       await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
 
@@ -337,7 +336,6 @@ describe('transferOutEhrCore', () => {
       expect(getOutboundConversationById).toHaveBeenCalledWith(conversationId);
       expect(createOutboundConversation).toHaveBeenCalledWith(
         conversationId,
-        messageId,
         nhsNumber,
         odsCode
       );
@@ -351,7 +349,7 @@ describe('transferOutEhrCore', () => {
       getOutboundConversationById.mockResolvedValueOnce(null);
       createOutboundConversation.mockResolvedValueOnce(undefined);
       patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
-      updateConversationStatus.mockResolvedValueOnce(undefined);
+      updateConversationStatus.mockResolvedValue(undefined);
       getEhrCoreAndFragmentIdsFromRepo.mockResolvedValueOnce({ ehrCore, fragmentMessageIds });
       replaceMessageIdsInObject.mockImplementationOnce(() => {
         throw new MessageIdUpdateError();
