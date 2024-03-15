@@ -6,6 +6,11 @@ import {logInfo} from "../../middleware/logging";
 const MessageIdReplacement = ModelFactory.getByName(modelName);
 
 export const getAllMessageIdReplacements = async oldMessageIds => {
+  /**
+   * @deprecated
+   * replaced by new method `getAllMessageIdPairs`
+   * to be deleted in PRMT-4588
+   */
   return MessageIdReplacement.findAll({
     where: {
       oldMessageId: oldMessageIds

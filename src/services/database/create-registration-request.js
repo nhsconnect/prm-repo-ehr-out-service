@@ -6,6 +6,11 @@ import ModelFactory from '../../models';
 const RegistrationRequest = ModelFactory.getByName(modelName);
 
 export const createRegistrationRequest = (conversationId, messageId, nhsNumber, odsCode) =>
+  /**
+   * @deprecated
+   * to be replaced by new method `createOutboundConversation`
+   * to be deleted in PRMT-4588
+   */
   runWithinTransaction(transaction =>
     RegistrationRequest.create(
       {

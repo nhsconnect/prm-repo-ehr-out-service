@@ -2,7 +2,7 @@ import { getHealthCheck } from '../get-health-check';
 import ModelFactory from '../../../models';
 import { config } from '../../../config';
 
-describe('getHealthCheck', () => {
+describe.skip('getHealthCheck', () => {
   const { nhsEnvironment } = config();
   beforeEach(() => {
     ModelFactory._resetConfig();

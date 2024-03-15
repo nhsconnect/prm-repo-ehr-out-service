@@ -1,9 +1,15 @@
-import { TransactWriteCommand, QueryCommand, GetCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  TransactWriteCommand,
+  QueryCommand,
+  GetCommand,
+  UpdateCommand
+} from '@aws-sdk/lib-dynamodb';
 
-import { logError, logInfo } from '../../middleware/logging';
-import { RecordType } from '../../constants/enums';
+import { logError, logInfo } from '../../../middleware/logging';
+import { QueryKeyType, RecordType } from '../../../constants/enums';
 import { getDynamodbClient } from './dynamodb-client';
-import { IS_IN_LOCAL } from '../../utilities/integration-test-utilities';
+import { IS_IN_LOCAL } from '../../../utilities/integration-test-utilities';
+import { buildBaseQueryParams } from '../../../utilities/dynamodb-helper';
 
 export class EhrTransferTracker {
   /**
@@ -40,9 +46,11 @@ export class EhrTransferTracker {
   }
 
   async writeItemsInTransaction(items) {
+    logInfo(`Writing ${items.length} items to dynamodb table`);
     if (!items || !Array.isArray(items)) {
       throw new TypeError('The given argument `items` is not an array');
     }
+
     const command = new TransactWriteCommand({
       TransactItems: items.map(item => ({
         Put: {
@@ -55,10 +63,21 @@ export class EhrTransferTracker {
     await this.client.send(command);
   }
 
+  async updateSingleItem(updateParams) {
+    logInfo(`Updating dynamodb record with params: ${updateParams}`);
+    const command = new UpdateCommand({
+      TableName: this.tableName,
+      ...updateParams
+    });
+    await this.client.send(command);
+  }
+
   async updateItemsInTransaction(updateParams) {
     if (!updateParams || !Array.isArray(updateParams)) {
       throw new TypeError('The given argument `updateParams` is not an array');
     }
+
+    logInfo(`Updating dynamodb record with params: ${updateParams}`);
     const command = new TransactWriteCommand({
       TransactItems: updateParams.map(params => ({
         Update: {
@@ -71,47 +90,9 @@ export class EhrTransferTracker {
     await this.client.send(command);
   }
 
-  async queryTableByNhsNumber(nhsNumber, includeDeletedRecord = false) {
-    const params = {
-      TableName: this.tableName,
-      IndexName: 'NhsNumberSecondaryIndex',
-      ExpressionAttributeValues: {
-        ':nhsNumber': nhsNumber
-      },
-      ExpressionAttributeNames: {
-        '#NhsNumber': 'NhsNumber'
-      },
-      KeyConditionExpression: '#NhsNumber = :nhsNumber'
-    };
-    if (!includeDeletedRecord) {
-      params.FilterExpression = 'attribute_not_exists(DeletedAt)';
-    }
-    const command = new QueryCommand(params);
+  async queryTable(baseQueryParams, recordType = RecordType.ALL, includeDeletedRecord = false) {
+    const params = { ...baseQueryParams, TableName: this.tableName };
 
-    const response = await this.client.send(command);
-    const items = response?.Items;
-    if (!items) {
-      logError('Received an empty response from dynamodb during query');
-      return [];
-    }
-    return items;
-  }
-
-  async queryTableByConversationId(
-    inboundConversationId,
-    recordType = RecordType.ALL,
-    includeDeletedRecord = false
-  ) {
-    const params = {
-      TableName: this.tableName,
-      ExpressionAttributeNames: {
-        '#PrimaryKey': 'InboundConversationId'
-      },
-      ExpressionAttributeValues: {
-        ':InboundConversationId': inboundConversationId
-      },
-      KeyConditionExpression: '#PrimaryKey = :InboundConversationId'
-    };
     if (!includeDeletedRecord) {
       params.FilterExpression = 'attribute_not_exists(DeletedAt)';
     }
@@ -130,6 +111,7 @@ export class EhrTransferTracker {
         logInfo(`Received unexpected queryType: ${recordType}. Will treat it as 'ALL'.`);
     }
 
+    logInfo(`Running a query to dynamodb table with below params: ${params}`);
     const command = new QueryCommand(params);
 
     const response = await this.client.send(command);
@@ -139,6 +121,32 @@ export class EhrTransferTracker {
       return [];
     }
     return items;
+  }
+
+  async queryTableByNhsNumber(nhsNumber, includeDeletedRecord = false) {
+    const baseQueryParams = buildBaseQueryParams(nhsNumber, QueryKeyType.NhsNumber);
+
+    return this.queryTable(baseQueryParams, RecordType.ALL, includeDeletedRecord);
+  }
+
+  async queryTableByOutboundConversationId(outboundConversationId, includeDeletedRecord = false) {
+    const baseQueryParams = buildBaseQueryParams(
+      outboundConversationId,
+      QueryKeyType.OutboundConversationId
+    );
+    return this.queryTable(baseQueryParams, RecordType.ALL, includeDeletedRecord);
+  }
+
+  async queryTableByInboundConversationId(
+    inboundConversationId,
+    recordType = RecordType.ALL,
+    includeDeletedRecord = false
+  ) {
+    const baseQueryParams = buildBaseQueryParams(
+      inboundConversationId,
+      QueryKeyType.InboundConversationId
+    );
+    return this.queryTable(baseQueryParams, recordType, includeDeletedRecord);
   }
 
   async getItemByKey(inboundConversationId, inboundMessageId, recordType) {
@@ -159,10 +167,17 @@ export class EhrTransferTracker {
       }
     });
 
+    const queryKeyAsString = JSON.stringify({
+      inboundConversationId,
+      recordType,
+      inboundMessageId
+    });
+    logInfo(`Running a getItem action with below key: ${queryKeyAsString}`);
+
     const response = await this.client.send(command);
 
     if (!response?.Item) {
-      logError('Received an empty response from dynamodb during query');
+      logError('Received an empty response from dynamodb during getItem');
     }
     return response?.Item ?? null;
   }
