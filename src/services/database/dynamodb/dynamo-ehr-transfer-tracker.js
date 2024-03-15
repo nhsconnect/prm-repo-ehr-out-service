@@ -68,11 +68,7 @@ export class EhrTransferTracker {
           }
         }))
       });
-      try {
-        await this.client.send(command);
-      } catch (e) {
-        console.error(e);
-      }
+      await this.client.send(command);
     }
   }
 
@@ -86,22 +82,32 @@ export class EhrTransferTracker {
   }
 
   async updateItemsInTransaction(updateParams) {
-    // TODO: address the issue of max 100 items in transaction
     if (!updateParams || !Array.isArray(updateParams)) {
       throw new TypeError('The given argument `updateParams` is not an array');
     }
 
-    logInfo(`Updating dynamodb record with params: ${JSON.stringify(updateParams)}`);
-    const command = new TransactWriteCommand({
-      TransactItems: updateParams.map(params => ({
-        Update: {
-          TableName: this.tableName,
-          ...params
-        }
-      }))
-    });
+    if (updateParams.length > 100) {
+      logWarning('Cannot update all items in a single transaction due to limitation of dynamodb.');
+      logWarning('Will update the items in multiple transactions');
+      logWarning('If failed, a complete rollback cannot be guaranteed.');
+    }
 
-    await this.client.send(command);
+    logInfo(`Updating dynamodb record with params: ${JSON.stringify(updateParams)}`);
+
+    const splitItemBy100 = chunk(updateParams, 100);
+
+    for (const batch of splitItemBy100) {
+      logInfo(`Updating dynamodb record with params: ${JSON.stringify(batch)}`);
+      const command = new TransactWriteCommand({
+        TransactItems: batch.map(params => ({
+          Update: {
+            TableName: this.tableName,
+            ...params
+          }
+        }))
+      });
+      await this.client.send(command);
+    }
   }
 
   async queryTable(baseQueryParams, recordType = RecordType.ALL, includeDeletedRecord = false) {
