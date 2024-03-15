@@ -126,8 +126,6 @@ export class EhrTransferTracker {
   async queryTableByNhsNumber(nhsNumber, includeDeletedRecord = false) {
     const baseQueryParams = buildBaseQueryParams(nhsNumber, QueryKeyType.NhsNumber);
 
-    // Note: 2nd argument for below call should fixed as RecordType.ALL,
-    // As dynamodb currently does not support GSI query with sort key in key condition filter
     return this.queryTable(baseQueryParams, RecordType.ALL, includeDeletedRecord);
   }
 
