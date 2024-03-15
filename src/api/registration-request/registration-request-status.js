@@ -1,5 +1,5 @@
 import { param } from 'express-validator';
-import { getRegistrationRequestByConversationId } from '../../services/database/registration-request-repository';
+import { getOutboundConversationById } from '../../services/database/dynamodb/outbound-conversation-repository';
 import { logError, logInfo } from '../../middleware/logging';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 
@@ -11,14 +11,19 @@ export const registrationRequestStatusValidationRules = [
 export const registrationRequestStatus = async (req, res) => {
   try {
     setCurrentSpanAttributes({ conversationId: req.params.conversationId });
-    const registrationRequest = await getRegistrationRequestByConversationId(req.params.conversationId);
+    const registrationRequest = await getOutboundConversationById(req.params.conversationId);
 
     if (registrationRequest === null) {
       logInfo('Registration not found');
       return res.sendStatus(404);
     }
 
-    const { conversationId, nhsNumber, odsCode, status } = registrationRequest;
+    const {
+      OutboundConversationId: conversationId,
+      NhsNumber: nhsNumber,
+      DestinationGp: odsCode,
+      TransferStatus: status
+    } = registrationRequest;
 
     const data = {
       data: {
