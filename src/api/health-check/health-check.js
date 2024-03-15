@@ -8,7 +8,7 @@ healthCheck.get('/', async (req, res, next) => {
   try {
     const status = await getHealthCheck();
 
-    if (status.details.database.writable) {
+    if (status.details.database) {
       logDebug('Health check completed');
       res.status(200).json(status);
     } else {

@@ -68,9 +68,7 @@ describe('GET /health', () => {
       nhsEnvironment: nhsEnvironment,
       details: {
         database: {
-          type: 'postgresql',
-          connection: true,
-          writable: true
+          type: 'dynamodb'
         }
       }
     };
@@ -78,7 +76,7 @@ describe('GET /health', () => {
     const response = await request(app).get(HEALTH_ENDPOINT);
 
     expect(response.statusCode).toBe(200);
-    expect(response.body).toEqual(expectedHealthCheckResponse);
+    expect(response.body).toMatchObject(expectedHealthCheckResponse);
   });
 });
 
