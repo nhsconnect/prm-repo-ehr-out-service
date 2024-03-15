@@ -1,5 +1,5 @@
 export const RecordType = {
-  ALL: 'ALL',
+  ALL: 'ALL', // Option for querying all layers in one call
   CONVERSATION: 'CONVERSATION',
   CORE: 'CORE',
   FRAGMENT: 'FRAGMENT'

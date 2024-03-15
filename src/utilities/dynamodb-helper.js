@@ -9,6 +9,7 @@ export const validateIds = (conversationId, messageId) => {
     throw new Error('received invalid uuid as either conversationId or messageId');
   }
 };
+
 export const addChangesToUpdateParams = (params, changes, fieldsAllowedToUpdate) => {
   for (const [fieldName, updatedValue] of Object.entries(changes)) {
     if (!fieldsAllowedToUpdate.includes(fieldName)) {
