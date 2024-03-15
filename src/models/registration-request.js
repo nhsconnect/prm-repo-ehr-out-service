@@ -1,9 +1,13 @@
 import { getParameters } from './parameters';
 
-export const modelName = 'RegistrationRequest';
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+const modelName = 'RegistrationRequest';
 const tableName = 'registration_requests';
 
-export const Status = {
+const Status = {
   // PRIMARY PATH
   REGISTRATION_REQUEST_RECEIVED: 'registration_request_received',
   ODS_VALIDATION_CHECKS_PASSED: 'ods_validation_checks_passed',
@@ -70,6 +74,6 @@ const model = dataType => ({
   }
 });
 
-export default (sequelize, DataTypes) => {
-  return sequelize.define(modelName, model(DataTypes), getParameters(tableName));
-};
+// export default (sequelize, DataTypes) => {
+//   return sequelize.define(modelName, model(DataTypes), getParameters(tableName));
+// };

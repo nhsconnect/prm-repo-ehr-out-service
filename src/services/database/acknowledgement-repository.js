@@ -5,7 +5,7 @@ import ModelFactory from '../../models';
 
 const Acknowledgement = ModelFactory.getByName(modelName);
 
-export const getAcknowledgementByMessageId = async messageId => {
+const getAcknowledgementByMessageId = async messageId => {
   /**
    * @deprecated
    * to be deleted in PRMT-4588

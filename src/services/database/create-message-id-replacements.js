@@ -6,7 +6,7 @@ import { errorMessages } from '../../errors/errors';
 
 const MessageIdReplacement = ModelFactory.getByName(modelName);
 
-export const createMessageIdReplacements = async messageIdReplacements =>
+const createMessageIdReplacements = async messageIdReplacements =>
   /**
    * @deprecated
    * to be replaced by new method `storeOutboundMessageIds`

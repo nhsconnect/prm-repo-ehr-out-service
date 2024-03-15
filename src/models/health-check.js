@@ -3,6 +3,10 @@ import { getParameters } from './parameters';
 export const modelName = 'HealthCheck';
 const tableName = 'health_checks';
 
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
 const model = dataType => ({
   id: {
     field: 'id',
@@ -26,8 +30,8 @@ const model = dataType => ({
   }
 });
 
-export default (sequelize, DataTypes) => {
-  return sequelize.define(modelName, model(DataTypes), {
-    ...getParameters(tableName)
-  });
-};
+// export default (sequelize, DataTypes) => {
+//   return sequelize.define(modelName, model(DataTypes), {
+//     ...getParameters(tableName)
+//   });
+// };

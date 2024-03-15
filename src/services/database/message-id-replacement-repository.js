@@ -5,7 +5,7 @@ import {logInfo} from "../../middleware/logging";
 
 const MessageIdReplacement = ModelFactory.getByName(modelName);
 
-export const getAllMessageIdReplacements = async oldMessageIds => {
+const getAllMessageIdReplacements = async oldMessageIds => {
   /**
    * @deprecated
    * replaced by new method `getAllMessageIdPairs`

@@ -5,7 +5,7 @@ import ModelFactory from '../../models';
 
 const MessageFragment = ModelFactory.getByName(modelName);
 
-export const createFragmentDbRecord = (messageId, conversationId) => {
+const createFragmentDbRecord = (messageId, conversationId) => {
   /**
    * @deprecated
    * Not necessary after migrated to dynamodb.

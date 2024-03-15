@@ -6,7 +6,7 @@ import { Op } from 'sequelize';
 
 const MessageFragment = ModelFactory.getByName(modelName);
 
-export const getMessageFragmentRecordByMessageId = messageId => {
+const getMessageFragmentRecordByMessageId = messageId => {
   /**
    * @deprecated
    * seems to be only used in this module or in tests.
@@ -17,7 +17,7 @@ export const getMessageFragmentRecordByMessageId = messageId => {
   return MessageFragment.findByPk(messageId);
 };
 
-export const getAllMessageFragmentRecordsByMessageIds = messageIds => {
+const getAllMessageFragmentRecordsByMessageIds = messageIds => {
   /**
    * @deprecated
    * seems to be only used in tests. will not make replacement for this method.
@@ -36,7 +36,7 @@ export const getAllMessageFragmentRecordsByMessageIds = messageIds => {
   });
 };
 
-export const updateMessageFragmentRecordStatus = (messageId, status) => {
+const updateMessageFragmentRecordStatus = (messageId, status) => {
   /**
    * @deprecated
    * replaced by new method `updateFragmentStatusInDb`
@@ -54,7 +54,7 @@ export const updateMessageFragmentRecordStatus = (messageId, status) => {
     .then(() => logInfo('Updated message fragment status has been stored'));
 };
 
-export const getAllFragmentOutboundMessageIdsEligibleToBeSent = conversationId => {
+const getAllFragmentOutboundMessageIdsEligibleToBeSent = conversationId => {
   /**
    * @deprecated
    * replaced by new method `getAllFragmentIdsToBeSent`

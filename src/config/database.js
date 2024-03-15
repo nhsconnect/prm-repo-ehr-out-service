@@ -1,3 +1,7 @@
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
 const use_ssl = process.env.USE_SSL_FOR_DB === 'true';
 const use_rds_credentials = process.env.USE_AWS_RDS_CREDENTIALS === 'true';
 
@@ -24,4 +28,4 @@ if (use_ssl) {
   };
 }
 
-module.exports = databaseConfig;
+// module.exports = databaseConfig;

@@ -5,7 +5,7 @@ import { modelName } from '../../models/acknowledgements';
 
 const Acknowledgement = ModelFactory.getByName(modelName);
 
-export const createAcknowledgement = (parsedAcknowledgementMessage) =>
+const createAcknowledgement = (parsedAcknowledgementMessage) =>
   /**
    * @deprecated
    * replaced by new method `storeAcknowledgement`

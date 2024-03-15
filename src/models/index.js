@@ -7,12 +7,16 @@ import { logError, logInfo } from '../middleware/logging';
 
 AWS.config.logger = console;
 
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
 class ModelFactory {
   constructor() {
     this.db = {};
     this.sequelize = {};
-    this.config = config().sequelize;
-    this._resetConfig();
+    // this.config = config().sequelize;
+    // this._resetConfig();
   }
 
   _overrideConfig(key, value) {

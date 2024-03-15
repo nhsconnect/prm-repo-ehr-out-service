@@ -2,12 +2,14 @@ import { ERROR_CODES } from "../../constants/postgres-error-codes";
 import { modelName } from '../../models/health-check';
 import ModelFactory from '../../models';
 
-export const checkDbHealth = async () => {
-  /**
-   * @deprecated
-   * no replacement intended as the health-check logic is Postgres-db specific
-   * to be deleted in PRMT-4588
-   */
+/**
+ * @deprecated
+ * no replacement intended as the health-check logic is Postgres-db specific
+ * to be deleted in PRMT-4588
+ */
+
+const checkDbHealth = async () => {
+
   const HealthCheck = ModelFactory.getByName(modelName);
 
   try {

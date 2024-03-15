@@ -16,7 +16,7 @@ const getRegistrationRequestByConversationId = async conversationId => {
   return await RegistrationRequest.findByPk(conversationId);
 };
 
-export const getNhsNumberByConversationId = conversationId => {
+const getNhsNumberByConversationId = conversationId => {
   /**
    * @deprecated
    * replaced by new method `getNhsNumberByOutboundConversationId`
@@ -48,7 +48,7 @@ const updateRegistrationRequestStatus = async (conversationId, status) => {
   });
 };
 
-export const updateRegistrationRequestMessageId = async (originalMessageId, updatedMessageId) => {
+const updateRegistrationRequestMessageId = async (originalMessageId, updatedMessageId) => {
   /**
    * @deprecated
    * redundant in new database schema, as the core messageId will be stored at core level
@@ -66,7 +66,7 @@ export const updateRegistrationRequestMessageId = async (originalMessageId, upda
   });
 };
 
-export const registrationRequestExistsWithMessageId = async messageId => {
+const registrationRequestExistsWithMessageId = async messageId => {
   /**
    * @deprecated
    * to be replaced by new method `messageIdMatchOutboundCore`

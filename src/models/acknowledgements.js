@@ -1,6 +1,10 @@
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
 import { getParameters } from './parameters';
 
-export const modelName = 'Acknowledgement';
+const modelName = 'Acknowledgement';
 const tableName = 'acknowledgements';
 
 const model = dataType => ({
@@ -51,6 +55,6 @@ const model = dataType => ({
     }
 });
 
-export default (sequelize, DataTypes) => {
-    return sequelize.define(modelName, model(DataTypes), getParameters(tableName));
-};
+// export default (sequelize, DataTypes) => {
+//     return sequelize.define(modelName, model(DataTypes), getParameters(tableName));
+// };
