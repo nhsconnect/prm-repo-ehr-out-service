@@ -1,9 +1,13 @@
 import { getParameters } from './parameters';
 
-export const modelName = 'MessageFragment';
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+const modelName = 'MessageFragment';
 const tableName = 'message_fragment';
 
-export const Status = {
+const Status = {
     // PRIMARY PATH
     FRAGMENT_REQUEST_RECEIVED: 'fragment_request_received',
     SENT_FRAGMENT: 'sent_fragment',
@@ -48,6 +52,6 @@ const model = dataType => ({
     }
 });
 
-export default (sequelize, DataTypes) => {
-    return sequelize.define(modelName, model(DataTypes), getParameters(tableName));
-};
+// export default (sequelize, DataTypes) => {
+//     return sequelize.define(modelName, model(DataTypes), getParameters(tableName));
+// };

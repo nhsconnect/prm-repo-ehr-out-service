@@ -1,16 +1,19 @@
 import { config } from '../../config';
-import { checkDbHealth } from '../database/check-db-health';
+import { EhrTransferTracker } from '../database/dynamodb/dynamo-ehr-transfer-tracker';
 
 export const getHealthCheck = async () => {
   const { nhsEnvironment } = config();
-  const dbHealthCheck = await checkDbHealth();
+  const db = EhrTransferTracker.getInstance();
 
   return {
     version: '1',
     description: 'Health of ehr-out-service',
     nhsEnvironment: nhsEnvironment,
     details: {
-      database: dbHealthCheck
+      database: {
+        type: 'dynamodb',
+        status: `is tableName configured: ${db.tableName !== undefined}`
+      }
     }
   };
 };

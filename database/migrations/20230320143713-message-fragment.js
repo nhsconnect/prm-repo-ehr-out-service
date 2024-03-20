@@ -1,3 +1,7 @@
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
 'use strict';
 
 const tableName = 'message_fragment';

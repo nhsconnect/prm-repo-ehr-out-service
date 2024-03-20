@@ -1,45 +1,63 @@
-import ModelFactory from '../models';
-import { modelName as registrationRequestModel } from '../models/registration-request';
-import { createRegistrationRequest } from "../services/database/create-registration-request";
-import { logInfo } from "../middleware/logging";
-import { createRandomUUID } from "../services/gp2gp/__tests__/test-utils";
+import { v4 as uuid } from 'uuid';
+import { EhrTransferTracker } from '../services/database/dynamodb/dynamo-ehr-transfer-tracker';
+import {
+  cleanupRecordsForTest,
+  createInboundRecordForTest
+} from '../utilities/integration-test-utilities';
+import { FragmentStatus } from '../constants/enums';
+import { isFragment } from '../models/fragment';
+import { updateFragmentStatusInDb } from '../services/database/dynamodb/ehr-fragment-repository';
+
+jest.mock('../middleware/logging');
 
 describe('Database connection test', () => {
-  const RegistrationRequest = ModelFactory.getByName(registrationRequestModel);
+  // ================ CONSTANTS AND SETUPS =====================
+  const NUMBER_OF_TRANSACTIONS = 100;
 
-  beforeAll(async () => {
-    await RegistrationRequest.sync({ force: true });
+  const INBOUND_CONVERSATION_ID = uuid();
+  const NHS_NUMBER = '9000000001';
+  const INBOUND_CORE_MESSAGE_ID = uuid();
+  const INBOUND_FRAGMENT_IDS = Array(NUMBER_OF_TRANSACTIONS)
+    .fill('')
+    .map(() => uuid());
+  const db = EhrTransferTracker.getInstance();
+
+  beforeEach(async () => {
+    await createInboundRecordForTest(
+      INBOUND_CONVERSATION_ID,
+      NHS_NUMBER,
+      INBOUND_CORE_MESSAGE_ID,
+      INBOUND_FRAGMENT_IDS
+    );
   });
 
-  afterAll(async () => {
-    await RegistrationRequest.truncate();
-    await RegistrationRequest.sync({ force: true });
-    await RegistrationRequest.sequelize.close();
+  afterEach(async () => {
+    await cleanupRecordsForTest(INBOUND_CONVERSATION_ID);
   });
 
   it('should verify that the database connection pool is able to handle 100 concurrent transactions simultaneously', async () => {
     // given
-    const numberOfTransactions = 100;
-    const nhsNumber = 1234567890;
-    const odsCode = "B00145";
     const databaseOperationPromises = [];
-
-    // when
-    for (let i = 0; i < numberOfTransactions; i++) {
-      const [conversationId, messageId] = createRandomUUID(2);
-
+    for (const fragmentMessageId of INBOUND_FRAGMENT_IDS) {
       databaseOperationPromises.push(
-          createRegistrationRequest(conversationId, messageId, nhsNumber, odsCode)
+        updateFragmentStatusInDb(
+          INBOUND_CONVERSATION_ID,
+          fragmentMessageId,
+          FragmentStatus.OUTBOUND_SENT
+        )
       );
     }
 
-    await Promise.all(databaseOperationPromises).then(() => {
-      logInfo("Database operations complete!");
-    });
+    // when
+    await Promise.all(databaseOperationPromises);
 
-    const registrationRequestCount = await RegistrationRequest.count();
-
+    const recordsAfterTransaction = await db.queryTableByInboundConversationId(
+      INBOUND_CONVERSATION_ID
+    );
+    const fragments = recordsAfterTransaction.filter(isFragment);
     // then
-    expect(registrationRequestCount).toEqual(numberOfTransactions);
+    fragments.forEach(fragment => {
+      expect(fragment.TransferStatus).toEqual(FragmentStatus.OUTBOUND_SENT);
+    });
   });
 });

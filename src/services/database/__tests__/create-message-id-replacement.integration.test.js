@@ -9,7 +9,11 @@ import { errorMessages } from '../../../errors/errors';
 
 jest.mock('../../../middleware/logging');
 
-describe('createMessageIdReplacement', () => {
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+describe.skip('createMessageIdReplacement', () => {
   afterAll(() => {
     // close the db connection to avoid "Jest did not exit" warning messages
     MessageIdReplacement.sequelize.close();

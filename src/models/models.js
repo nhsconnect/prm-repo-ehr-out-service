@@ -4,4 +4,9 @@ import MessageFragment from './message-fragment';
 import MessageIdReplacement from './message-id-replacement';
 import Acknowledgement from "./acknowledgements";
 
-export { HealthCheck, RegistrationRequest, MessageFragment, MessageIdReplacement, Acknowledgement };
+
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+// export { HealthCheck, RegistrationRequest, MessageFragment, MessageIdReplacement, Acknowledgement };

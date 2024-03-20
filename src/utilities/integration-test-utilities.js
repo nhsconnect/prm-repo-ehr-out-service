@@ -1,11 +1,12 @@
+import chunk from 'lodash.chunk';
 import { getUKTimestamp } from '../services/time';
-import { EhrTransferTracker } from '../services/database/dynamo-ehr-transfer-tracker';
+import { EhrTransferTracker } from '../services/database/dynamodb/dynamo-ehr-transfer-tracker';
 import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { ConversationStatus, CoreStatus, FragmentStatus, RecordType } from '../constants/enums';
 
 export const IS_IN_LOCAL = process.env.NHS_ENVIRONMENT === 'local' || !process.env.NHS_ENVIRONMENT;
 
-export const createCompleteRecordForTest = async (
+export const createInboundRecordForTest = async (
   conversationId,
   nhsNumber,
   coreMessageId,
@@ -27,26 +28,28 @@ export const createCompleteRecordForTest = async (
     NhsNumber: nhsNumber,
     CreatedAt: timestamp,
     UpdatedAt: timestamp,
-    TransferStatus: ConversationStatus.COMPLETE
+    TransferStatus: ConversationStatus.INBOUND_COMPLETE
   };
 
   const core = {
     InboundConversationId: conversationId,
-    Layer: [RecordType.CORE, coreMessageId].join('#'),
+    Layer: RecordType.CORE,
+    InboundMessageId: coreMessageId,
     CreatedAt: timestamp,
     UpdatedAt: timestamp,
     ReceivedAt: timestamp,
-    TransferStatus: CoreStatus.COMPLETE
+    TransferStatus: CoreStatus.INBOUND_COMPLETE
   };
 
   const fragments = fragmentMessageIds.map(fragmentId => ({
     InboundConversationId: conversationId,
     Layer: [RecordType.FRAGMENT, fragmentId].join('#'),
+    InboundMessageId: fragmentId,
     ParentId: coreMessageId,
     CreatedAt: timestamp,
     UpdatedAt: timestamp,
     ReceivedAt: timestamp,
-    TransferStatus: FragmentStatus.COMPLETE
+    TransferStatus: FragmentStatus.INBOUND_COMPLETE
   }));
 
   await db.writeItemsInTransaction([conversation, core, ...fragments]);
@@ -60,20 +63,25 @@ export const cleanupRecordsForTest = async conversationId => {
   }
 
   const db = EhrTransferTracker.getInstance();
-  const records = await db.queryTableByConversationId(conversationId, RecordType.ALL, true);
-  const deleteCommand = new TransactWriteCommand({
-    TransactItems: records.map(item => ({
-      Delete: {
-        TableName: db.tableName,
-        Key: {
-          InboundConversationId: item.InboundConversationId,
-          Layer: item.Layer
-        }
-      }
-    }))
-  });
+  const records = await db.queryTableByInboundConversationId(conversationId, RecordType.ALL, true);
 
-  await db.client.send(deleteCommand);
+  const splitItemBy100 = chunk(records, 100);
+
+  for (const batch of splitItemBy100) {
+    const deleteCommand = new TransactWriteCommand({
+      TransactItems: batch.map(item => ({
+        Delete: {
+          TableName: db.tableName,
+          Key: {
+            InboundConversationId: item.InboundConversationId,
+            Layer: item.Layer
+          }
+        }
+      }))
+    });
+
+    await db.client.send(deleteCommand);
+  }
 };
 
 export const cleanupRecordsForTestByNhsNumber = async nhsNumber => {
@@ -84,4 +92,11 @@ export const cleanupRecordsForTestByNhsNumber = async nhsNumber => {
     cleanupRecordsForTest(item.InboundConversationId)
   );
   return Promise.all(removeAllRecords);
+};
+
+export const buildMessageIdReplacement = (inboundMessageIds, outboundMessageIds) => {
+  return inboundMessageIds.map((_, i) => ({
+    oldMessageId: inboundMessageIds[i],
+    newMessageId: outboundMessageIds[i]
+  }));
 };

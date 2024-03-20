@@ -1,29 +1,47 @@
-import { FragmentMessageRecordNotFoundError } from "../../errors/errors";
-import {modelName, Status} from '../../models/message-fragment';
+import { FragmentMessageRecordNotFoundError } from '../../errors/errors';
+import { modelName, Status } from '../../models/message-fragment';
 import { logInfo } from '../../middleware/logging';
 import ModelFactory from '../../models';
-import { Op } from "sequelize";
+import { Op } from 'sequelize';
 
 const MessageFragment = ModelFactory.getByName(modelName);
 
-export const getMessageFragmentRecordByMessageId = messageId => {
+const getMessageFragmentRecordByMessageId = messageId => {
+  /**
+   * @deprecated
+   * seems to be only used in this module or in tests.
+   * will not make replacement for this method.
+   * to be deleted in PRMT-4588
+   */
   logInfo(`Getting the status of fragment with message id ${messageId} from database`);
   return MessageFragment.findByPk(messageId);
 };
 
-export const getAllMessageFragmentRecordsByMessageIds = messageIds => {
+const getAllMessageFragmentRecordsByMessageIds = messageIds => {
+  /**
+   * @deprecated
+   * seems to be only used in tests. will not make replacement for this method.
+   * to be deleted in PRMT-4588
+   */
   return MessageFragment.findAll({
     where: {
-      messageId: messageIds,
+      messageId: messageIds
     }
   }).then(messageFragmentRecords => {
-      logInfo(JSON.stringify(messageFragmentRecords));
-      logInfo(`Successfully retrieved ${messageFragmentRecords.length} verified Message Fragment record(s).`);
-      return messageFragmentRecords;
-    });
-}
+    logInfo(JSON.stringify(messageFragmentRecords));
+    logInfo(
+      `Successfully retrieved ${messageFragmentRecords.length} verified Message Fragment record(s).`
+    );
+    return messageFragmentRecords;
+  });
+};
 
-export const updateMessageFragmentRecordStatus = (messageId, status) => {
+const updateMessageFragmentRecordStatus = (messageId, status) => {
+  /**
+   * @deprecated
+   * replaced by new method `updateFragmentStatusInDb`
+   * to be deleted in PRMT-4588
+   */
   logInfo(`Updating message fragment status to ${status}`);
 
   return getMessageFragmentRecordByMessageId(messageId)
@@ -36,7 +54,13 @@ export const updateMessageFragmentRecordStatus = (messageId, status) => {
     .then(() => logInfo('Updated message fragment status has been stored'));
 };
 
-export const getAllFragmentOutboundMessageIdsEligibleToBeSent = conversationId => {
+const getAllFragmentOutboundMessageIdsEligibleToBeSent = conversationId => {
+  /**
+   * @deprecated
+   * replaced by new method `getAllFragmentIdsToBeSent`
+   * to be deleted in PRMT-4588
+   */
+
   return MessageFragment.findAll({
     where: {
       conversationId,
@@ -45,8 +69,9 @@ export const getAllFragmentOutboundMessageIdsEligibleToBeSent = conversationId =
       }
     }
   }).then(eligibleRecords => {
-    logInfo(`Found ${eligibleRecords.length} eligible records, returning the Outbound Message ID(s).`)
-    return eligibleRecords
-        .map(record => record.messageId.toUpperCase())
-  })
-}
+    logInfo(
+      `Found ${eligibleRecords.length} eligible records, returning the Outbound Message ID(s).`
+    );
+    return eligibleRecords.map(record => record.messageId.toUpperCase());
+  });
+};

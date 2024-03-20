@@ -7,7 +7,11 @@ import { runWithinTransaction } from '../helper';
 
 jest.mock('../../../middleware/logging');
 
-describe('createFragmentDbRecord', () => {
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+describe.skip('createFragmentDbRecord', () => {
   const MessageFragment = ModelFactory.getByName(modelName);
   const conversationId = '40abdd36-6f86-455a-8135-4ab4c764cdd1';
   const messageId = '9b9ca459-1f52-4e77-862c-52fb897b6070';

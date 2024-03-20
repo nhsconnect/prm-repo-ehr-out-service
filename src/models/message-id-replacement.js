@@ -1,6 +1,10 @@
 import { getParameters } from './parameters';
 
-export const modelName = 'MessageIdReplacement';
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+const modelName = 'MessageIdReplacement';
 const tableName = 'message_id_replacement';
 
 const model = dataType => ({
@@ -34,6 +38,6 @@ const model = dataType => ({
   }
 });
 
-export default (sequelize, DataTypes) => {
-  return sequelize.define(modelName, model(DataTypes), getParameters(tableName));
-};
+// export default (sequelize, DataTypes) => {
+//   return sequelize.define(modelName, model(DataTypes), getParameters(tableName));
+// };
