@@ -87,7 +87,7 @@ describe('Swagger Documentation', () => {
 });
 
 describe('GET /registration-requests/:conversationId', () => {
-  const conversationId = v4(); // OutboundConversationId
+  const outboundConversationId = v4();
   const nhsNumber = '1234567891';
   const odsCode = 'B12345';
   const status = ConversationStatus.OUTBOUND_STARTED;
@@ -105,7 +105,7 @@ describe('GET /registration-requests/:conversationId', () => {
     const retrievalResponse = {
       data: {
         type: 'registration-requests',
-        id: conversationId,
+        id: outboundConversationId,
         attributes: {
           nhsNumber,
           odsCode,
@@ -115,16 +115,16 @@ describe('GET /registration-requests/:conversationId', () => {
     };
 
     await createInboundRecordForTest(v4(), nhsNumber, v4(), []);
-    await createOutboundConversation(conversationId, nhsNumber, odsCode);
+    await createOutboundConversation(outboundConversationId, nhsNumber, odsCode);
 
     const res = await request(app)
-      .get(`/registration-requests/${conversationId}`)
+      .get(`/registration-requests/${outboundConversationId}`)
       .set('Authorization', fakeAuth);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toMatchObject(retrievalResponse);
     expectStructuredLogToContain(transportSpy, {
-      conversationId: conversationId
+      conversationId: outboundConversationId
     });
   });
 

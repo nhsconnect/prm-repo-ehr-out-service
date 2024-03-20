@@ -2,10 +2,6 @@ import {
   patientAndPracticeOdsCodesMatch,
   updateConversationStatus
 } from '../../transfer/transfer-out-util';
-// import {
-//   getNhsNumberByOutboundConversationId,
-//   getOutboundConversationById
-// } from "../../database/registration-request-repository";
 import { parseContinueRequestMessage } from '../../parser/continue-request-parser';
 import {
   transferOutFragmentsForNewContinueRequest,
@@ -30,7 +26,6 @@ jest.mock('../../../middleware/logging');
 jest.mock('../../transfer/transfer-out-fragments');
 jest.mock('../../transfer/transfer-out-util');
 jest.mock('../../database/dynamodb/outbound-conversation-repository');
-// jest.mock('../../database/registration-request-repository');
 jest.mock('../../parser/continue-request-parser');
 jest.mock('../../parser/parsing-utilities');
 jest.mock('../../../config', () => ({

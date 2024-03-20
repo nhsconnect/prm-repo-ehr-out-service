@@ -3,7 +3,7 @@
 
 import { logError, logInfo } from '../../../middleware/logging';
 import { EhrTransferTracker } from './dynamo-ehr-transfer-tracker';
-import { FragmentMessageIdReplacementRecordNotFoundError } from '../../../errors/errors';
+import { FragmentMessageIdReplacementRecordNotFoundError, ValidationError } from '../../../errors/errors';
 import { buildFragmentUpdateParams, isFragment, isNotSentOut } from '../../../models/fragment';
 import { FragmentStatus, RecordType } from '../../../constants/enums';
 import { getUKTimestamp } from '../../time';
@@ -11,7 +11,7 @@ import { ACKNOWLEDGEMENT_TYPES } from '../../../constants/acknowledgement-types'
 
 export const getAllMessageIdPairs = async (oldMessageIds, inboundConversationId) => {
   if (!inboundConversationId) {
-    throw new Error('inboundConversationId cannot be empty');
+    throw new ValidationError('inboundConversationId cannot be empty');
   }
   const db = EhrTransferTracker.getInstance();
   const wholeRecord = await db.queryTableByInboundConversationId(inboundConversationId);
