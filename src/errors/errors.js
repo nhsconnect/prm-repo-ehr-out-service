@@ -12,14 +12,16 @@ export const errorMessages = {
   FILE_READ_ERROR: 'Failed to read file',
   DUPLICATED_REQUEST_ERROR: 'Got a duplicated request',
   PARSING_ERROR: 'Unable to parse XML',
-  MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to update message id to new ones',
+  MESSAGE_ID_UPDATE_ERROR: 'Failed while trying to store outbound message ids in database',
   MESSAGE_ID_RECORD_CREATION_ERROR: 'Failed to record the message id replacements in database',
   FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR:
     'Cannot find the fragment message record within the database',
   ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR:
-      'Cannot find an acknowledgement record within the database',
+    'Cannot find an acknowledgement record within the database',
   FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR:
-    'Cannot find one or more newMessageId for message fragment within the database'
+    'Cannot find one or more newMessageId for message fragment within the database',
+  OUTBOUND_CONVERSATION_RESET_ERROR: 'Failed to clear the previous record of outbound ehr transfer',
+  VALIDATION_ERROR: 'Validation error, details: '
 };
 
 export class ParsingError extends Error {
@@ -88,7 +90,7 @@ export class StatusUpdateError extends Error {
 export class MessageIdUpdateError extends Error {
   constructor(error) {
     super(errorMessages.MESSAGE_ID_UPDATE_ERROR);
-    logError(errorMessages.MESSAGE_ID_UPDATE_ERROR, error?.message);
+    logError(errorMessages.MESSAGE_ID_UPDATE_ERROR, error);
   };
 }
 
@@ -119,5 +121,20 @@ export class FragmentMessageIdReplacementRecordNotFoundError extends Error {
     logError(
       errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR +
       ` expected ${numberOfOldMessageIds} message ID replacements but found ${numberOfMessageIdReplacements}`);
+  };
+}
+
+export class OutboundConversationResetError extends Error {
+  constructor(error) {
+    super(errorMessages.OUTBOUND_CONVERSATION_RESET_ERROR);
+    logError(errorMessages.OUTBOUND_CONVERSATION_RESET_ERROR, error);
+  };
+}
+
+export class ValidationError extends Error {
+  constructor(details) {
+    const fullErrorMessage = errorMessages.VALIDATION_ERROR + details.join(', ');
+    super(fullErrorMessage);
+    logError(fullErrorMessage);
   };
 }

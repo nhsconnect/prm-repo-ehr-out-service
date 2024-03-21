@@ -4,8 +4,8 @@ import { config } from '../../config';
 import { FragmentSendingError } from '../../errors/errors';
 import { logOutboundMessage } from './logging-utils';
 import { updateFragmentStatus } from '../transfer/transfer-out-util';
-import { Status } from '../../models/message-fragment';
 import { setCurrentSpanAttributes } from '../../config/tracing';
+import { FragmentStatus } from '../../constants/enums';
 
 export const sendFragment = async (conversationId, odsCode, fragmentMessage, messageId) => {
   const {gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl} = config();
@@ -28,5 +28,5 @@ export const sendFragment = async (conversationId, odsCode, fragmentMessage, mes
       throw new FragmentSendingError(error, messageId);
     });
 
-  await updateFragmentStatus(conversationId, messageId, Status.SENT_FRAGMENT);
+  await updateFragmentStatus(conversationId, messageId, FragmentStatus.OUTBOUND_SENT);
 };

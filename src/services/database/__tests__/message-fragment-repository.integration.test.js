@@ -19,7 +19,11 @@ import { createRandomUUID } from "../../gp2gp/__tests__/test-utils";
 
 jest.mock('../../../middleware/logging');
 
-describe('message-fragment-repository.js', () => {
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+describe.skip('message-fragment-repository.js', () => {
   // ============ COMMON PROPERTIES ============
   const MessageFragment = ModelFactory.getByName(messageFragmentModel);
   const RegistrationRequest = ModelFactory.getByName(registrationRequestModel);
@@ -85,9 +89,9 @@ describe('message-fragment-repository.js', () => {
 
   describe('updateMessageFragmentStatus', () => {
     // ============ COMMON PROPERTIES ============
-    const registrationStatus = registrationRequestStatus.REGISTRATION_REQUEST_RECEIVED;
-    const initialStatus = messageFragmentStatus.FRAGMENT_REQUEST_RECEIVED;
-    const updatedStatus = messageFragmentStatus.SENDING_FAILED;
+    // const registrationStatus = registrationRequestStatus.REGISTRATION_REQUEST_RECEIVED;
+    // const initialStatus = messageFragmentStatus.FRAGMENT_REQUEST_RECEIVED;
+    // const updatedStatus = messageFragmentStatus.SENDING_FAILED;
     const messageId = '9dd61fbe-1958-4479-a6aa-14cb4aa9651a';
     const conversationId = 'efec71f4-bc54-4a31-9453-f1300bf28cef';
     const nhsNumber = '1234567890';

@@ -1,16 +1,16 @@
 import request from 'supertest';
-import { Status } from '../../../models/registration-request';
-import { getRegistrationRequestByConversationId } from '../../../services/database/registration-request-repository';
 import { logError } from '../../../middleware/logging';
 import { buildTestApp } from '../../../__builders__/test-app';
+import { getOutboundConversationById } from '../../../services/database/dynamodb/outbound-conversation-repository';
+import { ConversationStatus } from '../../../constants/enums';
 import { registrationRequests } from '../index';
 
 jest.mock('../../../middleware/logging');
-jest.mock('../../../services/database/registration-request-repository');
+jest.mock('../../../services/database/dynamodb/outbound-conversation-repository');
 jest.mock('../../../config', () => ({
   config: jest
     .fn()
-    .mockReturnValue({ sequelize: { dialect: 'postgres' }, consumerApiKeys: { TEST: 'valid-key' } })
+    .mockReturnValue({ consumerApiKeys: { TEST: 'valid-key' } })
 }));
 
 describe('GET /registration-requests/', () => {
@@ -18,15 +18,15 @@ describe('GET /registration-requests/', () => {
   const conversationId = '3a3ee007-1188-4978-8122-c1e2596f29c6';
   const odsCode = 'A12345';
   const invalidConversationId = 'de78578799';
-  const status = Status.REGISTRATION_REQUEST_RECEIVED;
+  const status = ConversationStatus.OUTBOUND_STARTED;
   const testApp = buildTestApp('/registration-requests', registrationRequests);
 
   it('should return 200 and registration request information if :conversationId is uuidv4 and Authorization Header provided', async () => {
-    getRegistrationRequestByConversationId.mockResolvedValue({
-      conversationId,
-      nhsNumber,
-      odsCode,
-      status
+    getOutboundConversationById.mockResolvedValue({
+      OutboundConversationId: conversationId,
+      NhsNumber: nhsNumber,
+      DestinationGp: odsCode,
+      TransferStatus: status
     });
 
     const res = await request(testApp)
@@ -46,17 +46,17 @@ describe('GET /registration-requests/', () => {
     };
 
     expect(res.statusCode).toBe(200);
-    expect(getRegistrationRequestByConversationId).toHaveBeenCalledWith(conversationId);
+    expect(getOutboundConversationById).toHaveBeenCalledWith(conversationId);
     expect(res.body).toEqual(mockBody);
   });
 
   it('should return 200 and registration request information if :conversationId is uuidv1 and Authorization Header provided', async () => {
     const conversationIdUuidv1 = 'ebc252ca-3adf-11eb-adc1-0242ac120002';
-    getRegistrationRequestByConversationId.mockResolvedValue({
-      conversationId: conversationIdUuidv1,
-      nhsNumber,
-      odsCode,
-      status
+    getOutboundConversationById.mockResolvedValue({
+      OutboundConversationId: conversationIdUuidv1,
+      NhsNumber: nhsNumber,
+      DestinationGp: odsCode,
+      TransferStatus: status
     });
 
     const res = await request(testApp)
@@ -76,7 +76,7 @@ describe('GET /registration-requests/', () => {
     };
 
     expect(res.statusCode).toBe(200);
-    expect(getRegistrationRequestByConversationId).toHaveBeenCalledWith(conversationIdUuidv1);
+    expect(getOutboundConversationById).toHaveBeenCalledWith(conversationIdUuidv1);
     expect(res.body).toEqual(mockBody);
   });
 
@@ -94,7 +94,7 @@ describe('GET /registration-requests/', () => {
 
   it('should return 404 when conversation id cannot be found', async () => {
     const nonExistentConversationId = conversationId;
-    getRegistrationRequestByConversationId.mockResolvedValue(null);
+    getOutboundConversationById.mockResolvedValue(null);
 
     const res = await request(testApp)
       .get(`/registration-requests/${nonExistentConversationId}`)
@@ -104,7 +104,7 @@ describe('GET /registration-requests/', () => {
   });
 
   it('should return 503 when getRegistrationRequestStatusByConversationId returns rejected Promise', async () => {
-    getRegistrationRequestByConversationId.mockRejectedValue({});
+    getOutboundConversationById.mockRejectedValue({});
 
     const res = await request(testApp)
       .get(`/registration-requests/${conversationId}`)

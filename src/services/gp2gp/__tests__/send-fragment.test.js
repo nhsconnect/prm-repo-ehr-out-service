@@ -8,10 +8,9 @@ import { setupMockConfigForTest } from "./test-utils";
 
 // Mocking
 jest.mock('../../../config', () => ({
-  config: jest.fn().mockReturnValue({ sequelize: { dialect: 'postgres' } })
+  config: jest.fn().mockReturnValue({})
 }));
 jest.mock('../../../middleware/logging');
-jest.mock('../../database/message-fragment-repository');
 jest.mock('../../transfer/transfer-out-util');
 
 describe('sendFragment', () => {

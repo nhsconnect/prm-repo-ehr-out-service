@@ -107,6 +107,21 @@ data "aws_iam_policy_document" "kms_policy_doc" {
   }
 }
 
+data "aws_iam_policy_document" "dynamodb_policy_doc" {
+  statement {
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem",
+      "dynamodb:Query"
+    ]
+    resources = [
+      "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.environment}-ehr-transfer-tracker"
+    ]
+  }
+}
+
+
 resource "aws_iam_policy" "ssm_policy" {
   name   = "${var.environment}-${var.component_name}-ssm"
   policy = data.aws_iam_policy_document.ssm_policy_doc.json
@@ -130,6 +145,11 @@ resource "aws_iam_policy" "kms_policy" {
 resource "aws_iam_policy" "sqs_policy" {
   name   = "${var.environment}-${var.component_name}-sqs"
   policy = data.aws_iam_policy_document.sqs_policy_doc.json
+}
+
+resource "aws_iam_policy" "dynamodb_policy" {
+  name   = "${var.environment}-${var.component_name}-sqs"
+  policy = data.aws_iam_policy_document.dynamodb_policy_doc.json
 }
 
 resource "aws_iam_role_policy_attachment" "ssm_policy_attach" {
@@ -156,6 +176,12 @@ resource "aws_iam_role_policy_attachment" "kms_policy_attach" {
   role       = aws_iam_role.component_ecs_role.name
   policy_arn = aws_iam_policy.kms_policy.arn
 }
+
+resource "aws_iam_role_policy_attachment" "dynamodb_policy_attach" {
+  role       = aws_iam_role.component_ecs_role.name
+  policy_arn = aws_iam_policy.dynamodb_policy.arn
+}
+
 
 resource "aws_sqs_queue_policy" "ehr_out_service_incoming" {
   queue_url = aws_sqs_queue.service_incoming.id

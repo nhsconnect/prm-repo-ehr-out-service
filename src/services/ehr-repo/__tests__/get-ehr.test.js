@@ -18,7 +18,7 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
     const mockEhrRepoServiceUrl = 'http://localhost';
     const mockEhrRepoAuthKeys = 'fake-keys';
     const conversationId = 'fake-conversationId';
-    const conversationIdFromEhrIn = 'fake-conversationIdFromEhrIn';
+    const inboundConversationId = 'fake-inboundConversationId';
     const fragmentMessageIds = [];
     const headers = {
       reqheaders: { Authorization: `${mockEhrRepoAuthKeys}`, conversationId: `${conversationId}` }
@@ -28,7 +28,7 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
     const ehrIsPresentEhrRepoUrlResponse = {
       coreMessageUrl,
       fragmentMessageIds,
-      conversationIdFromEhrIn: conversationIdFromEhrIn
+      inboundConversationId: inboundConversationId
     };
     const ehrCore = {
       payload: "payload XML",
@@ -58,7 +58,7 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
       const largeEhrResponse = {
         coreMessageUrl,
         fragmentMessageIds,
-        conversationIdFromEhrIn: conversationIdFromEhrIn
+        inboundConversationId: inboundConversationId
       };
 
       // when

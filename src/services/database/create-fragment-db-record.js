@@ -5,7 +5,13 @@ import ModelFactory from '../../models';
 
 const MessageFragment = ModelFactory.getByName(modelName);
 
-export const createFragmentDbRecord = (messageId, conversationId) => {
+const createFragmentDbRecord = (messageId, conversationId) => {
+  /**
+   * @deprecated
+   * Not necessary after migrated to dynamodb.
+   * Fragment records will be created by EHR-repository
+   * to be deleted in PRMT-4588
+   */
   logInfo(`Creating a record for fragment in database, message id: ${messageId}`);
 
   return runWithinTransaction(transaction =>

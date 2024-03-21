@@ -1,4 +1,8 @@
-export const ERROR_CODES = Object.freeze({
+/**
+ * @deprecated
+ * to be deleted in PRMT-4588
+ */
+const ERROR_CODES = Object.freeze({
   INVALID_CREDENTIALS: '28000',
   INVALID_USER_PASSWORD: '28P01',
   INVALID_DATABASE: '3D000',

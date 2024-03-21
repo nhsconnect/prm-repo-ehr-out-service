@@ -2,44 +2,42 @@ import { readFileSync } from 'fs';
 import expect from 'expect';
 import nock from 'nock';
 import { setCurrentSpanAttributes } from '../../../config/tracing';
-import {
-  errorMessages,
-  StatusUpdateError
-} from '../../../errors/errors';
+import { errorMessages, StatusUpdateError } from '../../../errors/errors';
 import { logError, logInfo } from '../../../middleware/logging';
-import { Status } from '../../../models/message-fragment';
-import { createMessageIdReplacements } from '../../database/create-message-id-replacements';
-import { updateMessageFragmentRecordStatus } from '../../database/message-fragment-repository';
-import { updateRegistrationRequestStatus } from '../../database/registration-request-repository';
+import { ConversationStatus, FragmentStatus } from '../../../constants/enums';
 import { getPdsOdsCode } from '../../gp2gp/pds-retrieval-request';
 import {
-  createNewMessageIds,
-  downloadFromUrl, getNewMessageIdForOldMessageId,
-  patientAndPracticeOdsCodesMatch, replaceMessageIdsInObject,
+  createAndStoreOutboundMessageIds,
+  downloadFromUrl,
+  getNewMessageIdForOldMessageId,
+  patientAndPracticeOdsCodesMatch,
+  replaceMessageIdsInObject,
   updateConversationStatus,
-  updateFragmentStatus,
+  updateFragmentStatus
 } from '../transfer-out-util';
+import { updateOutboundConversationStatus } from '../../database/dynamodb/outbound-conversation-repository';
+import { storeOutboundMessageIds } from '../../database/dynamodb/store-outbound-message-ids';
+import { updateFragmentStatusInDb } from '../../database/dynamodb/ehr-fragment-repository';
+import { v4 as uuid } from 'uuid';
 
 // Mocking
 jest.mock('../../../middleware/logging');
 jest.mock('../../gp2gp/pds-retrieval-request');
-jest.mock('../../database/create-message-id-replacements');
-jest.mock('../../database/registration-request-repository');
-jest.mock('../../database/message-fragment-repository');
-jest.mock('../../database/message-id-replacement-repository');
+jest.mock('../../database/dynamodb/outbound-conversation-repository');
+jest.mock('../../database/dynamodb/store-outbound-message-ids');
+jest.mock('../../database/dynamodb/ehr-fragment-repository');
 jest.mock('../../../config/tracing');
 
 describe('testTransferOutUtil', () => {
   // ============ COMMON PROPERTIES ============
   const CONVERSATION_ID = '7fbeaba2-ca21-4af7-8f88-29d805b28411';
+  const INBOUND_CONVERSATION_ID = uuid();
   const MESSAGE_ID = '2c1edc4d-052f-42b6-a03f-4470ff88ef05';
   const UUID_UPPERCASE_REGEX =
     /^[0-9A-F]{8}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{12}$/;
 
   function getValidEhrCore() {
-    return JSON.parse(
-        readFileSync('src/__tests__/data/ehr_with_fragments/ehr-core', 'utf8')
-    );
+    return JSON.parse(readFileSync('src/__tests__/data/ehr_with_fragments/ehr-core', 'utf8'));
   }
 
   afterEach(() => {
@@ -121,27 +119,27 @@ describe('testTransferOutUtil', () => {
 
   describe('updateConversationStatus', () => {
     // ============ COMMON PROPERTIES ============
-    const STATUS = Status.FRAGMENT_REQUEST_RECEIVED;
+    const STATUS = ConversationStatus.OUTBOUND_STARTED;
     const LOG_MESSAGE = 'This is an example log message';
     // =================== END ===================
 
     it('should update the conversation status successfully', async () => {
       // when
-      updateRegistrationRequestStatus.mockResolvedValueOnce(undefined);
+      updateOutboundConversationStatus.mockResolvedValueOnce(undefined);
       await updateConversationStatus(CONVERSATION_ID, STATUS);
 
       // then
       expect(setCurrentSpanAttributes).toBeCalledTimes(1);
       expect(setCurrentSpanAttributes).toBeCalledWith({ conversationId: CONVERSATION_ID });
-      expect(updateRegistrationRequestStatus).toBeCalledTimes(1);
+      expect(updateOutboundConversationStatus).toBeCalledTimes(1);
       expect(logInfo).toBeCalledTimes(1);
       expect(logInfo).toBeCalledWith(`Updating conversation with status: ${STATUS}`);
     });
 
     it('should log the provided message successfully', async () => {
       // when
-      updateRegistrationRequestStatus.mockResolvedValueOnce(undefined);
-      await updateConversationStatus(CONVERSATION_ID, STATUS, LOG_MESSAGE);
+      updateOutboundConversationStatus.mockResolvedValueOnce(undefined);
+      await updateConversationStatus(CONVERSATION_ID, STATUS, null, LOG_MESSAGE);
 
       // then
       expect(setCurrentSpanAttributes).toBeCalledTimes(1);
@@ -153,7 +151,7 @@ describe('testTransferOutUtil', () => {
 
     it('should throw a StatusUpdateError error', async () => {
       // when
-      updateRegistrationRequestStatus.mockRejectedValueOnce(undefined);
+      updateOutboundConversationStatus.mockRejectedValueOnce(undefined);
 
       // then
       await expect(() =>
@@ -164,16 +162,16 @@ describe('testTransferOutUtil', () => {
 
   describe('updateFragmentStatus', () => {
     // ============ COMMON PROPERTIES ============
-    const STATUS = Status.INCORRECT_ODS_CODE;
+    const STATUS = FragmentStatus.OUTBOUND_FAILED;
     // =================== END ===================
 
     it('should update the fragment status successfully', async () => {
       // when
-      updateMessageFragmentRecordStatus.mockResolvedValueOnce(undefined);
+      updateFragmentStatusInDb.mockResolvedValueOnce(undefined);
       await updateFragmentStatus(CONVERSATION_ID, MESSAGE_ID, STATUS);
 
       // then
-      expect(updateMessageFragmentRecordStatus).toBeCalledTimes(1);
+      expect(updateFragmentStatusInDb).toBeCalledTimes(1);
       expect(logInfo).toBeCalledTimes(2);
       expect(logInfo).toBeCalledWith(`Updating fragment with status: ${STATUS}`);
       expect(logInfo).toBeCalledWith(`Updated fragment status to: ${STATUS}`);
@@ -181,7 +179,7 @@ describe('testTransferOutUtil', () => {
 
     it('should throw a StatusUpdateError error', async () => {
       // when
-      updateMessageFragmentRecordStatus.mockRejectedValueOnce(undefined);
+      updateFragmentStatusInDb.mockRejectedValueOnce(undefined);
 
       // then
       await expect(() =>
@@ -225,12 +223,12 @@ describe('testTransferOutUtil', () => {
 
     it('should create new fragment message ids and store them in database', async () => {
       // when
-      createMessageIdReplacements.mockResolvedValueOnce(undefined);
+      storeOutboundMessageIds.mockResolvedValueOnce(undefined);
 
-      await createNewMessageIds(oldFragmentMessageIds);
+      await createAndStoreOutboundMessageIds(oldFragmentMessageIds, INBOUND_CONVERSATION_ID);
 
       // then
-      expect(createMessageIdReplacements).toHaveBeenCalledWith([
+      const expectedMessageIdPairs = [
         {
           oldMessageId: '94f76288-de8f-421a-8be1-4d6eb28d6e1d',
           newMessageId: expect.stringMatching(UUID_UPPERCASE_REGEX)
@@ -242,16 +240,21 @@ describe('testTransferOutUtil', () => {
         {
           oldMessageId: 'dd552736-5da9-4ca4-a37b-ce43e7a50294',
           newMessageId: expect.stringMatching(UUID_UPPERCASE_REGEX)
-        }]);
+        }
+      ];
+      expect(storeOutboundMessageIds).toHaveBeenCalledWith(
+        expectedMessageIdPairs,
+        INBOUND_CONVERSATION_ID
+      );
     });
 
     it('should throw an error when failed to store the old and new message id pairs in database', async () => {
       // given
       const expectedError = new Error('some database error');
-      createMessageIdReplacements.mockRejectedValueOnce(expectedError);
+      storeOutboundMessageIds.mockRejectedValueOnce(expectedError);
 
       // when
-      await expect(createMessageIdReplacements(oldFragmentMessageIds))
+      await expect(storeOutboundMessageIds(oldFragmentMessageIds))
         // then
         .rejects.toThrowError(expectedError);
     });

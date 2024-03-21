@@ -17,7 +17,7 @@ export const getFragmentConversationAndMessageIdsFromEhrRepo = async (nhsNumber)
 
 const extractIdsFromEhrRepoResponse = response => {
   return {
-    conversationIdFromEhrIn: response.data?.conversationIdFromEhrIn,
+    inboundConversationId: response.data?.inboundConversationId,
     messageIds: response.data?.fragmentMessageIds
   };
 };
@@ -26,13 +26,13 @@ const handleErrorWhileRetrievingIds = error => {
   if (error?.response?.status === 404) {
     throw new PatientRecordNotFoundError(error);
   } else {
-    logError('Failed to retrieve conversationIdFromEhrIn from ehr-repo');
+    logError('Failed to retrieve inboundConversationId from ehr-repo');
     throw error;
   }
 };
 
-export const getFragment = async (conversationIdFromEhrIn, messageId) => {
-  const fragmentMessageUrl = await retrieveFragmentPresignedUrlFromRepo(conversationIdFromEhrIn, messageId);
+export const getFragment = async (inboundConversationId, messageId) => {
+  const fragmentMessageUrl = await retrieveFragmentPresignedUrlFromRepo(inboundConversationId, messageId);
   logInfo(`Successfully retrieved fragment presigned url with messageId: ${messageId}`);
   const fragment = await downloadFromUrl(fragmentMessageUrl);
   logInfo(`Successfully retrieved fragment with messageId: ${messageId}`);
@@ -40,9 +40,9 @@ export const getFragment = async (conversationIdFromEhrIn, messageId) => {
   return fragment;
 };
 
-const retrieveFragmentPresignedUrlFromRepo = async (conversationIdFromEhrIn, messageId) => {
+const retrieveFragmentPresignedUrlFromRepo = async (inboundConversationId, messageId) => {
   const { ehrRepoServiceUrl, ehrRepoAuthKeys } = config();
-  const repoUrl = `${ehrRepoServiceUrl}/fragments/${conversationIdFromEhrIn}/${messageId}`;
+  const repoUrl = `${ehrRepoServiceUrl}/fragments/${inboundConversationId}/${messageId}`;
 
   return await axios.get(repoUrl, {
     headers: { Authorization: ehrRepoAuthKeys}
