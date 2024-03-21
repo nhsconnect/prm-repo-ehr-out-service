@@ -553,20 +553,6 @@ case "${command}" in
       check_env
       dojo -c Dojofile-infra "./tasks _tf_apply_db_roles"
       ;;
-
-#   @deprecated
-#   to be deleted in PRMT-4588
-#
-#  _run_db_migrations)
-#      _assume_environment_role $NHS_ENVIRONMENT
-#      configure_db_migration_envs
-#      npm install
-#      scripts/migrate-db.sh
-#      ;;
-#  run_db_migrations)
-#      check_env
-#      dojo -c Dojofile "./tasks _run_db_migrations"
-#      ;;
   _create_secrets)
       _assume_environment_role $NHS_ENVIRONMENT
       generate_username_ssm_param "/repo/${NHS_ENVIRONMENT}/user-input/ehr-out-service-db-username"
@@ -576,19 +562,6 @@ case "${command}" in
       check_env
       dojo -c Dojofile-infra "./tasks _create_secrets"
       ;;
-#
-#  @deprecated
-#  to be deleted in PRMT-4588
-#  _grant_db_permissions)
-#      check_env
-#      _assume_environment_role $NHS_ENVIRONMENT
-#      grab_db_params_from_ssm
-#      export PGPASSWORD=$db_password
-#      psql -h $db_host -U $db_username -d $db_name -f scripts/grant-db-permissions.sql
-#      ;;
-#  grant_db_permissions)
-#      dojo "./tasks _grant_db_permissions"
-#      ;;
   promote_docker_image)
       check_env
       set_image_tag
