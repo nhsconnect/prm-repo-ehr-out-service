@@ -151,6 +151,22 @@ function configure_local_envs {
   set_image_tag
 }
 
+function configure_local_envs_for_docker_test {
+  export GP2GP_MESSENGER_AUTHORIZATION_KEYS=auth-key-1
+  export EHR_REPO_AUTHORIZATION_KEYS=auth-key-2
+  export GP2GP_MESSENGER_SERVICE_URL="www.notreal.com"
+  export EHR_REPO_SERVICE_URL="www.alsonotreal.com"
+  export REPOSITORY_URI=$IMAGE_REPO_NAME
+  export LOCALSTACK_URL="http://localstack:4566"
+  export AWS_REGION=${AWS_DEFAULT_REGION}
+
+  export DYNAMODB_NAME=local-test-db
+  export DYNAMODB_LOCAL_ENDPOINT=http://dynamodb-local:8000/
+
+  configure_service_url
+  set_image_tag
+}
+
 #
 #  @deprecated
 #  to be deleted in PRMT-4588
@@ -471,7 +487,7 @@ case "${command}" in
       fetch_redaction_utils
       ;;
   build_docker_local)
-      configure_local_envs
+      configure_local_envs_for_docker_test
       fetch_redaction_utils
       build_docker_image
       ;;
@@ -489,16 +505,16 @@ case "${command}" in
       npm run test:docker
       ;;
   test_docker)
-      configure_local_envs
+      configure_local_envs_for_docker_test
       configure_docker_repository_uri
       dojo -c Dojofile-dtest "./tasks _test_docker"
       ;;
   test_docker_local_shell)
-      configure_local_envs
+      configure_local_envs_for_docker_test
       dojo -c Dojofile-dtest
       ;;
   test_docker_local)
-      configure_local_envs
+      configure_local_envs_for_docker_test
       dojo -c Dojofile-dtest "./tasks _test_docker"
       ;;
   run_docker_local)
@@ -537,20 +553,6 @@ case "${command}" in
       check_env
       dojo -c Dojofile-infra "./tasks _tf_apply_db_roles"
       ;;
-
-#   @deprecated
-#   to be deleted in PRMT-4588
-#
-#  _run_db_migrations)
-#      _assume_environment_role $NHS_ENVIRONMENT
-#      configure_db_migration_envs
-#      npm install
-#      scripts/migrate-db.sh
-#      ;;
-#  run_db_migrations)
-#      check_env
-#      dojo -c Dojofile "./tasks _run_db_migrations"
-#      ;;
   _create_secrets)
       _assume_environment_role $NHS_ENVIRONMENT
       generate_username_ssm_param "/repo/${NHS_ENVIRONMENT}/user-input/ehr-out-service-db-username"
@@ -560,19 +562,6 @@ case "${command}" in
       check_env
       dojo -c Dojofile-infra "./tasks _create_secrets"
       ;;
-#
-#  @deprecated
-#  to be deleted in PRMT-4588
-#  _grant_db_permissions)
-#      check_env
-#      _assume_environment_role $NHS_ENVIRONMENT
-#      grab_db_params_from_ssm
-#      export PGPASSWORD=$db_password
-#      psql -h $db_host -U $db_username -d $db_name -f scripts/grant-db-permissions.sql
-#      ;;
-#  grant_db_permissions)
-#      dojo "./tasks _grant_db_permissions"
-#      ;;
   promote_docker_image)
       check_env
       set_image_tag
