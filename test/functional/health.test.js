@@ -11,21 +11,25 @@ describe('/health', () => {
     expect(res.status).toEqual(200);
   });
 
-  it('health endpoint returns matching data', async () => {
-    const res = await axios.get(healthUrl, { adapter });
-    const expectedRes = {
-      version: '1',
-      description: 'Health of ehr-out-service',
-      nhsEnvironment: nhsEnvironment,
-      details: {
-        database: {
-          type: 'postgresql',
-          connection: true,
-          writable: true
-        }
-      }
-    };
-
-    expect(res.data).toEqual(expectedRes);
-  });
+  /**
+   * no replacement intended as the health-check logic is Postgres-db specific
+   * to be deleted in PRMT-4588
+   */
+  // it('health endpoint returns matching data', async () => {
+  //   const res = await axios.get(healthUrl, { adapter });
+  //   const expectedRes = {
+  //     version: '1',
+  //     description: 'Health of ehr-out-service',
+  //     nhsEnvironment: nhsEnvironment,
+  //     details: {
+  //       database: {
+  //         type: 'postgresql',
+  //         connection: true,
+  //         writable: true
+  //       }
+  //     }
+  //   };
+  //
+  //   expect(res.data).toEqual(expectedRes);
+  // });
 });
