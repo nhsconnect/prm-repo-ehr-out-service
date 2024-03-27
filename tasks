@@ -129,15 +129,10 @@ function generate_secure_string {
 }
 
 function configure_local_envs {
-#  export DATABASE_USER=$(generate_secure_string 20)
-#  export DATABASE_PASSWORD=$(generate_secure_string 20)
-#  export DATABASE_NAME=deductions_test
-#  export DATABASE_HOST=db
   export GP2GP_MESSENGER_AUTHORIZATION_KEYS=auth-key-1
   export EHR_REPO_AUTHORIZATION_KEYS=auth-key-2
   export GP2GP_MESSENGER_SERVICE_URL="www.notreal.com"
   export EHR_REPO_SERVICE_URL="www.alsonotreal.com"
-#  export DB_SKIP_MIGRATION=false
   export REPOSITORY_URI=$IMAGE_REPO_NAME
   export LOCALSTACK_URL="http://localstack:4566"
   export AWS_REGION=${AWS_DEFAULT_REGION}
@@ -150,19 +145,6 @@ function configure_local_envs {
   configure_service_url
   set_image_tag
 }
-
-#
-#  @deprecated
-#  to be deleted in PRMT-4588
-#
-#function configure_db_migration_envs {
-#  export DB_SKIP_MIGRATION=false
-#  export DATABASE_HOST=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/${GIT_REPO_NAME}/db-host")
-#  export DATABASE_USER=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/${GIT_REPO_NAME}/db-migration-user")
-#  export DATABASE_NAME=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/${GIT_REPO_NAME}/db-name")
-#  export DATABASE_PASSWORD="$(aws rds generate-db-auth-token --hostname $DATABASE_HOST --port 5432 --region $AWS_DEFAULT_REGION --username $DATABASE_USER)"
-#  export USE_SSL_FOR_DB="true"
-#}
 
 function get_aws_account_id {
     AWS_ACCOUNT_ID=$(dojo -c Dojofile-infra "aws sts get-caller-identity | jq -r .Account")
@@ -207,11 +189,6 @@ function die_container_die {
     echo trying to kill $moniker...
     docker stop $DOCKER_CONTAINERS_MATCHING_FILTER
   fi
-}
-
-
-function die_postgres_die {
-  die_container_die publish=5432 postgres
 }
 
 function die_localstack_die {
@@ -298,51 +275,6 @@ function tf_apply {
   terraform output -json > tf-out.json
 }
 
-
-function tf_init_db_roles {
-  check_env
-  cd terraform-db-roles
-
-  tf_init_or_rename ${NHS_ENVIRONMENT}-db-roles/terraform.tfstate
-}
-
-function tf_plan_db_roles {
-  operation=$1
-  grab_db_params_from_ssm
-
-  tf_init_db_roles
-  terraform get # modules
-  if [[ "${operation}" == "create" ]]; then
-    terraform plan -var db_host=$db_host -var db_username=$db_username -var db_password=$db_password -var environment=$NHS_ENVIRONMENT -var db_name=$db_name -out="${NHS_ENVIRONMENT}-db-roles.tfplan"
-  elif [[ "${operation}" == "destroy" ]]; then
-    terraform plan -var db_host=$db_host -var db_username=$db_username -var db_password=$db_password -var environment=$NHS_ENVIRONMENT -var db_name=$db_name -out="${NHS_ENVIRONMENT}-db-roles.tfplan" -destroy
-  else
-    echo "Unknown operation (should be create or destroy), got: ${operation}"
-    exit 1
-  fi
-}
-
-function tf_apply_db_roles {
-  tf_init_db_roles
-  terraform get # modules
-  terraform apply --parallelism=1 "${NHS_ENVIRONMENT}-db-roles.tfplan"
-  terraform output -json > tf-out-db-roles.json
-}
-
-####################
-# Script Functions #
-####################
-
-# @deprecated
-# to be deleted in PRMT-4588
-#
-function grab_db_params_from_ssm() {
-  db_host=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/${GIT_REPO_NAME}/db-host")
-  db_username=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/ehr-out-service-db-username")
-  db_password=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/user-input/ehr-out-service-db-password")
-  db_name=$(_get_aws_ssm_secret "/repo/${NHS_ENVIRONMENT}/output/${GIT_REPO_NAME}/db-name")
-}
-
 ###########
 # Testing #
 ###########
@@ -387,9 +319,6 @@ case "${command}" in
   update_package_json)
       dojo "npx npm-check-updates -u"
       ;;
-  die_postgres_die)
-      die_postgres_die
-      ;;
   die_localstack_die)
       die_localstack_die
       ;;
@@ -412,27 +341,22 @@ case "${command}" in
       ;;
   _setup_test_integration_local)
       configure_local_envs
-#      npm run db:migrate
       sh scripts/create-dynamodb-table.sh
       prepare_local_envs_for_ide
       ;;
   _test_integration)
       npm install
-#      npm run db:migrate
       sh scripts/create-dynamodb-table.sh
       npm run test:integration
-#      npm run db:teardown
       ;;
   test_integration)
       configure_local_envs
-      die_postgres_die
       die_localstack_die
       die_repo_in_perf_die
       dojo -c Dojofile-itest "./tasks _test_integration"
       ;;
   test_integration_shell)
       configure_local_envs
-      die_postgres_die
       die_localstack_die
       dojo -c Dojofile-itest
       ;;
@@ -448,13 +372,11 @@ case "${command}" in
       ;;
   _test_coverage)
       npm install
-#      npm run db:migrate
       sh scripts/create-dynamodb-table.sh
       npm run test:coverage
       ;;
   test_coverage)
       configure_local_envs
-      die_postgres_die
       die_localstack_die
       die_repo_in_perf_die
       dojo -c Dojofile-itest "./tasks _test_coverage"
@@ -484,7 +406,6 @@ case "${command}" in
       ;;
   _test_docker)
       npm install
-#      ./scripts/migrate-db.sh
       sh scripts/create-dynamodb-table.sh
       npm run test:docker
       ;;
@@ -513,14 +434,6 @@ case "${command}" in
       check_env
       dojo -c Dojofile-infra "./tasks _tf_plan $2"
       ;;
-  _tf_plan_db_roles)
-      _assume_environment_role $NHS_ENVIRONMENT
-      tf_plan_db_roles "$2"
-      ;;
-  tf_plan_db_roles)
-      check_env
-      dojo -c Dojofile-infra "./tasks _tf_plan_db_roles $2"
-      ;;
   _tf_apply)
       _assume_environment_role $NHS_ENVIRONMENT
       tf_apply
@@ -529,28 +442,6 @@ case "${command}" in
       check_env
       dojo -c Dojofile-infra "./tasks _tf_apply"
       ;;
-  _tf_apply_db_roles)
-      _assume_environment_role $NHS_ENVIRONMENT
-      tf_apply_db_roles
-      ;;
-  tf_apply_db_roles)
-      check_env
-      dojo -c Dojofile-infra "./tasks _tf_apply_db_roles"
-      ;;
-
-#   @deprecated
-#   to be deleted in PRMT-4588
-#
-#  _run_db_migrations)
-#      _assume_environment_role $NHS_ENVIRONMENT
-#      configure_db_migration_envs
-#      npm install
-#      scripts/migrate-db.sh
-#      ;;
-#  run_db_migrations)
-#      check_env
-#      dojo -c Dojofile "./tasks _run_db_migrations"
-#      ;;
   _create_secrets)
       _assume_environment_role $NHS_ENVIRONMENT
       generate_username_ssm_param "/repo/${NHS_ENVIRONMENT}/user-input/ehr-out-service-db-username"
@@ -560,19 +451,6 @@ case "${command}" in
       check_env
       dojo -c Dojofile-infra "./tasks _create_secrets"
       ;;
-#
-#  @deprecated
-#  to be deleted in PRMT-4588
-#  _grant_db_permissions)
-#      check_env
-#      _assume_environment_role $NHS_ENVIRONMENT
-#      grab_db_params_from_ssm
-#      export PGPASSWORD=$db_password
-#      psql -h $db_host -U $db_username -d $db_name -f scripts/grant-db-permissions.sql
-#      ;;
-#  grant_db_permissions)
-#      dojo "./tasks _grant_db_permissions"
-#      ;;
   promote_docker_image)
       check_env
       set_image_tag

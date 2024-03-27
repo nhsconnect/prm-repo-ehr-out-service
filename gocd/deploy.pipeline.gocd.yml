@@ -23,33 +23,6 @@ common:
           command: /bin/bash
           arguments:
             - -c
-            - ./tasks tf_plan_db_roles create
-      - exec:
-          command: /bin/bash
-          arguments:
-            - -c
-            - ./tasks tf_apply_db_roles
-      # Applies permissions for migration_role
-      - exec:
-          command: /bin/bash
-          arguments:
-            - -c
-            - ./tasks grant_db_permissions
-      - exec:
-          command: /bin/bash
-          arguments:
-            - -c
-            - ./tasks run_db_migrations
-      # Applies permissions for application_role frolesor tables created during migration
-      - exec:
-          command: /bin/bash
-          arguments:
-            - -c
-            - ./tasks grant_db_permissions
-      - exec:
-          command: /bin/bash
-          arguments:
-            - -c
             - ./tasks wait_ecs
   common_stages: &common_stages
     - promote_docker_image:

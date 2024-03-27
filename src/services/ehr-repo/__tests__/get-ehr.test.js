@@ -7,7 +7,6 @@ import nock from 'nock';
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
   config: jest.fn().mockReturnValue({
-    sequelize: { dialect: 'postgres' },
     ehrRepoAuthKeys: 'fake-keys',
     ehrRepoServiceUrl: 'http://localhost'
   })

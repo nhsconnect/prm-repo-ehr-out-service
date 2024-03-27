@@ -1,6 +1,3 @@
-// to replace below old files:
-// create-fragment-db-record.js, message-fragment-repository.js, message-id-replacement-repository.js
-
 import { logError, logInfo } from '../../../middleware/logging';
 import { EhrTransferTracker } from './dynamo-ehr-transfer-tracker';
 import { FragmentMessageIdReplacementRecordNotFoundError, ValidationError } from '../../../errors/errors';

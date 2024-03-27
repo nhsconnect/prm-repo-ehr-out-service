@@ -28,7 +28,6 @@ jest.mock('../../ehr-repo/get-fragment');
 jest.mock('../../database/dynamodb/ehr-fragment-repository');
 jest.mock('../../../config', () => ({
   config: jest.fn().mockReturnValue({
-    sequelize: { dialect: 'postgres' },
     rateLimitTimeoutMilliseconds: 1000
   })
 }));
