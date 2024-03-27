@@ -148,7 +148,7 @@ resource "aws_iam_policy" "sqs_policy" {
 }
 
 resource "aws_iam_policy" "dynamodb_policy" {
-  name   = "${var.environment}-${var.component_name}-sqs"
+  name   = "${var.environment}-${var.component_name}-dynamodb"
   policy = data.aws_iam_policy_document.dynamodb_policy_doc.json
 }
 

@@ -10,17 +10,6 @@ resource "postgresql_grant" "application_role_schema_usage_grant" {
   privileges  = ["USAGE"]
 }
 
-# This has no effect as it would run before tables exist.
-# Therefore, we need to grant permissions after migrations ran at least once.
-# See ./tasks grant_db_permissions
-# resource "postgresql_grant" "application_role_table_read_write_grant" {
-#   database    = var.db_name
-#   role        = postgresql_role.application_role.name
-#   schema      = "public"
-#   object_type = "table"
-#   privileges  = ["SELECT","UPDATE","DELETE","INSERT"]
-# }
-
 resource "postgresql_role" "application_user" {
   name     = "application_user"
   login    = true
