@@ -114,9 +114,7 @@ function generate_username_ssm_param {
 }
 
 function prepare_local_envs_for_ide {
-  export DATABASE_HOST=localhost
-  envs=$( printenv | grep "DATABASE" && \
-          printenv | grep "REPOSITORY_URI" && \
+  envs=$( printenv | grep "REPOSITORY_URI" && \
           printenv | grep "SERVICE_URL"
   )
   echo "Paste these env vars to your Intelij run template:"
