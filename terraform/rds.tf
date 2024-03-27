@@ -8,7 +8,6 @@ resource "aws_rds_cluster" "ehr_out_service" {
   backup_retention_period = 35
   preferred_backup_window = "06:30-08:00"
   vpc_security_group_ids = [
-    aws_security_group.ehr_out_service_db_sg.id,
     aws_security_group.gocd_to_db_sg.id,
     aws_security_group.vpn_to_db_sg.id
   ]
@@ -79,30 +78,6 @@ resource "aws_rds_cluster_instance" "ehr_out_service_db_instances" {
     Environment = var.environment
   }
 }
-
-resource "aws_security_group" "ehr_out_service_db_sg" {
-  name   = "${var.environment}-ehr-out-service-db-sg"
-  vpc_id = data.aws_ssm_parameter.deductions_private_vpc_id.value
-
-  ingress {
-    description     = "Allow traffic from ${var.component_name} to the db"
-    protocol        = "tcp"
-    from_port       = "5432"
-    to_port         = "5432"
-    security_groups = [aws_security_group.ecs_tasks_sg.id]
-  }
-
-  tags = {
-    Name        = "${var.environment}-${var.component_name}-db-sg"
-    CreatedBy   = var.repo_name
-    Environment = var.environment
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
 
 resource "aws_security_group" "gocd_to_db_sg" {
   name   = "${var.environment}-gocd-to-${var.component_name}-db-sg"
