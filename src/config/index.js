@@ -1,5 +1,3 @@
-import databaseConfig from './database';
-
 export const portNumber = 3000;
 
 export const config = () => ({
@@ -10,7 +8,6 @@ export const config = () => ({
   ehrRepoServiceUrl: process.env.EHR_REPO_SERVICE_URL,
   ehrRepoAuthKeys: process.env.EHR_REPO_AUTHORIZATION_KEYS,
   fragmentTransferRateLimitTimeoutMilliseconds: process.env.FRAGMENT_TRANSFER_RATE_LIMIT_TIMEOUT_MILLISECONDS || 0,
-  sequelize: databaseConfig,
   consumerApiKeys: loadConsumerKeys()
 });
 

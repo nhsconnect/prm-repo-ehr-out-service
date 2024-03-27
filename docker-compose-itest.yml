@@ -2,22 +2,10 @@ version: '2'
 services:
   default:
     links:
-#      - db:db
       - localstack:localstack
       - dynamodb-local:dynamodb-local
     ports:
       - 3000:3000
-#  @deprecated
-#  postgres db code, to be deleted in PRMT-4588
-#  db:
-#    image: postgres:12.1
-#    environment:
-#      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-#      POSTGRES_USER: ${DATABASE_USER}
-#      POSTGRES_DB: deductions_test
-#      LC_ALL: C
-#    ports:
-#      - 5432:5432
   localstack:
     image: localstack/localstack
     ports:

@@ -8,7 +8,7 @@ resource "aws_rds_cluster" "ehr_out_service" {
   backup_retention_period = 35
   preferred_backup_window = "06:30-08:00"
   vpc_security_group_ids = [
-    aws_security_group.ehr_out_service_db_sg.id,
+    aws_security_group.ehr_out_service_db_sg.id, # TODO: Remove as part of PRMT-4706
     aws_security_group.gocd_to_db_sg.id,
     aws_security_group.vpn_to_db_sg.id
   ]
@@ -80,6 +80,7 @@ resource "aws_rds_cluster_instance" "ehr_out_service_db_instances" {
   }
 }
 
+# TODO: Remove as part of PRMT-4706:
 resource "aws_security_group" "ehr_out_service_db_sg" {
   name   = "${var.environment}-ehr-out-service-db-sg"
   vpc_id = data.aws_ssm_parameter.deductions_private_vpc_id.value

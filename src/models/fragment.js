@@ -3,7 +3,6 @@ import { validate } from 'uuid';
 import { getUKTimestamp } from '../services/time';
 import { addChangesToUpdateParams } from '../utilities/dynamodb-helper';
 import { ValidationError } from '../errors/errors';
-import { logInfo } from '../middleware/logging';
 
 const fieldsAllowedToUpdate = [
   'TransferStatus',

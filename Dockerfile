@@ -1,14 +1,6 @@
 FROM node:18.2-alpine AS builder
 
-
-# PRMT-4588
-# remove postgres db dependencies in this file
-
-# install python and postgres native requirements
-
-RUN apk update && \
-    apk add --no-cache bash tini postgresql-client && \
-    rm -rf /var/cache/apk/*
+# install python requirements
 
 RUN apk add --no-cache \
         python3 \
@@ -17,9 +9,6 @@ RUN apk add --no-cache \
     && pip3 install \
         awscli \
     && rm -rf /var/cache/apk/*
-
-# Install sequelize postgress native dependencies so that libpq addon.node can be built under node_modules
-RUN apk add --no-cache postgresql-dev g++ make
 
 COPY package*.json /app/
 
@@ -36,11 +25,6 @@ COPY --from=builder /usr/local/bin/node /usr/local/bin
 # take native-install node modules
 COPY --from=builder /app /app
 
-# install python and postgres native requirements (again, as per builder)
-RUN apk update && \
-    apk add --no-cache bash tini postgresql-client && \
-    rm -rf /var/cache/apk/*
-
 RUN apk add --no-cache \
         python3 \
         py3-pip \
@@ -50,23 +34,12 @@ RUN apk add --no-cache \
     && rm -rf /var/cache/apk/*
 
 COPY build/                   /app/build
-#
-# @deprecated
-# to be deleted in PRMT-4588
-# COPY database/                /app/database
-# COPY build/config/database.js /app/src/config/
-# COPY .sequelizerc             /app/
 
-COPY scripts/run-server-with-db.sh /usr/bin/run-ehr-out-service
+COPY scripts/run-server.sh /usr/bin/run-ehr-out-service
 COPY scripts/load-api-keys.sh      /app/scripts/load-api-keys.sh
 
 ENV NHS_ENVIRONMENT="" \
-  SERVICE_URL="" \
-  DATABASE_NAME="" \
-  DATABASE_USER="" \
-  DATABASE_PASSWORD="" \
-  DATABASE_HOST="" \
-  DB_SKIP_MIGRATION=""
+  SERVICE_URL=""
 
 WORKDIR /app
 
