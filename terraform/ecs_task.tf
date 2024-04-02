@@ -108,6 +108,14 @@ resource "aws_security_group" "ecs_tasks_sg" {
     cidr_blocks = data.aws_vpc_endpoint.s3.cidr_blocks
   }
 
+  egress {
+    description     = "Allow outbound HTTPS traffic to dynamodb"
+    protocol        = "tcp"
+    from_port       = 443
+    to_port         = 443
+    prefix_list_ids = [data.aws_ssm_parameter.dynamodb_prefix_list_id.value]
+  }
+
   tags = {
     Name        = "${var.environment}-${var.component_name}-ecs-tasks-sg"
     CreatedBy   = var.repo_name
@@ -201,4 +209,8 @@ data "aws_ssm_parameter" "service-to-gp2gp-messenger-sg-id" {
 
 data "aws_ssm_parameter" "service-to-ehr-repo-sg-id" {
   name = "/repo/${var.environment}/output/prm-deductions-ehr-repository/service-to-ehr-repo-sg-id"
+}
+
+data "aws_ssm_parameter" "dynamodb_prefix_list_id" {
+  name = "/repo/${var.environment}/output/prm-deductions-infra/dynamodb_prefix_list_id"
 }
