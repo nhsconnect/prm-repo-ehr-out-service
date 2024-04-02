@@ -121,6 +121,26 @@ data "aws_iam_policy_document" "dynamodb_policy_doc" {
   }
 }
 
+data "aws_iam_policy_document" "transfer_tracker_indexes_access" {
+  statement {
+    actions = [
+      "dynamodb:Query"
+    ]
+    resources = [
+      "arn:aws:dynamodb:${var.region}:${data.aws_caller_identity.current.account_id}:table/${var.environment}-ehr-transfer-tracker/index/*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "transfer_tracker_indexes_access" {
+  name   = "${var.environment}-${var.component_name}-transfer-tracker-indexes-access"
+  policy = data.aws_iam_policy_document.transfer_tracker_indexes_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_dynamo_indexes" {
+  role       = aws_iam_role.component_ecs_role.name
+  policy_arn = aws_iam_policy.transfer_tracker_indexes_access.arn
+}
 
 resource "aws_iam_policy" "ssm_policy" {
   name   = "${var.environment}-${var.component_name}-ssm"
