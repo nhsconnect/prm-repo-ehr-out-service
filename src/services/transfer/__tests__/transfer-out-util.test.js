@@ -33,8 +33,8 @@ describe('testTransferOutUtil', () => {
   const CONVERSATION_ID = '7fbeaba2-ca21-4af7-8f88-29d805b28411';
   const INBOUND_CONVERSATION_ID = uuid();
   const MESSAGE_ID = '2c1edc4d-052f-42b6-a03f-4470ff88ef05';
-  const UUID_UPPERCASE_REGEX =
-    /^[0-9A-F]{8}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{12}$/;
+  const UUID_LOWERCASE_REGEX =
+      /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/;
 
   function getValidEhrCore() {
     return JSON.parse(readFileSync('src/__tests__/data/ehr_with_fragments/ehr-core', 'utf8'));
@@ -231,15 +231,15 @@ describe('testTransferOutUtil', () => {
       const expectedMessageIdPairs = [
         {
           oldMessageId: '94f76288-de8f-421a-8be1-4d6eb28d6e1d',
-          newMessageId: expect.stringMatching(UUID_UPPERCASE_REGEX)
+          newMessageId: expect.stringMatching(UUID_LOWERCASE_REGEX)
         },
         {
           oldMessageId: 'e48def26-0e44-4b12-98e3-b20271ce35ea',
-          newMessageId: expect.stringMatching(UUID_UPPERCASE_REGEX)
+          newMessageId: expect.stringMatching(UUID_LOWERCASE_REGEX)
         },
         {
           oldMessageId: 'dd552736-5da9-4ca4-a37b-ce43e7a50294',
-          newMessageId: expect.stringMatching(UUID_UPPERCASE_REGEX)
+          newMessageId: expect.stringMatching(UUID_LOWERCASE_REGEX)
         }
       ];
       expect(storeOutboundMessageIds).toHaveBeenCalledWith(
