@@ -64,8 +64,8 @@ export const replaceMessageIdsInObject = (ehrMessage, messageIdReplacements) => 
 
   messageIdReplacements.forEach(messageIdReplacement => {
     ehrMessageJsonString = ehrMessageJsonString.replaceAll(
-      messageIdReplacement.oldMessageId,
-      messageIdReplacement.newMessageId
+      messageIdReplacement.oldMessageId.toUpperCase(),
+      messageIdReplacement.newMessageId.toUpperCase()
     );
   });
 
@@ -90,6 +90,6 @@ export const createAndStoreOutboundMessageIds = async (oldMessageIds, inboundCon
 
 export const getNewMessageIdForOldMessageId = (oldMessageId, messageIdReplacements) => {
   return messageIdReplacements.find(
-    messageIdReplacement => messageIdReplacement.oldMessageId === oldMessageId
+    messageIdReplacement => messageIdReplacement.oldMessageId.toLowerCase() === oldMessageId.toLowerCase()
   ).newMessageId;
 };
