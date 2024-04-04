@@ -14,7 +14,7 @@ export const storeOutboundMessageIds = async (messageIdReplacements, inboundConv
 
   const lookupDictionary = messageIdReplacements.reduce((dictionary, curr) => {
     const { oldMessageId, newMessageId } = curr;
-    dictionary[oldMessageId] = newMessageId;
+    dictionary[oldMessageId.toLowerCase()] = newMessageId;
     return dictionary;
   }, {});
 
@@ -26,7 +26,7 @@ export const storeOutboundMessageIds = async (messageIdReplacements, inboundConv
 
   const allUpdateParams = coreAndFragment.map(item => {
     const inboundMessageId = item.InboundMessageId;
-    const outboundMessageId = lookupDictionary[inboundMessageId];
+    const outboundMessageId = lookupDictionary[inboundMessageId.toLowerCase()];
     if (!outboundMessageId) {
       throw new MessageIdUpdateError(
         'Input array `messageIdReplacements` does not match the actual InboundMessageId records in database'
