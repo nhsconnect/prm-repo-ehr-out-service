@@ -57,7 +57,7 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
 
     await updateConversationStatus(
       conversationId,
-      ConversationStatus.OUTBOUND_SENT_EHR_CORE,
+      ConversationStatus.OUTBOUND_SENT_CORE,
       null,
       'The EHR Core has successfully been sent.'
     );
