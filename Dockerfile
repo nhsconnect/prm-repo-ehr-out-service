@@ -1,6 +1,9 @@
 FROM node:18.2-alpine AS builder
 
 # install python requirements
+RUN apk update && \
+    apk add --no-cache bash tini && \
+    rm -rf /var/cache/apk/*
 
 RUN apk add --no-cache \
         python3 \
@@ -24,6 +27,10 @@ COPY --from=builder /usr/local/bin/node /usr/local/bin
 
 # take native-install node modules
 COPY --from=builder /app /app
+
+RUN apk update && \
+    apk add --no-cache bash tini && \
+    rm -rf /var/cache/apk/*
 
 RUN apk add --no-cache \
         python3 \
