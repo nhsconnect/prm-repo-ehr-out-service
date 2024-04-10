@@ -1,13 +1,14 @@
-import { sendCore } from "../send-core";
-import { logInfo } from "../../../middleware/logging";
 import { SendCoreError } from "../../../errors/errors";
-import nock from "nock";
+import { setupMockConfigForTest } from "./test-utils";
+import { sendCore } from "../send-core";
 import expect from "expect";
-import {setupMockConfigForTest} from "./test-utils";
+import nock from "nock";
+import {updateConversationStatus} from "../../transfer/transfer-out-util";
+import {ConversationStatus} from "../../../constants/enums";
 
 // Mocking
 jest.mock('../../../config');
-jest.mock('../../../middleware/logging');
+jest.mock('../../transfer/transfer-out-util');
 
 describe('sendCore', () => {
   // ============ COMMON PROPERTIES ============
@@ -33,8 +34,9 @@ describe('sendCore', () => {
     setupMockConfigForTest();
   });
 
-  it('should log message if ehr core sent successfully', async () => {
+  it('should call updateConversationStatus if ehr core sent successfully', async () => {
     // when
+    const log = `The EHR Core with Outbound Conversation ID ${CONVERSATION_ID} has successfully been sent.`;
     const mockUrlRequest = nock(REQUEST_BASE_URL, HEADERS)
       .post(`${REQUEST_ENDPOINT}/core`, REQUEST_BODY)
       .reply(204);
@@ -43,7 +45,7 @@ describe('sendCore', () => {
 
     // then
     expect(mockUrlRequest.isDone()).toBe(true);
-    expect(logInfo).toHaveBeenCalledWith('Successfully sent ehr core');
+    expect(updateConversationStatus).toHaveBeenCalledWith(CONVERSATION_ID, ConversationStatus.OUTBOUND_SENT_CORE, null, log);
   });
 
   it('should throw error if sending ehr core unsuccessful', async () => {
