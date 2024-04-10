@@ -34,14 +34,7 @@ They can be found `utils` directory after running any task from `tasks` file.
 | /scripts          | Useful scripts (e.g. for sending canary messages) |
 | /utils            | Contains aws-helpers                              |
 
-## Starting the app
-
-In order to run tasks with npm locally on your host (outside of dojo), you'll need to install postgresql:
-```
-brew install postgresql
-```
-
-### Locally
+## Starting the app locally
 
 *BEWARE be sure what you're doing here as `node_modules` can contain platform-specific files e.g. mac vs linux/amd64 not
 necessarily compatible*

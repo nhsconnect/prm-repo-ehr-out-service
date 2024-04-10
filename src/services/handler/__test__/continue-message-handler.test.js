@@ -29,14 +29,8 @@ jest.mock('../../database/dynamodb/outbound-conversation-repository');
 jest.mock('../../parser/continue-request-parser');
 jest.mock('../../parser/parsing-utilities');
 jest.mock('../../../config', () => ({
-  config: jest.fn().mockReturnValue({
-    sequelize: { dialect: 'postgres' }
-  }),
   hasServiceStartedInTheLast5Minutes: jest.fn()
 }));
-
-// TODO: delete this temp fake object
-const Status = {};
 
 describe('continueMessageHandler', () => {
   // ============ COMMON PROPERTIES ============

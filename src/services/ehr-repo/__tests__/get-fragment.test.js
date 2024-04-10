@@ -9,9 +9,7 @@ jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
   config: jest.fn().mockReturnValue({
     ehrRepoAuthKeys: 'fake-keys',
-    ehrRepoServiceUrl: 'http://fake-ehr-repo-url',
-    sequelize: { dialect: 'postgres' },
-    use_rds_credentials: false
+    ehrRepoServiceUrl: 'http://fake-ehr-repo-url'
   })
 }));
 jest.mock('../../transfer/transfer-out-util');
