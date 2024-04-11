@@ -1,7 +1,7 @@
 import { FragmentStatus, RecordType } from '../constants/enums';
 import { getUKTimestamp } from '../services/time';
 import { addChangesToUpdateParams } from '../utilities/dynamodb-helper';
-import { validateIds } from "../utilities/validation-utilities";
+import { validateIds } from '../utilities/validation-utilities';
 
 const fieldsAllowedToUpdate = [
   'TransferStatus',
