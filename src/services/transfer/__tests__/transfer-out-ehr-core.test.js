@@ -8,7 +8,8 @@ import {
   PresignedUrlNotFoundError,
   DownloadError,
   MessageIdUpdateError,
-  errorMessages
+  errorMessages,
+  StatusUpdateError
 } from '../../../errors/errors';
 import {
   createAndStoreOutboundMessageIds,
@@ -336,6 +337,27 @@ describe('transferOutEhrCore', () => {
         FailureReason.CORE_SENDING_FAILED
       );
       expect(sendCore).not.toHaveBeenCalled();
+    });
+
+    it('should not send out the EHR Core if failed to update conversation status', async () => {
+      // given
+      const errorMessage = 'EHR transfer out request failed';
+      const error = new StatusUpdateError();
+
+      // when
+      getOutboundConversationById.mockResolvedValueOnce(null);
+      createOutboundConversation.mockResolvedValueOnce(undefined);
+      patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
+      updateConversationStatus.mockRejectedValue(error);
+
+      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+
+      // then
+      expect(getOutboundConversationById).toHaveBeenCalledWith(conversationId);
+      expect(createOutboundConversation).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
+      expect(patientAndPracticeOdsCodesMatch).toHaveBeenCalledWith(nhsNumber, odsCode);
+      expect(logError).toHaveBeenCalledWith(errorMessage, error);
+      expect(sendCore).not.toBeCalled();
     });
 
     // NOTE: Not migrating the previous test it('should update the registration request with the Outbound Message ID'),
