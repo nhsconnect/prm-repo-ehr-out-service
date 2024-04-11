@@ -9,8 +9,8 @@ const fieldsAllowedToUpdate = [
   'FailureReason'
 ];
 
-export const buildCoreUpdateParams = (inboundConversationId, inboundMessageId, changes) => {
-  validateIds(inboundConversationId, inboundMessageId);
+export const buildCoreUpdateParams = (inboundConversationId, changes) => {
+  validateIds(inboundConversationId);
 
   const params = {
     Key: {
