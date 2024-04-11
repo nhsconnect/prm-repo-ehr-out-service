@@ -3,36 +3,39 @@ import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import {
   buildMessageIdReplacement,
   cleanupRecordsForTest,
-  createInboundRecordForTest
+  createInboundRecordForTest, createSmallEhrRecord
 } from '../../../../utilities/integration-test-utilities';
 import { createOutboundConversation } from '../outbound-conversation-repository';
 import { storeOutboundMessageIds } from '../store-outbound-message-ids';
-import { messageIdMatchOutboundCore } from '../ehr-core-repository';
+import {
+  getCoreByOutboundConversationId,
+  messageIdMatchOutboundCore,
+  updateCoreStatusInDb
+} from '../ehr-core-repository';
+import { CoreStatus } from "../../../../constants/enums";
+
+const INBOUND_CONVERSATION_ID = uuid();
+const NHS_NUMBER = '9000000001';
+const INBOUND_CORE_MESSAGE_ID = uuid();
+const INBOUND_FRAGMENT_IDS = [uuid(), uuid(), uuid()];
+const ODS_CODE = 'B12345';
+const db = EhrTransferTracker.getInstance();
 
 describe('ehr-core-repository', () => {
-  // ================ CONSTANTS AND SETUPS =====================
-  const INBOUND_CONVERSATION_ID = uuid();
-  const NHS_NUMBER = '9000000001';
-  const INBOUND_CORE_MESSAGE_ID = uuid();
-  const INBOUND_FRAGMENT_IDS = [uuid(), uuid(), uuid()];
-  const ODS_CODE = 'B12345';
-  const db = EhrTransferTracker.getInstance();
-
-  beforeEach(async () => {
-    await createInboundRecordForTest(
-      INBOUND_CONVERSATION_ID,
-      NHS_NUMBER,
-      INBOUND_CORE_MESSAGE_ID,
-      INBOUND_FRAGMENT_IDS
-    );
-  });
-
   afterAll(async () => {
     await cleanupRecordsForTest(INBOUND_CONVERSATION_ID);
   });
 
-  // ================ TEST STARTS HERE =====================
   describe('messageIdMatchOutboundCore', () => {
+    beforeEach(async () => {
+      await createInboundRecordForTest(
+          INBOUND_CONVERSATION_ID,
+          NHS_NUMBER,
+          INBOUND_CORE_MESSAGE_ID,
+          INBOUND_FRAGMENT_IDS
+      );
+    });
+
     it('should return true when the given messageId match the OutboundMessageId of core', async () => {
       // given
       const outboundConversationId = uuid();
@@ -76,6 +79,27 @@ describe('ehr-core-repository', () => {
 
       // then
       expect(result).toEqual(false);
+    });
+  });
+
+  describe('updateCoreStatusInDb', () => {
+    it('should update the CORE status successfully', async () => {
+      // given
+      const outboundConversationId = uuid();
+      const status = CoreStatus.OUTBOUND_SENT;
+
+      await createSmallEhrRecord(
+          INBOUND_CONVERSATION_ID,
+          outboundConversationId,
+          NHS_NUMBER,
+          INBOUND_CORE_MESSAGE_ID
+      );
+
+      await updateCoreStatusInDb(outboundConversationId, status);
+      const result = await getCoreByOutboundConversationId(outboundConversationId);
+
+      // then
+      expect(result.TransferStatus).toEqual(status);
     });
   });
 });

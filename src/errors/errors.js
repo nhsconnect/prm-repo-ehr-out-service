@@ -133,7 +133,7 @@ export class OutboundConversationResetError extends Error {
 
 export class ValidationError extends Error {
   constructor(details) {
-    const fullErrorMessage = errorMessages.VALIDATION_ERROR + details.join(', ');
+    const fullErrorMessage = errorMessages.VALIDATION_ERROR + details;
     super(fullErrorMessage);
     logError(fullErrorMessage);
   };

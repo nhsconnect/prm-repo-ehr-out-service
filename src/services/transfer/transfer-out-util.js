@@ -7,6 +7,7 @@ import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
 import { updateOutboundConversationStatus } from '../database/dynamodb/outbound-conversation-repository';
 import { storeOutboundMessageIds } from '../database/dynamodb/store-outbound-message-ids';
 import { updateFragmentStatusInDb } from '../database/dynamodb/ehr-fragment-repository';
+import { updateCoreStatusInDb } from "../database/dynamodb/ehr-core-repository";
 
 export const downloadFromUrl = async messageUrl => {
   return axios
@@ -24,15 +25,15 @@ export const patientAndPracticeOdsCodesMatch = async (patientNhsNumber, gpPracti
 };
 
 export const updateConversationStatus = async (
-  conversationId,
-  status,
-  failureReason = null,
-  logMessage = null
+    outboundConversationId,
+    status,
+    failureReason = null,
+    logMessage = null
 ) => {
-  setCurrentSpanAttributes({ conversationId });
+  setCurrentSpanAttributes({ conversationId: outboundConversationId });
   logInfo(`Updating conversation with status: ${status}`);
 
-  await updateOutboundConversationStatus(conversationId, status, failureReason)
+  await updateOutboundConversationStatus(outboundConversationId, status, failureReason)
     .then()
     .catch(error => {
       throw new StatusUpdateError(error);
@@ -58,6 +59,21 @@ export const updateFragmentStatus = async (
 
   logInfo(`Updated fragment status to: ${status}`);
 };
+
+export const updateCoreStatus = async (
+    outboundConversationId,
+    status,
+    failureReason = null
+) => {
+  setCurrentSpanAttributes({ conversationId: outboundConversationId });
+  await updateCoreStatusInDb(outboundConversationId, status, failureReason)
+      .then(() => {
+        logInfo(`The CORE record status with Outbound Conversation ID ${outboundConversationId} has been updated to: ${status}`)
+      })
+      .catch(error => {
+        throw new StatusUpdateError(error);
+      });
+}
 
 export const replaceMessageIdsInObject = (ehrMessage, messageIdReplacements) => {
   let ehrMessageJsonString = JSON.stringify(ehrMessage);

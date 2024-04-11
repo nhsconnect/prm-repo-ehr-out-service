@@ -100,3 +100,48 @@ export const buildMessageIdReplacement = (inboundMessageIds, outboundMessageIds)
     newMessageId: outboundMessageIds[i]
   }));
 };
+
+export const createSmallEhrRecord = async (
+    conversationId,
+    outboundConversationId = null,
+    nhsNumber,
+    inboundMessageId,
+    outboundMessageId = null
+) => {
+  if (!IS_IN_LOCAL) {
+    throw new Error('Unexpected call to createConversationForTest method in non-local environment');
+  }
+
+  const timestamp = getUKTimestamp();
+  const db = EhrTransferTracker.getInstance();
+
+  const conversation = {
+    InboundConversationId: conversationId,
+    Layer: RecordType.CONVERSATION,
+    NhsNumber: nhsNumber,
+    CreatedAt: timestamp,
+    UpdatedAt: timestamp,
+    TransferStatus: ConversationStatus.INBOUND_COMPLETE
+  };
+
+  const core = {
+    InboundConversationId: conversationId,
+    Layer: RecordType.CORE,
+    InboundMessageId: inboundMessageId,
+    CreatedAt: timestamp,
+    UpdatedAt: timestamp,
+    ReceivedAt: timestamp,
+    TransferStatus: CoreStatus.INBOUND_COMPLETE
+  };
+
+  if(outboundConversationId !== null) {
+    conversation.OutboundConversationId = outboundConversationId;
+    core.OutboundConversationId = outboundConversationId;
+  }
+
+  if(outboundMessageId !== null) {
+    core.OutboundMessageId = outboundMessageId;
+  }
+
+  await db.writeItemsInTransaction([conversation, core]);
+}

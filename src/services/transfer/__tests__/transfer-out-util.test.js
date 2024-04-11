@@ -4,7 +4,7 @@ import nock from 'nock';
 import { setCurrentSpanAttributes } from '../../../config/tracing';
 import { errorMessages, StatusUpdateError } from '../../../errors/errors';
 import { logError, logInfo } from '../../../middleware/logging';
-import { ConversationStatus, FragmentStatus } from '../../../constants/enums';
+import { ConversationStatus, CoreStatus, FragmentStatus } from '../../../constants/enums';
 import { getPdsOdsCode } from '../../gp2gp/pds-retrieval-request';
 import {
   createAndStoreOutboundMessageIds,
@@ -12,13 +12,14 @@ import {
   getNewMessageIdForOldMessageId,
   patientAndPracticeOdsCodesMatch,
   replaceMessageIdsInObject,
-  updateConversationStatus,
+  updateConversationStatus, updateCoreStatus,
   updateFragmentStatus
 } from '../transfer-out-util';
 import { updateOutboundConversationStatus } from '../../database/dynamodb/outbound-conversation-repository';
 import { storeOutboundMessageIds } from '../../database/dynamodb/store-outbound-message-ids';
 import { updateFragmentStatusInDb } from '../../database/dynamodb/ehr-fragment-repository';
 import { v4 as uuid } from 'uuid';
+import { updateCoreStatusInDb } from "../../database/dynamodb/ehr-core-repository";
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -26,6 +27,7 @@ jest.mock('../../gp2gp/pds-retrieval-request');
 jest.mock('../../database/dynamodb/outbound-conversation-repository');
 jest.mock('../../database/dynamodb/store-outbound-message-ids');
 jest.mock('../../database/dynamodb/ehr-fragment-repository');
+jest.mock('../../database/dynamodb/ehr-core-repository');
 jest.mock('../../../config/tracing');
 
 describe('testTransferOutUtil', () => {
@@ -184,6 +186,36 @@ describe('testTransferOutUtil', () => {
       // then
       await expect(() =>
         updateFragmentStatus(CONVERSATION_ID, MESSAGE_ID, STATUS)
+      ).rejects.toThrowError(StatusUpdateError);
+    });
+  });
+
+  describe('updateCoreStatus', () => {
+    // ============ COMMON PROPERTIES ============
+    const STATUS = CoreStatus.OUTBOUND_SENT;
+    // =================== END ===================
+
+    it('should update the core status successfully', async () => {
+      // when
+      updateCoreStatusInDb.mockResolvedValueOnce(undefined);
+      await updateCoreStatus(CONVERSATION_ID, STATUS);
+
+      // then
+      expect(updateCoreStatusInDb).toBeCalledTimes(1);
+      expect(updateCoreStatusInDb).toHaveBeenCalledWith(
+          CONVERSATION_ID,
+          STATUS,
+          null
+      );
+    });
+
+    it('should throw a StatusUpdateError error', async () => {
+      // when
+      updateCoreStatusInDb.mockRejectedValueOnce(undefined);
+
+      // then
+      await expect(() =>
+          updateCoreStatus(CONVERSATION_ID, STATUS)
       ).rejects.toThrowError(StatusUpdateError);
     });
   });
