@@ -1,6 +1,6 @@
 import {
   patientAndPracticeOdsCodesMatch,
-  updateConversationStatus
+  updateConversationStatus, updateCoreStatus
 } from '../transfer/transfer-out-util';
 import {
   getNhsNumberByOutboundConversationId,
@@ -14,7 +14,7 @@ import {
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { parseConversationId } from '../parser/parsing-utilities';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
-import { ConversationStatus, FailureReason } from '../../constants/enums';
+import { ConversationStatus, CoreStatus, FailureReason } from '../../constants/enums';
 import { hasServiceStartedInTheLast5Minutes } from '../../config';
 
 export default async function continueMessageHandler(message) {
@@ -79,10 +79,9 @@ const handleNewContinueRequest = async (conversationId, continueRequestMessage) 
     return;
   }
 
-  await updateConversationStatus(
-    conversationId,
-    ConversationStatus.OUTBOUND_CONTINUE_REQUEST_RECEIVED
-  );
+  // Update the according statuses.
+  await updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_CONTINUE_REQUEST_RECEIVED);
+  await updateCoreStatus(conversationId, CoreStatus.OUTBOUND_COMPLETE);
 
   await transferOutFragmentsForNewContinueRequest({
     conversationId,
