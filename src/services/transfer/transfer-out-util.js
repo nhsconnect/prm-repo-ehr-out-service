@@ -7,6 +7,7 @@ import { getPdsOdsCode } from '../gp2gp/pds-retrieval-request';
 import { updateOutboundConversationStatus } from '../database/dynamodb/outbound-conversation-repository';
 import { storeOutboundMessageIds } from '../database/dynamodb/store-outbound-message-ids';
 import { updateFragmentStatusInDb } from '../database/dynamodb/ehr-fragment-repository';
+import { updateCoreStatusInDb } from "../database/dynamodb/ehr-core-repository";
 
 export const downloadFromUrl = async messageUrl => {
   return axios
@@ -58,6 +59,24 @@ export const updateFragmentStatus = async (
 
   logInfo(`Updated fragment status to: ${status}`);
 };
+
+export const updateCoreStatus = async (
+  inboundConversationId,
+  inboundMessageId,
+  status,
+  failureReason = null
+) => {
+  setCurrentSpanAttributes({ conversationId: inboundConversationId, messageId: inboundMessageId });
+
+  await updateCoreStatusInDb(inboundConversationId, inboundMessageId, status, failureReason)
+      .then(() => {
+        logInfo(`Updated status of CORE record with Inbound Conversation ID ${inboundConversationId} to: ${status}`)
+      })
+      .catch(error => {
+        logInfo(`Failed to update status of CORE record with Inbound Conversation ID ${inboundConversationId} to: ${status}`)
+        throw new StatusUpdateError(error);
+      });
+}
 
 export const replaceMessageIdsInObject = (ehrMessage, messageIdReplacements) => {
   let ehrMessageJsonString = JSON.stringify(ehrMessage);
