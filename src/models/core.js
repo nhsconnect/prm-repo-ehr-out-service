@@ -2,7 +2,7 @@ import { RecordType } from '../constants/enums';
 import { isFragment } from './fragment';
 import { getUKTimestamp } from "../services/time";
 import { addChangesToUpdateParams } from "../utilities/dynamodb-helper";
-import { validateIds } from "../utilities/validation-utilities";
+import {idValidator, validateId, validateIds} from "../utilities/validation-utilities";
 
 const fieldsAllowedToUpdate = [
   'TransferStatus',
@@ -10,7 +10,7 @@ const fieldsAllowedToUpdate = [
 ];
 
 export const buildCoreUpdateParams = (inboundConversationId, changes) => {
-  validateIds(inboundConversationId);
+  idValidator(inboundConversationId);
 
   const params = {
     Key: {

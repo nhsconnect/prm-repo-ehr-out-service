@@ -10,3 +10,11 @@ export const validateIds = (conversationId, messageId) => {
     );
   }
 };
+
+export const idValidator = (...ids) => {
+  const invalidIds = ids.filter(id => validate(id) === false);
+
+  if (invalidIds.length > 0) {
+    throw new ValidationError(`One or more invalid IDs have been provided, details: ${invalidIds}`);
+  }
+};
