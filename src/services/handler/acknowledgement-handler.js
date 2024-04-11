@@ -49,11 +49,18 @@ const handleNegativeIntegrationAcknowledgement = async (nhsNumber, conversationI
 
 const handlePositiveAcknowledgement = (nhsNumber, conversationId) => {
   const usefulDetails = `for Conversation ID ${conversationId}, and NHS number ${nhsNumber}.`;
+
+  // TODO: PRMT-4739 - UPDATE CORE TO OUTBOUND_COMPLETE
+
   logInfo(`Positive acknowledgement received ${usefulDetails}`);
 };
 
 const handleNegativeAcknowledgement = (acknowledgementDetail, nhsNumber, conversationId) => {
   const usefulDetails = `for Conversation ID ${conversationId}, and NHS number ${nhsNumber}.`;
+
+  // TODO: PRMT-4739 - UPDATE CORE TO OUTBOUND_FAILED
+  // TODO: PRMT-4739 - UPDATE CONVERSATION TO OUTBOUND_FAILED (IF NOT DONE SO ALREADY)
+
   logInfo(`Negative acknowledgement received - detail: ${acknowledgementDetail} ${usefulDetails}`);
 };
 
