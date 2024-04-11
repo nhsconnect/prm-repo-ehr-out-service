@@ -17,17 +17,17 @@ import {
 } from '../database/dynamodb/outbound-conversation-repository';
 import { ConversationStatus, FailureReason } from '../../constants/enums';
 
-export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId }) {
-  setCurrentSpanAttributes({ conversationId });
+export async function transferOutEhrCore({ conversationId: outboundConversationId, nhsNumber, odsCode, ehrRequestId }) {
+  setCurrentSpanAttributes({ conversationId: outboundConversationId });
   logInfo('EHR transfer out request received');
 
   try {
-    if (await isEhrRequestDuplicate(conversationId)) return;
-    await createOutboundConversation(conversationId, nhsNumber, odsCode);
+    if (await isEhrRequestDuplicate(outboundConversationId)) return;
+    await createOutboundConversation(outboundConversationId, nhsNumber, odsCode);
 
     if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
       await updateConversationStatus(
-        conversationId,
+        outboundConversationId,
         ConversationStatus.OUTBOUND_FAILED,
         FailureReason.INCORRECT_ODS_CODE,
         "The patient's ODS Code in PDS does not match the requesting practice's ODS Code."
@@ -36,26 +36,26 @@ export async function transferOutEhrCore({ conversationId, nhsNumber, odsCode, e
       return;
     }
 
-    await updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_STARTED);
+    await updateConversationStatus(outboundConversationId, ConversationStatus.OUTBOUND_STARTED);
 
     logInfo("Retrieving the patient's health record from the EHR Repository.");
 
     const { ehrCoreWithUpdatedMessageId, newMessageId } = await getEhrCoreAndUpdateMessageIds(
       nhsNumber,
-      conversationId
+      outboundConversationId
     );
 
     logInfo('Sending the EHR Core to GP2GP Messenger.');
 
     await sendCore(
-      conversationId,
+      outboundConversationId,
       odsCode,
       ehrCoreWithUpdatedMessageId,
       ehrRequestId,
       newMessageId
     );
   } catch (error) {
-    await handleCoreTransferError(error, conversationId);
+    await handleCoreTransferError(error, outboundConversationId);
   }
 }
 
