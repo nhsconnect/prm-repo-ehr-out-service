@@ -8,7 +8,6 @@ import {
   PresignedUrlNotFoundError,
   DownloadError,
   MessageIdUpdateError,
-  StatusUpdateError,
   errorMessages
 } from '../../../errors/errors';
 import {
@@ -308,27 +307,6 @@ describe('transferOutEhrCore', () => {
         message
       );
       expect(sendCore).not.toHaveBeenCalled();
-    });
-
-    it('should not send out the EHR Core if failed to update conversation status', async () => {
-      // given
-      const errorMessage = 'EHR transfer out request failed';
-      const error = new StatusUpdateError();
-
-      // when
-      getOutboundConversationById.mockResolvedValueOnce(null);
-      createOutboundConversation.mockResolvedValueOnce(undefined);
-      patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
-      updateConversationStatus.mockRejectedValue(error);
-
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
-
-      // then
-      expect(getOutboundConversationById).toHaveBeenCalledWith(conversationId);
-      expect(createOutboundConversation).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
-      expect(patientAndPracticeOdsCodesMatch).toHaveBeenCalledWith(nhsNumber, odsCode);
-      expect(logError).toHaveBeenCalledWith(errorMessage, error);
-      expect(sendCore).not.toBeCalled();
     });
 
     it('should not send out the EHR Core if we receive a fragment but the process to update its message ids fails', async () => {
