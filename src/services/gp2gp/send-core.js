@@ -3,8 +3,8 @@ import { logInfo } from '../../middleware/logging';
 import { config } from '../../config';
 import { SendCoreError } from "../../errors/errors";
 import { logOutboundMessage } from "./logging-utils";
-import { updateConversationStatus } from "../transfer/transfer-out-util";
-import { ConversationStatus } from "../../constants/enums";
+import { updateConversationStatus, updateCoreStatus } from "../transfer/transfer-out-util";
+import { ConversationStatus, CoreStatus } from "../../constants/enums";
 
 export const sendCore = async (conversationId, odsCode, coreEhr, ehrRequestId, newMessageId) => {
   const { gp2gpMessengerServiceUrl, gp2gpMessengerAuthKeys } = config();
@@ -23,6 +23,8 @@ export const sendCore = async (conversationId, odsCode, coreEhr, ehrRequestId, n
           null,
           `The EHR Core with Outbound Conversation ID ${conversationId} has successfully been sent.`
       );
+
+      await updateCoreStatus(conversationId, CoreStatus.OUTBOUND_SENT);
     })
     .catch(error => {
       throw new SendCoreError(error);
