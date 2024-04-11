@@ -4,7 +4,7 @@ import nock from 'nock';
 import { setCurrentSpanAttributes } from '../../../config/tracing';
 import { errorMessages, StatusUpdateError } from '../../../errors/errors';
 import { logError, logInfo } from '../../../middleware/logging';
-import {ConversationStatus, CoreStatus, FragmentStatus} from '../../../constants/enums';
+import { ConversationStatus, CoreStatus, FragmentStatus } from '../../../constants/enums';
 import { getPdsOdsCode } from '../../gp2gp/pds-retrieval-request';
 import {
   createAndStoreOutboundMessageIds,
@@ -19,7 +19,7 @@ import { updateOutboundConversationStatus } from '../../database/dynamodb/outbou
 import { storeOutboundMessageIds } from '../../database/dynamodb/store-outbound-message-ids';
 import { updateFragmentStatusInDb } from '../../database/dynamodb/ehr-fragment-repository';
 import { v4 as uuid } from 'uuid';
-import {updateCoreStatusInDb} from "../../database/dynamodb/ehr-core-repository";
+import { updateCoreStatusInDb } from "../../database/dynamodb/ehr-core-repository";
 
 // Mocking
 jest.mock('../../../middleware/logging');
