@@ -6,11 +6,11 @@ import { logOutboundMessage } from "./logging-utils";
 import { updateConversationStatus, updateCoreStatus } from "../transfer/transfer-out-util";
 import { ConversationStatus, CoreStatus } from "../../constants/enums";
 
-export const sendCore = async (conversationId, odsCode, coreEhr, ehrRequestId, newMessageId) => {
+export const sendCore = async (outboundConversationId, odsCode, coreEhr, ehrRequestId, newMessageId) => {
   const { gp2gpMessengerServiceUrl, gp2gpMessengerAuthKeys } = config();
   const url = `${gp2gpMessengerServiceUrl}/ehr-out-transfers/core`;
 
-  const requestBody = { conversationId, odsCode, coreEhr, ehrRequestId, messageId: newMessageId };
+  const requestBody = { conversationId: outboundConversationId, odsCode, coreEhr, ehrRequestId, messageId: newMessageId };
 
   logInfo('POST request to gp2gp /ehr-out-transfers/core with request body as below:');
   logOutboundMessage(requestBody);
@@ -18,13 +18,13 @@ export const sendCore = async (conversationId, odsCode, coreEhr, ehrRequestId, n
   await axios.post(url, requestBody, { headers: { Authorization: gp2gpMessengerAuthKeys } })
     .then(async () => {
       await updateConversationStatus(
-          conversationId,
+          outboundConversationId,
           ConversationStatus.OUTBOUND_SENT_CORE,
           null,
-          `The EHR Core with Outbound Conversation ID ${conversationId} has successfully been sent.`
+          `The EHR Core with Outbound Conversation ID ${outboundConversationId} has successfully been sent.`
       );
 
-      await updateCoreStatus(conversationId, CoreStatus.OUTBOUND_SENT);
+      await updateCoreStatus(outboundConversationId, CoreStatus.OUTBOUND_SENT);
     })
     .catch(error => {
       throw new SendCoreError(error);
