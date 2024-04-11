@@ -61,19 +61,16 @@ export const updateFragmentStatus = async (
 };
 
 export const updateCoreStatus = async (
-  inboundConversationId,
-  inboundMessageId,
-  status,
-  failureReason = null
+    outboundConversationId,
+    status,
+    failureReason = null
 ) => {
-  setCurrentSpanAttributes({ conversationId: inboundConversationId, messageId: inboundMessageId });
-
-  await updateCoreStatusInDb(inboundConversationId, inboundMessageId, status, failureReason)
+  setCurrentSpanAttributes({ conversationId: outboundConversationId });
+  await updateCoreStatusInDb(outboundConversationId, status, failureReason)
       .then(() => {
-        logInfo(`Updated status of CORE record with Inbound Conversation ID ${inboundConversationId} to: ${status}`)
+        logInfo(`The CORE record status with Outbound Conversation ID ${outboundConversationId} has been updated to: ${status}`)
       })
       .catch(error => {
-        logInfo(`Failed to update status of CORE record with Inbound Conversation ID ${inboundConversationId} to: ${status}`)
         throw new StatusUpdateError(error);
       });
 }
