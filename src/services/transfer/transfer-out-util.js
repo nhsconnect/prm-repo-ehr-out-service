@@ -25,15 +25,15 @@ export const patientAndPracticeOdsCodesMatch = async (patientNhsNumber, gpPracti
 };
 
 export const updateConversationStatus = async (
-  conversationId,
-  status,
-  failureReason = null,
-  logMessage = null
+    outboundConversationId,
+    status,
+    failureReason = null,
+    logMessage = null
 ) => {
-  setCurrentSpanAttributes({ conversationId });
+  setCurrentSpanAttributes({ conversationId: outboundConversationId });
   logInfo(`Updating conversation with status: ${status}`);
 
-  await updateOutboundConversationStatus(conversationId, status, failureReason)
+  await updateOutboundConversationStatus(outboundConversationId, status, failureReason)
     .then()
     .catch(error => {
       throw new StatusUpdateError(error);
