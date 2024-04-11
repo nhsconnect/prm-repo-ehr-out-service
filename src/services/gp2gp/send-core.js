@@ -15,8 +15,11 @@ export const sendCore = async (outboundConversationId, odsCode, coreEhr, ehrRequ
   logInfo('POST request to gp2gp /ehr-out-transfers/core with request body as below:');
   logOutboundMessage(requestBody);
 
+  // TODO: We could have an additional status here for OUTBOUND_SENDING in the event
+  // TODO: that the core is sent, but we have trouble updating the database to say it's been sent.
+
   await axios.post(url, requestBody, { headers: { Authorization: gp2gpMessengerAuthKeys } })
-    .then(async () => {
+    .then(async () => { // 2XX
       await updateConversationStatus(
           outboundConversationId,
           ConversationStatus.OUTBOUND_SENT_CORE,
