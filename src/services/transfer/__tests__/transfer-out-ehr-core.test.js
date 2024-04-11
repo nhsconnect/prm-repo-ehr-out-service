@@ -8,8 +8,8 @@ import {
   PresignedUrlNotFoundError,
   DownloadError,
   MessageIdUpdateError,
-  errorMessages,
-  StatusUpdateError
+  StatusUpdateError,
+  errorMessages
 } from '../../../errors/errors';
 import {
   createAndStoreOutboundMessageIds,
