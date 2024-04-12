@@ -38,11 +38,11 @@ describe('transferOutFragments', () => {
   // ============ COMMON PROPERTIES ============
   const odsCode = 'B12345';
   const nhsNumber = 1234567890;
-  const inboundConversationId = 'a52e8782-2268-4d49-ab69-5fcfa10eb43a';
-  const outboundConversationId = 'cbc75815-8ee8-4554-980a-f7f8fd2cd341';
+  const inboundConversationId = 'A52E8782-2268-4D49-AB69-5FCFA10EB43A';
+  const outboundConversationId = 'CBC75815-8EE8-4554-980A-F7F8FD2CD341';
 
-  const originalMessageId1 = '2526ea9f-f800-461d-8046-8bc512920d23';
-  const originalMessageId2 = '6e7725e3-0cab-4fd8-a518-eeda7b5925a6';
+  const originalMessageId1 = '2526EA9F-F800-461D-8046-8BC512920D23';
+  const originalMessageId2 = '6E7725E3-0CAB-4FD8-A518-EEDA7B5925A6';
   const updatedMessageId1 = '7B2D6A16-2C50-4BF8-A923-E14003816ECC';
   const updatedMessageId2 = 'DDA75C2B-18B6-424D-B94B-83205AAF2FEA';
 

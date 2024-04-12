@@ -24,7 +24,7 @@ describe('auth', () => {
   const testApp = buildTestApp('/registration-requests', registrationRequests);
   const odsCode = 'A12345';
   const nhsNumber = '1234567890';
-  const conversationId = v4();
+  const conversationId = v4().toUpperCase();
 
   describe('authenticated successfully', () => {
     it('should return HTTP 204 when correctly authenticated', async () => {

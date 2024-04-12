@@ -37,20 +37,20 @@ jest.mock('../../parser/parsing-utilities');
 
 describe('transferOutEhrCore', () => {
   // ========================== CONSTANTS AND SETUP  ========================================
-  const conversationId = '5bb36755-279f-43d5-86ab-defea717d93f';
-  const inboundConversationId = uuid();
+  const conversationId = '5BB36755-279F-43D5-86AB-DEFEA717D93F';
+  const inboundConversationId = uuid().toUpperCase();
   const ehrRequestId = '870f6ef9-746f-4e81-b51f-884d64530bed';
-  const messageId = '835a2b69-bac0-4f6f-97a8-897350604380';
-  const newMessageId = uuid();
+  const messageId = '835A2B69-BAC0-4F6F-97A8-897350604380';
+  const newMessageId = uuid().toUpperCase();
   const fragmentMessageIds = ['id1', 'id2', 'id3'];
   const messageIdWithReplacementsEhrCoreWithNoFragments = [
     { oldMessageId: messageId, newMessageId }
   ];
   const messageIdWithReplacementsEhrCoreWithFragments = [
     { oldMessageId: messageId, newMessageId },
-    { oldMessageId: fragmentMessageIds[0], newMessageId: uuid() },
-    { oldMessageId: fragmentMessageIds[1], newMessageId: uuid() },
-    { oldMessageId: fragmentMessageIds[2], newMessageId: uuid() }
+    { oldMessageId: fragmentMessageIds[0], newMessageId: uuid().toUpperCase() },
+    { oldMessageId: fragmentMessageIds[1], newMessageId: uuid().toUpperCase() },
+    { oldMessageId: fragmentMessageIds[2], newMessageId: uuid().toUpperCase() }
   ];
   const odsCode = 'A12345';
   const nhsNumber = '1111111111';

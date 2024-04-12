@@ -14,10 +14,10 @@ import {
 } from '../ehr-core-repository';
 import { CoreStatus } from "../../../../constants/enums";
 
-const INBOUND_CONVERSATION_ID = uuid();
+const INBOUND_CONVERSATION_ID = uuid().toUpperCase();
 const NHS_NUMBER = '9000000001';
-const INBOUND_CORE_MESSAGE_ID = uuid();
-const INBOUND_FRAGMENT_IDS = [uuid(), uuid(), uuid()];
+const INBOUND_CORE_MESSAGE_ID = uuid().toUpperCase();
+const INBOUND_FRAGMENT_IDS = [uuid().toUpperCase(), uuid().toUpperCase(), uuid().toUpperCase()];
 const ODS_CODE = 'B12345';
 const db = EhrTransferTracker.getInstance();
 
@@ -38,9 +38,9 @@ describe('ehr-core-repository', () => {
 
     it('should return true when the given messageId match the OutboundMessageId of core', async () => {
       // given
-      const outboundConversationId = uuid();
-      const outboundCoreMessageId = uuid();
-      const outboundFragmentIds = INBOUND_FRAGMENT_IDS.map(() => uuid());
+      const outboundConversationId = uuid().toUpperCase();
+      const outboundCoreMessageId = uuid().toUpperCase();
+      const outboundFragmentIds = INBOUND_FRAGMENT_IDS.map(() => uuid().toUpperCase());
       const messageIdReplacement = buildMessageIdReplacement(
         [INBOUND_CORE_MESSAGE_ID, ...INBOUND_FRAGMENT_IDS],
         [outboundCoreMessageId, ...outboundFragmentIds]
@@ -61,15 +61,15 @@ describe('ehr-core-repository', () => {
 
     it('should return false if the given messageId does not match OutboundMessageId of core', async () => {
       // given
-      const outboundConversationId = uuid();
-      const outboundCoreMessageId = uuid();
-      const outboundFragmentIds = INBOUND_FRAGMENT_IDS.map(() => uuid());
+      const outboundConversationId = uuid().toUpperCase();
+      const outboundCoreMessageId = uuid().toUpperCase();
+      const outboundFragmentIds = INBOUND_FRAGMENT_IDS.map(() => uuid().toUpperCase());
       const messageIdReplacement = buildMessageIdReplacement(
         [INBOUND_CORE_MESSAGE_ID, ...INBOUND_FRAGMENT_IDS],
         [outboundCoreMessageId, ...outboundFragmentIds]
       );
 
-      const nonExistMessageId = uuid();
+      const nonExistMessageId = uuid().toUpperCase();
 
       // when
       await createOutboundConversation(outboundConversationId, NHS_NUMBER, ODS_CODE);
@@ -85,7 +85,7 @@ describe('ehr-core-repository', () => {
   describe('updateCoreStatusInDb', () => {
     it('should update the CORE status successfully', async () => {
       // given
-      const outboundConversationId = uuid();
+      const outboundConversationId = uuid().toUpperCase();
       const status = CoreStatus.OUTBOUND_SENT;
 
       await createSmallEhrRecord(
