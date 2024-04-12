@@ -91,8 +91,8 @@ export const replaceMessageIdsInObject = (ehrMessage, messageIdReplacements) => 
 export const createAndStoreOutboundMessageIds = async (oldMessageIds, inboundConversationId) => {
   const messageIdReplacements = oldMessageIds.map(oldMessageId => {
     return {
-      oldMessageId: oldMessageId.toLowerCase(),
-      newMessageId: uuidv4()
+      oldMessageId: oldMessageId.toUpperCase(),
+      newMessageId: uuidv4().toUpperCase()
     };
   });
 
@@ -106,6 +106,6 @@ export const createAndStoreOutboundMessageIds = async (oldMessageIds, inboundCon
 
 export const getNewMessageIdForOldMessageId = (oldMessageId, messageIdReplacements) => {
   return messageIdReplacements.find(
-    messageIdReplacement => messageIdReplacement.oldMessageId.toLowerCase() === oldMessageId.toLowerCase()
+    messageIdReplacement => messageIdReplacement.oldMessageId.toUpperCase() === oldMessageId.toUpperCase()
   ).newMessageId;
 };

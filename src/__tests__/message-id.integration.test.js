@@ -28,7 +28,7 @@ describe('Replacement of message IDs', () => {
   const ehrRepoAuth = 'ehr-repo-auth';
   const ehrRepoHeaders = { reqheaders: { authorization: auth => auth === ehrRepoAuth } };
 
-  const conversationId = uuidv4();
+  const conversationId = uuidv4().toUpperCase();
   const nhsNumber = '1234567890';
   const odsCode = 'fake-ods-code';
   const ehrRequestId = uuidv4();
