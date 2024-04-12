@@ -32,11 +32,11 @@ jest.mock('../../../config/tracing');
 
 describe('testTransferOutUtil', () => {
   // ============ COMMON PROPERTIES ============
-  const CONVERSATION_ID = '7fbeaba2-ca21-4af7-8f88-29d805b28411';
-  const INBOUND_CONVERSATION_ID = uuid();
-  const MESSAGE_ID = '2c1edc4d-052f-42b6-a03f-4470ff88ef05';
-  const UUID_LOWERCASE_REGEX =
-      /^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/;
+  const CONVERSATION_ID = '7FBEABA2-CA21-4AF7-8F88-29D805B28411';
+  const INBOUND_CONVERSATION_ID = uuid().toUpperCase();
+  const MESSAGE_ID = '2C1EDC4D-052F-42B6-A03F-4470FF88EF05';
+  const UUID_UPPERCASE_REGEX =
+      /^[0-9A-F]{8}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{12}$/;
 
   function getValidEhrCore() {
     return JSON.parse(readFileSync('src/__tests__/data/ehr_with_fragments/ehr-core', 'utf8'));
@@ -248,9 +248,9 @@ describe('testTransferOutUtil', () => {
 
   describe('createNewMessageIds', () => {
     const oldFragmentMessageIds = [
-      '94f76288-de8f-421a-8be1-4d6eb28d6e1d',
-      'e48def26-0e44-4b12-98e3-b20271ce35ea',
-      'dd552736-5da9-4ca4-a37b-ce43e7a50294'
+      '94F76288-DE8F-421A-8BE1-4D6EB28D6E1D',
+      'E48DEF26-0E44-4B12-98E3-B20271CE35EA',
+      'DD552736-5DA9-4CA4-A37B-CE43E7A50294'
     ];
 
     it('should create new fragment message ids and store them in database', async () => {
@@ -262,16 +262,16 @@ describe('testTransferOutUtil', () => {
       // then
       const expectedMessageIdPairs = [
         {
-          oldMessageId: '94f76288-de8f-421a-8be1-4d6eb28d6e1d',
-          newMessageId: expect.stringMatching(UUID_LOWERCASE_REGEX)
+          oldMessageId: '94F76288-DE8F-421A-8BE1-4D6EB28D6E1D',
+          newMessageId: expect.stringMatching(UUID_UPPERCASE_REGEX)
         },
         {
-          oldMessageId: 'e48def26-0e44-4b12-98e3-b20271ce35ea',
-          newMessageId: expect.stringMatching(UUID_LOWERCASE_REGEX)
+          oldMessageId: 'E48DEF26-0E44-4B12-98E3-B20271CE35EA',
+          newMessageId: expect.stringMatching(UUID_UPPERCASE_REGEX)
         },
         {
-          oldMessageId: 'dd552736-5da9-4ca4-a37b-ce43e7a50294',
-          newMessageId: expect.stringMatching(UUID_LOWERCASE_REGEX)
+          oldMessageId: 'DD552736-5DA9-4CA4-A37B-CE43E7A50294',
+          newMessageId: expect.stringMatching(UUID_UPPERCASE_REGEX)
         }
       ];
       expect(storeOutboundMessageIds).toHaveBeenCalledWith(
@@ -295,15 +295,15 @@ describe('testTransferOutUtil', () => {
   describe('getNewMessageIdForOldMessageId', () => {
     it('should return a new message ID for an old message ID', () => {
       // given
-      const oldMessageId = 'e48def26-0e44-4b12-98e3-b20271ce35ea';
+      const oldMessageId = 'E48DEF26-0E44-4B12-98E3-B20271CE35EA';
       const messageIdReplacements = [
         {
-          oldMessageId: '94f76288-de8f-421a-8be1-4d6eb28d6e1d',
-          newMessageId: '62151c2f-d8c8-4ea9-b5fc-e0e603d063ef'
+          oldMessageId: '94F76288-DE8F-421A-8BE1-4D6EB28D6E1D',
+          newMessageId: '62151C2F-D8C8-4EA9-B5FC-E0E603D063EF'
         },
         {
           oldMessageId,
-          newMessageId: '7f3bd33e-5cf9-40eb-a246-4ee0d73f0c9b'
+          newMessageId: '7F3BD33E-5CF9-40EB-A246-4EE0D73F0C9B'
         }
       ];
 

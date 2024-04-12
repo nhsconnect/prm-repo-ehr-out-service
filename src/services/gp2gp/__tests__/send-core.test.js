@@ -15,11 +15,11 @@ describe('sendCore', () => {
   const AUTH_KEYS = 'fake-keys';
   const REQUEST_BASE_URL = 'http://localhost';
   const REQUEST_ENDPOINT = '/ehr-out-transfers';
-  const CONVERSATION_ID = '22d24155-c08c-4cac-a84a-4a5db46a2f99';
+  const CONVERSATION_ID = '22D24155-C08C-4CAC-A84A-4A5DB46A2F99';
   const ODS_CODE = 'G67200';
   const CORE_EHR = { ebXML: "", payload: "", attachments: [] };
   const EHR_REQUEST_ID = '5cefa7a2-fbca-494a-a114-6f58fae4be4a';
-  const MESSAGE_ID = '242d2dfa-9972-4798-8397-86a046f98e1d';
+  const MESSAGE_ID = '242D2DFA-9972-4798-8397-86A046F98E1D';
   const REQUEST_BODY = {
     conversationId: CONVERSATION_ID,
     odsCode: ODS_CODE,

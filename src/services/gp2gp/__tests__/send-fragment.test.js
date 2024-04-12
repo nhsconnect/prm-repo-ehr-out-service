@@ -18,9 +18,9 @@ describe('sendFragment', () => {
   const AUTH_KEYS = 'fake-keys';
   const REQUEST_BASE_URL = 'http://localhost';
   const REQUEST_ENDPOINT = '/ehr-out-transfers';
-  const CONVERSATION_ID = '22d24155-c08c-4cac-a84a-4a5db46a2f99';
+  const CONVERSATION_ID = '22D24155-C08C-4CAC-A84A-4A5DB46A2F99';
   const ODS_CODE = 'G67200';
-  const MESSAGE_ID = '5cefa7a2-fbca-494a-a114-6f58fae4be4a';
+  const MESSAGE_ID = '5CEFA7A2-FBCA-494A-A114-6F58FAE4BE4A';
   const FRAGMENT_MESSAGE = { ebXML: '', payload: '', attachments: [] };
   const HEADERS = { reqheaders: { Authorization: AUTH_KEYS } };
   // =================== END ===================

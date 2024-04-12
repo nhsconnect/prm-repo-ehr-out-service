@@ -208,7 +208,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
       ehrCore: JSON.parse(originalEhrCore),
       fragmentMessageIds: []
     };
-    const messageId = '4aa69fd3-6aaf-4f51-98ef-58a342c3265f';
+    const messageId = '4AA69FD3-6AAF-4F51-98EF-58A342C3265F';
     await createInboundRecordForTest(inboundConversationId, nhsNumber, inboundCoreMessageId, []);
 
     // when

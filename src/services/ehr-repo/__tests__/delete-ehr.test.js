@@ -17,13 +17,13 @@ describe('delete-ehr.js', () => {
     // ============ COMMON PROPERTIES ============
     const NOCK_BASE_URL = 'http://localhost'
     const NHS_NUMBER = 1234567890;
-    const CONVERSATION_ID = uuid();
+    const CONVERSATION_ID = uuid().toUpperCase();
     const EXPECTED_RESPONSE = {
       data: {
         type: "patients",
-        id: uuid(),
+        id: uuid().toUpperCase(),
         conversationIds: [
-          uuid()
+          uuid().toUpperCase()
         ]
       }
     };

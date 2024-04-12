@@ -13,7 +13,7 @@ jest.mock('../../transfer/transfer-out-ehr-core');
 
 describe('ehrRequestHandler', () => {
   // ============ COMMON PROPERTIES ============
-  const CONVERSATION_ID = '17a757f2-f4d2-444e-a246-9cb77bef7f22';
+  const CONVERSATION_ID = '17A757F2-F4D2-444E-A246-9CB77BEF7F22';
   const EHR_REQUEST_ID = 'FFFB3C70-0BCC-4D9E-A441-7E9C41A897AA';
   const NHS_NUMBER = '9692842304';
   const ODS_CODE = 'A91720';

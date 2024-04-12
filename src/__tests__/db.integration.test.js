@@ -14,12 +14,12 @@ describe('Database connection test', () => {
   // ================ CONSTANTS AND SETUPS =====================
   const NUMBER_OF_TRANSACTIONS = 100;
 
-  const INBOUND_CONVERSATION_ID = uuid();
+  const INBOUND_CONVERSATION_ID = uuid().toUpperCase();
   const NHS_NUMBER = '9000000001';
-  const INBOUND_CORE_MESSAGE_ID = uuid();
+  const INBOUND_CORE_MESSAGE_ID = uuid().toUpperCase();
   const INBOUND_FRAGMENT_IDS = Array(NUMBER_OF_TRANSACTIONS)
     .fill('')
-    .map(() => uuid());
+    .map(() => uuid().toUpperCase());
   const db = EhrTransferTracker.getInstance();
 
   beforeEach(async () => {

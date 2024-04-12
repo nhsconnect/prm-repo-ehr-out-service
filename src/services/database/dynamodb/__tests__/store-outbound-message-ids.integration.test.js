@@ -17,10 +17,10 @@ jest.mock('../../../../middleware/logging');
 describe('storeOutboundMessageIds', () => {
   // ================ CONSTANTS AND SETUPS =====================
   const uuid = () => v4().toUpperCase();
-  const INBOUND_CONVERSATION_ID = uuid();
+  const INBOUND_CONVERSATION_ID = uuid().toUpperCase();
   const NHS_NUMBER = '9000000001';
-  const INBOUND_CORE_MESSAGE_ID = uuid();
-  const INBOUND_FRAGMENT_IDS = [uuid(), uuid(), uuid()];
+  const INBOUND_CORE_MESSAGE_ID = uuid().toUpperCase();
+  const INBOUND_FRAGMENT_IDS = [uuid().toUpperCase(), uuid().toUpperCase(), uuid().toUpperCase()];
   const ODS_CODE = 'B12345';
   const db = EhrTransferTracker.getInstance();
 
@@ -31,8 +31,8 @@ describe('storeOutboundMessageIds', () => {
   // ================ TEST STARTS HERE =====================
   it('should store the outbound message IDs in database', async () => {
     // given
-    const outboundConversationId = uuid();
-    const outboundCoreMessageId = uuid();
+    const outboundConversationId = uuid().toUpperCase();
+    const outboundCoreMessageId = uuid().toUpperCase();
     const outboundFragmentMessageIds = INBOUND_FRAGMENT_IDS.map(uuid);
     let messageIdReplacements = [
       {
@@ -92,8 +92,8 @@ describe('storeOutboundMessageIds', () => {
   it('should log event if data persisted correctly', async () => {
     // given
     const oldMessageId = INBOUND_CORE_MESSAGE_ID;
-    const newMessageId = uuid();
-    const outboundConversationId = uuid();
+    const newMessageId = uuid().toUpperCase();
+    const outboundConversationId = uuid().toUpperCase();
     await createInboundRecordForTest(INBOUND_CONVERSATION_ID, NHS_NUMBER, INBOUND_CORE_MESSAGE_ID);
     await createOutboundConversation(outboundConversationId, NHS_NUMBER, ODS_CODE);
 
@@ -108,8 +108,8 @@ describe('storeOutboundMessageIds', () => {
   it('should throw an error when oldMessageId is invalid', async () => {
     // given
     const oldMessageId = 'INVALID-OLD-MESSAGE-ID';
-    const newMessageId = uuid();
-    const outboundConversationId = uuid();
+    const newMessageId = uuid().toUpperCase();
+    const outboundConversationId = uuid().toUpperCase();
     await createInboundRecordForTest(INBOUND_CONVERSATION_ID, NHS_NUMBER, INBOUND_CORE_MESSAGE_ID);
     await createOutboundConversation(outboundConversationId, NHS_NUMBER, ODS_CODE);
 
@@ -130,7 +130,7 @@ describe('storeOutboundMessageIds', () => {
     // given
     const oldMessageId = INBOUND_CORE_MESSAGE_ID;
     const newMessageId = 'INVALID-NEW-MESSAGE-ID';
-    const outboundConversationId = uuid();
+    const outboundConversationId = uuid().toUpperCase();
     await createInboundRecordForTest(INBOUND_CONVERSATION_ID, NHS_NUMBER, INBOUND_CORE_MESSAGE_ID);
     await createOutboundConversation(outboundConversationId, NHS_NUMBER, ODS_CODE);
 

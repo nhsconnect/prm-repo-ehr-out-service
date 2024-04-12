@@ -39,7 +39,7 @@ describe('Replacement of message IDs', () => {
     'DFEC7741-DDC7-41ED-808B-AC162D1F16F0',
     'DFF61430-DDC7-41ED-808B-AC162D1F16F0'
   ];
-  const inboundConversationId = '5037ae3a-0ce2-4f47-adb5-8fdd92e6f5a4';
+  const inboundConversationId = '5037AE3A-0CE2-4F47-ADB5-8FDD92E6F5A4';
   const ehrCorePresignedUrl = 'http://fake-core-presigned-url';
 
   beforeAll(async () => {

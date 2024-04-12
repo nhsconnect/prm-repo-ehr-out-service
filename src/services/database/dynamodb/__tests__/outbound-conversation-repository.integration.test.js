@@ -29,10 +29,10 @@ jest.mock('../../../../middleware/logging');
 
 describe('outbound-conversation-repository', () => {
   // ================ CONSTANTS AND SETUPS =====================
-  const INBOUND_CONVERSATION_ID = uuid();
+  const INBOUND_CONVERSATION_ID = uuid().toUpperCase();
   const NHS_NUMBER = '9000000001';
-  const INBOUND_CORE_MESSAGE_ID = uuid();
-  const INBOUND_FRAGMENT_IDS = [uuid(), uuid(), uuid()];
+  const INBOUND_CORE_MESSAGE_ID = uuid().toUpperCase();
+  const INBOUND_FRAGMENT_IDS = [uuid().toUpperCase(), uuid().toUpperCase(), uuid().toUpperCase()];
   const ODS_CODE = 'B12345';
   const db = EhrTransferTracker.getInstance();
 
@@ -53,7 +53,7 @@ describe('outbound-conversation-repository', () => {
   describe('createOutboundConversation', () => {
     it('should create outboundConversation with correct values', async () => {
       // given
-      const conversationId = uuid();
+      const conversationId = uuid().toUpperCase();
 
       // when
       await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
@@ -71,7 +71,7 @@ describe('outbound-conversation-repository', () => {
 
     it('should log event if data persisted correctly', async () => {
       // given
-      const conversationId = uuid();
+      const conversationId = uuid().toUpperCase();
 
       // when
       await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
@@ -83,7 +83,7 @@ describe('outbound-conversation-repository', () => {
 
     it('should log errors when nhs number is invalid', async () => {
       // given
-      const conversationId = uuid();
+      const conversationId = uuid().toUpperCase();
 
       try {
         // when
@@ -108,9 +108,9 @@ describe('outbound-conversation-repository', () => {
 
     it('should clear any previous outbound record before starting new outbound transfer', async () => {
       // ========================= GIVEN =============================
-      const previousOutboundConversationId = uuid();
+      const previousOutboundConversationId = uuid().toUpperCase();
       const previousDestinationGp = 'A12345';
-      const newOutboundConversationId = uuid();
+      const newOutboundConversationId = uuid().toUpperCase();
       const items = await db.queryTableByInboundConversationId(
         INBOUND_CONVERSATION_ID,
         RecordType.ALL
@@ -122,7 +122,7 @@ describe('outbound-conversation-repository', () => {
           changes.DestinationGp = previousDestinationGp;
         } else {
           changes.TransferStatus = FragmentStatus.OUTBOUND_COMPLETE;
-          changes.OutboundMessageId = uuid();
+          changes.OutboundMessageId = uuid().toUpperCase();
         }
         return buildUpdateParamFromItem(item, changes);
       });
@@ -170,7 +170,7 @@ describe('outbound-conversation-repository', () => {
   describe('getOutboundConversationById', () => {
     it('should retrieve the outbound conversation by conversation id', async () => {
       // given
-      const conversationId = uuid();
+      const conversationId = uuid().toUpperCase();
       await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
 
       // when
@@ -186,7 +186,7 @@ describe('outbound-conversation-repository', () => {
 
     it('should return null when it cannot find the outbound conversation', async () => {
       // given
-      const nonExistentConversationId = uuid();
+      const nonExistentConversationId = uuid().toUpperCase();
 
       // when
       const result = await getOutboundConversationById(nonExistentConversationId);
@@ -199,7 +199,7 @@ describe('outbound-conversation-repository', () => {
   describe('updateOutboundConversationStatus', () => {
     it('should change the TransferStatus of conversation', async () => {
       // given
-      const conversationId = uuid();
+      const conversationId = uuid().toUpperCase();
       const status = ConversationStatus.OUTBOUND_CONTINUE_REQUEST_RECEIVED;
       await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
 
@@ -214,7 +214,7 @@ describe('outbound-conversation-repository', () => {
 
     it('should be able to store a failure reason if given', async () => {
       // given
-      const conversationId = uuid();
+      const conversationId = uuid().toUpperCase();
       const status = ConversationStatus.OUTBOUND_FAILED;
       const failureReason = FailureReason.EHR_DOWNLOAD_FAILED;
       await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
@@ -234,7 +234,7 @@ describe('outbound-conversation-repository', () => {
   describe('getNhsNumberByOutboundConversationId', () => {
     it('should return the nhs number of a registration-request', async () => {
       // given
-      const conversationId = uuid();
+      const conversationId = uuid().toUpperCase();
       await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
 
       // when
@@ -246,7 +246,7 @@ describe('outbound-conversation-repository', () => {
 
     it('should throw an error if cannot find the nhs number related to given conversation id', async () => {
       // given
-      const conversationId = uuid();
+      const conversationId = uuid().toUpperCase();
 
       // when
       await expect(getNhsNumberByOutboundConversationId(conversationId))
