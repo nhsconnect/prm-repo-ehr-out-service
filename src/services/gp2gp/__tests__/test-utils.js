@@ -17,7 +17,7 @@ export const setupMockConfigForTest = () => {
 export const createRandomUUID = number => {
   return Array(number)
     .fill('')
-    .map(() => uuidv4());
+    .map(() => uuidv4().toUpperCase());
 };
 
 export const EhrMessageType = {

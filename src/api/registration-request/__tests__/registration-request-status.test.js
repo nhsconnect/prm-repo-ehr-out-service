@@ -15,7 +15,7 @@ jest.mock('../../../config', () => ({
 
 describe('GET /registration-requests/', () => {
   const nhsNumber = '1234567890';
-  const conversationId = '3a3ee007-1188-4978-8122-c1e2596f29c6';
+  const conversationId = '3A3EE007-1188-4978-8122-C1E2596F29C6';
   const odsCode = 'A12345';
   const invalidConversationId = 'de78578799';
   const status = ConversationStatus.OUTBOUND_STARTED;
@@ -51,7 +51,7 @@ describe('GET /registration-requests/', () => {
   });
 
   it('should return 200 and registration request information if :conversationId is uuidv1 and Authorization Header provided', async () => {
-    const conversationIdUuidv1 = 'ebc252ca-3adf-11eb-adc1-0242ac120002';
+    const conversationIdUuidv1 = 'EBC252CA-3ADF-11EB-ADC1-0242AC120002';
     getOutboundConversationById.mockResolvedValue({
       OutboundConversationId: conversationIdUuidv1,
       NhsNumber: nhsNumber,

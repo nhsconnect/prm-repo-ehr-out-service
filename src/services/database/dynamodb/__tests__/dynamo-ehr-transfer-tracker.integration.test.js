@@ -9,7 +9,7 @@ import { buildFragmentUpdateParams } from '../../../../models/fragment';
 jest.mock('../../../../middleware/logging')
 
 describe('EhrTransferTracker', () => {
-  const inboundConversationId = uuid();
+  const inboundConversationId = uuid().toUpperCase();
 
   afterEach(async () => {
     await cleanupRecordsForTest(inboundConversationId);
@@ -18,7 +18,7 @@ describe('EhrTransferTracker', () => {
   it('can create and read a record in dynamodb', async () => {
     // given
     const db = EhrTransferTracker.getInstance();
-    const testMessageId = uuid();
+    const testMessageId = uuid().toUpperCase();
 
     const ehrCore = {
       InboundConversationId: inboundConversationId,

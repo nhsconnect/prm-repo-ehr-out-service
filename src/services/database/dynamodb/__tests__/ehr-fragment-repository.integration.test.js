@@ -26,8 +26,8 @@ describe('dynamodb-fragment-repository', () => {
   const db = EhrTransferTracker.getInstance();
 
   const ODS_CODE = 'B12345';
-  const INBOUND_CONVERSATION_ID = uuid();
-  const OUTBOUND_CONVERSATION_ID = uuid();
+  const INBOUND_CONVERSATION_ID = uuid().toUpperCase();
+  const OUTBOUND_CONVERSATION_ID = uuid().toUpperCase();
   const NHS_NUMBER = '9000000005';
 
   let messageIdReplacementRecords = [];
@@ -207,8 +207,8 @@ describe('dynamodb-fragment-repository', () => {
       // given
       const parsedAcknowledgement = {
         service: 'urn:nhs:names:services:gp2gp',
-        messageId: uuid(),
-        referencedMessageId: uuid(),
+        messageId: uuid().toUpperCase(),
+        referencedMessageId: uuid().toUpperCase(),
         messageRef: outboundMessageIdOfFragment,
         acknowledgementTypeCode,
         acknowledgementDetail
@@ -255,8 +255,8 @@ const seedTestData = numberOfRecordsToSeed => {
     .fill(undefined)
     .map(() => {
       return {
-        oldMessageId: uuid(),
-        newMessageId: uuid()
+        oldMessageId: uuid().toUpperCase(),
+        newMessageId: uuid().toUpperCase()
       };
     });
 };

@@ -87,7 +87,7 @@ describe('Swagger Documentation', () => {
 });
 
 describe('GET /registration-requests/:conversationId', () => {
-  const outboundConversationId = v4();
+  const outboundConversationId = v4().toUpperCase();
   const nhsNumber = '1234567891';
   const odsCode = 'B12345';
   const status = ConversationStatus.OUTBOUND_STARTED;
@@ -114,7 +114,7 @@ describe('GET /registration-requests/:conversationId', () => {
       }
     };
 
-    await createInboundRecordForTest(v4(), nhsNumber, v4(), []);
+    await createInboundRecordForTest(v4().toUpperCase(), nhsNumber, v4().toUpperCase(), []);
     await createOutboundConversation(outboundConversationId, nhsNumber, odsCode);
 
     const res = await request(app)
@@ -208,7 +208,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
       ehrCore: JSON.parse(originalEhrCore),
       fragmentMessageIds: []
     };
-    const messageId = '4aa69fd3-6aaf-4f51-98ef-58a342c3265f';
+    const messageId = '4AA69FD3-6AAF-4F51-98EF-58A342C3265F';
     await createInboundRecordForTest(inboundConversationId, nhsNumber, inboundCoreMessageId, []);
 
     // when
