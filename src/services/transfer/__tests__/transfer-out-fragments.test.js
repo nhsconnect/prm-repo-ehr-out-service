@@ -41,29 +41,29 @@ describe('transferOutFragments', () => {
   const inboundConversationId = 'a52e8782-2268-4d49-ab69-5fcfa10eb43a';
   const outboundConversationId = 'cbc75815-8ee8-4554-980a-f7f8fd2cd341';
 
-  const originalMessageId1 = '2526ea9f-f800-461d-8046-8bc512920d23';
-  const originalMessageId2 = '6e7725e3-0cab-4fd8-a518-eeda7b5925a6';
-  const updatedMessageId1 = '7B2D6A16-2C50-4BF8-A923-E14003816ECC';
-  const updatedMessageId2 = 'DDA75C2B-18B6-424D-B94B-83205AAF2FEA';
+  const inboundMessageId1 = '2526ea9f-f800-461d-8046-8bc512920d23';
+  const inboundMessageId2 = '6e7725e3-0cab-4fd8-a518-eeda7b5925a6';
+  const outboundMessageId1 = '7B2D6A16-2C50-4BF8-A923-E14003816ECC';
+  const outboundMessageId2 = 'DDA75C2B-18B6-424D-B94B-83205AAF2FEA';
 
   const messageIdsWithReplacements = [
-    { oldMessageId: originalMessageId1, newMessageId: updatedMessageId1 },
-    { oldMessageId: originalMessageId2, newMessageId: updatedMessageId2 }
+    { oldMessageId: inboundMessageId1, newMessageId: outboundMessageId1 },
+    { oldMessageId: inboundMessageId2, newMessageId: outboundMessageId2 }
   ];
 
   const ehrRepositoryResponse = {
     inboundConversationId,
-    messageIds: [originalMessageId1, originalMessageId2]
+    messageIds: [inboundMessageId1, inboundMessageId2]
   };
 
   const fragment1 = { ebXML: '1', payload: '1', attachments: [], externalAttachments: [] };
   const fragment2 = { ebXML: '2', payload: '2', attachments: [], externalAttachments: [] };
 
-  const updatedFragment1 = { newMessageId: updatedMessageId1, message: fragment1 };
-  const updatedFragment2 = { newMessageId: updatedMessageId2, message: fragment2 };
+  const updatedFragment1 = { newMessageId: outboundMessageId1, message: fragment1 };
+  const updatedFragment2 = { newMessageId: outboundMessageId2, message: fragment2 };
 
   const messageFragmentRecordSent = {
-    OutboundMessageId: updatedMessageId1,
+    OutboundMessageId: outboundMessageId1,
     OutboundConversationId: outboundConversationId,
     TransferStatus: FragmentStatus.OUTBOUND_SENT,
     CreatedAt: Date.now(),
@@ -71,7 +71,7 @@ describe('transferOutFragments', () => {
   };
 
   const messageFragmentRecordUnsent = {
-    OutboundMessageId: updatedMessageId2,
+    OutboundMessageId: outboundMessageId2,
     OutboundConversationId: outboundConversationId,
     TransferStatus: FragmentStatus.OUTBOUND_REQUEST_RECEIVED,
     CreatedAt: Date.now(),
@@ -123,26 +123,26 @@ describe('transferOutFragments', () => {
       outboundConversationId,
       odsCode,
       updatedFragment1,
-      updatedMessageId1,
-      originalMessageId1
+      outboundMessageId1,
+      inboundMessageId1
     );
     expect(sendFragment).toHaveBeenCalledWith(
       inboundConversationId,
       outboundConversationId,
       odsCode,
       updatedFragment2,
-      updatedMessageId2,
-      originalMessageId2
+      outboundMessageId2,
+      inboundMessageId2
     );
 
     expect(logInfo).toHaveBeenCalledTimes(5);
     expect(logInfo).toHaveBeenCalledWith(`Initiated the EHR Fragment transfer.`);
     expect(logInfo).toHaveBeenCalledWith('Retrieved all fragment Message IDs for transfer.');
     expect(logInfo).toHaveBeenCalledWith(
-      `Fragment 1 of 2 sent to the GP2GP Messenger - with old Message ID ${originalMessageId1}, and new Message ID ${updatedMessageId1}.`
+      `Fragment 1 of 2 sent to the GP2GP Messenger - with old Message ID ${inboundMessageId1}, and new Message ID ${outboundMessageId1}.`
     );
     expect(logInfo).toHaveBeenCalledWith(
-      `Fragment 2 of 2 sent to the GP2GP Messenger - with old Message ID ${originalMessageId2}, and new Message ID ${updatedMessageId2}.`
+      `Fragment 2 of 2 sent to the GP2GP Messenger - with old Message ID ${inboundMessageId2}, and new Message ID ${outboundMessageId2}.`
     );
     expect(logInfo).toHaveBeenCalledWith(
       `All fragments have been successfully sent to GP2GP Messenger.`
@@ -162,7 +162,7 @@ describe('transferOutFragments', () => {
     getFragmentConversationAndMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
     getAllMessageIdPairs.mockResolvedValueOnce(messageIdsWithReplacements);
     getAllFragmentIdsToBeSent.mockResolvedValueOnce([
-      { oldMessageId: originalMessageId2, newMessageId: updatedMessageId2 }
+      { oldMessageId: inboundMessageId2, newMessageId: outboundMessageId2 }
     ]);
 
     getFragment.mockResolvedValueOnce(fragment2);
@@ -195,8 +195,8 @@ describe('transferOutFragments', () => {
       outboundConversationId,
       odsCode,
       updatedFragment2,
-      updatedMessageId2,
-      originalMessageId2
+      outboundMessageId2,
+      inboundMessageId2
     );
     expect(logInfo).toHaveBeenCalledWith(
       'All fragments have been successfully sent to GP2GP Messenger.'
@@ -233,7 +233,7 @@ describe('transferOutFragments', () => {
     );
     expect(updateFragmentStatus).toHaveBeenCalledWith(
       inboundConversationId,
-      originalMessageId1,
+      inboundMessageId1,
       FragmentStatus.OUTBOUND_FAILED,
       FailureReason.MISSING_FROM_REPO
     );
@@ -272,7 +272,7 @@ describe('transferOutFragments', () => {
     );
     expect(updateFragmentStatus).toHaveBeenCalledWith(
       inboundConversationId,
-      originalMessageId1,
+      inboundMessageId1,
       FragmentStatus.OUTBOUND_FAILED,
       FailureReason.DOWNLOAD_FAILED
     );
@@ -283,7 +283,7 @@ describe('transferOutFragments', () => {
 
   it('should update fragment status to SENDING_FAILED when sending fragment to GP2GP Messenger fails', async () => {
     // given
-    const error = new FragmentSendingError('error', updatedMessageId1);
+    const error = new FragmentSendingError('error', outboundMessageId1);
 
     // when
     getFragmentConversationAndMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
@@ -316,7 +316,7 @@ describe('transferOutFragments', () => {
     expect(sendFragment).toHaveBeenCalledTimes(1);
     expect(updateFragmentStatus).toHaveBeenCalledWith(
       inboundConversationId,
-      originalMessageId1,
+      inboundMessageId1,
       FragmentStatus.OUTBOUND_FAILED,
       FailureReason.SENDING_FAILED
     );
