@@ -17,7 +17,12 @@ import {
 } from '../database/dynamodb/outbound-conversation-repository';
 import { ConversationStatus, FailureReason } from '../../constants/enums';
 
-export async function transferOutEhrCore({ conversationId: outboundConversationId, nhsNumber, odsCode, ehrRequestId }) {
+export async function transferOutEhrCore({
+  conversationId: outboundConversationId,
+  nhsNumber,
+  odsCode,
+  ehrRequestId
+}) {
   setCurrentSpanAttributes({ conversationId: outboundConversationId });
   logInfo('EHR transfer out request received');
 

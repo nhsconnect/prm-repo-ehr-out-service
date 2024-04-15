@@ -1,8 +1,8 @@
-import { DownloadError, PresignedUrlNotFoundError, errorMessages } from "../../../errors/errors";
-import { downloadFromUrl } from "../../transfer/transfer-out-util";
+import { DownloadError, PresignedUrlNotFoundError, errorMessages } from '../../../errors/errors';
+import { downloadFromUrl } from '../../transfer/transfer-out-util';
 import { logError, logInfo } from '../../../middleware/logging';
-import { getFragment } from "../get-fragment";
-import expect from "expect";
+import { getFragment } from '../get-fragment';
+import expect from 'expect';
 import nock from 'nock';
 
 jest.mock('../../../middleware/logging');
@@ -14,23 +14,22 @@ jest.mock('../../../config', () => ({
 }));
 jest.mock('../../transfer/transfer-out-util');
 
-
 describe('getFragment', () => {
   const messageId = 'fake-messageId';
   const mockEhrRepoServiceUrl = 'http://fake-ehr-repo-url';
-  const inboundConversationId = 'fake-conversation-id'
-  const headers = {reqheaders: { Authorization: 'fake-keys'}};
+  const inboundConversationId = 'fake-conversation-id';
+  const headers = { reqheaders: { Authorization: 'fake-keys' } };
   const fragmentPresignedUrlRoot = 'http://fake-presigned-url/';
   const ehrFragment = {
-    payload: "<?xml a very large xml>",
-    attachments: ["attachment1", "attachment2"],
-    external_attachments: ["ext_attachment1", "ext_attachment2"]
+    payload: '<?xml a very large xml>',
+    attachments: ['attachment1', 'attachment2'],
+    external_attachments: ['ext_attachment1', 'ext_attachment2']
   };
 
   it('should get a fragment successfully', async () => {
     // given
-    const inboundConversationId = "5F29004E-5D59-458A-A84C-87BC9213FB40";
-    const messageId = "5B440C49-ED70-40B4-9471-291015A7C1DC";
+    const inboundConversationId = '5F29004E-5D59-458A-A84C-87BC9213FB40';
+    const messageId = '5B440C49-ED70-40B4-9471-291015A7C1DC';
 
     // when
     const downloadFragmentPresignedUrlScope = nock(mockEhrRepoServiceUrl, headers)
@@ -43,10 +42,12 @@ describe('getFragment', () => {
 
     // then
     expect(downloadFragmentPresignedUrlScope.isDone()).toBe(true);
-    expect(downloadFromUrl).toBeCalledTimes(1)
+    expect(downloadFromUrl).toBeCalledTimes(1);
     expect(logInfo).toBeCalledTimes(2);
     expect(downloadFromUrl).toBeCalledWith(fragmentPresignedUrlRoot);
-    expect(logInfo).toBeCalledWith(`Successfully retrieved fragment presigned url with messageId: ${messageId}`);
+    expect(logInfo).toBeCalledWith(
+      `Successfully retrieved fragment presigned url with messageId: ${messageId}`
+    );
     expect(logInfo).toBeCalledWith(`Successfully retrieved fragment with messageId: ${messageId}`);
   });
 
@@ -59,17 +60,22 @@ describe('getFragment', () => {
       .get(`/fragments/${inboundConversationId}/${messageId}`)
       .reply(404);
 
-    await expect(getFragment(inboundConversationId, messageId)).rejects.toThrow(PresignedUrlNotFoundError)
+    await expect(getFragment(inboundConversationId, messageId)).rejects.toThrow(
+      PresignedUrlNotFoundError
+    );
 
     // then
     expect(repoScope.isDone()).toBe(true);
-    expect(logError).toHaveBeenCalledWith(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR, axios404Error);
+    expect(logError).toHaveBeenCalledWith(
+      errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR,
+      axios404Error
+    );
   });
 
   it('should throw a DownloadError if it failed to download the EHR from the presigned URL', async () => {
     // given
-    const inboundConversationId = "0E745F0A-1E8D-4C5F-AE13-B5758F331B29";
-    const messageId = "EBFAE96A-ED38-40C4-A854-58175D15EAEC";
+    const inboundConversationId = '0E745F0A-1E8D-4C5F-AE13-B5758F331B29';
+    const messageId = 'EBFAE96A-ED38-40C4-A854-58175D15EAEC';
     const error = new DownloadError();
 
     // when
@@ -80,9 +86,7 @@ describe('getFragment', () => {
     downloadFromUrl.mockRejectedValueOnce(error);
 
     // then
-    await expect(getFragment(inboundConversationId, messageId))
-      .rejects
-      .toThrow(error);
+    await expect(getFragment(inboundConversationId, messageId)).rejects.toThrow(error);
     expect(downloadFragmentPresignedUrlScope.isDone()).toBe(true);
     expect(downloadFromUrl).toBeCalledTimes(1);
     expect(logInfo).toBeCalledTimes(1);

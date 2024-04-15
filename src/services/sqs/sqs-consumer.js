@@ -31,7 +31,7 @@ export const stopSqsConsumer = () => {
   stop = true;
 };
 
-export const pollQueueOnce = (sqsClient) => {
+export const pollQueueOnce = sqsClient => {
   logInfo('Polling for incoming messages');
   return sqsClient
     .send(new ReceiveMessageCommand(receiveCallParameters()))
@@ -59,7 +59,7 @@ const pollQueue = async sqsClient => {
 };
 
 async function deleteToAcknowledge(sqsClient, message) {
-  logInfo("Attempting to acknowledge message (delete from SQS).");
+  logInfo('Attempting to acknowledge message (delete from SQS).');
 
   await sqsClient.send(
     new DeleteMessageCommand({
@@ -69,8 +69,10 @@ async function deleteToAcknowledge(sqsClient, message) {
   );
 
   const interactionIdRegex = /eb:Action>(.*?)<\/eb:Action/;
-  logInfo(`Message acknowledged (deleted from SQS) with Interaction ID: ${
-    interactionIdRegex.exec(JSON.stringify(message))[1]}.`
+  logInfo(
+    `Message acknowledged (deleted from SQS) with Interaction ID: ${
+      interactionIdRegex.exec(JSON.stringify(message))[1]
+    }.`
   );
 }
 

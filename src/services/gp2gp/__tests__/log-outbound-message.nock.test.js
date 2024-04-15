@@ -62,7 +62,13 @@ describe('logOutboundMessage', () => {
 
     it('should keep the base64 content in the actual outbound post request unchanged', async () => {
       // given
-      const [conversationId, messageId, ehrRequestId] = createRandomUUID(3);
+      const [
+        inboundConversationId,
+        outboundConversationId,
+        outboundMessageId,
+        inboundMessageId,
+        ehrRequestId
+      ] = createRandomUUID(5);
       const inputEhrMessage = loadTestData(`TestEhr${testCase}`);
       const odsCode = 'test-ods-code';
 
@@ -71,19 +77,40 @@ describe('logOutboundMessage', () => {
 
       const scope = createMockGP2GPScope(testCase);
       if (testCase === EhrMessageType.core) {
-        await sendCore(conversationId, odsCode, inputEhrMessage, ehrRequestId, messageId);
+        await sendCore(
+          outboundConversationId,
+          odsCode,
+          inputEhrMessage,
+          ehrRequestId,
+          outboundMessageId
+        );
       } else {
-        await sendFragment(conversationId, odsCode, inputEhrMessage, messageId);
+        await sendFragment(
+          inboundConversationId,
+          outboundConversationId,
+          odsCode,
+          inputEhrMessage,
+          outboundMessageId,
+          inboundMessageId
+        );
       }
 
       // then
       const actualOutboundRequestBody = scope.outboundRequestBody;
 
-      expect(actualOutboundRequestBody).toMatchObject({
-        conversationId,
-        messageId,
-        odsCode
-      });
+      if (testCase === EhrMessageType.core) {
+        expect(actualOutboundRequestBody).toMatchObject({
+          conversationId: outboundConversationId,
+          odsCode,
+          messageId: outboundMessageId
+        });
+      } else {
+        expect(actualOutboundRequestBody).toMatchObject({
+          conversationId: outboundConversationId,
+          odsCode,
+          outboundMessageId
+        });
+      }
 
       const outboundEhrMessage =
         testCase === EhrMessageType.core

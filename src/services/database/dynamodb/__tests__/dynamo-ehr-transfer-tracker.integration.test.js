@@ -6,7 +6,7 @@ import { createRandomUUID } from '../../../gp2gp/__tests__/test-utils';
 import { buildFragmentUpdateParams } from '../../../../models/fragment';
 
 // suppress logs
-jest.mock('../../../../middleware/logging')
+jest.mock('../../../../middleware/logging');
 
 describe('EhrTransferTracker', () => {
   const inboundConversationId = uuid().toUpperCase();

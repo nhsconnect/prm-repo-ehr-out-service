@@ -1,9 +1,9 @@
 import { INTERACTION_IDS } from '../../constants/interaction-ids';
 import { logError } from '../../middleware/logging';
 import ehrRequestHandler from './ehr-request-handler';
-import continueMessageHandler from "./continue-message-handler";
-import { acknowledgementMessageHandler } from "./acknowledgement-handler";
-import { parseInteractionId } from "../parser/parsing-utilities";
+import continueMessageHandler from './continue-message-handler';
+import { acknowledgementMessageHandler } from './acknowledgement-handler';
+import { parseInteractionId } from '../parser/parsing-utilities';
 
 export default async function sendMessageToCorrespondingHandler(message) {
   const interactionId = await parseInteractionId(message);

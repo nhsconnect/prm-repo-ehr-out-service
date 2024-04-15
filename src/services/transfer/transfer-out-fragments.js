@@ -66,7 +66,7 @@ export async function transferOutFragmentsForRetriedContinueRequest({
 const getAndSendMessageFragments = async (
   messageIdsWithReplacements,
   inboundConversationId,
-  conversationId,
+  outboundConversationId,
   odsCode
 ) => {
   let count = 0;
@@ -78,7 +78,14 @@ const getAndSendMessageFragments = async (
       let fragment = await getFragment(inboundConversationId, oldMessageId);
       fragment = replaceMessageIdsInObject(fragment, messageIdsWithReplacements);
 
-      await sendFragment(conversationId, odsCode, fragment, newMessageId);
+      await sendFragment(
+        inboundConversationId,
+        outboundConversationId,
+        odsCode,
+        fragment,
+        newMessageId,
+        oldMessageId
+      );
 
       logInfo(
         `Fragment ${++count} of ${

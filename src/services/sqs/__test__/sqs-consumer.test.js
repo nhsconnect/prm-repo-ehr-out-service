@@ -1,9 +1,9 @@
-import sendMessageToCorrespondingHandler from "../../handler/broker";
-import { logError, logWarning } from "../../../middleware/logging";
-import { pollQueueOnce } from "../sqs-consumer.js";
-import { readFileSync } from "fs";
-import expect from "expect";
-import path from "path";
+import sendMessageToCorrespondingHandler from '../../handler/broker';
+import { logError, logWarning } from '../../../middleware/logging';
+import { pollQueueOnce } from '../sqs-consumer.js';
+import { readFileSync } from 'fs';
+import expect from 'expect';
+import path from 'path';
 
 // Mocking
 jest.mock('../../handler/broker');
@@ -13,7 +13,10 @@ jest.mock('@aws-sdk/client-sqs');
 describe('sqs consumer', () => {
   // ============ COMMON PROPERTIES ============
   const SQS_CLIENT = { send: jest.fn() };
-  const MESSAGE_BODY = readFileSync(path.join(__dirname, "data", "ehr-requests", "RCMR_IN010000UK05"), "utf-8");
+  const MESSAGE_BODY = readFileSync(
+    path.join(__dirname, 'data', 'ehr-requests', 'RCMR_IN010000UK05'),
+    'utf-8'
+  );
   // =================== END ===================
 
   it('should read a single message from the queue and invoke the broker with the message and acknowledge on success', async () => {

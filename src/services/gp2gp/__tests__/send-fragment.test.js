@@ -4,7 +4,7 @@ import { sendFragment } from '../send-fragment';
 import expect from 'expect';
 import nock from 'nock';
 import { updateFragmentStatus } from '../../transfer/transfer-out-util';
-import { setupMockConfigForTest } from "./test-utils";
+import { setupMockConfigForTest } from './test-utils';
 
 // Mocking
 jest.mock('../../../config', () => ({

@@ -1,3 +1,3 @@
 export const SERVICES = {
-  gp2gp: "urn:nhs:names:services:gp2gp"
-}
+  gp2gp: 'urn:nhs:names:services:gp2gp'
+};

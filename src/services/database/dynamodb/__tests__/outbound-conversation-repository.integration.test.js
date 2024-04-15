@@ -13,7 +13,8 @@ import {
 } from '../outbound-conversation-repository';
 import {
   ConversationStatus,
-  CoreStatus, FailureReason,
+  CoreStatus,
+  FailureReason,
   FragmentStatus,
   RecordType
 } from '../../../../constants/enums';
@@ -228,7 +229,6 @@ describe('outbound-conversation-repository', () => {
       expect(outboundConversation.TransferStatus).toBe(status);
       expect(outboundConversation.FailureReason).toBe(failureReason);
     });
-
   });
 
   describe('getNhsNumberByOutboundConversationId', () => {

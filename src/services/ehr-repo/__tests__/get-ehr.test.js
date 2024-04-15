@@ -1,6 +1,6 @@
-import { PresignedUrlNotFoundError, DownloadError, errorMessages} from "../../../errors/errors";
+import { PresignedUrlNotFoundError, DownloadError, errorMessages } from '../../../errors/errors';
 import { logError, logInfo } from '../../../middleware/logging';
-import { getEhrCoreAndFragmentIdsFromRepo } from "../get-ehr";
+import { getEhrCoreAndFragmentIdsFromRepo } from '../get-ehr';
 import nock from 'nock';
 
 // Mocking
@@ -30,19 +30,17 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
       inboundConversationId: inboundConversationId
     };
     const ehrCore = {
-      payload: "payload XML",
-      attachments: ["attachment 1", "attachment 2"],
-      external_attachments: ["ext attachment 1", "ext attachment 2"]
-    }
+      payload: 'payload XML',
+      attachments: ['attachment 1', 'attachment 2'],
+      external_attachments: ['ext attachment 1', 'ext attachment 2']
+    };
 
     it('should return the stored ehr core message when the patients health record is in repo', async () => {
       const urlScope = nock(mockEhrRepoServiceUrl, headers)
         .get(`/patients/${nhsNumber}`)
         .reply(200, ehrIsPresentEhrRepoUrlResponse);
 
-      const ehrScope = nock(coreMessageUrl)
-        .get("/")
-        .reply(200, ehrCore);
+      const ehrScope = nock(coreMessageUrl).get('/').reply(200, ehrCore);
 
       const res = await getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId);
 
@@ -65,9 +63,7 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
         .get(`/patients/${nhsNumber}`)
         .reply(200, largeEhrResponse);
 
-      const ehrScope = nock(coreMessageUrl)
-        .get("/")
-        .reply(200, ehrCore);
+      const ehrScope = nock(coreMessageUrl).get('/').reply(200, ehrCore);
 
       const res = await getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId);
 
@@ -78,19 +74,22 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
       expect(res.ehrCore).toEqual(ehrCore);
       expect(res.fragmentMessageIds).toEqual(fragmentMessageIds);
       expect(logInfo).toHaveBeenCalledWith(`Successfully retrieved fragment message ids`);
-    })
+    });
 
-
-      it('should throw an error when attempting to retrieve a presigned url and patient does not exist in repo', async () => {
+    it('should throw an error when attempting to retrieve a presigned url and patient does not exist in repo', async () => {
       const expectedError = new Error('Request failed with status code 404');
       const urlScope = nock(mockEhrRepoServiceUrl, headers)
         .get(`/patients/${nhsNumber}`)
         .reply(404, expectedError);
 
-      await expect(() => getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId))
-        .rejects.toThrow(PresignedUrlNotFoundError);
+      await expect(() =>
+        getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId)
+      ).rejects.toThrow(PresignedUrlNotFoundError);
       expect(urlScope.isDone()).toBe(true);
-      expect(logError).toHaveBeenCalledWith(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR, expectedError);
+      expect(logError).toHaveBeenCalledWith(
+        errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR,
+        expectedError
+      );
     });
 
     it('should throw an error when failing to retrieve a presigned url with non-404 response', async () => {
@@ -98,10 +97,14 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
         .get(`/patients/${nhsNumber}`)
         .reply(500);
 
-      await expect(() => getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId))
-        .rejects.toThrow("Request failed with status code 500");
+      await expect(() =>
+        getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId)
+      ).rejects.toThrow('Request failed with status code 500');
       expect(urlScope.isDone()).toBe(true);
-      expect(logError).toHaveBeenCalledWith('Error retrieving health record', new Error("Request failed with status code 500"));
+      expect(logError).toHaveBeenCalledWith(
+        'Error retrieving health record',
+        new Error('Request failed with status code 500')
+      );
     });
 
     it('should throw an error when failing to retrieve ehr core from presigned url', async () => {
@@ -111,12 +114,11 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
         .get(`/patients/${nhsNumber}`)
         .reply(200, ehrIsPresentEhrRepoUrlResponse);
 
-      const ehrScope = nock(coreMessageUrl)
-        .get("/")
-        .reply(500);
+      const ehrScope = nock(coreMessageUrl).get('/').reply(500);
 
-      await expect(() => getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId))
-        .rejects.toThrow(DownloadError);
+      await expect(() =>
+        getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId)
+      ).rejects.toThrow(DownloadError);
 
       expect(ehrScope.isDone()).toBe(true);
       expect(logError).toHaveBeenCalledWith(errorMessages.DOWNLOAD_ERROR, expectedError);

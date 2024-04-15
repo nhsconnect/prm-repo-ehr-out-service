@@ -8,9 +8,7 @@ import { registrationRequests } from '../index';
 jest.mock('../../../middleware/logging');
 jest.mock('../../../services/database/dynamodb/outbound-conversation-repository');
 jest.mock('../../../config', () => ({
-  config: jest
-    .fn()
-    .mockReturnValue({ consumerApiKeys: { TEST: 'valid-key' } })
+  config: jest.fn().mockReturnValue({ consumerApiKeys: { TEST: 'valid-key' } })
 }));
 
 describe('GET /registration-requests/', () => {

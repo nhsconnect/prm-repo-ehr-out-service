@@ -57,9 +57,7 @@ const searchData = (object, key, maxDepth, found = []) => {
   if (key in object) {
     const value = object[key];
 
-    Array.isArray(value)
-      ? found.push(...value)
-      : found.push(value);
+    Array.isArray(value) ? found.push(...value) : found.push(value);
   }
 
   // for each child node of this one, recurse
