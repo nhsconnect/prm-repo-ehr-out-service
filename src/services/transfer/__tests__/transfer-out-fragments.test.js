@@ -119,16 +119,20 @@ describe('transferOutFragments', () => {
     expect(replaceMessageIdsInObject).toHaveBeenCalledWith(fragment1, messageIdsWithReplacements);
     expect(replaceMessageIdsInObject).toHaveBeenCalledWith(fragment2, messageIdsWithReplacements);
     expect(sendFragment).toHaveBeenCalledWith(
+      inboundConversationId,
       outboundConversationId,
       odsCode,
       updatedFragment1,
-      updatedMessageId1
+      updatedMessageId1,
+      originalMessageId1
     );
     expect(sendFragment).toHaveBeenCalledWith(
+      inboundConversationId,
       outboundConversationId,
       odsCode,
       updatedFragment2,
-      updatedMessageId2
+      updatedMessageId2,
+      originalMessageId2
     );
 
     expect(logInfo).toHaveBeenCalledTimes(5);
@@ -187,10 +191,12 @@ describe('transferOutFragments', () => {
     ]);
     expect(sendFragment).toHaveBeenCalledTimes(1);
     expect(sendFragment).toHaveBeenCalledWith(
+      inboundConversationId,
       outboundConversationId,
       odsCode,
       updatedFragment2,
-      updatedMessageId2
+      updatedMessageId2,
+      originalMessageId2
     );
     expect(logInfo).toHaveBeenCalledWith(
       'All fragments have been successfully sent to GP2GP Messenger.'
