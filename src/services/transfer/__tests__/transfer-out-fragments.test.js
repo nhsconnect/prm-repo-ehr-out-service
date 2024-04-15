@@ -62,22 +62,6 @@ describe('transferOutFragments', () => {
   const updatedFragment1 = { newMessageId: outboundMessageId1, message: fragment1 };
   const updatedFragment2 = { newMessageId: outboundMessageId2, message: fragment2 };
 
-  const messageFragmentRecordSent = {
-    OutboundMessageId: outboundMessageId1,
-    OutboundConversationId: outboundConversationId,
-    TransferStatus: FragmentStatus.OUTBOUND_SENT,
-    CreatedAt: Date.now(),
-    UpdatedAt: Date.now()
-  };
-
-  const messageFragmentRecordUnsent = {
-    OutboundMessageId: outboundMessageId2,
-    OutboundConversationId: outboundConversationId,
-    TransferStatus: FragmentStatus.OUTBOUND_REQUEST_RECEIVED,
-    CreatedAt: Date.now(),
-    UpdatedAt: Date.now()
-  };
-
   // =================== END ===================
 
   afterEach(() => {

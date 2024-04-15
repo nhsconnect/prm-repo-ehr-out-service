@@ -3,7 +3,7 @@ import adapter from 'axios/lib/adapters/http';
 import { config } from '../../src/config';
 
 describe('/health', () => {
-  const { repoToGpServiceUrl, nhsEnvironment } = config();
+  const { repoToGpServiceUrl } = config();
   const healthUrl = `${repoToGpServiceUrl}/health`;
 
   it('should return 200', async () => {

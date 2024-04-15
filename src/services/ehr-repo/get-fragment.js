@@ -1,16 +1,17 @@
-import { PresignedUrlNotFoundError, PatientRecordNotFoundError } from "../../errors/errors";
-import { downloadFromUrl } from "../transfer/transfer-out-util";
-import { logInfo, logError } from "../../middleware/logging";
-import { config } from "../../config";
-import axios from "axios";
+import { PresignedUrlNotFoundError, PatientRecordNotFoundError } from '../../errors/errors';
+import { downloadFromUrl } from '../transfer/transfer-out-util';
+import { logInfo, logError } from '../../middleware/logging';
+import { config } from '../../config';
+import axios from 'axios';
 
-export const getFragmentConversationAndMessageIdsFromEhrRepo = async (nhsNumber) => {
+export const getFragmentConversationAndMessageIdsFromEhrRepo = async nhsNumber => {
   const { ehrRepoServiceUrl, ehrRepoAuthKeys } = config();
   const repoUrl = `${ehrRepoServiceUrl}/patients/${nhsNumber}`;
 
-  return await axios.get(repoUrl, {
-    headers: { Authorization: ehrRepoAuthKeys }
-  })
+  return await axios
+    .get(repoUrl, {
+      headers: { Authorization: ehrRepoAuthKeys }
+    })
     .then(extractIdsFromEhrRepoResponse)
     .catch(handleErrorWhileRetrievingIds);
 };
@@ -32,7 +33,10 @@ const handleErrorWhileRetrievingIds = error => {
 };
 
 export const getFragment = async (inboundConversationId, messageId) => {
-  const fragmentMessageUrl = await retrieveFragmentPresignedUrlFromRepo(inboundConversationId, messageId);
+  const fragmentMessageUrl = await retrieveFragmentPresignedUrlFromRepo(
+    inboundConversationId,
+    messageId
+  );
   logInfo(`Successfully retrieved fragment presigned url with messageId: ${messageId}`);
   const fragment = await downloadFromUrl(fragmentMessageUrl);
   logInfo(`Successfully retrieved fragment with messageId: ${messageId}`);
@@ -44,8 +48,12 @@ const retrieveFragmentPresignedUrlFromRepo = async (inboundConversationId, messa
   const { ehrRepoServiceUrl, ehrRepoAuthKeys } = config();
   const repoUrl = `${ehrRepoServiceUrl}/fragments/${inboundConversationId}/${messageId}`;
 
-  return await axios.get(repoUrl, {
-    headers: { Authorization: ehrRepoAuthKeys}
-  }).then(response => response.data )
-    .catch(error => { throw new PresignedUrlNotFoundError(error) });
+  return await axios
+    .get(repoUrl, {
+      headers: { Authorization: ehrRepoAuthKeys }
+    })
+    .then(response => response.data)
+    .catch(error => {
+      throw new PresignedUrlNotFoundError(error);
+    });
 };

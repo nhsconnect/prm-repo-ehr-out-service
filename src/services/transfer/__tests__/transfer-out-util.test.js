@@ -12,14 +12,15 @@ import {
   getNewMessageIdForOldMessageId,
   patientAndPracticeOdsCodesMatch,
   replaceMessageIdsInObject,
-  updateConversationStatus, updateCoreStatus,
+  updateConversationStatus,
+  updateCoreStatus,
   updateFragmentStatus
 } from '../transfer-out-util';
 import { updateOutboundConversationStatus } from '../../database/dynamodb/outbound-conversation-repository';
 import { storeOutboundMessageIds } from '../../database/dynamodb/store-outbound-message-ids';
 import { updateFragmentStatusInDb } from '../../database/dynamodb/ehr-fragment-repository';
 import { v4 as uuid } from 'uuid';
-import { updateCoreStatusInDb } from "../../database/dynamodb/ehr-core-repository";
+import { updateCoreStatusInDb } from '../../database/dynamodb/ehr-core-repository';
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -36,7 +37,7 @@ describe('testTransferOutUtil', () => {
   const INBOUND_CONVERSATION_ID = uuid().toUpperCase();
   const MESSAGE_ID = '2C1EDC4D-052F-42B6-A03F-4470FF88EF05';
   const UUID_UPPERCASE_REGEX =
-      /^[0-9A-F]{8}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{12}$/;
+    /^[0-9A-F]{8}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{4}\b-[0-9A-F]{12}$/;
 
   function getValidEhrCore() {
     return JSON.parse(readFileSync('src/__tests__/data/ehr_with_fragments/ehr-core', 'utf8'));
@@ -202,11 +203,7 @@ describe('testTransferOutUtil', () => {
 
       // then
       expect(updateCoreStatusInDb).toBeCalledTimes(1);
-      expect(updateCoreStatusInDb).toHaveBeenCalledWith(
-          CONVERSATION_ID,
-          STATUS,
-          null
-      );
+      expect(updateCoreStatusInDb).toHaveBeenCalledWith(CONVERSATION_ID, STATUS, null);
     });
 
     it('should throw a StatusUpdateError error', async () => {
@@ -214,9 +211,9 @@ describe('testTransferOutUtil', () => {
       updateCoreStatusInDb.mockRejectedValueOnce(undefined);
 
       // then
-      await expect(() =>
-          updateCoreStatus(CONVERSATION_ID, STATUS)
-      ).rejects.toThrowError(StatusUpdateError);
+      await expect(() => updateCoreStatus(CONVERSATION_ID, STATUS)).rejects.toThrowError(
+        StatusUpdateError
+      );
     });
   });
 

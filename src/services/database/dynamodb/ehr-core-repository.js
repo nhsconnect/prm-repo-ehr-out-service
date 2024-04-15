@@ -1,7 +1,7 @@
 import { EhrTransferTracker } from './dynamo-ehr-transfer-tracker';
 import { buildCoreUpdateParams, isCore } from '../../../models/core';
 import { logInfo } from '../../../middleware/logging';
-import { CoreStatus } from "../../../constants/enums";
+import { CoreStatus } from '../../../constants/enums';
 
 export const messageIdMatchOutboundCore = async (outboundConversationId, messageId) => {
   logInfo('Comparing the received messageId with outbound records');
@@ -26,7 +26,9 @@ export const updateCoreStatusInDb = async (
 
   const coreRecord = await getCoreByOutboundConversationId(outboundConversationId);
   if (!coreRecord) {
-    throw new Error(`Could not find a CORE record with Outbound Conversation ID ${outboundConversationId}`);
+    throw new Error(
+      `Could not find a CORE record with Outbound Conversation ID ${outboundConversationId}`
+    );
   }
 
   const inboundConversationId = coreRecord.InboundConversationId;
@@ -39,7 +41,7 @@ export const updateCoreStatusInDb = async (
 
   const updateParams = buildCoreUpdateParams(inboundConversationId, updateContent);
   await database.updateSingleItem(updateParams);
-}
+};
 
 export const getCoreByOutboundConversationId = async outboundConversationId => {
   const database = EhrTransferTracker.getInstance();

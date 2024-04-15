@@ -7,20 +7,36 @@ import { updateFragmentStatus } from '../transfer/transfer-out-util';
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { FragmentStatus } from '../../constants/enums';
 
-export const sendFragment = async (inboundConversationId, outboundConversationId, odsCode, fragmentMessage, outboundMessageId, inboundMessageId) => {
-  const {gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl} = config();
+export const sendFragment = async (
+  inboundConversationId,
+  outboundConversationId,
+  odsCode,
+  fragmentMessage,
+  outboundMessageId,
+  inboundMessageId
+) => {
+  const { gp2gpMessengerAuthKeys, gp2gpMessengerServiceUrl } = config();
   const sendFragmentEndpoint = `${gp2gpMessengerServiceUrl}/ehr-out-transfers/fragment`;
-  const requestBody = {conversationId: outboundConversationId, odsCode, fragmentMessage, outboundMessageId};
+  const requestBody = {
+    conversationId: outboundConversationId,
+    odsCode,
+    fragmentMessage,
+    outboundMessageId
+  };
 
-  setCurrentSpanAttributes({conversationId: outboundConversationId, outboundMessageId});
+  setCurrentSpanAttributes({ conversationId: outboundConversationId, outboundMessageId });
 
-  logInfo(`Started to send fragment with outbound Message ID: ${outboundMessageId}, outbound Conversation ID ${outboundConversationId}.`);
+  logInfo(
+    `Started to send fragment with outbound Message ID: ${outboundMessageId}, outbound Conversation ID ${outboundConversationId}.`
+  );
 
-  logInfo('POST request has been made to the GP2GP Messenger `/ehr-out-transfers/fragment` endpoint with request body as below:');
+  logInfo(
+    'POST request has been made to the GP2GP Messenger `/ehr-out-transfers/fragment` endpoint with request body as below:'
+  );
   logOutboundMessage(requestBody);
 
   await axios
-    .post(sendFragmentEndpoint, requestBody, {headers: {Authorization: gp2gpMessengerAuthKeys}})
+    .post(sendFragmentEndpoint, requestBody, { headers: { Authorization: gp2gpMessengerAuthKeys } })
     .then(() => {
       logInfo('Successfully sent message fragment');
     })

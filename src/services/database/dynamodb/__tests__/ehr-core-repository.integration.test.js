@@ -3,7 +3,8 @@ import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import {
   buildMessageIdReplacement,
   cleanupRecordsForTest,
-  createInboundRecordForTest, createSmallEhrRecord
+  createInboundRecordForTest,
+  createSmallEhrRecord
 } from '../../../../utilities/integration-test-utilities';
 import { createOutboundConversation } from '../outbound-conversation-repository';
 import { storeOutboundMessageIds } from '../store-outbound-message-ids';
@@ -12,7 +13,7 @@ import {
   messageIdMatchOutboundCore,
   updateCoreStatusInDb
 } from '../ehr-core-repository';
-import { CoreStatus } from "../../../../constants/enums";
+import { CoreStatus } from '../../../../constants/enums';
 
 const INBOUND_CONVERSATION_ID = uuid().toUpperCase();
 const NHS_NUMBER = '9000000001';
@@ -29,10 +30,10 @@ describe('ehr-core-repository', () => {
   describe('messageIdMatchOutboundCore', () => {
     beforeEach(async () => {
       await createInboundRecordForTest(
-          INBOUND_CONVERSATION_ID,
-          NHS_NUMBER,
-          INBOUND_CORE_MESSAGE_ID,
-          INBOUND_FRAGMENT_IDS
+        INBOUND_CONVERSATION_ID,
+        NHS_NUMBER,
+        INBOUND_CORE_MESSAGE_ID,
+        INBOUND_FRAGMENT_IDS
       );
     });
 
@@ -89,10 +90,10 @@ describe('ehr-core-repository', () => {
       const status = CoreStatus.OUTBOUND_SENT;
 
       await createSmallEhrRecord(
-          INBOUND_CONVERSATION_ID,
-          outboundConversationId,
-          NHS_NUMBER,
-          INBOUND_CORE_MESSAGE_ID
+        INBOUND_CONVERSATION_ID,
+        outboundConversationId,
+        NHS_NUMBER,
+        INBOUND_CORE_MESSAGE_ID
       );
 
       await updateCoreStatusInDb(outboundConversationId, status);

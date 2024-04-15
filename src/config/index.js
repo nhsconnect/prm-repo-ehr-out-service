@@ -7,7 +7,8 @@ export const config = () => ({
   gp2gpMessengerAuthKeys: process.env.GP2GP_MESSENGER_AUTHORIZATION_KEYS,
   ehrRepoServiceUrl: process.env.EHR_REPO_SERVICE_URL,
   ehrRepoAuthKeys: process.env.EHR_REPO_AUTHORIZATION_KEYS,
-  fragmentTransferRateLimitTimeoutMilliseconds: process.env.FRAGMENT_TRANSFER_RATE_LIMIT_TIMEOUT_MILLISECONDS || 0,
+  fragmentTransferRateLimitTimeoutMilliseconds:
+    process.env.FRAGMENT_TRANSFER_RATE_LIMIT_TIMEOUT_MILLISECONDS || 0,
   consumerApiKeys: loadConsumerKeys()
 });
 
@@ -34,5 +35,5 @@ const serviceStartedTimestamp = Date.now();
   started within the last 5 minutes, we can safely assume it has just crashed and rebooted and the request is safe to retry.
  */
 export const hasServiceStartedInTheLast5Minutes = () => {
-  return (Date.now() - serviceStartedTimestamp) <= 5 * 60 * 1000
-}
+  return Date.now() - serviceStartedTimestamp <= 5 * 60 * 1000;
+};

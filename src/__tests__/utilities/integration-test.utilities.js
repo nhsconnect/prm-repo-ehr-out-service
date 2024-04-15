@@ -1,4 +1,4 @@
-import { logError, logInfo } from "../../middleware/logging";
+import { logError, logInfo } from '../../middleware/logging';
 import { FileReadError } from '../../errors/errors';
 import { XMLParser } from 'fast-xml-parser';
 import isEqual from 'lodash.isequal';
@@ -8,17 +8,17 @@ import * as path from 'path';
 const INTERACTION_IDS = {
   EHR_CORE: 'RCMR_IN030000UK06',
   CONTINUE: 'COPC_IN000001UK01'
-}
+};
 
 const parser = new XMLParser({
-  ignoreAttributes : false,
+  ignoreAttributes: false,
   removeNSPrefix: true,
   ignoreDeclaration: true
 });
 
 export const readFile = (fileName, ...folderNames) => {
   try {
-    return readFileSync(path.join(__dirname, "..", "data", ...folderNames, fileName), "utf-8");
+    return readFileSync(path.join(__dirname, '..', 'data', ...folderNames, fileName), 'utf-8');
   } catch (error) {
     throw new FileReadError(error);
   }
@@ -45,13 +45,13 @@ const validateEbXmlEquality = (original, modified) => {
   for (const key in ebXMLs) {
     if (ebXMLs.hasOwnProperty(key)) {
       // Delete the Message ID attribute within MessageData -> MessageId
-      delete ebXMLs[key]["Envelope"]["Header"]["MessageHeader"]["MessageData"]["MessageId"];
+      delete ebXMLs[key]['Envelope']['Header']['MessageHeader']['MessageData']['MessageId'];
 
       // Delete inner manifest Message ID (i.e. mid) references
-      if(Array.isArray(ebXMLs[key]["Envelope"]["Body"]["Manifest"]["Reference"])) {
-        ebXMLs[key]["Envelope"]["Body"]["Manifest"]["Reference"].forEach(reference => {
-          if (reference["@_href"].includes('mid')) {
-            delete reference["@_href"];
+      if (Array.isArray(ebXMLs[key]['Envelope']['Body']['Manifest']['Reference'])) {
+        ebXMLs[key]['Envelope']['Body']['Manifest']['Reference'].forEach(reference => {
+          if (reference['@_href'].includes('mid')) {
+            delete reference['@_href'];
           }
         });
       }
@@ -59,7 +59,7 @@ const validateEbXmlEquality = (original, modified) => {
   }
 
   return isEqual(ebXMLs.original, ebXMLs.modified);
-}
+};
 
 const validatePayloadEquality = (original, modified) => {
   const payloads = {
@@ -69,19 +69,31 @@ const validatePayloadEquality = (original, modified) => {
 
   for (const key in payloads) {
     if (payloads.hasOwnProperty(key)) {
-      if (original.includes(INTERACTION_IDS.EHR_CORE) && modified.includes(INTERACTION_IDS.EHR_CORE)) {
+      if (
+        original.includes(INTERACTION_IDS.EHR_CORE) &&
+        modified.includes(INTERACTION_IDS.EHR_CORE)
+      ) {
         // Remove Message ID references within the EHR_CORE message
         delete payloads[key][INTERACTION_IDS.EHR_CORE]['id']['@_root'];
-        delete payloads[key][INTERACTION_IDS.EHR_CORE]['ControlActEvent']['subject']['EhrExtract']['id']['@_root'];
-      }
-      else if (original.includes(INTERACTION_IDS.CONTINUE) && modified.includes(INTERACTION_IDS.CONTINUE)) {
+        delete payloads[key][INTERACTION_IDS.EHR_CORE]['ControlActEvent']['subject']['EhrExtract'][
+          'id'
+        ]['@_root'];
+      } else if (
+        original.includes(INTERACTION_IDS.CONTINUE) &&
+        modified.includes(INTERACTION_IDS.CONTINUE)
+      ) {
         // Remove Message ID references within the CONTINUE message
         delete payloads[key][INTERACTION_IDS.CONTINUE]['id']['@_root'];
-        delete payloads[key][INTERACTION_IDS.CONTINUE]['ControlActEvent']['subject']['PayloadInformation']['id']['@_root'];
-        delete payloads[key][INTERACTION_IDS.CONTINUE]['ControlActEvent']['subject']['PayloadInformation']['value']['Gp2gpfragment']['message-id'];
-        delete payloads[key][INTERACTION_IDS.CONTINUE]['ControlActEvent']['subject']['PayloadInformation']['pertinentInformation']['pertinentPayloadBody']['id']['@_root'];
-      }
-      else {
+        delete payloads[key][INTERACTION_IDS.CONTINUE]['ControlActEvent']['subject'][
+          'PayloadInformation'
+        ]['id']['@_root'];
+        delete payloads[key][INTERACTION_IDS.CONTINUE]['ControlActEvent']['subject'][
+          'PayloadInformation'
+        ]['value']['Gp2gpfragment']['message-id'];
+        delete payloads[key][INTERACTION_IDS.CONTINUE]['ControlActEvent']['subject'][
+          'PayloadInformation'
+        ]['pertinentInformation']['pertinentPayloadBody']['id']['@_root'];
+      } else {
         logError('Unrecognised Interaction ID');
         return false;
       }
@@ -108,7 +120,7 @@ const validateExternalAttachmentEquality = (original, modified) => {
     };
 
     if (externalAttachments.original.length === 0 && externalAttachments.modified.length === 0) {
-      logInfo("No external attachments found in original and modified, skipping.");
+      logInfo('No external attachments found in original and modified, skipping.');
       return true;
     }
 
@@ -124,4 +136,4 @@ const validateExternalAttachmentEquality = (original, modified) => {
   }
 
   return true;
-}
+};

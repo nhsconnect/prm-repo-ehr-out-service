@@ -51,9 +51,14 @@ describe('getPdsOdsCode', () => {
     const expectedError = new Error('Request failed with status code 500');
 
     // when
-    nock(MOCK_GP2GP_MESSENGER_SERVICE_URL, HEADERS).get(`/patient-demographics/${NHS_NUMBER}`).reply(500);
-    try {await getPdsOdsCode(NHS_NUMBER)}
-    catch (err) {error = err}
+    nock(MOCK_GP2GP_MESSENGER_SERVICE_URL, HEADERS)
+      .get(`/patient-demographics/${NHS_NUMBER}`)
+      .reply(500);
+    try {
+      await getPdsOdsCode(NHS_NUMBER);
+    } catch (err) {
+      error = err;
+    }
 
     // then
     expect(error).not.toBeNull();

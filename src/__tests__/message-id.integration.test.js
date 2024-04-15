@@ -155,7 +155,9 @@ describe('Replacement of message IDs', () => {
       const fragmentFilenames = Object.keys(fragmentFilenamesAndOldMessageIds);
       const fragmentOldMessageIds = Object.values(fragmentFilenamesAndOldMessageIds);
       const inboundCoreMessageId = 'DF91D420-DDC7-41ED-808B-AC162D1F16F0';
-      const outboundFragmentMessageIds = inboundFragmentMessageIds.map(() => uuidv4().toUpperCase());
+      const outboundFragmentMessageIds = inboundFragmentMessageIds.map(() =>
+        uuidv4().toUpperCase()
+      );
       const messageIdReplacement = buildMessageIdReplacement(
         [inboundCoreMessageId, ...inboundFragmentMessageIds],
         [uuidv4().toUpperCase(), ...outboundFragmentMessageIds]
@@ -214,7 +216,10 @@ describe('Replacement of message IDs', () => {
 
       // Get the new Message IDs from the database, compare with the
       // Message IDs within the POST Request bodies.
-      const messageIdReplacements = await getAllMessageIdPairs(fragmentOldMessageIds, inboundConversationId);
+      const messageIdReplacements = await getAllMessageIdPairs(
+        fragmentOldMessageIds,
+        inboundConversationId
+      );
       const newFragmentMessageIds = messageIdReplacements
         .map(replacement => replacement.newMessageId)
         .sort();

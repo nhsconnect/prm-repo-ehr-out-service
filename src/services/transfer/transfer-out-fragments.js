@@ -78,7 +78,14 @@ const getAndSendMessageFragments = async (
       let fragment = await getFragment(inboundConversationId, oldMessageId);
       fragment = replaceMessageIdsInObject(fragment, messageIdsWithReplacements);
 
-      await sendFragment(inboundConversationId, outboundConversationId, odsCode, fragment, newMessageId, oldMessageId);
+      await sendFragment(
+        inboundConversationId,
+        outboundConversationId,
+        odsCode,
+        fragment,
+        newMessageId,
+        oldMessageId
+      );
 
       logInfo(
         `Fragment ${++count} of ${

@@ -62,7 +62,13 @@ describe('logOutboundMessage', () => {
 
     it('should keep the base64 content in the actual outbound post request unchanged', async () => {
       // given
-      const [inboundConversationId, outboundConversationId, outboundMessageId, inboundMessageId, ehrRequestId] = createRandomUUID(5);
+      const [
+        inboundConversationId,
+        outboundConversationId,
+        outboundMessageId,
+        inboundMessageId,
+        ehrRequestId
+      ] = createRandomUUID(5);
       const inputEhrMessage = loadTestData(`TestEhr${testCase}`);
       const odsCode = 'test-ods-code';
 
@@ -71,9 +77,22 @@ describe('logOutboundMessage', () => {
 
       const scope = createMockGP2GPScope(testCase);
       if (testCase === EhrMessageType.core) {
-        await sendCore(outboundConversationId, odsCode, inputEhrMessage, ehrRequestId, outboundMessageId);
+        await sendCore(
+          outboundConversationId,
+          odsCode,
+          inputEhrMessage,
+          ehrRequestId,
+          outboundMessageId
+        );
       } else {
-        await sendFragment(inboundConversationId, outboundConversationId, odsCode, inputEhrMessage, outboundMessageId, inboundMessageId);
+        await sendFragment(
+          inboundConversationId,
+          outboundConversationId,
+          odsCode,
+          inputEhrMessage,
+          outboundMessageId,
+          inboundMessageId
+        );
       }
 
       // then

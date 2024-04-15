@@ -28,91 +28,95 @@ export class ParsingError extends Error {
   constructor(error) {
     super(errorMessages.PARSING_ERROR);
     logError(errorMessages.PARSING_ERROR, error);
-  };
+  }
 }
 
 export class GetPdsCodeError extends Error {
   constructor(error) {
     super(errorMessages.GET_PDS_CODE_ERROR);
     logError(errorMessages.GET_PDS_CODE_ERROR, error);
-  };
+  }
 }
 
 export class PresignedUrlNotFoundError extends Error {
   constructor(error) {
     super(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR);
     logError(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR, error);
-  };
+  }
 }
 
 export class DownloadError extends Error {
   constructor(error) {
     super(errorMessages.DOWNLOAD_ERROR);
     logError(errorMessages.DOWNLOAD_ERROR, error);
-  };
+  }
 }
 
 export class SendCoreError extends Error {
   constructor(error) {
     super(errorMessages.SEND_CORE_ERROR);
     logError(errorMessages.SEND_CORE_ERROR, error);
-  };
+  }
 }
 
 export class FragmentSendingError extends Error {
   constructor(error, messageId) {
     super(errorMessages.SEND_FRAGMENT_ERROR + messageId);
     logError(errorMessages.SEND_FRAGMENT_ERROR + messageId, error);
-  };
+  }
 }
 
 export class PatientRecordNotFoundError extends Error {
   constructor(error) {
     super(errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR);
     logError(errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR, error);
-  };
+  }
 }
 
 export class NhsNumberNotFoundError extends Error {
   constructor() {
     super(errorMessages.NHS_NUMBER_NOT_FOUND_ERROR);
     logError(errorMessages.NHS_NUMBER_NOT_FOUND_ERROR);
-  };
+  }
 }
 
 export class StatusUpdateError extends Error {
   constructor(error) {
     super(errorMessages.STATUS_ERROR);
     logError(errorMessages.STATUS_ERROR, error);
-  };
+  }
 }
 
 export class MessageIdUpdateError extends Error {
   constructor(error) {
     super(errorMessages.MESSAGE_ID_UPDATE_ERROR);
     logError(errorMessages.MESSAGE_ID_UPDATE_ERROR, error);
-  };
+  }
 }
 
 export class FragmentMessageRecordNotFoundError extends Error {
   constructor(messageIds) {
     super(errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR);
-    logError(`${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId(s): ${messageIds}`);
-  };
+    logError(
+      `${errorMessages.FRAGMENT_MESSAGE_RECORD_NOT_FOUND_ERROR}, related messageId(s): ${messageIds}`
+    );
+  }
 }
 
 export class AcknowledgementRecordNotFoundError extends Error {
   constructor(messageId) {
     super(`${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`);
-    logError(`${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`);
-  };
+    logError(
+      `${errorMessages.ACKNOWLEDGEMENT_RECORD_NOT_FOUND_ERROR} with message id ${messageId}`
+    );
+  }
 }
 
 export class FileReadError extends Error {
   constructor(error) {
     super(errorMessages.FILE_READ_ERROR);
     logError(errorMessages.FILE_READ_ERROR, error);
-  };
+  }
 }
 
 export class FragmentMessageIdReplacementRecordNotFoundError extends Error {
@@ -120,15 +124,16 @@ export class FragmentMessageIdReplacementRecordNotFoundError extends Error {
     super(errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR);
     logError(
       errorMessages.FRAGMENT_MESSAGE_ID_REPLACEMENT_RECORD_NOT_FOUND_ERROR +
-      ` expected ${numberOfOldMessageIds} message ID replacements but found ${numberOfMessageIdReplacements}`);
-  };
+        ` expected ${numberOfOldMessageIds} message ID replacements but found ${numberOfMessageIdReplacements}`
+    );
+  }
 }
 
 export class OutboundConversationResetError extends Error {
   constructor(error) {
     super(errorMessages.OUTBOUND_CONVERSATION_RESET_ERROR);
     logError(errorMessages.OUTBOUND_CONVERSATION_RESET_ERROR, error);
-  };
+  }
 }
 
 export class ValidationError extends Error {
@@ -136,5 +141,5 @@ export class ValidationError extends Error {
     const fullErrorMessage = errorMessages.VALIDATION_ERROR + details;
     super(fullErrorMessage);
     logError(fullErrorMessage);
-  };
+  }
 }
