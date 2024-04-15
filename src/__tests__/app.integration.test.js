@@ -268,7 +268,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
 
     const originalFragmentsSorted = Object.values(originalFragments).sort();
     const receivedArguments = [0, 1, 2, 3]
-      .map(i => JSON.stringify(sendFragment.mock.calls[i][2]))
+      .map(i => JSON.stringify(sendFragment.mock.calls[i][3])) // 3 = fragmentMessage
       .sort();
 
     // then
@@ -316,7 +316,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
 
     const originalFragmentsSorted = Object.values(originalFragments).sort();
     const receivedArguments = [0, 1, 2, 3]
-      .map(i => JSON.stringify(sendFragment.mock.calls[i][2]))
+      .map(i => JSON.stringify(sendFragment.mock.calls[i][3])) // 3 = fragmentMessage
       .sort();
 
     expect(sendFragment).toBeCalledTimes(4);
