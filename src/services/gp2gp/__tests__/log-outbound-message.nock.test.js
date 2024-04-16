@@ -108,7 +108,7 @@ describe('logOutboundMessage', () => {
         expect(actualOutboundRequestBody).toMatchObject({
           conversationId: outboundConversationId,
           odsCode,
-          outboundMessageId
+          messageId: outboundMessageId
         });
       }
 
