@@ -20,8 +20,8 @@ export const sendFragment = async (
   const requestBody = {
     conversationId: outboundConversationId,
     odsCode,
-    fragmentMessage,
-    outboundMessageId
+    messageId: outboundMessageId,
+    fragmentMessage
   };
 
   setCurrentSpanAttributes({ conversationId: outboundConversationId, outboundMessageId });
