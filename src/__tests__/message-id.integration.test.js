@@ -210,7 +210,7 @@ describe('Replacement of message IDs', () => {
       gp2gpMessengerPostRequestBodies.forEach(postRequestBody => {
         expect(postRequestBody.conversationId).toEqual(conversationId);
         expect(postRequestBody.odsCode).toEqual(odsCode);
-        expect(postRequestBody.outboundMessageId).toEqual(postRequestBody.outboundMessageId.toUpperCase());
+        expect(postRequestBody.messageId).toEqual(postRequestBody.messageId.toUpperCase());
         expect(fragmentOldMessageIds).not.toContain(postRequestBody.messageId);
       });
 
@@ -225,7 +225,7 @@ describe('Replacement of message IDs', () => {
         .sort();
 
       const newMessageIdsInPostRequests = gp2gpMessengerPostRequestBodies
-        .map(body => body.outboundMessageId)
+        .map(body => body.messageId)
         .sort();
 
       expect(newMessageIdsInPostRequests).toEqual(newFragmentMessageIds);
