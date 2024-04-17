@@ -45,7 +45,6 @@ export const createInboundRecordForTest = async (
     InboundConversationId: conversationId,
     Layer: [RecordType.FRAGMENT, fragmentId].join('#'),
     InboundMessageId: fragmentId,
-    ParentId: coreMessageId,
     CreatedAt: timestamp,
     UpdatedAt: timestamp,
     ReceivedAt: timestamp,
