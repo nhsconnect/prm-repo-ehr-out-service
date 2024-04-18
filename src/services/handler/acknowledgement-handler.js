@@ -7,8 +7,8 @@ import { setCurrentSpanAttributes } from '../../config/tracing';
 import { logError, logInfo } from '../../middleware/logging';
 import { messageIdMatchOutboundCore } from '../database/dynamodb/ehr-core-repository';
 import { getNhsNumberByOutboundConversationId } from '../database/dynamodb/outbound-conversation-repository';
-import {updateConversationStatus, updateCoreStatus} from "../transfer/transfer-out-util";
-import {ConversationStatus, CoreStatus} from "../../constants/enums";
+import { updateConversationStatus, updateCoreStatus } from "../transfer/transfer-out-util";
+import { ConversationStatus, CoreStatus } from "../../constants/enums";
 
 export const acknowledgementMessageHandler = async message => {
   const conversationId = await parseConversationId(message);

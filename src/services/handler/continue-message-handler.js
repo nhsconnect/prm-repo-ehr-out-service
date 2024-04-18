@@ -79,7 +79,6 @@ const handleNewContinueRequest = async (conversationId, continueRequestMessage) 
     return;
   }
 
-  // Update the according statuses.
   await updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_CONTINUE_REQUEST_RECEIVED);
   await updateCoreStatus(conversationId, CoreStatus.OUTBOUND_COMPLETE);
 
