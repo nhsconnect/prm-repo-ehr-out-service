@@ -39,6 +39,8 @@ const handlePositiveIntegrationAcknowledgement = async (nhsNumber, conversationI
   const usefulDetails = `for Conversation ID ${conversationId}, and NHS number ${nhsNumber}.`;
   logInfo(`Positive integration acknowledgement received ${usefulDetails}`);
 
+  await updateCoreStatus(conversationId, CoreStatus.OUTBOUND_COMPLETE);
+  await updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_COMPLETE)
   await deleteEhrFromRepo(nhsNumber, conversationId);
 };
 
