@@ -7,6 +7,8 @@ import { setCurrentSpanAttributes } from '../../config/tracing';
 import { logError, logInfo } from '../../middleware/logging';
 import { messageIdMatchOutboundCore } from '../database/dynamodb/ehr-core-repository';
 import { getNhsNumberByOutboundConversationId } from '../database/dynamodb/outbound-conversation-repository';
+import { updateConversationStatus, updateCoreStatus } from "../transfer/transfer-out-util";
+import { ConversationStatus, CoreStatus } from "../../constants/enums";
 
 export const acknowledgementMessageHandler = async message => {
   const conversationId = await parseConversationId(message);
@@ -37,6 +39,8 @@ const handlePositiveIntegrationAcknowledgement = async (nhsNumber, conversationI
   const usefulDetails = `for Conversation ID ${conversationId}, and NHS number ${nhsNumber}.`;
   logInfo(`Positive integration acknowledgement received ${usefulDetails}`);
 
+  await updateCoreStatus(conversationId, CoreStatus.OUTBOUND_COMPLETE);
+  await updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_COMPLETE)
   await deleteEhrFromRepo(nhsNumber, conversationId);
 };
 
@@ -44,6 +48,8 @@ const handleNegativeIntegrationAcknowledgement = async (nhsNumber, conversationI
   const usefulDetails = `for Conversation ID ${conversationId}, and NHS number ${nhsNumber}.`;
   logInfo(`Negative integration acknowledgement received ${usefulDetails}`);
 
+  await updateCoreStatus(conversationId, CoreStatus.OUTBOUND_FAILED);
+  await updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_FAILED)
   await deleteEhrFromRepo(nhsNumber, conversationId);
 };
 

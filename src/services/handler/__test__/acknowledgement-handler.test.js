@@ -6,6 +6,7 @@ import { parseConversationId } from '../../parser/parsing-utilities';
 import { logError, logInfo } from '../../../middleware/logging';
 import { getNhsNumberByOutboundConversationId } from '../../database/dynamodb/outbound-conversation-repository';
 import { messageIdMatchOutboundCore } from '../../database/dynamodb/ehr-core-repository';
+import { updateConversationStatus, updateCoreStatus } from "../../transfer/transfer-out-util";
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -15,6 +16,7 @@ jest.mock('../../database/dynamodb/outbound-conversation-repository');
 jest.mock('../../database/dynamodb/ehr-core-repository');
 jest.mock('../../database/dynamodb/ehr-fragment-repository');
 jest.mock('../../ehr-repo/delete-ehr');
+jest.mock('../../transfer/transfer-out-util');
 
 describe('acknowledgement-handler.test.js', () => {
   // ============ COMMON PROPERTIES ============
@@ -128,6 +130,8 @@ describe('acknowledgement-handler.test.js', () => {
     getNhsNumberByOutboundConversationId.mockResolvedValueOnce(Promise.resolve(NHS_NUMBER));
     storeAcknowledgement.mockResolvedValueOnce(undefined);
     sendDeleteRequestToEhrRepo.mockResolvedValueOnce(Promise.resolve({}));
+    updateCoreStatus.mockResolvedValueOnce(undefined);
+    updateConversationStatus.mockResolvedValueOnce(undefined)
 
     await acknowledgementMessageHandler(acknowledgementMessage);
 
@@ -151,6 +155,8 @@ describe('acknowledgement-handler.test.js', () => {
     messageIdMatchOutboundCore.mockResolvedValueOnce(Promise.resolve(true));
     getNhsNumberByOutboundConversationId.mockResolvedValueOnce(Promise.resolve(NHS_NUMBER));
     storeAcknowledgement.mockResolvedValueOnce(undefined);
+    updateCoreStatus.mockResolvedValueOnce(undefined);
+    updateConversationStatus.mockResolvedValueOnce(undefined)
 
     await acknowledgementMessageHandler(acknowledgementMessage);
 
