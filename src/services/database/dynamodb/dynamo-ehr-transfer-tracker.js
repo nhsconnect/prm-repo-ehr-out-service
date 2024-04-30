@@ -110,7 +110,7 @@ export class EhrTransferTracker {
     }
   }
 
-  async queryTable(baseQueryParams, recordType = RecordType.ALL, includeDeletedRecord = false) {
+  async queryTable(baseQueryParams, recordType = RecordType.ALL, includeDeletedRecord = true) {
     const params = { ...baseQueryParams, TableName: this.tableName };
 
     if (!includeDeletedRecord) {
@@ -143,13 +143,13 @@ export class EhrTransferTracker {
     return items;
   }
 
-  async queryTableByNhsNumber(nhsNumber, includeDeletedRecord = false) {
+  async queryTableByNhsNumber(nhsNumber, includeDeletedRecord = true) {
     const baseQueryParams = buildBaseQueryParams(nhsNumber, QueryKeyType.NhsNumber);
 
     return this.queryTable(baseQueryParams, RecordType.ALL, includeDeletedRecord);
   }
 
-  async queryTableByOutboundConversationId(outboundConversationId, includeDeletedRecord = false) {
+  async queryTableByOutboundConversationId(outboundConversationId, includeDeletedRecord = true) {
     const baseQueryParams = buildBaseQueryParams(
       outboundConversationId,
       QueryKeyType.OutboundConversationId
@@ -160,7 +160,7 @@ export class EhrTransferTracker {
   async queryTableByInboundConversationId(
     inboundConversationId,
     recordType = RecordType.ALL,
-    includeDeletedRecord = false
+    includeDeletedRecord = true
   ) {
     const baseQueryParams = buildBaseQueryParams(
       inboundConversationId,
