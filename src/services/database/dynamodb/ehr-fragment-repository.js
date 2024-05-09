@@ -110,7 +110,7 @@ export const storeAcknowledgement = async (
     }
 
     const updateContent = {
-      FailureCode: acknowledgementCode,
+      FailureCode: acknowledgementCode ?? null,
       FailureReason: acknowledgementDetail ?? null
     };
 
