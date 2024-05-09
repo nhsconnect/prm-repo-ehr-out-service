@@ -23,6 +23,8 @@ export const parseAcknowledgementMessage = async message => {
       ? payloadContent['acknowledgement']['messageRef']['id']['root']
       : 'NOT FOUND',
     acknowledgementTypeCode: payloadContent?.['acknowledgement']?.['typeCode'],
+    acknowledgementCode: payloadContent?.['acknowledgement']?.['acknowledgementDetail']?.['code']?.['code'] ?
+    payloadContent['acknowledgement']['acknowledgementDetail']['code']['code'] : 'NOT FOUND',
     acknowledgementDetail: payloadContent?.['acknowledgement']?.['acknowledgementDetail']?.[
       'code'
     ]?.['displayName']
