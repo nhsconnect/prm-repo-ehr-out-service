@@ -6,7 +6,6 @@ import {
 } from '../../../errors/errors';
 import { buildFragmentUpdateParams, isFragment, isNotSentOut } from '../../../models/fragment';
 import { FragmentStatus, RecordType } from '../../../constants/enums';
-import { getUKTimestamp } from '../../time';
 import { ACKNOWLEDGEMENT_TYPES } from '../../../constants/acknowledgement-types';
 
 export const getAllMessageIdPairs = async (oldMessageIds, inboundConversationId) => {
@@ -93,7 +92,7 @@ export const storeAcknowledgement = async (
   outboundConversationId
 ) => {
   try {
-    const { acknowledgementTypeCode, acknowledgementDetail, messageRef } =
+    const { acknowledgementCode, acknowledgementTypeCode, acknowledgementDetail, messageRef } =
       parsedAcknowledgementMessage;
     const db = EhrTransferTracker.getInstance();
     const allRecords = await db.queryTableByOutboundConversationId(outboundConversationId);
@@ -111,9 +110,8 @@ export const storeAcknowledgement = async (
     }
 
     const updateContent = {
-      AcknowledgementReceivedAt: getUKTimestamp(),
-      AcknowledgementTypeCode: acknowledgementTypeCode,
-      AcknowledgementDetail: acknowledgementDetail ?? null
+      FailureCode: acknowledgementCode,
+      FailureReason: acknowledgementDetail ?? null
     };
 
     if (ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(acknowledgementTypeCode)) {
