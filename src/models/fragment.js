@@ -6,10 +6,8 @@ import { validateIds } from '../utilities/validation-utilities';
 const fieldsAllowedToUpdate = [
   'TransferStatus',
   'FailureReason',
-  'OutboundMessageId',
-  'AcknowledgementReceivedAt',
-  'AcknowledgementTypeCode',
-  'AcknowledgementDetail'
+  'FailureCode',
+  'OutboundMessageId'
 ];
 
 export const buildFragmentUpdateParams = (inboundConversationId, inboundMessageId, changes) => {
