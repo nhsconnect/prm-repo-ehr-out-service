@@ -110,8 +110,8 @@ export const storeAcknowledgement = async (
     }
 
     const updateContent = {
-      FailureCode: acknowledgementCode ?? null,
-      FailureReason: acknowledgementDetail ?? null
+      FailureCode: acknowledgementCode ?? undefined,
+      FailureReason: acknowledgementDetail ?? undefined
     };
 
     if (ACKNOWLEDGEMENT_TYPES.POSITIVE.includes(acknowledgementTypeCode)) {

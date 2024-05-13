@@ -24,12 +24,12 @@ export const parseAcknowledgementMessage = async message => {
       : 'NOT FOUND',
     acknowledgementTypeCode: payloadContent?.['acknowledgement']?.['typeCode'],
     acknowledgementCode: payloadContent?.['acknowledgement']?.['acknowledgementDetail']?.['code']?.['code'] ?
-    payloadContent['acknowledgement']['acknowledgementDetail']['code']['code'] : 'NOT FOUND',
+    payloadContent['acknowledgement']['acknowledgementDetail']['code']['code'] : undefined,
     acknowledgementDetail: payloadContent?.['acknowledgement']?.['acknowledgementDetail']?.[
       'code'
     ]?.['displayName']
       ? payloadContent['acknowledgement']['acknowledgementDetail']['code']['displayName']
-      : 'NOT FOUND'
+      : undefined
   };
 
   validateFieldsHaveSuccessfullyParsed(parsedFields);
