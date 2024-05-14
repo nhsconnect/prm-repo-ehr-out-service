@@ -16,7 +16,6 @@ import { storeOutboundMessageIds } from '../store-outbound-message-ids';
 import { FailureReason, FragmentStatus, RecordType } from '../../../../constants/enums';
 import { logError, logInfo } from '../../../../middleware/logging';
 import { buildUpdateParamFromItem } from '../../../../utilities/dynamodb-helper';
-import { TIMESTAMP_REGEX } from '../../../time';
 
 jest.mock('../../../../middleware/logging');
 
@@ -204,6 +203,8 @@ describe('dynamodb-fragment-repository', () => {
       const acknowledgementDetail =
         'hl7:{interactionId}/hl7:communicationFunctionRcv/hl7:device/hl7:id/@extension is missing, empty, invalid or ACL violation';
       const acknowledgementTypeCode = 'AR';
+      const acknowledgementCode = 30;
+
       // given
       const parsedAcknowledgement = {
         service: 'urn:nhs:names:services:gp2gp',
@@ -211,7 +212,8 @@ describe('dynamodb-fragment-repository', () => {
         referencedMessageId: uuid().toUpperCase(),
         messageRef: outboundMessageIdOfFragment,
         acknowledgementTypeCode,
-        acknowledgementDetail
+        acknowledgementDetail,
+        acknowledgementCode
       };
 
       // when
@@ -228,9 +230,8 @@ describe('dynamodb-fragment-repository', () => {
         OutboundConversationId: OUTBOUND_CONVERSATION_ID,
         OutboundMessageId: outboundMessageIdOfFragment,
         InboundMessageId: inboundMessageIdOfFragment,
-        AcknowledgementTypeCode: acknowledgementTypeCode,
-        AcknowledgementDetail: acknowledgementDetail,
-        AcknowledgementReceivedAt: expect.stringMatching(TIMESTAMP_REGEX),
+        FailureCode: acknowledgementCode,
+        FailureReason: acknowledgementDetail,
         TransferStatus: FragmentStatus.OUTBOUND_FAILED
       });
 

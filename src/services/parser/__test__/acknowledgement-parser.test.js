@@ -39,6 +39,7 @@ describe('parseCommonAcknowledgementFields', () => {
     const acknowledgementDetail =
       'hl7:{interactionId}/hl7:communicationFunctionRcv/hl7:device/hl7:id/@extension is missing, empty, invalid or ACL violation';
     const acknowledgementTypeCode = 'AR';
+    const acknowledgementCode = '506';
 
     // when
     validateFieldsHaveSuccessfullyParsed.mockReturnValueOnce(undefined);
@@ -51,6 +52,7 @@ describe('parseCommonAcknowledgementFields', () => {
     expect(parsedMessage.referencedMessageId).toEqual(referencedMessageId);
     expect(parsedMessage.acknowledgementDetail).toEqual(acknowledgementDetail);
     expect(parsedMessage.acknowledgementTypeCode).toEqual(acknowledgementTypeCode);
+    expect(parsedMessage.acknowledgementCode).toEqual(acknowledgementCode);
     expect(SERVICES.gp2gp).toEqual(parsedMessage.service);
     expect(ACKNOWLEDGEMENT_TYPES.NEGATIVE).toContain(parsedMessage.acknowledgementTypeCode);
   });
@@ -62,6 +64,7 @@ describe('parseCommonAcknowledgementFields', () => {
     const referencedMessageId = 'NOT FOUND';
     const acknowledgementDetail = 'Large Message general failure';
     const acknowledgementTypeCode = 'AR';
+    const acknowledgementCode = '30';
 
     // when
     validateFieldsHaveSuccessfullyParsed.mockReturnValueOnce(undefined);
@@ -74,6 +77,7 @@ describe('parseCommonAcknowledgementFields', () => {
     expect(parsedMessage.referencedMessageId).toEqual(referencedMessageId);
     expect(parsedMessage.acknowledgementDetail).toEqual(acknowledgementDetail);
     expect(parsedMessage.acknowledgementTypeCode).toEqual(acknowledgementTypeCode);
+    expect(parsedMessage.acknowledgementCode).toEqual(acknowledgementCode);
     expect(ACKNOWLEDGEMENT_TYPES.NEGATIVE).toContain(parsedMessage.acknowledgementTypeCode);
     expect(SERVICES.gp2gp).toEqual(parsedMessage.service);
   });
@@ -83,8 +87,9 @@ describe('parseCommonAcknowledgementFields', () => {
     const messageId = '3B768FD0-FECD-41ED-808B-AC162D1F16F0';
     const messageRef = '82BFE6C0-56CE-4466-886A-3FDE9D08D0C2';
     const referencedMessageId = 'NOT FOUND';
-    const acknowledgementDetail = 'NOT FOUND';
+    const acknowledgementDetail = undefined;
     const acknowledgementTypeCode = 'AA';
+    const acknowledgementCode = undefined;
 
     // when
     validateFieldsHaveSuccessfullyParsed.mockReturnValueOnce(undefined);
@@ -97,6 +102,7 @@ describe('parseCommonAcknowledgementFields', () => {
     expect(parsedMessage.referencedMessageId).toEqual(referencedMessageId);
     expect(parsedMessage.acknowledgementDetail).toEqual(acknowledgementDetail);
     expect(parsedMessage.acknowledgementTypeCode).toEqual(acknowledgementTypeCode);
+    expect(parsedMessage.acknowledgementCode).toEqual(acknowledgementCode);
     expect(ACKNOWLEDGEMENT_TYPES.POSITIVE).toContain(parsedMessage.acknowledgementTypeCode);
     expect(SERVICES.gp2gp).toEqual(parsedMessage.service);
   });
