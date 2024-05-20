@@ -87,9 +87,9 @@ describe('parseCommonAcknowledgementFields', () => {
     const messageId = '3B768FD0-FECD-41ED-808B-AC162D1F16F0';
     const messageRef = '82BFE6C0-56CE-4466-886A-3FDE9D08D0C2';
     const referencedMessageId = 'NOT FOUND';
-    const acknowledgementDetail = undefined;
+    const acknowledgementDetail = 'NOT FOUND';
     const acknowledgementTypeCode = 'AA';
-    const acknowledgementCode = undefined;
+    const acknowledgementCode = 'NOT FOUND';
 
     // when
     validateFieldsHaveSuccessfullyParsed.mockReturnValueOnce(undefined);
