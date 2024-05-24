@@ -51,7 +51,8 @@ describe('EhrTransferTracker', () => {
         return {
           InboundConversationId: inboundConversationId,
           Layer: `FRAGMENT#${fragmentId}`,
-          TestColumn: 'test'
+          TestColumn: 'test',
+          CreatedAt: 'test'
         };
       });
 

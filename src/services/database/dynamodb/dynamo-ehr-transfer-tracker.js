@@ -102,6 +102,7 @@ export class EhrTransferTracker {
         TransactItems: batch.map(params => ({
           Update: {
             TableName: this.tableName,
+            ConditionExpression: "attribute_exists(CreatedAt)",
             ...params
           }
         }))
