@@ -395,6 +395,10 @@ case "${command}" in
       die_repo_in_perf_die
       dojo -c Dojofile-itest "./tasks _test_coverage"
       ;;
+  test_coverage_github_action)
+      npm install
+      npm run test:coverage-unit-test-only
+      ;;
   _build)
       rm -rf build
       npm install

@@ -18,7 +18,8 @@
     "test:docker": "npm run test:health",
     "test:functional": "jest test/functional/*",
     "test:e2e": "jest test/e2e/*",
-    "test:coverage": "jest src/ --maxWorkers=1 --coverage --detectOpenHandles --forceExit --setupFiles dotenv/config"
+    "test:coverage": "jest src/ --maxWorkers=1 --coverage --detectOpenHandles --forceExit --setupFiles dotenv/config",
+    "test:coverage-unit-test-only": "jest  \"src/(?!(.*\\integration.test\\.js))\" --maxWorkers=1 --coverage --detectOpenHandles --forceExit --setupFiles dotenv/config"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.529.1",
