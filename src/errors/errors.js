@@ -1,9 +1,11 @@
 import { logError } from '../middleware/logging';
+import {sendAcknowledgement} from "../services/gp2gp/send-acknowledgement";
 
 export const errorMessages = {
   DOWNLOAD_ERROR: 'Cannot retrieve message from presigned URL',
   PRESIGNED_URL_NOT_FOUND_ERROR: 'The presigned URL could not be retrieved',
   SEND_CORE_ERROR: 'Failed while trying to send ehr core',
+  SEND_ACKNOWLEDGEMENT_ERROR: 'Failed while trying to send acknowledgement',
   SEND_FRAGMENT_ERROR: 'Failed while trying to send message fragment with message ID: ',
   GET_PDS_CODE_ERROR: 'Unable to retrieve patient from PDS',
   PATIENT_RECORD_NOT_FOUND_ERROR: 'Cannot find the requested patient record from ehr-repo',
@@ -56,6 +58,13 @@ export class SendCoreError extends Error {
   constructor(error) {
     super(errorMessages.SEND_CORE_ERROR);
     logError(errorMessages.SEND_CORE_ERROR, error);
+  }
+}
+
+export class SendAcknowledgementError extends Error {
+  constructor(error) {
+    super(errorMessages.SEND_ACKNOWLEDGEMENT_ERROR);
+    logError(errorMessages.SEND_ACKNOWLEDGEMENT_ERROR, error);
   }
 }
 

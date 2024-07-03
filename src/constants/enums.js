@@ -56,6 +56,11 @@ export const FailureReason = {
   SENDING_FAILED: 'OUTBOUND:sending_failed'
 };
 
+export const AcknowledgementErrorCode = {
+  ERROR_CODE_06: { errorCode: "06", label: "Patient not at surgery" },
+  // TODO PRMP-534 identify and add the remaining error types
+}
+
 Object.freeze(RecordType);
 Object.freeze(ConversationStatus);
 Object.freeze(CoreStatus);

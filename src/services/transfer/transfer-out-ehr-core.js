@@ -1,4 +1,4 @@
-import { PresignedUrlNotFoundError, DownloadError } from '../../errors/errors';
+import {PresignedUrlNotFoundError, DownloadError, PatientRecordNotFoundError} from '../../errors/errors';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../ehr-repo/get-ehr';
 import { setCurrentSpanAttributes } from '../../config/tracing';
@@ -15,7 +15,8 @@ import {
   createOutboundConversation,
   getOutboundConversationById
 } from '../database/dynamodb/outbound-conversation-repository';
-import { ConversationStatus, FailureReason } from '../../constants/enums';
+import {AcknowledgementErrorCode, ConversationStatus, FailureReason} from '../../constants/enums';
+import {sendAcknowledgement} from "../gp2gp/send-acknowledgement";
 
 export async function transferOutEhrCore({
   conversationId: outboundConversationId,
@@ -60,7 +61,7 @@ export async function transferOutEhrCore({
       newMessageId
     );
   } catch (error) {
-    await handleCoreTransferError(error, outboundConversationId);
+    await handleCoreTransferError(error, outboundConversationId, ehrRequestId);
   }
 }
 
@@ -93,13 +94,30 @@ const isEhrRequestDuplicate = async conversationId => {
   return false;
 };
 
-const handleCoreTransferError = async (error, conversationId) => {
+const handleCoreTransferError = async (
+  error,
+  nhsNumber,
+  odsCode,
+  conversationId,
+  ehrRequestId
+) => {
   switch (true) {
+    // TODO PRMP-534 should a presigned URL not found be handled differently or is it considered an 06 patient not at practice?
     case error instanceof PresignedUrlNotFoundError:
+    case error instanceof PatientRecordNotFoundError:
+
+      await sendAcknowledgement(
+        nhsNumber,
+        odsCode,
+        conversationId,
+        ehrRequestId,
+        AcknowledgementErrorCode.ERROR_CODE_06
+      );
+
       await updateConversationStatus(
         conversationId,
         ConversationStatus.OUTBOUND_FAILED,
-        FailureReason.MISSING_FROM_REPO
+        FailureReason.MISSING_FROM_REPO // TODO PRMP-534 Should this be replaced with a more gp2gp-aligned '06' code?
       );
       break;
     case error instanceof DownloadError:
