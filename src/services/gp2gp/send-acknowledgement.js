@@ -4,17 +4,6 @@ import {config} from '../../config';
 import {logOutboundMessage} from "./logging-utils";
 import {SendAcknowledgementError} from "../../errors/errors";
 
-
-/*
- * TODO PRMP-534 fields needed to send out:
- *  String repositoryAsid;
- *  String odsCode;
- *  String conversationId;
- *  String messageId;
- *  String errorCode
- */
-
-
 export const sendAcknowledgement = async (
   nhsNumber,
   odsCode,
@@ -22,24 +11,24 @@ export const sendAcknowledgement = async (
   messageId,
   acknowledgementErrorCode
 ) => {
-  const { gp2gpMessengerServiceUrl, gp2gpMessengerAuthKeys, repositoryAsid} = config();
+  const {gp2gpMessengerServiceUrl, gp2gpMessengerAuthKeys, repositoryAsid} = config();
   const url = `${gp2gpMessengerServiceUrl}/health-record-requests/${nhsNumber}/acknowledgement"`;
 
-  //  TODO PRMP-534 we need to get the repositoryAsid from somewhere?
-
   const requestBody = {
-    repositoryAsid:
+    repositoryAsid,
     odsCode,
     conversationId: conversationId.toUpperCase(),
     messageId: messageId.toUpperCase(),
   };
-
+  
+  // TODO PRMP-534 are there any cases where we need to send a positive ACK?
   if (acknowledgementErrorCode == null) {
     logInfo(`POST request to gp2gp-messenger endpoint: ${url} positive acknowledgement message with request body as below:`);
   } else {
-    requestBody.errorCode = acknowledgementErrorCode.errorCode
+    requestBody.errorCode = acknowledgementErrorCode.errorCode;
+    requestBody.errorDisplayName = acknowledgementErrorCode.errorDisplayName;
     logError(`POST request to gp2gp-messenger endpoint: ${url} negative acknowledgement message with GP2GP ` +
-      `error code ${acknowledgementErrorCode.errorCode} - ${acknowledgementErrorCode.label} and request body as below:`);
+      `error code ${acknowledgementErrorCode.errorCode} - ${acknowledgementErrorCode.errorDisplayName} and request body as below:`);
   }
   logOutboundMessage(requestBody);
 

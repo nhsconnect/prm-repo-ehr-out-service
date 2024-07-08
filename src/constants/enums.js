@@ -57,7 +57,7 @@ export const FailureReason = {
 };
 
 export const AcknowledgementErrorCode = {
-  ERROR_CODE_06: { errorCode: "06", label: "Patient not at surgery" },
+  ERROR_CODE_06: { errorCode: "06", errorDisplayName: "Patient not at surgery" },
   // TODO PRMP-534 identify and add the remaining error types
 }
 
