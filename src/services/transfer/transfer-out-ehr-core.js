@@ -102,10 +102,7 @@ const handleCoreTransferError = async (
   ehrRequestId
 ) => {
   switch (true) {
-    // TODO PRMP-534 should a presigned URL not found be handled differently or is it considered an 06 patient not at practice?
-    case error instanceof PresignedUrlNotFoundError:
     case error instanceof PatientRecordNotFoundError:
-
       await sendAcknowledgement(
         nhsNumber,
         odsCode,
@@ -117,7 +114,7 @@ const handleCoreTransferError = async (
       await updateConversationStatus(
         conversationId,
         ConversationStatus.OUTBOUND_FAILED,
-        FailureReason.MISSING_FROM_REPO // TODO PRMP-534 Should this be replaced with a more gp2gp-aligned '06' code?
+        FailureReason.MISSING_FROM_REPO
       );
       break;
     case error instanceof DownloadError:

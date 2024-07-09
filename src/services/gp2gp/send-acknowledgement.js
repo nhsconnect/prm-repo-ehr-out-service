@@ -20,8 +20,7 @@ export const sendAcknowledgement = async (
     conversationId: conversationId.toUpperCase(),
     messageId: messageId.toUpperCase(),
   };
-  
-  // TODO PRMP-534 are there any cases where we need to send a positive ACK?
+
   if (acknowledgementErrorCode == null) {
     logInfo(`POST request to gp2gp-messenger endpoint: ${url} positive acknowledgement message with request body as below:`);
   } else {

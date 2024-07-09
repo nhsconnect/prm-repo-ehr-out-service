@@ -73,7 +73,6 @@ const handleNewContinueRequest = async (conversationId, continueRequestMessage) 
   logInfo('Found NHS number for the given conversation ID');
 
   if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
-    // TODO PRMP-534 Maybe move this into handleFragmentTransferError
     await updateConversationStatus(
       conversationId,
       ConversationStatus.OUTBOUND_FAILED,
