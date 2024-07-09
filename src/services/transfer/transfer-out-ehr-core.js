@@ -61,7 +61,7 @@ export async function transferOutEhrCore({
       newMessageId
     );
   } catch (error) {
-    await handleCoreTransferError(error, outboundConversationId, ehrRequestId);
+    await handleCoreTransferError(error, nhsNumber, odsCode, outboundConversationId, ehrRequestId);
   }
 }
 
@@ -111,6 +111,13 @@ const handleCoreTransferError = async (
         AcknowledgementErrorCode.ERROR_CODE_06
       );
 
+      await updateConversationStatus(
+        conversationId,
+        ConversationStatus.OUTBOUND_FAILED,
+        FailureReason.MISSING_FROM_REPO
+      );
+      break;
+    case error instanceof PresignedUrlNotFoundError:
       await updateConversationStatus(
         conversationId,
         ConversationStatus.OUTBOUND_FAILED,

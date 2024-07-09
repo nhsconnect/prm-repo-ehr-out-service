@@ -34,5 +34,5 @@ export const sendAcknowledgement = async (
   await axios
     .post(url, requestBody, {headers: {Authorization: gp2gpMessengerAuthKeys}})
     .then(() => logInfo(`Acknowledgement message sent to gp2gp-messenger successfully`))
-    .catch(error => throw new SendAcknowledgementError(error));
+    .catch(error => { throw new SendAcknowledgementError(error) });
 };

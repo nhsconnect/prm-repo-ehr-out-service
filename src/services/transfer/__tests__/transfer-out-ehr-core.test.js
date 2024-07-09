@@ -112,7 +112,7 @@ describe('transferOutEhrCore', () => {
       patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
       updateConversationStatus.mockResolvedValueOnce(undefined);
       getEhrCoreAndFragmentIdsFromRepo.mockRejectedValueOnce(error);
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
       // then
       expect(updateConversationStatus).toHaveBeenCalledTimes(2);
@@ -146,7 +146,7 @@ describe('transferOutEhrCore', () => {
       patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
       updateConversationStatus.mockResolvedValueOnce(undefined);
       getEhrCoreAndFragmentIdsFromRepo.mockRejectedValueOnce(error);
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
       // then
       expect(createOutboundConversation).toHaveBeenCalledWith(conversationId, nhsNumber, odsCode);
@@ -178,7 +178,7 @@ describe('transferOutEhrCore', () => {
       );
       replaceMessageIdsInObject.mockReturnValueOnce(ehrCoreWithUpdatedMessageId);
       getNewMessageIdForOldMessageId.mockReturnValueOnce(newMessageId);
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
       // then
       expect(replaceMessageIdsInObject).toBeCalledWith(
@@ -211,7 +211,7 @@ describe('transferOutEhrCore', () => {
       );
       replaceMessageIdsInObject.mockReturnValueOnce(ehrCoreWithUpdatedReferencedFragmentMessageId);
       getNewMessageIdForOldMessageId.mockReturnValueOnce(newMessageId);
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
       // then
       expect(getEhrCoreAndFragmentIdsFromRepo).toHaveBeenCalledWith(nhsNumber, conversationId);
@@ -247,7 +247,7 @@ describe('transferOutEhrCore', () => {
       replaceMessageIdsInObject.mockReturnValueOnce(ehrCoreWithUpdatedMessageId);
       getNewMessageIdForOldMessageId.mockReturnValueOnce(newMessageId);
 
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
       // then
       expect(sendCore).toHaveBeenCalledTimes(1);
@@ -267,7 +267,7 @@ describe('transferOutEhrCore', () => {
       // when
       updateConversationStatus.mockResolvedValueOnce();
       getOutboundConversationById.mockRejectedValueOnce(error);
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
       // then
       expect(logError).toHaveBeenCalledWith('EHR transfer out request failed', error);
@@ -279,7 +279,7 @@ describe('transferOutEhrCore', () => {
       getOutboundConversationById.mockResolvedValueOnce('a previous request');
 
       // when
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
       // then
       expect(createOutboundConversation).not.toHaveBeenCalled();
@@ -296,7 +296,7 @@ describe('transferOutEhrCore', () => {
       createOutboundConversation.mockResolvedValueOnce(undefined);
       patientAndPracticeOdsCodesMatch.mockResolvedValue(false);
 
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
       // then
       expect(getOutboundConversationById).toHaveBeenCalledWith(conversationId);
@@ -321,7 +321,7 @@ describe('transferOutEhrCore', () => {
       patientAndPracticeOdsCodesMatch.mockResolvedValue(true);
       updateConversationStatus.mockRejectedValue(error);
 
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
       // then
       expect(getOutboundConversationById).toHaveBeenCalledWith(conversationId);
@@ -342,7 +342,7 @@ describe('transferOutEhrCore', () => {
         throw new MessageIdUpdateError();
       });
 
-      await transferOutEhrCore({ conversationId, nhsNumber, messageId, odsCode, ehrRequestId });
+      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
 
       // then
       expect(getOutboundConversationById).toHaveBeenCalledWith(conversationId);

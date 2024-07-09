@@ -4,10 +4,9 @@ import { jsonParseMessage } from './parsing-utilities';
 import { XmlParser } from './xml-parser/xml-parser';
 
 export const parseContinueRequestMessage = async message => {
-  const xmlParser = new XmlParser();
   const messageParts = {
-    payload: await xmlParser.parse(jsonParseMessage(message).payload),
-    ebxml: await xmlParser.parse(jsonParseMessage(message).ebXML)
+    payload: await new XmlParser().parse(jsonParseMessage(message).payload),
+    ebxml: await new XmlParser().parse(jsonParseMessage(message).ebXML)
   };
 
   const odsCode = messageParts.payload
