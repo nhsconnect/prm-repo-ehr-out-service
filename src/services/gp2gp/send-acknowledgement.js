@@ -12,7 +12,7 @@ export const sendAcknowledgement = async (
   acknowledgementErrorCode
 ) => {
   const {gp2gpMessengerServiceUrl, gp2gpMessengerAuthKeys, repositoryAsid} = config();
-  const url = `${gp2gpMessengerServiceUrl}/health-record-requests/${nhsNumber}/acknowledgement"`;
+  const url = `${gp2gpMessengerServiceUrl}/health-record-requests/${nhsNumber}/acknowledgement`;
 
   const requestBody = {
     repositoryAsid,
