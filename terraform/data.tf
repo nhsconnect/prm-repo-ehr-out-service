@@ -36,6 +36,10 @@ data "aws_ssm_parameter" "environment_public_zone_id" {
   name = "/repo/${var.environment}/output/prm-deductions-infra/environment-public-zone-id"
 }
 
+data "aws_ssm_parameter" "repository_asid" {
+    name = "/repo/${var.environment}/user-input/external/repository-asid"
+}
+
 data "aws_ssm_parameter" "db-username" {
   name = "/repo/${var.environment}/user-input/${var.component_name}-db-username"
 }
