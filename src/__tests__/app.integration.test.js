@@ -219,7 +219,6 @@ describe('Ensure health record outbound XML is unchanged', () => {
     await transferOutEhrCore({
       conversationId: outboundConversationId,
       nhsNumber: nhsNumber,
-      messageId,
       odsCode: odsCode,
       ehrRequestId: ehrRequestMessageId
     });

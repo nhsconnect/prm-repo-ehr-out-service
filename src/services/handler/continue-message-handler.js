@@ -14,8 +14,10 @@ import {
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { parseConversationId } from '../parser/parsing-utilities';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
-import { ConversationStatus, CoreStatus, FailureReason } from '../../constants/enums';
+import {AcknowledgementErrorCode, ConversationStatus, CoreStatus, FailureReason} from '../../constants/enums';
 import { hasServiceStartedInTheLast5Minutes } from '../../config';
+import {sendAcknowledgement} from "../gp2gp/send-acknowledgement";
+import {DownloadError, PatientRecordNotFoundError, PresignedUrlNotFoundError} from "../../errors/errors";
 
 export default async function continueMessageHandler(message) {
   const conversationId = await parseConversationId(message);
@@ -65,11 +67,12 @@ export default async function continueMessageHandler(message) {
 }
 
 const handleNewContinueRequest = async (conversationId, continueRequestMessage) => {
+  const { odsCode, messageId } = continueRequestMessage;
   const nhsNumber = await getNhsNumberByOutboundConversationId(conversationId);
 
   logInfo('Found NHS number for the given conversation ID');
 
-  if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, continueRequestMessage.odsCode))) {
+  if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
     await updateConversationStatus(
       conversationId,
       ConversationStatus.OUTBOUND_FAILED,
@@ -85,31 +88,33 @@ const handleNewContinueRequest = async (conversationId, continueRequestMessage) 
   await transferOutFragmentsForNewContinueRequest({
     conversationId,
     nhsNumber,
-    odsCode: continueRequestMessage.odsCode
+    odsCode
   })
     .then(() => {
       logInfo('Finished transferOutFragment');
       updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_SENT_FRAGMENTS);
     })
-    .catch(error => {
-      logError('Encountered error while sending out fragments', error);
-      updateConversationStatus(
+    .catch(async error =>
+      await handleFragmentTransferError(
+        error,
+        nhsNumber,
+        odsCode,
         conversationId,
-        ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
-        null,
-        'A fragment failed to send, aborting transfer'
-      );
-    });
+        messageId
+      )
+    );
 };
 
 const handleRetriedContinueRequest = async (conversationId, continueRequestMessage) => {
   logInfo(`Resuming failed continue request for conversation ID ${conversationId}`);
 
+  const { odsCode, messageId } = continueRequestMessage;
   const nhsNumber = await getNhsNumberByOutboundConversationId(conversationId);
 
   logInfo('Found NHS number for the given conversation ID');
 
-  if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, continueRequestMessage.odsCode))) {
+  if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
+    // TODO PRMP-534 Maybe move this into handleFragmentTransferError
     await updateConversationStatus(
       conversationId,
       ConversationStatus.OUTBOUND_FAILED,
@@ -122,19 +127,50 @@ const handleRetriedContinueRequest = async (conversationId, continueRequestMessa
   transferOutFragmentsForRetriedContinueRequest({
     conversationId,
     nhsNumber,
-    odsCode: continueRequestMessage.odsCode
+    odsCode
   })
     .then(() => {
       logInfo('Finished transferOutFragment');
       updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_SENT_FRAGMENTS);
     })
-    .catch(error => {
-      logError('Encountered error while sending out fragments', error);
-      updateConversationStatus(
+    .catch(async error =>
+      await handleFragmentTransferError(
+        error,
+        nhsNumber,
+        odsCode,
         conversationId,
-        ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
-        null,
-        'A fragment failed to send, aborting transfer'
-      );
-    });
+        messageId
+      )
+    );
+};
+
+const handleFragmentTransferError = async (
+  error,
+  nhsNumber,
+  odsCode,
+  conversationId,
+  messageId
+) => {
+  logError('Encountered error while sending out fragments', error);
+
+  let failureReason;
+
+  switch (true) {
+    case error instanceof PatientRecordNotFoundError:
+      /*
+      // TODO PMRP-534
+          How would this happen, realistically? At this point the core must have been transferred out successfully
+          so we must have ingested something?
+       */
+      failureReason = AcknowledgementErrorCode.ERROR_CODE_06.errorCode
+      await sendAcknowledgement(nhsNumber, odsCode, conversationId, messageId, AcknowledgementErrorCode.ERROR_CODE_06);
+      break;
+  }
+
+  await updateConversationStatus(
+    conversationId,
+    ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
+    failureReason,
+    'A fragment failed to send, aborting transfer'
+  );
 };

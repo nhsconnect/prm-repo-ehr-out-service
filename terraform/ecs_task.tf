@@ -18,6 +18,7 @@ locals {
       name = "EHR_REPO_SERVICE_URL",
       value = "https://ehr-repo.${local.environment_domain_name}"
     },
+    { name = "REPOSITORY_ASID", value = data.aws_ssm_parameter.repository_asid.value },
     { name = "DATABASE_NAME", value = aws_rds_cluster.ehr_out_service.database_name },
     { name = "DATABASE_HOST", value = aws_rds_cluster.ehr_out_service.endpoint },
     { name = "DATABASE_USER", value = var.application_database_user },

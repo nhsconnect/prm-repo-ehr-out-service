@@ -16,7 +16,6 @@ export default async function ehrRequestHandler(message) {
     await transferOutEhrCore({
       conversationId,
       nhsNumber: ehrRequest.nhsNumber,
-      messageId,
       odsCode: ehrRequest.odsCode,
       ehrRequestId: ehrRequest.ehrRequestId
     });

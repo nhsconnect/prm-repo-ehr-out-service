@@ -90,7 +90,6 @@ describe('Replacement of message IDs', () => {
       await transferOutEhrCore({
         conversationId,
         nhsNumber,
-        messageId: inboundCoreMessageId,
         odsCode,
         ehrRequestId
       });

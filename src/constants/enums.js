@@ -56,6 +56,10 @@ export const FailureReason = {
   SENDING_FAILED: 'OUTBOUND:sending_failed'
 };
 
+export const AcknowledgementErrorCode = {
+  ERROR_CODE_06: { errorCode: "06", errorDisplayName: "Patient not at surgery" },
+}
+
 Object.freeze(RecordType);
 Object.freeze(ConversationStatus);
 Object.freeze(CoreStatus);
