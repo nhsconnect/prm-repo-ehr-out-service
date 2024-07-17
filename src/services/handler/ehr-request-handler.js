@@ -17,7 +17,8 @@ export default async function ehrRequestHandler(message) {
       conversationId,
       nhsNumber: ehrRequest.nhsNumber,
       odsCode: ehrRequest.odsCode,
-      ehrRequestId: ehrRequest.ehrRequestId
+      ehrRequestId: ehrRequest.ehrRequestId,
+      incomingMessageId: messageId
     });
   } catch (error) {
     logError('EHR out transfer failed due to unexpected error', error);
