@@ -22,7 +22,8 @@ export async function transferOutEhrCore({
   conversationId: outboundConversationId,
   nhsNumber,
   odsCode,
-  ehrRequestId
+  ehrRequestId,
+  incomingMessageId
 }) {
   setCurrentSpanAttributes({ conversationId: outboundConversationId });
   logInfo('EHR transfer out request received');
@@ -61,7 +62,7 @@ export async function transferOutEhrCore({
       newMessageId
     );
   } catch (error) {
-    await handleCoreTransferError(error, nhsNumber, odsCode, outboundConversationId, ehrRequestId);
+    await handleCoreTransferError(error, nhsNumber, odsCode, outboundConversationId, incomingMessageId);
   }
 }
 
@@ -99,7 +100,7 @@ const handleCoreTransferError = async (
   nhsNumber,
   odsCode,
   conversationId,
-  ehrRequestId
+  incomingMessageId
 ) => {
   switch (true) {
     case error instanceof PatientRecordNotFoundError:
@@ -107,7 +108,7 @@ const handleCoreTransferError = async (
         nhsNumber,
         odsCode,
         conversationId,
-        ehrRequestId,
+        incomingMessageId,
         AcknowledgementErrorCode.ERROR_CODE_06
       );
 
