@@ -153,24 +153,10 @@ const handleFragmentTransferError = async (
 ) => {
   logError('Encountered error while sending out fragments', error);
 
-  let failureReason;
-
-  switch (true) {
-    case error instanceof PatientRecordNotFoundError:
-      /*
-      // TODO PMRP-534
-          How would this happen, realistically? At this point the core must have been transferred out successfully
-          so we must have ingested something?
-       */
-      failureReason = AcknowledgementErrorCode.ERROR_CODE_06.errorCode
-      await sendAcknowledgement(nhsNumber, odsCode, conversationId, messageId, AcknowledgementErrorCode.ERROR_CODE_06);
-      break;
-  }
-
   await updateConversationStatus(
     conversationId,
     ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
-    failureReason,
+    null,
     'A fragment failed to send, aborting transfer'
   );
 };
