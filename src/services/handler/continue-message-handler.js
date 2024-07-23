@@ -14,10 +14,8 @@ import {
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { parseConversationId } from '../parser/parsing-utilities';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
-import {AcknowledgementErrorCode, ConversationStatus, CoreStatus, FailureReason} from '../../constants/enums';
+import { ConversationStatus, CoreStatus, FailureReason } from '../../constants/enums';
 import { hasServiceStartedInTheLast5Minutes } from '../../config';
-import {sendAcknowledgement} from "../gp2gp/send-acknowledgement";
-import {DownloadError, PatientRecordNotFoundError, PresignedUrlNotFoundError} from "../../errors/errors";
 
 export default async function continueMessageHandler(message) {
   const conversationId = await parseConversationId(message);
