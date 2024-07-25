@@ -14,10 +14,8 @@ import {
 import { setCurrentSpanAttributes } from '../../config/tracing';
 import { parseConversationId } from '../parser/parsing-utilities';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
-import {AcknowledgementErrorCode, ConversationStatus, CoreStatus, FailureReason} from '../../constants/enums';
+import { ConversationStatus, CoreStatus, FailureReason } from '../../constants/enums';
 import { hasServiceStartedInTheLast5Minutes } from '../../config';
-import {sendAcknowledgement} from "../gp2gp/send-acknowledgement";
-import {DownloadError, PatientRecordNotFoundError, PresignedUrlNotFoundError} from "../../errors/errors";
 
 export default async function continueMessageHandler(message) {
   const conversationId = await parseConversationId(message);
@@ -153,24 +151,10 @@ const handleFragmentTransferError = async (
 ) => {
   logError('Encountered error while sending out fragments', error);
 
-  let failureReason;
-
-  switch (true) {
-    case error instanceof PatientRecordNotFoundError:
-      /*
-      // TODO PMRP-534
-          How would this happen, realistically? At this point the core must have been transferred out successfully
-          so we must have ingested something?
-       */
-      failureReason = AcknowledgementErrorCode.ERROR_CODE_06.errorCode
-      await sendAcknowledgement(nhsNumber, odsCode, conversationId, messageId, AcknowledgementErrorCode.ERROR_CODE_06);
-      break;
-  }
-
   await updateConversationStatus(
     conversationId,
     ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
-    failureReason,
+    null,
     'A fragment failed to send, aborting transfer'
   );
 };

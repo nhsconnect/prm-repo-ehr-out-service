@@ -57,7 +57,7 @@ export const FailureReason = {
 };
 
 export const AcknowledgementErrorCode = {
-  ERROR_CODE_06: { errorCode: "06", errorDisplayName: "Patient not at surgery" },
+  ERROR_CODE_06: { errorCode: '06', errorDisplayName: 'Patient not at surgery.' },
 }
 
 Object.freeze(RecordType);

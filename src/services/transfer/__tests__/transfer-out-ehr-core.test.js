@@ -9,7 +9,7 @@ import {
   DownloadError,
   MessageIdUpdateError,
   StatusUpdateError,
-  errorMessages
+  errorMessages, PatientRecordNotFoundError
 } from '../../../errors/errors';
 import {
   createAndStoreOutboundMessageIds,
@@ -24,11 +24,13 @@ import {
   createOutboundConversation,
   getOutboundConversationById
 } from '../../database/dynamodb/outbound-conversation-repository';
-import { ConversationStatus, FailureReason } from '../../../constants/enums';
+import {AcknowledgementErrorCode, ConversationStatus, FailureReason} from '../../../constants/enums';
+import {sendAcknowledgement} from "../../gp2gp/send-acknowledgement";
 
 // Mocking
 jest.mock('../../gp2gp/send-core');
 jest.mock('../../gp2gp/pds-retrieval-request');
+jest.mock('../../gp2gp/send-acknowledgement');
 jest.mock('../../ehr-repo/get-ehr');
 jest.mock('../../database/dynamodb/outbound-conversation-repository');
 jest.mock('../../../middleware/logging');
@@ -40,6 +42,7 @@ describe('transferOutEhrCore', () => {
   const conversationId = '5BB36755-279F-43D5-86AB-DEFEA717D93F';
   const inboundConversationId = uuid().toUpperCase();
   const ehrRequestId = '870f6ef9-746f-4e81-b51f-884d64530bed';
+  const ehrRequestIncomingMessageId = '745A53BC-DC15-4706-9D49-1C96CDF76882';
   const messageId = '835A2B69-BAC0-4F6F-97A8-897350604380';
   const newMessageId = uuid().toUpperCase();
   const fragmentMessageIds = ['id1', 'id2', 'id3'];
@@ -260,29 +263,30 @@ describe('transferOutEhrCore', () => {
       );
     });
 
-    it('should not send the EHR Core if the Registration Request cannot be retrieved from the database', async () => {
+    it('should not send the EHR Core if the patient NHS number cannot be found on the database', async () => {
       // given
-      const error = new Error('test error message');
+      const error = new PatientRecordNotFoundError();
 
       // when
-      updateConversationStatus.mockResolvedValueOnce();
-      getOutboundConversationById.mockRejectedValueOnce(error);
-      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
+      getOutboundConversationById.mockResolvedValueOnce(null);
+      createOutboundConversation.mockRejectedValueOnce(error);
+      sendAcknowledgement.mockResolvedValueOnce(null);
+
+      await transferOutEhrCore({
+          conversationId,
+          nhsNumber,
+          odsCode,
+          ehrRequestId,
+          incomingMessageId: ehrRequestIncomingMessageId
+      });
 
       // then
-      expect(logError).toHaveBeenCalledWith('EHR transfer out request failed', error);
-      expect(sendCore).not.toHaveBeenCalled();
-    });
-
-    it('should not send out the EHR Core if the EHR Request is a duplicate', async () => {
-      // given
-      getOutboundConversationById.mockResolvedValueOnce('a previous request');
-
-      // when
-      await transferOutEhrCore({ conversationId, nhsNumber, odsCode, ehrRequestId });
-
-      // then
-      expect(createOutboundConversation).not.toHaveBeenCalled();
+      expect(sendAcknowledgement).toHaveBeenCalledWith(
+        nhsNumber,
+        odsCode,
+        conversationId,
+        ehrRequestIncomingMessageId,
+        AcknowledgementErrorCode.ERROR_CODE_06);
       expect(sendCore).not.toHaveBeenCalled();
     });
 

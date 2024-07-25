@@ -33,6 +33,7 @@ export async function transferOutEhrCore({
     await createOutboundConversation(outboundConversationId, nhsNumber, odsCode);
 
     if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
+      // TODO PRMP-523 when implementing this NACK - I do not think we should update the conversation status here
       await updateConversationStatus(
         outboundConversationId,
         ConversationStatus.OUTBOUND_FAILED,
@@ -110,12 +111,6 @@ const handleCoreTransferError = async (
         conversationId,
         incomingMessageId,
         AcknowledgementErrorCode.ERROR_CODE_06
-      );
-
-      await updateConversationStatus(
-        conversationId,
-        ConversationStatus.OUTBOUND_FAILED,
-        FailureReason.MISSING_FROM_REPO
       );
       break;
     case error instanceof PresignedUrlNotFoundError:
