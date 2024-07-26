@@ -12,7 +12,7 @@ import { replaceMessageIdsInObject } from '../services/transfer/transfer-out-uti
 import {
   buildMessageIdReplacement,
   cleanupRecordsForTestByNhsNumber,
-  createInboundRecordForTest
+  createInboundCompleteRecordForTest
 } from '../utilities/integration-test-utilities';
 import { storeOutboundMessageIds } from '../services/database/dynamodb/store-outbound-message-ids';
 import { getAllMessageIdPairs } from '../services/database/dynamodb/ehr-fragment-repository';
@@ -65,7 +65,7 @@ describe('Replacement of message IDs', () => {
       const oldReferencedFragmentIds = await extractReferencedFragmentMessageIds(ehrCore);
 
       // set up mocks
-      await createInboundRecordForTest(
+      await createInboundCompleteRecordForTest(
         inboundConversationId,
         nhsNumber,
         inboundCoreMessageId,
@@ -163,7 +163,7 @@ describe('Replacement of message IDs', () => {
       );
 
       // when
-      await createInboundRecordForTest(
+      await createInboundCompleteRecordForTest(
         inboundConversationId,
         nhsNumber,
         inboundCoreMessageId,

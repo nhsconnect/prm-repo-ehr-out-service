@@ -3,7 +3,7 @@ import { FragmentMessageIdReplacementRecordNotFoundError } from '../../../../err
 import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import {
   cleanupRecordsForTest,
-  createInboundRecordForTest
+  createInboundCompleteRecordForTest
 } from '../../../../utilities/integration-test-utilities';
 import {
   getAllMessageIdPairs,
@@ -43,7 +43,7 @@ describe('dynamodb-fragment-repository', () => {
     inboundFragmentMessageIds = oldMessageIds.slice(1);
 
     // mimic the flow of ehr-in and then ehr-out
-    await createInboundRecordForTest(
+    await createInboundCompleteRecordForTest(
       INBOUND_CONVERSATION_ID,
       NHS_NUMBER,
       inboundCoreMessageId,

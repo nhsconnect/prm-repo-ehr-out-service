@@ -21,7 +21,7 @@ import nock from 'nock';
 import { ConversationStatus } from '../constants/enums';
 import {
   cleanupRecordsForTest,
-  createInboundRecordForTest
+  createInboundCompleteRecordForTest
 } from '../utilities/integration-test-utilities';
 import { storeOutboundMessageIds } from '../services/database/dynamodb/store-outbound-message-ids';
 import { parseMessageId } from '../services/parser/parsing-utilities';
@@ -114,7 +114,7 @@ describe('GET /registration-requests/:conversationId', () => {
       }
     };
 
-    await createInboundRecordForTest(v4().toUpperCase(), nhsNumber, v4().toUpperCase(), []);
+    await createInboundCompleteRecordForTest(v4().toUpperCase(), nhsNumber, v4().toUpperCase(), []);
     await createOutboundConversation(outboundConversationId, nhsNumber, odsCode);
 
     const res = await request(app)
@@ -209,7 +209,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
       fragmentMessageIds: []
     };
     const messageId = '4AA69FD3-6AAF-4F51-98EF-58A342C3265F';
-    await createInboundRecordForTest(inboundConversationId, nhsNumber, inboundCoreMessageId, []);
+    await createInboundCompleteRecordForTest(inboundConversationId, nhsNumber, inboundCoreMessageId, []);
 
     // when
     getEhrCoreAndFragmentIdsFromRepo.mockReturnValueOnce(responseFromEhrRepo);
@@ -241,7 +241,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
         newMessageId: oldMessageId.slice(0, 35) + '0'
       };
     });
-    await createInboundRecordForTest(
+    await createInboundCompleteRecordForTest(
       inboundConversationId,
       nhsNumber,
       inboundCoreMessageId,
@@ -289,7 +289,7 @@ describe('Ensure health record outbound XML is unchanged', () => {
         newMessageId: oldMessageId.slice(0, 35) + '0'
       };
     });
-    await createInboundRecordForTest(
+    await createInboundCompleteRecordForTest(
       inboundConversationId,
       nhsNumber,
       inboundCoreMessageId,

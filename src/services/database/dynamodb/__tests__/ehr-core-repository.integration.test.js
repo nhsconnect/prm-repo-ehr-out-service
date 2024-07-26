@@ -3,7 +3,7 @@ import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import {
   buildMessageIdReplacement,
   cleanupRecordsForTest,
-  createInboundRecordForTest,
+  createInboundCompleteRecordForTest,
   createSmallEhrRecord
 } from '../../../../utilities/integration-test-utilities';
 import { createOutboundConversation } from '../outbound-conversation-repository';
@@ -29,7 +29,7 @@ describe('ehr-core-repository', () => {
 
   describe('messageIdMatchOutboundCore', () => {
     beforeEach(async () => {
-      await createInboundRecordForTest(
+      await createInboundCompleteRecordForTest(
         INBOUND_CONVERSATION_ID,
         NHS_NUMBER,
         INBOUND_CORE_MESSAGE_ID,
