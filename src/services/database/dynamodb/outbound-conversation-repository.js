@@ -21,7 +21,7 @@ export const createOutboundConversation = async (outboundConversationId, nhsNumb
 
   const db = EhrTransferTracker.getInstance();
   const conversation = await getCurrentConversationForPatient(nhsNumber);
-  const inboundConversationId = conversation.InboundConversationId;
+  const inboundConversationId = conversation.inboundConversationId;
 
   const wholeRecord = await db.queryTableByInboundConversationId(inboundConversationId);
 
