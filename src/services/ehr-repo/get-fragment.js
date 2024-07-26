@@ -25,7 +25,7 @@ const extractIdsFromEhrRepoResponse = response => {
 
 const handleErrorWhileRetrievingIds = error => {
   if (error?.response?.status === 404) {
-    throw new PatientRecordNotFoundError(error);
+    throw new PatientRecordNotFoundError(); // TODO THIS SHOULD BE A DIFFERENT, POSSIBLY NEW ERROR
   } else {
     logError('Failed to retrieve inboundConversationId from ehr-repo');
     throw error;

@@ -1,5 +1,6 @@
 import { logError } from '../middleware/logging';
 import {sendAcknowledgement} from "../services/gp2gp/send-acknowledgement";
+import {AcknowledgementErrorCode} from "../constants/enums";
 
 export const errorMessages = {
   DOWNLOAD_ERROR: 'Cannot retrieve message from presigned URL',
@@ -8,7 +9,7 @@ export const errorMessages = {
   SEND_ACKNOWLEDGEMENT_ERROR: 'Failed while trying to send acknowledgement',
   SEND_FRAGMENT_ERROR: 'Failed while trying to send message fragment with message ID: ',
   GET_PDS_CODE_ERROR: 'Unable to retrieve patient from PDS',
-  PATIENT_RECORD_NOT_FOUND_ERROR: 'Cannot find the requested patient record from ehr-repo',
+  PATIENT_RECORD_NOT_FOUND_ERROR: 'Cannot find the requested patient record on the database',
   NHS_NUMBER_NOT_FOUND_ERROR: 'Cannot find an NHS number related to given conversation ID',
   STATUS_ERROR: 'The status could not be updated',
   FILE_READ_ERROR: 'Failed to read file',
@@ -25,6 +26,18 @@ export const errorMessages = {
   OUTBOUND_CONVERSATION_RESET_ERROR: 'Failed to clear the previous record of outbound ehr transfer',
   VALIDATION_ERROR: 'Validation error, details: '
 };
+
+class NegativeAcknowledgementError extends Error {
+  constructor(errorMessage, acknowledgementErrorCode) {
+    super(errorMessage);
+
+    // log the internal failure details
+    logError(`${errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR}. ` +
+      `internalErrorCode is: ${acknowledgementErrorCode.internalErrorCode} and ` +
+      `internalErrorDescription is: ${acknowledgementErrorCode.internalErrorDescription}`
+    );
+  }
+}
 
 export class ParsingError extends Error {
   constructor(error) {
@@ -75,10 +88,10 @@ export class FragmentSendingError extends Error {
   }
 }
 
-export class PatientRecordNotFoundError extends Error {
-  constructor(error) {
-    super(errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR);
-    logError(errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR, error);
+export class PatientRecordNotFoundError extends NegativeAcknowledgementError {
+  constructor(acknowledgementErrorCode) {
+    super(errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR, acknowledgementErrorCode);
+    this.acknowledgementErrorCode = acknowledgementErrorCode;
   }
 }
 

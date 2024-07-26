@@ -110,7 +110,7 @@ const handleCoreTransferError = async (
         odsCode,
         conversationId,
         incomingMessageId,
-        AcknowledgementErrorCode.ERROR_CODE_06
+        error.acknowledgementErrorCode.gp2gpError
       );
       break;
     case error instanceof PresignedUrlNotFoundError:

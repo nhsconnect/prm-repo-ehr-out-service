@@ -29,7 +29,7 @@ export const isConversation = item => {
   return item.Layer === RecordType.CONVERSATION;
 };
 
-export const isComplete = conversation => {
+export const isAvailableToSendOut = conversation => {
   const status = conversation?.TransferStatus;
   return status === ConversationStatus.INBOUND_COMPLETE || status?.startsWith('OUTBOUND');
 };

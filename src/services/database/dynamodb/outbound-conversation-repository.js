@@ -1,38 +1,27 @@
 // to replace create-registration-request.js registration-request-repository.js
 
-import { validate as isValidUuid } from 'uuid';
+import {validate as isValidUuid} from 'uuid';
 
-import { EhrTransferTracker } from './dynamo-ehr-transfer-tracker';
-import {
-  buildConversationUpdateParams,
-  isComplete,
-  isConversation
-} from '../../../models/conversation';
+import {EhrTransferTracker} from './dynamo-ehr-transfer-tracker';
+import {buildConversationUpdateParams, isAvailableToSendOut, isConversation} from '../../../models/conversation';
 import {
   NhsNumberNotFoundError,
   OutboundConversationResetError,
   PatientRecordNotFoundError,
   ValidationError
 } from '../../../errors/errors';
-import { logError, logInfo } from '../../../middleware/logging';
-import { ConversationStatus } from '../../../constants/enums';
-import {
-  buildParamsToClearPreviousOutboundRecord,
-  buildUpdateParamFromItem
-} from '../../../utilities/dynamodb-helper';
-import { isCore } from '../../../models/core';
-import { isFragment } from '../../../models/fragment';
+import {logError, logInfo} from '../../../middleware/logging';
+import {AcknowledgementErrorCode, ConversationStatus} from '../../../constants/enums';
+import {buildParamsToClearPreviousOutboundRecord, buildUpdateParamFromItem} from '../../../utilities/dynamodb-helper';
+import {isCore} from '../../../models/core';
+import {isFragment} from '../../../models/fragment';
 
 export const createOutboundConversation = async (outboundConversationId, nhsNumber, odsCode) => {
   validateInputValues(outboundConversationId, nhsNumber, odsCode);
 
   const db = EhrTransferTracker.getInstance();
   const conversation = await getCurrentConversationForPatient(nhsNumber);
-  const inboundConversationId = conversation.InboundConversationId;
-
-  if (!inboundConversationId) {
-    throw new PatientRecordNotFoundError();
-  }
+  const inboundConversationId = conversation.inboundConversationId;
 
   const wholeRecord = await db.queryTableByInboundConversationId(inboundConversationId);
 
@@ -95,17 +84,19 @@ export const getCurrentConversationForPatient = async nhsNumber => {
   const db = EhrTransferTracker.getInstance();
   const conversations = await db.queryTableByNhsNumber(nhsNumber);
 
-  const completedRecords = conversations?.filter(isComplete);
-
-  if (!completedRecords || completedRecords.length === 0) {
-    throw new PatientRecordNotFoundError();
+  if (!conversations || conversations.length === 0) {
+    throw new PatientRecordNotFoundError(AcknowledgementErrorCode.ERROR_CODE_06_A);
   }
 
-  const currentRecord = completedRecords.reduce((prev, current) => {
+  const currentConversation = conversations.reduce((prev, current) => {
     return current?.CreatedAt > prev?.CreatedAt ? current : prev;
   });
 
-  return currentRecord;
+  if (!isAvailableToSendOut(currentConversation)) {
+    throw new PatientRecordNotFoundError(AcknowledgementErrorCode.ERROR_CODE_06_B);
+  }
+
+  return currentConversation
 };
 
 export const getOutboundConversationById = async outboundConversationId => {

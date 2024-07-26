@@ -56,9 +56,45 @@ export const FailureReason = {
   SENDING_FAILED: 'OUTBOUND:sending_failed'
 };
 
+/**
+ * The gp2gpError with an errorCode and errorDisplayName - these are the details that are sent across the spine
+ *
+ * @errorCode - the Spine error code to use in the sent negative acknowledgement
+ * @errorDisplayName - the Spine error code to use in the sent negative acknowledgement
+ */
+const Gp2gpError = {
+  CODE_06: {
+    errorCode: '06',
+    errorDisplayName: 'Patient not at surgery.'
+  }
+};
+
+/**
+ * These are the GP2GP error codes that are attached to negative acknowledgement messages as well as a set of internal
+ * error codes that provide more nuance for failure diagnosis.
+ *
+ * For more info on these codes, see the ORC GP2GP NACKs confluence document:
+ * https://nhse-dsic.atlassian.net/wiki/spaces/TW/pages/12452233304/ORC+-+GP2GP+NACKs
+ *
+ * @gp2gpError - the gp2gpError with an errorCode and errorDisplayname - these are the details that are sent across
+ *               the spine, see the const above for info
+ * @internalErrorCode - the error code that is stored in the database as the failureCode - this is only used internally
+ *                      and SHOULD NOT be sent out of the system
+ * @internalErrorDescription - the error description that is stored in the database as the failureDescription - this is
+ *                             only used internally and SHOULD NOT be sent out of the system
+ */
 export const AcknowledgementErrorCode = {
-  ERROR_CODE_06: { errorCode: '06', errorDisplayName: 'Patient not at surgery.' },
-}
+  ERROR_CODE_06_A: {
+    gp2gpError: Gp2gpError.CODE_06,
+    internalErrorCode: `${Gp2gpError.CODE_06.errorCode}-A`,
+    internalErrorDescription: 'NHS Number does not exist in the database'
+  },
+  ERROR_CODE_06_B: {
+    gp2gpError: Gp2gpError.CODE_06,
+    internalErrorCode: `${Gp2gpError.CODE_06.errorCode}-B`,
+    internalErrorDescription: 'Partial ingestion, cannot send a full EHR out'
+  },
+};
 
 Object.freeze(RecordType);
 Object.freeze(ConversationStatus);
