@@ -51,6 +51,48 @@ common:
                   arguments:
                     - -c
                     - ./tasks test_functional
+  dev_stages: &dev_stages
+    - promote_docker_image:
+        resources:
+          - docker
+        clean_workspace: true
+        tasks:
+          - exec:
+              command: /bin/bash
+              arguments:
+                - -c
+                - ./tasks promote_docker_image
+    - plan:
+        clean_workspace: true
+        jobs:
+          plan:
+            resources:
+              - docker
+            tasks:
+              - exec:
+                  command: /bin/bash
+                  arguments:
+                    - -c
+                    - ./tasks tf_plan create
+    - deploy:
+        approval:
+          type: manual
+          allow_only_on_success: true
+        clean_workspace: true
+        jobs:
+          deploy: *deploy_job
+    - functional:
+        clean_workspace: true
+        jobs:
+          test:
+            resources:
+              - docker
+            tasks:
+              - exec:
+                  command: /bin/bash
+                  arguments:
+                    - -c
+                    - ./tasks test_functional
   prod_stages: &prod_stages
     - promote_docker_image:
         resources:
@@ -86,7 +128,7 @@ pipelines:
         stage: deploy_dev
     environment_variables:
       NHS_ENVIRONMENT: dev
-    stages: *common_stages
+    stages: *dev_stages
   ehr-out-service.test:
     group: repository
     label_template: '${COUNT}-${git[:8]}'
