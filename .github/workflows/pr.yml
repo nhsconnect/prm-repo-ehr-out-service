@@ -42,6 +42,14 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
+      - name: Setup Terraform variables
+        id: vars
+        run: |-
+          IMAGE_TAG=$(aws ecr describe-images --repository-name deductions/ehr-out-service --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
+          cat > pipeline.auto.tfvars <<EOF
+          image_tag = "$IMAGE_TAG"
+          EOF
+
       - name: terraform plan
         id: plan
         run: terraform plan -var-file="dev.tfvars" -no-color -out tfplan
