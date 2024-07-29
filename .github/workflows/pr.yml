@@ -35,7 +35,7 @@ jobs:
 
       - name: terraform init
         id: init
-        run: terraform init -no-color -upgrade -backend-config="bucket=prm-deductions-dev-terraform-state"  -backend-config="key=ehr-out-service-dev/terraform.tfstate"
+        run: terraform init -no-color -upgrade -backend-config="bucket=prm-deductions-dev-terraform-state" -backend-config="key=ehr-out-service-dev/terraform.tfstate"
 
       - name: terraform validate
         id: validate
