@@ -6,15 +6,32 @@ import { ConversationStatus, CoreStatus, FragmentStatus, RecordType } from '../c
 
 export const IS_IN_LOCAL = process.env.NHS_ENVIRONMENT === 'local' || !process.env.NHS_ENVIRONMENT;
 
-export const createInboundRecordForTest = async (
+/**
+ * This method is only meant for testing purpose.
+ * the inbound conversation record is supposed to be created by other service.
+ */
+export const createInboundCompleteRecordForTest = async (
   conversationId,
   nhsNumber,
   coreMessageId,
   fragmentMessageIds = []
 ) => {
-  // This method is only meant for testing purpose.
-  // the inbound conversation record is supposed to be created by other service.
+  await createInboundRecordWithConversationTransferStatusForTest(
+    conversationId,
+    nhsNumber,
+    coreMessageId,
+    ConversationStatus.INBOUND_COMPLETE,
+    fragmentMessageIds
+  );
+};
 
+export const createInboundRecordWithConversationTransferStatusForTest = async (
+  conversationId,
+  nhsNumber,
+  coreMessageId,
+  conversationTransferStatus,
+  fragmentMessageIds = []
+) => {
   if (!IS_IN_LOCAL) {
     throw new Error('Unexpected call to createConversationForTest method in non-local environment');
   }
@@ -28,7 +45,7 @@ export const createInboundRecordForTest = async (
     NhsNumber: nhsNumber,
     CreatedAt: timestamp,
     UpdatedAt: timestamp,
-    TransferStatus: ConversationStatus.INBOUND_COMPLETE
+    TransferStatus: conversationTransferStatus
   };
 
   const core = {
@@ -53,7 +70,7 @@ export const createInboundRecordForTest = async (
   }));
 
   await db.writeItemsInTransaction([conversation, core, ...fragments]);
-};
+}
 
 export const cleanupRecordsForTest = async conversationId => {
   // This method is only meant for testing purpose

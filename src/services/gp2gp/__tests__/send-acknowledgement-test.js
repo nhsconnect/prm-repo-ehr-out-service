@@ -74,8 +74,8 @@ describe('sendAcknowledgement', () => {
       odsCode: ODS_CODE,
       conversationId: CONVERSATION_ID,
       messageId: MESSAGE_ID,
-      errorCode: AcknowledgementErrorCode.ERROR_CODE_06.errorCode,
-      errorDisplayName: AcknowledgementErrorCode.ERROR_CODE_06.errorDisplayName
+      errorCode: AcknowledgementErrorCode.ERROR_CODE_06_A.errorCode,
+      errorDisplayName: AcknowledgementErrorCode.ERROR_CODE_06_A.errorDisplayName
     };
 
     // when
@@ -83,7 +83,7 @@ describe('sendAcknowledgement', () => {
       .post(REQUEST_ENDPOINT, requestBody)
       .reply(204);
 
-    await sendAcknowledgement(NHS_NUMBER, ODS_CODE, CONVERSATION_ID, MESSAGE_ID, AcknowledgementErrorCode.ERROR_CODE_06);
+    await sendAcknowledgement(NHS_NUMBER, ODS_CODE, CONVERSATION_ID, MESSAGE_ID, AcknowledgementErrorCode.ERROR_CODE_06_A);
 
     // then
     expect(mockUrlRequest.isDone()).toBe(true);
@@ -96,8 +96,8 @@ describe('sendAcknowledgement', () => {
       odsCode: ODS_CODE,
       conversationId: CONVERSATION_ID,
       messageId: MESSAGE_ID,
-      errorCode: AcknowledgementErrorCode.ERROR_CODE_06.errorCode,
-      errorDisplayName: AcknowledgementErrorCode.ERROR_CODE_06.errorDisplayName
+      errorCode: AcknowledgementErrorCode.ERROR_CODE_06_A.errorCode,
+      errorDisplayName: AcknowledgementErrorCode.ERROR_CODE_06_A.errorDisplayName
     };
 
     // when
@@ -107,7 +107,7 @@ describe('sendAcknowledgement', () => {
 
     // then
     await expect(() =>
-      sendAcknowledgement(NHS_NUMBER, ODS_CODE, CONVERSATION_ID, MESSAGE_ID, AcknowledgementErrorCode.ERROR_CODE_06)
+      sendAcknowledgement(NHS_NUMBER, ODS_CODE, CONVERSATION_ID, MESSAGE_ID, AcknowledgementErrorCode.ERROR_CODE_06_A)
     ).rejects.toThrowError(SendAcknowledgementError);
   });
 });

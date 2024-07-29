@@ -265,7 +265,8 @@ describe('transferOutEhrCore', () => {
 
     it('should not send the EHR Core if the patient NHS number cannot be found on the database', async () => {
       // given
-      const error = new PatientRecordNotFoundError();
+      const acknowledgementErrorCode = AcknowledgementErrorCode.ERROR_CODE_06_A;
+      const error = new PatientRecordNotFoundError(acknowledgementErrorCode);
 
       // when
       getOutboundConversationById.mockResolvedValueOnce(null);
@@ -286,7 +287,7 @@ describe('transferOutEhrCore', () => {
         odsCode,
         conversationId,
         ehrRequestIncomingMessageId,
-        AcknowledgementErrorCode.ERROR_CODE_06);
+        acknowledgementErrorCode.gp2gpError);
       expect(sendCore).not.toHaveBeenCalled();
     });
 

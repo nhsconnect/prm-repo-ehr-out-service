@@ -9,7 +9,7 @@ export const sendAcknowledgement = async (
   odsCode,
   conversationId,
   messageId,
-  acknowledgementErrorCode
+  gp2gpError
 ) => {
   const {gp2gpMessengerServiceUrl, gp2gpMessengerAuthKeys, repositoryAsid} = config();
   const url = `${gp2gpMessengerServiceUrl}/health-record-requests/${nhsNumber}/acknowledgement`;
@@ -21,13 +21,13 @@ export const sendAcknowledgement = async (
     messageId: messageId.toUpperCase(),
   };
 
-  if (acknowledgementErrorCode == null) {
+  if (gp2gpError == null) {
     logInfo(`POST request to gp2gp-messenger endpoint: ${url} positive acknowledgement message with request body as below:`);
   } else {
-    requestBody.errorCode = acknowledgementErrorCode.errorCode;
-    requestBody.errorDisplayName = acknowledgementErrorCode.errorDisplayName;
+    requestBody.errorCode = gp2gpError.errorCode;
+    requestBody.errorDisplayName = gp2gpError.errorDisplayName;
     logError(`POST request to gp2gp-messenger endpoint: ${url} negative acknowledgement message with GP2GP ` +
-      `error code ${acknowledgementErrorCode.errorCode} - ${acknowledgementErrorCode.errorDisplayName} and request body as below:`);
+      `error code ${gp2gpError.errorCode} - ${gp2gpError.errorDisplayName} and request body as below:`);
   }
   logOutboundMessage(requestBody);
 

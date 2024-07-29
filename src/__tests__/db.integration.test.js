@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { EhrTransferTracker } from '../services/database/dynamodb/dynamo-ehr-transfer-tracker';
 import {
   cleanupRecordsForTest,
-  createInboundRecordForTest
+  createInboundCompleteRecordForTest
 } from '../utilities/integration-test-utilities';
 import { FragmentStatus } from '../constants/enums';
 import { isFragment } from '../models/fragment';
@@ -23,7 +23,7 @@ describe('Database connection test', () => {
   const db = EhrTransferTracker.getInstance();
 
   beforeEach(async () => {
-    await createInboundRecordForTest(
+    await createInboundCompleteRecordForTest(
       INBOUND_CONVERSATION_ID,
       NHS_NUMBER,
       INBOUND_CORE_MESSAGE_ID,
