@@ -113,8 +113,6 @@ jobs:
 
             </details>
 
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
-
             // 3. If we have a comment, update it, otherwise create a new one
             if (botComment) {
               github.rest.issues.deleteComment({
