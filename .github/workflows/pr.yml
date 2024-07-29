@@ -12,7 +12,7 @@ jobs:
   plan:
     strategy:
       matrix:
-        environment: [dev, test]
+        environment: [dev, test, pre-prod, prod]
     name: ${{ matrix.environment }}
     runs-on: ubuntu-latest
     environment: ${{ matrix.environment }}
