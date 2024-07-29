@@ -32,7 +32,6 @@ jobs:
       - name: terraform fmt
         id: fmt
         run: terraform fmt -check
-        continue-on-error: true
 
       - name: terraform init
         id: init
@@ -74,7 +73,23 @@ jobs:
 
             // 2. Prepare format of the comment
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            <details><summary>Format Output</summary>
+
+            \`\`\`\n
+            ${{ steps.fmt.outputs.stdout }}
+            \`\`\`
+
+            </details>
+            
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            <details><summary>Initialization Output</summary>
+
+            \`\`\`\n
+            ${{ steps.init.outputs.stdout }}
+            \`\`\`
+
+            </details>
+
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             <details><summary>Validation Output</summary>
 
