@@ -35,7 +35,7 @@ jobs:
 
       - name: terraform init
         id: init
-        run: terraform init -upgrade -backend-config="bucket=prm-deductions-dev-terraform-state"  -backend-config="key=ehr-out-service-dev/terraform.tfstate"
+        run: terraform init -no-color -upgrade -backend-config="bucket=prm-deductions-dev-terraform-state"  -backend-config="key=ehr-out-service-dev/terraform.tfstate"
 
       - name: terraform validate
         id: validate
@@ -56,9 +56,6 @@ jobs:
 
       - uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
-        env:
-          INIT: "terraform\n${{ steps.init.outputs.stdout }}"
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -86,7 +83,7 @@ jobs:
             <details><summary>Initialization Output</summary>
 
             \`\`\`\n
-            ${process.env.INIT}
+            ${{ steps.init.outputs.stdout }}
             \`\`\`
 
             </details>
@@ -105,7 +102,7 @@ jobs:
             <details><summary>Show Plan</summary>
 
             \`\`\`\n
-            ${process.env.PLAN}
+            ${{ steps.plan.outputs.stdout }}
             \`\`\`
 
             </details>
