@@ -70,11 +70,13 @@ jobs:
               issue_number: context.issue.number,
             })
             const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('Terraform Format and Style')
+              return comment.user.type === 'Bot' && comment.body.includes('Report for environment: ${{ matrix.environment }}')
             })
 
             // 2. Prepare format of the comment
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            const output = `### Report for environment: ${{ matrix.environment }}
+            
+            #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             <details><summary>Format Output</summary>
 
             \`\`\`\n
