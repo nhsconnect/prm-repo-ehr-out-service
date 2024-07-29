@@ -3,15 +3,15 @@ locals {
 }
 
 resource "aws_alb" "alb_internal" {
-  name            = "${var.environment}-${var.component_name}-alb-int"
-  subnets         = local.private_subnets
+  name    = "${var.environment}-${var.component_name}-alb-int"
+  subnets = local.private_subnets
   security_groups = [
     aws_security_group.service_from_alb.id,
     aws_security_group.alb_to_app_ecs.id,
     aws_security_group.vpn_to_service_alb.id,
     aws_security_group.gocd_to_service_alb.id
   ]
-  internal        = true
+  internal                   = true
   drop_invalid_header_fields = true
 
   tags = {
@@ -26,7 +26,7 @@ resource "aws_security_group" "service_from_alb" {
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   tags = {
-    Name = "${var.environment}-alb-${var.component_name}"
+    Name        = "${var.environment}-alb-${var.component_name}"
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
@@ -73,11 +73,11 @@ resource "aws_alb_listener" "int_alb_listener_https" {
 
 
 resource "aws_alb_target_group" "internal_alb_tg" {
-  name        = "${var.environment}-${var.component_name}-int-tg"
-  port        = 3000
-  protocol    = "HTTP"
-  vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
-  target_type = "ip"
+  name                 = "${var.environment}-${var.component_name}-int-tg"
+  port                 = 3000
+  protocol             = "HTTP"
+  vpc_id               = data.aws_ssm_parameter.deductions_private_vpc_id.value
+  target_type          = "ip"
   deregistration_delay = var.alb_deregistration_delay
   health_check {
     healthy_threshold   = 3
@@ -90,7 +90,7 @@ resource "aws_alb_target_group" "internal_alb_tg" {
 
   tags = {
     Environment = var.environment
-    CreatedBy = var.repo_name
+    CreatedBy   = var.repo_name
   }
 }
 
@@ -146,15 +146,15 @@ resource "aws_security_group" "alb_to_app_ecs" {
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   egress {
-    description = "Allow outbound connections from ECS Task"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    description     = "Allow outbound connections from ECS Task"
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
     security_groups = [local.ecs_task_sg_id]
   }
 
   tags = {
-    Name = "${var.environment}-alb-to-${var.component_name}-ecs"
+    Name        = "${var.environment}-alb-to-${var.component_name}-ecs"
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
@@ -170,7 +170,7 @@ resource "aws_security_group" "vpn_to_service_alb" {
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   tags = {
-    Name = "${var.environment}-vpn-to-${var.component_name}-sg"
+    Name        = "${var.environment}-vpn-to-${var.component_name}-sg"
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
@@ -181,14 +181,14 @@ resource "aws_security_group" "vpn_to_service_alb" {
 }
 
 resource "aws_security_group_rule" "vpn_to_service_alb" {
-  count       = var.grant_access_through_vpn ? 1 : 0
-  type        = "ingress"
-  description = "Allow vpn to access service ALB"
-  protocol    = "tcp"
-  from_port   = 443
-  to_port     = 443
+  count                    = var.grant_access_through_vpn ? 1 : 0
+  type                     = "ingress"
+  description              = "Allow vpn to access service ALB"
+  protocol                 = "tcp"
+  from_port                = 443
+  to_port                  = 443
   source_security_group_id = data.aws_ssm_parameter.vpn_sg_id.value
-  security_group_id = aws_security_group.vpn_to_service_alb.id
+  security_group_id        = aws_security_group.vpn_to_service_alb.id
 }
 
 resource "aws_security_group" "gocd_to_service_alb" {
@@ -197,15 +197,15 @@ resource "aws_security_group" "gocd_to_service_alb" {
   vpc_id      = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   ingress {
-    description = "Allow gocd to access ehr-out-service ALB"
-    protocol    = "tcp"
-    from_port   = 443
-    to_port     = 443
+    description     = "Allow gocd to access ehr-out-service ALB"
+    protocol        = "tcp"
+    from_port       = 443
+    to_port         = 443
     security_groups = [data.aws_ssm_parameter.gocd_sg_id.value]
   }
 
   tags = {
-    Name = "${var.environment}-gocd-to-${var.component_name}-sg"
+    Name        = "${var.environment}-gocd-to-${var.component_name}-sg"
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
@@ -216,17 +216,17 @@ resource "aws_security_group" "gocd_to_service_alb" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "alb_http_errors" {
-  alarm_name                = "${var.repo_name} 5xx errors"
-  comparison_operator       = "GreaterThanOrEqualToThreshold"
-  evaluation_periods        = "1"
-  metric_name               = "HTTPCode_Target_5XX_Count"
-  namespace                 = "AWS/ApplicationELB"
-  period                    = "60"
-  statistic                 = "Average"
-  threshold                 = "1"
-  alarm_description         = "This metric monitors number of 5xx http status codes associated with ${var.repo_name}"
-  treat_missing_data        = "notBreaching"
-  dimensions                = {
+  alarm_name          = "${var.repo_name} 5xx errors"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "HTTPCode_Target_5XX_Count"
+  namespace           = "AWS/ApplicationELB"
+  period              = "60"
+  statistic           = "Average"
+  threshold           = "1"
+  alarm_description   = "This metric monitors number of 5xx http status codes associated with ${var.repo_name}"
+  treat_missing_data  = "notBreaching"
+  dimensions = {
     LoadBalancer = aws_alb.alb_internal.arn_suffix
   }
 }
