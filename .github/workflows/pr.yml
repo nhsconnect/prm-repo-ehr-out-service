@@ -47,7 +47,7 @@ jobs:
         run: |-
           IMAGE_TAG=$(aws ecr describe-images --repository-name deductions/ehr-out-service --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
           cat > pipeline.auto.tfvars <<EOF
-          image_tag = "$IMAGE_TAG"
+          task_image_tag = "$IMAGE_TAG"
           EOF
 
       - name: terraform plan
