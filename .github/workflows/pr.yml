@@ -9,9 +9,13 @@ permissions:
   pull-requests: write # Required to write comments
 
 jobs:
-  dev:
-    name: Dev
+  plan:
+    strategy:
+      matrix:
+        environment: [dev, test]
+    name: ${{ matrix.environment }}
     runs-on: ubuntu-latest
+    environment: ${{ matrix.environment }}
     defaults:
       run:
         working-directory: ./terraform
@@ -26,7 +30,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
-          role-to-assume: arn:aws:iam::416874859154:role/GitHub-Actions-ReadOnly
+          role-to-assume: ${{ secrets.IAM_ROLE_READONLY }}
           aws-region: eu-west-2
 
       - name: terraform fmt
@@ -35,7 +39,7 @@ jobs:
 
       - name: terraform init
         id: init
-        run: terraform init -no-color -upgrade -backend-config="bucket=prm-deductions-dev-terraform-state" -backend-config="key=ehr-out-service-dev/terraform.tfstate"
+        run: terraform init -no-color -upgrade -backend-config="bucket=${{ secrets.BACKEND_BUCKET }}" -backend-config="key=${{ secrets.BACKEND_KEY }}"
 
       - name: terraform validate
         id: validate
@@ -44,14 +48,14 @@ jobs:
       - name: Setup Terraform variables
         id: vars
         run: |-
-          IMAGE_TAG=$(aws ecr describe-images --repository-name deductions/ehr-out-service --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
+          IMAGE_TAG=$(aws ecr describe-images --repository-name ${{ secrets.ECR_REPOSITORY_NAME }} --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
           cat > pipeline.auto.tfvars <<EOF
           task_image_tag = "$IMAGE_TAG"
           EOF
 
       - name: terraform plan
         id: plan
-        run: terraform plan -var-file="dev.tfvars" -no-color -out tfplan
+        run: terraform plan -var-file="${{ matrix.environment }}.tfvars" -no-color -out tfplan
         continue-on-error: true
 
       - uses: actions/github-script@v7
