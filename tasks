@@ -82,37 +82,6 @@ function set_image_tag() {
   fi
 }
 
-function create_secret_ssm_param {
-  secret_id="$1"
-  value="$2"
-  set +e
-  aws ssm get-parameter --region $AWS_DEFAULT_REGION --name "$secret_id" | jq -r ".Parameter.Value" > /dev/null
-  if [[ $? == 0 ]]; then
-    echo "Secret at $secret_id already exists"
-  else
-    set -e
-    echo "Secret does not exists. Creating $secret_id"
-    aws ssm put-parameter \
-     --region $AWS_DEFAULT_REGION \
-     --name "$secret_id" \
-     --type SecureString \
-     --overwrite \
-     --value "$value"
-  fi
-}
-
-function generate_secret_ssm_param {
-  value=$(openssl rand -base64 24  | tr -d "/@\'+")
-  create_secret_ssm_param "$1" "$value"
-}
-
-function generate_username_ssm_param {
-  set +e
-  value=$(< /dev/urandom tr -dc a-z | head -c12)
-  set -e
-  create_secret_ssm_param "$1" "$value"
-}
-
 function prepare_local_envs_for_ide {
   envs=$( printenv | grep "REPOSITORY_URI" && \
           printenv | grep "SERVICE_URL"
@@ -462,8 +431,6 @@ case "${command}" in
       ;;
   _create_secrets)
       _assume_environment_role $NHS_ENVIRONMENT
-      generate_username_ssm_param "/repo/${NHS_ENVIRONMENT}/user-input/ehr-out-service-db-username"
-      generate_secret_ssm_param "/repo/${NHS_ENVIRONMENT}/user-input/ehr-out-service-db-password"
       ;;
   create_secrets)
       check_env

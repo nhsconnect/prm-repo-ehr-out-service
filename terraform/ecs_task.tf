@@ -1,13 +1,13 @@
 locals {
-  task_role_arn                = aws_iam_role.component_ecs_role.arn
-  task_execution_role          = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.environment}-${var.component_name}-EcsTaskRole"
-  task_ecr_url                 = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com"
-  task_log_group               = "/nhs/deductions/${var.environment}-${data.aws_caller_identity.current.account_id}/${var.component_name}"
-  environment_domain_name      = data.aws_ssm_parameter.environment_domain_name.value
-  environment_variables        = [
+  task_role_arn           = aws_iam_role.component_ecs_role.arn
+  task_execution_role     = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${var.environment}-${var.component_name}-EcsTaskRole"
+  task_ecr_url            = "${data.aws_caller_identity.current.account_id}.dkr.ecr.${var.region}.amazonaws.com"
+  task_log_group          = "/nhs/deductions/${var.environment}-${data.aws_caller_identity.current.account_id}/${var.component_name}"
+  environment_domain_name = data.aws_ssm_parameter.environment_domain_name.value
+  environment_variables = [
     { name = "NHS_ENVIRONMENT", value = var.environment },
     {
-      name = "SERVICE_URL",
+      name  = "SERVICE_URL",
       value = "https://${var.component_name}.${local.environment_domain_name}"
     },
     {
@@ -15,17 +15,11 @@ locals {
       value = "https://gp2gp-messenger.${local.environment_domain_name}"
     },
     {
-      name = "EHR_REPO_SERVICE_URL",
+      name  = "EHR_REPO_SERVICE_URL",
       value = "https://ehr-repo.${local.environment_domain_name}"
     },
     { name = "REPOSITORY_ASID", value = data.aws_ssm_parameter.repository_asid.value },
-    { name = "DATABASE_NAME", value = aws_rds_cluster.ehr_out_service.database_name },
-    { name = "DATABASE_HOST", value = aws_rds_cluster.ehr_out_service.endpoint },
-    { name = "DATABASE_USER", value = var.application_database_user },
-    { name = "USE_AWS_RDS_CREDENTIALS", value = "true" },
     { name = "AWS_REGION", value = var.region },
-    { name = "DB_SKIP_MIGRATION", value = "true" },
-    { name = "USE_SSL_FOR_DB", value = "true" },
     { name = "LOG_LEVEL", value = var.log_level },
     { name = "SQS_EHR_OUT_INCOMING_QUEUE_URL", value = aws_sqs_queue.service_incoming.id },
     { name = "FRAGMENT_TRANSFER_RATE_LIMIT_TIMEOUT_MILLISECONDS", value = "100" },
@@ -75,10 +69,10 @@ resource "aws_security_group" "ecs_tasks_sg" {
   vpc_id = data.aws_ssm_parameter.deductions_private_vpc_id.value
 
   ingress {
-    description     = "Allow traffic from internal ALB of gp to repo"
-    protocol        = "tcp"
-    from_port       = "3000"
-    to_port         = "3000"
+    description = "Allow traffic from internal ALB of gp to repo"
+    protocol    = "tcp"
+    from_port   = "3000"
+    to_port     = "3000"
     security_groups = [
       aws_security_group.service_from_alb.id
     ]
@@ -93,10 +87,10 @@ resource "aws_security_group" "ecs_tasks_sg" {
   }
 
   egress {
-    description     = "Allow outbound to VPC Endpoints"
-    protocol        = "-1"
-    from_port       = 0
-    to_port         = 0
+    description = "Allow outbound to VPC Endpoints"
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
     security_groups = concat(tolist(data.aws_vpc_endpoint.ecr-dkr.security_group_ids), tolist(data.aws_vpc_endpoint.ecr-api.security_group_ids),
     tolist(data.aws_vpc_endpoint.logs.security_group_ids), tolist(data.aws_vpc_endpoint.ssm.security_group_ids))
   }

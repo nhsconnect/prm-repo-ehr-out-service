@@ -30,8 +30,6 @@ coverage
 /terraform/nhs_deployment.tfplan
 /terraform/tf-out.json
 /terraform/.terraform.lock.hcl
-/terraform-db-roles/.terraform.lock.hcl
-/terraform-db-roles/*.tfplan
 
 # Imported utilities
 /utils/*
