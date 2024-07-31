@@ -35,7 +35,8 @@ jobs:
 
       - name: terraform fmt
         id: fmt
-        run: terraform fmt -check
+        working-directory: ./
+        run: terraform fmt -recursive -check
 
       - name: terraform init
         id: init
