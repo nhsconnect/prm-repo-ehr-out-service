@@ -72,9 +72,7 @@ jobs:
       - name: terraform plan
         id: plan
         run: |
-          terraform plan -var-file="${{ matrix.environment }}.tfvars" -no-color -out tfplan
-          echo "Plan summary:"
-          echo $(egrep 'Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy.|No changes\. Your infrastructure matches the configuration\.' tfplan | sed 's/.*No changes\. Your infrastructure matches the configuration/Plan: no changes/g' | sed 's/.*Plan: //g' | sed 's/\..*//g')
+          terraform plan -var-file="${{ matrix.environment }}.tfvars" -no-color -out=tfplan
           echo "summary=$(egrep 'Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy.|No changes\. Your infrastructure matches the configuration\.' tfplan | sed 's/.*No changes\. Your infrastructure matches the configuration/Plan: no changes/g' | sed 's/.*Plan: //g' | sed 's/\..*//g')" >> $GITHUB_OUTPUT
         continue-on-error: true
 
