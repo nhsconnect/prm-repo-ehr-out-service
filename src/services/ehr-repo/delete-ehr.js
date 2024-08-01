@@ -1,4 +1,4 @@
-import { PresignedUrlNotFoundError } from '../../errors/errors';
+import { PresignedUrlNotFoundWhileDeletingEhrError } from '../../errors/errors';
 import { logError } from '../../middleware/logging';
 import { config } from '../../config';
 import axios from 'axios';
@@ -22,7 +22,7 @@ export const sendDeleteRequestToEhrRepo = async (nhsNumber, conversationId) => {
     })
     .catch(error => {
       if (error?.response?.status === 404) {
-        throw new PresignedUrlNotFoundError(error);
+        throw new PresignedUrlNotFoundWhileDeletingEhrError(error);
       } else {
         logError('Error deleting health record', error);
         throw error;

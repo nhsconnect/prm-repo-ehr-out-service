@@ -8,13 +8,14 @@ import { updateOutboundConversationStatus } from '../database/dynamodb/outbound-
 import { storeOutboundMessageIds } from '../database/dynamodb/store-outbound-message-ids';
 import { updateFragmentStatusInDb } from '../database/dynamodb/ehr-fragment-repository';
 import { updateCoreStatusInDb } from '../database/dynamodb/ehr-core-repository';
+import {AcknowledgementErrorCode} from "../../constants/enums";
 
 export const downloadFromUrl = async messageUrl => {
   return axios
     .get(messageUrl)
     .then(response => response.data)
     .catch(error => {
-      throw new DownloadError(error);
+      throw new DownloadError(error, AcknowledgementErrorCode.ERROR_CODE_10_A);
     });
 };
 

@@ -4,6 +4,7 @@ import { logError, logInfo } from '../../../middleware/logging';
 import { getFragment } from '../get-fragment';
 import expect from 'expect';
 import nock from 'nock';
+import {AcknowledgementErrorCode} from "../../../constants/enums";
 
 jest.mock('../../../middleware/logging');
 jest.mock('../../../config', () => ({
@@ -60,23 +61,22 @@ describe('getFragment', () => {
       .get(`/fragments/${inboundConversationId}/${messageId}`)
       .reply(404);
 
-    await expect(getFragment(inboundConversationId, messageId)).rejects.toThrow(
-      PresignedUrlNotFoundError
-    );
+    await expect(getFragment(inboundConversationId, messageId)).rejects.toThrow(PresignedUrlNotFoundError);
 
     // then
     expect(repoScope.isDone()).toBe(true);
-    expect(logError).toHaveBeenCalledWith(
-      errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR,
-      axios404Error
-    );
+    expect(logError).toBeCalledWith(`${errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR}. ` +
+      `internalErrorCode is: ${AcknowledgementErrorCode.ERROR_CODE_10_B.internalErrorCode} and ` +
+      `internalErrorDescription is: ${AcknowledgementErrorCode.ERROR_CODE_10_B.internalErrorDescription}`);
+    expect(logError).toBeCalledWith(axios404Error)
   });
 
   it('should throw a DownloadError if it failed to download the EHR from the presigned URL', async () => {
     // given
     const inboundConversationId = '0E745F0A-1E8D-4C5F-AE13-B5758F331B29';
     const messageId = 'EBFAE96A-ED38-40C4-A854-58175D15EAEC';
-    const error = new DownloadError();
+    const acknowledgementErrorCode = AcknowledgementErrorCode.ERROR_CODE_10_A;
+    const error = new DownloadError(null, acknowledgementErrorCode);
 
     // when
     const downloadFragmentPresignedUrlScope = nock(mockEhrRepoServiceUrl, headers)

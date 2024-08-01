@@ -16,6 +16,8 @@ import { parseConversationId } from '../parser/parsing-utilities';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { ConversationStatus, CoreStatus, FailureReason } from '../../constants/enums';
 import { hasServiceStartedInTheLast5Minutes } from '../../config';
+import {DownloadError, PresignedUrlNotFoundError} from "../../errors/errors";
+import {sendAcknowledgement} from "../gp2gp/send-acknowledgement";
 
 export default async function continueMessageHandler(message) {
   const conversationId = await parseConversationId(message);
@@ -151,10 +153,36 @@ const handleFragmentTransferError = async (
 ) => {
   logError('Encountered error while sending out fragments', error);
 
-  await updateConversationStatus(
-    conversationId,
-    ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
-    null,
-    'A fragment failed to send, aborting transfer'
-  );
+  switch (true) {
+    case error instanceof PresignedUrlNotFoundError:
+      await sendAcknowledgement(
+        nhsNumber,
+        odsCode,
+        conversationId,
+        messageId,
+        error.acknowledgementErrorCode.gp2gpError
+      );
+
+      await updateConversationStatus(
+        conversationId,
+        ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
+        FailureReason.MISSING_FROM_REPO
+      );
+      break;
+    case error instanceof DownloadError:
+      await sendAcknowledgement(
+        nhsNumber,
+        odsCode,
+        conversationId,
+        messageId,
+        error.acknowledgementErrorCode.gp2gpError
+      );
+
+      await updateConversationStatus(
+        conversationId,
+        ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
+        FailureReason.EHR_DOWNLOAD_FAILED
+      );
+      break;
+  }
 };

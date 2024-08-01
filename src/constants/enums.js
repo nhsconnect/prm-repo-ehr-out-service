@@ -1,3 +1,5 @@
+import {errorMessages} from "../errors/errors";
+
 export const RecordType = {
   ALL: 'ALL', // Option for querying all layers in one call
   CONVERSATION: 'CONVERSATION',
@@ -66,6 +68,10 @@ const Gp2gpError = {
   CODE_06: {
     errorCode: '06',
     errorDisplayName: 'Patient not at surgery.'
+  },
+  CODE_10: {
+    errorCode: '10',
+    errorDisplayName: 'Failed to successfully generate EHR Extract.'
   }
 };
 
@@ -94,6 +100,16 @@ export const AcknowledgementErrorCode = {
     internalErrorCode: `${Gp2gpError.CODE_06.errorCode}-B`,
     internalErrorDescription: 'Partial ingestion, cannot send a full EHR out'
   },
+  ERROR_CODE_10_A: {
+    gp2gpError: Gp2gpError.CODE_10,
+    internalErrorCode: `${Gp2gpError.CODE_10.errorCode}-A`,
+    internalErrorDescription: errorMessages.DOWNLOAD_ERROR
+  },
+  ERROR_CODE_10_B: {
+    gp2gpError: Gp2gpError.CODE_10,
+    internalErrorCode: `${Gp2gpError.CODE_10.errorCode}-B`,
+    internalErrorDescription: errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR
+  }
 };
 
 Object.freeze(RecordType);
