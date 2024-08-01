@@ -1,7 +1,7 @@
 import nock from 'nock';
 import { v4 as uuid } from 'uuid';
 import { sendDeleteRequestToEhrRepo } from '../delete-ehr';
-import { PresignedUrlNotFoundError } from '../../../errors/errors';
+import { PresignedUrlNotFoundWhileDeletingEhrError } from '../../../errors/errors';
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -43,7 +43,7 @@ describe('delete-ehr.js', () => {
     it('should throw a EhrUrlNotFoundError when the response status is 404', async () => {
       // given
       const ERROR_MESSAGE = 'Request failed with status code 404';
-      const EXPECTED_ERROR = new PresignedUrlNotFoundError(ERROR_MESSAGE);
+      const EXPECTED_ERROR = new PresignedUrlNotFoundWhileDeletingEhrError(ERROR_MESSAGE);
 
       // when
       const urlScope = nock(NOCK_BASE_URL, {})
@@ -53,7 +53,7 @@ describe('delete-ehr.js', () => {
       // then
       await expect(async () =>
         sendDeleteRequestToEhrRepo(NHS_NUMBER, CONVERSATION_ID)
-      ).rejects.toThrow(PresignedUrlNotFoundError);
+      ).rejects.toThrow(PresignedUrlNotFoundWhileDeletingEhrError);
       expect(urlScope.isDone()).toBe(true);
     });
 

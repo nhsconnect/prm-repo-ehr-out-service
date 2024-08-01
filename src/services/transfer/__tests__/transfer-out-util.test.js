@@ -4,7 +4,7 @@ import nock from 'nock';
 import { setCurrentSpanAttributes } from '../../../config/tracing';
 import { errorMessages, StatusUpdateError } from '../../../errors/errors';
 import { logError, logInfo } from '../../../middleware/logging';
-import { ConversationStatus, CoreStatus, FragmentStatus } from '../../../constants/enums';
+import {AcknowledgementErrorCode, ConversationStatus, CoreStatus, FragmentStatus} from '../../../constants/enums';
 import { getPdsOdsCode } from '../../gp2gp/pds-retrieval-request';
 import {
   createAndStoreOutboundMessageIds,
@@ -86,10 +86,10 @@ describe('testTransferOutUtil', () => {
       // then
       expect(urlScope.isDone()).toEqual(true);
       expect(actualError).not.toBeNull();
-      expect(logError).toBeCalledWith(
-        errorMessages.DOWNLOAD_ERROR,
-        new Error('Request failed with status code 404')
-      );
+      expect(logError).toBeCalledWith(`${errorMessages.DOWNLOAD_ERROR}. ` +
+        `internalErrorCode is: ${AcknowledgementErrorCode.ERROR_CODE_10_A.internalErrorCode} and ` +
+        `internalErrorDescription is: ${AcknowledgementErrorCode.ERROR_CODE_10_A.internalErrorDescription}`);
+      expect(logError).toBeCalledWith(new Error('Request failed with status code 404'));
     });
   });
 

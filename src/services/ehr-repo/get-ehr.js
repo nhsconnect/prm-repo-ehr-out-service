@@ -3,6 +3,7 @@ import axios from 'axios';
 import { logInfo, logError } from '../../middleware/logging';
 import { downloadFromUrl } from '../transfer/transfer-out-util';
 import { PresignedUrlNotFoundError } from '../../errors/errors';
+import {AcknowledgementErrorCode} from "../../constants/enums";
 
 export const getEhrCoreAndFragmentIdsFromRepo = async (nhsNumber, conversationId) => {
   const { coreMessageUrl, fragmentMessageIds, inboundConversationId } =
@@ -35,7 +36,7 @@ const retrievePresignedUrlFromRepo = (nhsNumber, conversationId) => {
     })
     .catch(error => {
       if (error?.response?.status === 404) {
-        throw new PresignedUrlNotFoundError(error);
+        throw new PresignedUrlNotFoundError(error, AcknowledgementErrorCode.ERROR_CODE_10_B);
       } else {
         logError('Error retrieving health record', error);
         throw error;
