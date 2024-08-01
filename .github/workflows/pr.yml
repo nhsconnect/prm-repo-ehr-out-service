@@ -73,20 +73,7 @@ jobs:
         id: plan
         run: |
           terraform plan -var-file="${{ matrix.environment }}.tfvars" -no-color -out=tfplan
-          ls
           terraform show -no-color tfplan > tfplan.txt
-          echo "0"
-          echo $(cat tfplan.txt)
-          echo "1"
-          echo $(grep -E 'No changes\. Your infrastructure matches the configuration\.' tfplan.txt)
-          echo "2"
-          echo $(grep -E 'Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy\.' tfplan.txt)
-          echo "3"
-          echo $(grep -E 'Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy\.|No changes\. Your infrastructure matches the configuration\.' tfplan.txt)
-          echo "4"
-          echo $(grep -E 'Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy\.|No changes\. Your infrastructure matches the configuration\.' tfplan.txt | sed 's/.*No changes\. Your infrastructure matches the configuration/Plan: no changes/g')
-          echo "5"
-          echo $(grep -E 'Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy\.|No changes\. Your infrastructure matches the configuration\.' tfplan.txt | sed 's/.*No changes\. Your infrastructure matches the configuration/Plan: no changes/g' | sed 's/.*Plan: //g' | sed 's/\..*//g')
           echo "summary=$(grep -E 'Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy\.|No changes\. Your infrastructure matches the configuration\.' tfplan.txt | sed 's/.*No changes\. Your infrastructure matches the configuration/Plan: no changes/g' | sed 's/.*Plan: //g' | sed 's/\..*//g')" >> $GITHUB_OUTPUT
         continue-on-error: true
 
