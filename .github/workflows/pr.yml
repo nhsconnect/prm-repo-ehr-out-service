@@ -1,3 +1,17 @@
+## When copying this to a new ORC repository...
+## 
+## 1) Create environments for dev, test, pre-prod and prod (https://github.com/nhsconnect/<repo>/settings/environments).
+## 
+## 2) For each environment, add the following secrets:
+## - BACKEND_BUCKET
+## - BACKEND_KEY
+## - IAM_ROLE_READONLY
+## 
+## 3) Create the following repository secret (https://github.com/nhsconnect/<repo>/settings/secrets/actions):
+## - ECR_REPOSITORY_NAME
+## 
+## 4) Edit the ## REPOSITORY SPECIFIC ## section below.
+
 name: Terraform Plan
 on:
   pull_request:
@@ -46,6 +60,7 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
+        ## REPOSITORY SPECIFIC ##
       - name: Setup Terraform variables
         id: vars
         run: |-
@@ -58,6 +73,18 @@ jobs:
         id: plan
         run: terraform plan -var-file="${{ matrix.environment }}.tfvars" -no-color -out tfplan
         continue-on-error: true
+
+      - name: Generate plan summary
+        id: plan-summary
+        run: |-
+          plan=${{ steps.plan.outputs.stdout }}
+          if [[ $plan == *"No changes. Your infrastructure matches the configuration."* ]]; then
+            export summary="no changes"
+          else
+            export summary=$(echo ${{ steps.plan.outputs.stdout }} | sed 's/.*Plan: //g' | sed 's/\..*//g')
+          fi
+
+          echo ::set-output name=summary::$summary
 
       - uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
@@ -106,7 +133,7 @@ jobs:
 
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
 
-            <details><summary>Show Plan</summary>
+            <details><summary>Show Plan (${{ steps.plan-summary.outputs.summary }})</summary>
 
             \`\`\`\n
             ${{ steps.plan.outputs.stdout }}
