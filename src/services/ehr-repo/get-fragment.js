@@ -3,6 +3,7 @@ import { downloadFromUrl } from '../transfer/transfer-out-util';
 import { logInfo, logError } from '../../middleware/logging';
 import { config } from '../../config';
 import axios from 'axios';
+import {AcknowledgementErrorCode} from "../../constants/enums";
 
 export const getFragmentConversationAndMessageIdsFromEhrRepo = async nhsNumber => {
   const { ehrRepoServiceUrl, ehrRepoAuthKeys } = config();
@@ -54,6 +55,6 @@ const retrieveFragmentPresignedUrlFromRepo = async (inboundConversationId, messa
     })
     .then(response => response.data)
     .catch(error => {
-      throw new PresignedUrlNotFoundError(error);
+      throw new PresignedUrlNotFoundError(error, AcknowledgementErrorCode.ERROR_CODE_10_B);
     });
 };

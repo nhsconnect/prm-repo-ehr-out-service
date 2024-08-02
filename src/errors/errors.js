@@ -1,6 +1,4 @@
 import { logError } from '../middleware/logging';
-import {sendAcknowledgement} from "../services/gp2gp/send-acknowledgement";
-import {AcknowledgementErrorCode} from "../constants/enums";
 
 export const errorMessages = {
   DOWNLOAD_ERROR: 'Cannot retrieve message from presigned URL',
@@ -28,14 +26,18 @@ export const errorMessages = {
 };
 
 class NegativeAcknowledgementError extends Error {
-  constructor(errorMessage, acknowledgementErrorCode) {
+  constructor(errorMessage, acknowledgementErrorCode, error) {
     super(errorMessage);
 
+    this.acknowledgementErrorCode = acknowledgementErrorCode;
+
     // log the internal failure details
-    logError(`${errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR}. ` +
-      `internalErrorCode is: ${acknowledgementErrorCode.internalErrorCode} and ` +
-      `internalErrorDescription is: ${acknowledgementErrorCode.internalErrorDescription}`
-    );
+    logError(`${errorMessage}. internalErrorCode is: ${acknowledgementErrorCode.internalErrorCode} and ` +
+      `internalErrorDescription is: ${acknowledgementErrorCode.internalErrorDescription}`);
+
+    if (error) { // may not be populated. Not all errors producing negative acknowledgements will have an external cause
+      logError(error);
+    }
   }
 }
 
@@ -53,17 +55,22 @@ export class GetPdsCodeError extends Error {
   }
 }
 
-export class PresignedUrlNotFoundError extends Error {
+export class PresignedUrlNotFoundError extends NegativeAcknowledgementError {
+  constructor(error, acknowledgementErrorCode) {
+    super(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR, acknowledgementErrorCode, error);
+  }
+}
+
+export class PresignedUrlNotFoundWhileDeletingEhrError extends Error {
   constructor(error) {
     super(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR);
     logError(errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR, error);
   }
 }
 
-export class DownloadError extends Error {
-  constructor(error) {
-    super(errorMessages.DOWNLOAD_ERROR);
-    logError(errorMessages.DOWNLOAD_ERROR, error);
+export class DownloadError extends NegativeAcknowledgementError {
+  constructor(error, acknowledgementErrorCode) {
+    super(errorMessages.DOWNLOAD_ERROR, acknowledgementErrorCode, error);
   }
 }
 
@@ -91,7 +98,6 @@ export class FragmentSendingError extends Error {
 export class PatientRecordNotFoundError extends NegativeAcknowledgementError {
   constructor(acknowledgementErrorCode) {
     super(errorMessages.PATIENT_RECORD_NOT_FOUND_ERROR, acknowledgementErrorCode);
-    this.acknowledgementErrorCode = acknowledgementErrorCode;
   }
 }
 

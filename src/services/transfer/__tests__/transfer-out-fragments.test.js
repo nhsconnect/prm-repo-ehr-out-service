@@ -14,7 +14,7 @@ import {
   getAllFragmentIdsToBeSent,
   getAllMessageIdPairs
 } from '../../database/dynamodb/ehr-fragment-repository';
-import { FailureReason, FragmentStatus } from '../../../constants/enums';
+import {AcknowledgementErrorCode, FailureReason, FragmentStatus} from '../../../constants/enums';
 import {
   DownloadError,
   FragmentSendingError,
@@ -189,7 +189,8 @@ describe('transferOutFragments', () => {
 
   it('should update fragment status to MISSING_FROM_REPO when unable to find fragment in repo', async () => {
     // given
-    const error = new PresignedUrlNotFoundError('error');
+    const acknowledgementErrorCode = AcknowledgementErrorCode.ERROR_CODE_10_B;
+    const error = new PresignedUrlNotFoundError('error', acknowledgementErrorCode);
 
     // when
     getFragmentConversationAndMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);
@@ -228,7 +229,8 @@ describe('transferOutFragments', () => {
 
   it('should update fragment status to DOWNLOAD_FAILED when unable to retrieve fragment from presigned url', async () => {
     // given
-    const error = new DownloadError('error');
+    const acknowledgementErrorCode = AcknowledgementErrorCode.ERROR_CODE_10_A;
+    const error = new DownloadError(null, acknowledgementErrorCode);
 
     // when
     getFragmentConversationAndMessageIdsFromEhrRepo.mockResolvedValueOnce(ehrRepositoryResponse);

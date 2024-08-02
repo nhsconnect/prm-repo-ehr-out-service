@@ -114,6 +114,14 @@ const handleCoreTransferError = async (
       );
       break;
     case error instanceof PresignedUrlNotFoundError:
+      await sendAcknowledgement(
+        nhsNumber,
+        odsCode,
+        conversationId,
+        incomingMessageId,
+        error.acknowledgementErrorCode.gp2gpError
+      );
+
       await updateConversationStatus(
         conversationId,
         ConversationStatus.OUTBOUND_FAILED,
@@ -121,6 +129,14 @@ const handleCoreTransferError = async (
       );
       break;
     case error instanceof DownloadError:
+      await sendAcknowledgement(
+        nhsNumber,
+        odsCode,
+        conversationId,
+        incomingMessageId,
+        error.acknowledgementErrorCode.gp2gpError
+      );
+
       await updateConversationStatus(
         conversationId,
         ConversationStatus.OUTBOUND_FAILED,
