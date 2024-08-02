@@ -249,6 +249,7 @@ describe('continueMessageHandler', () => {
       failureReason: FailureReason.MISSING_FROM_REPO
     }
   ];
+
   it.each(testCasesForFragmentTransferErrors)(
     'should stop the transfer and send negative acknowledgement if any part of the transfer failed with a $acknowledgementErrorCode.internalErrorCode $errorType.name',
     async ({ errorType, acknowledgementErrorCode, conversationStatus, failureReason }) => {

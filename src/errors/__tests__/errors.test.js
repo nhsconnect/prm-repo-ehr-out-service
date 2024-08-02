@@ -29,6 +29,7 @@ describe('errors tests', () => {
       errorMessage: errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR
     }
   ];
+
   it.each(negativeAcknowledgementErrors)(
     'should logError and set acknowledgementErrorCode upon creation of a NegativeAcknowledgementError - $acknowledgementErrorCode.internalErrorCode $type.name',
     ({ type, acknowledgementErrorCode, errorMessage}) => {
