@@ -105,7 +105,7 @@ describe('SQS incoming message handling', () => {
   it('should receive and acknowledge valid messages from the incoming queue once the sqs consumer started', async () => {
     await expect(await queue.visibleMessageCount()).toEqual(0);
 
-    await queue.send(validEhrRequestMessage());
+    await queue.send(validEhrRequestMessage().toString('utf-8'));
 
     await expect(await queue.visibleMessageCount()).toEqual(1);
 
