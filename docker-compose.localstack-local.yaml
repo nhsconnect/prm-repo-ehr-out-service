@@ -3,7 +3,7 @@ version: "3.8"
 services:
   localstack:
     container_name: "localstack-ehr-out-service"
-    image: localstack/localstack
+    image: localstack/localstack:3.6.0
     network_mode: bridge
     ports:
       - "127.0.0.1:4566:4566"
