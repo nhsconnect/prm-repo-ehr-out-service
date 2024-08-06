@@ -1,5 +1,4 @@
 import axios from 'axios';
-import adapter from 'axios/lib/adapters/http';
 import { config } from '../../src/config';
 
 describe('/health', () => {
@@ -7,7 +6,7 @@ describe('/health', () => {
   const healthUrl = `${repoToGpServiceUrl}/health`;
 
   it('should return 200', async () => {
-    const res = await axios.get(healthUrl, { adapter });
+    const res = await axios.get(healthUrl, { adapter: 'http' });
     expect(res.status).toEqual(200);
   });
 });
