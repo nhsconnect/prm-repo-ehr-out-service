@@ -35,7 +35,7 @@ const retrievePresignedUrlFromRepo = (nhsNumber, conversationId) => {
       };
     })
     .catch(error => {
-      if (error?.response?.status === 404) {
+      if (error?.response?.status === 503) {
         throw new PresignedUrlNotFoundError(error, AcknowledgementErrorCode.ERROR_CODE_10_B);
       } else {
         logError('Error retrieving health record', error);
