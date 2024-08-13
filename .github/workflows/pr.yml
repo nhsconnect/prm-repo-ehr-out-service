@@ -1,21 +1,30 @@
 ## When copying this to a new ORC repository...
-## 
-## 1) Create environments for dev, test, pre-prod and prod (https://github.com/nhsconnect/<repo>/settings/environments).
-## 
+##
+## 1) Visit https://github.com/nhsconnect/<repo>/settings/environments and create environments:
+## - dev
+## - test
+## - test-apply
+## - pre-prod
+## - pre-prod-apply
+## - prod
+## - prod-apply
+##
 ## 2) For each environment, add the following secrets:
-## - BACKEND_BUCKET
-## - BACKEND_KEY
-## - IAM_ROLE_READONLY
-## 
+## - IAM_ROLE
+## - TF_BACKEND_BUCKET
+## - TF_BACKEND_DYNAMODB_TABLE
+## - TF_BACKEND_KEY
+##
 ## 3) Create the following repository secret (https://github.com/nhsconnect/<repo>/settings/secrets/actions):
 ## - ECR_REPOSITORY_NAME
-## 
+##
 ## 4) Edit the ## REPOSITORY SPECIFIC ## section below.
 
-name: Terraform Plan
+name: PR Checks
 on:
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
 
 permissions:
   contents: read       # Required for actions/checkout
@@ -23,11 +32,26 @@ permissions:
   pull-requests: write # Required to write comments
 
 jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up git repo
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
+      - run: npm ci
+
+      - name: eslint
+        run: npm run lint
+
   plan:
     strategy:
       matrix:
         environment: [dev, test, pre-prod, prod]
-    name: ${{ matrix.environment }}
+    name: Terraform Plan (${{ matrix.environment }})
     runs-on: ubuntu-latest
     environment: ${{ matrix.environment }}
     defaults:
@@ -43,7 +67,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.IAM_ROLE_READONLY }}
+          role-to-assume: ${{ secrets.IAM_ROLE }}
           aws-region: eu-west-2
 
       - name: terraform fmt
@@ -53,7 +77,7 @@ jobs:
 
       - name: terraform init
         id: init
-        run: terraform init -no-color -upgrade -backend-config="bucket=${{ secrets.BACKEND_BUCKET }}" -backend-config="key=${{ secrets.BACKEND_KEY }}"
+        run: terraform init -no-color -upgrade -backend-config="bucket=${{ secrets.TF_BACKEND_BUCKET }}" -backend-config="key=${{ secrets.TF_BACKEND_KEY }}" -backend-config="dynamodb_table=${{ secrets.TF_BACKEND_DYNAMODB_TABLE }}"
 
       - name: terraform validate
         id: validate
@@ -63,9 +87,9 @@ jobs:
       - name: Setup Terraform variables
         id: vars
         run: |-
-          IMAGE_TAG=$(aws ecr describe-images --repository-name ${{ secrets.ECR_REPOSITORY_NAME }} --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' --output text)
+          IMAGE_TAG=$(aws ecr describe-images --repository-name ${{ secrets.ECR_REPOSITORY_NAME }} --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]')
           cat > pipeline.auto.tfvars <<EOF
-          task_image_tag = "$IMAGE_TAG"
+          task_image_tag = $IMAGE_TAG
           EOF
 
       - name: terraform plan
