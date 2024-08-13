@@ -16,7 +16,7 @@ import { parseConversationId } from '../parser/parsing-utilities';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { ConversationStatus, CoreStatus, FailureReason } from '../../constants/enums';
 import { hasServiceStartedInTheLast5Minutes } from '../../config';
-import {DownloadError, PresignedUrlNotFoundError} from "../../errors/errors";
+import {DownloadError, GetPdsCodeError, PresignedUrlNotFoundError} from "../../errors/errors";
 import {sendAcknowledgement} from "../gp2gp/send-acknowledgement";
 
 export default async function continueMessageHandler(message) {
@@ -154,6 +154,20 @@ const handleFragmentTransferError = async (
   logError('Encountered error while sending out fragments', error);
 
   switch (true) {
+    case error instanceof GetPdsCodeError:
+      await sendAcknowledgement(
+        nhsNumber,
+        odsCode,
+        conversationId,
+        messageId,
+        error.acknowledgementErrorCode.gp2gpError
+      );
+      await updateConversationStatus(
+        conversationId,
+        ConversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
+        FailureReason.SENDING_FAILED
+      );
+      break;
     case error instanceof PresignedUrlNotFoundError:
       await sendAcknowledgement(
         nhsNumber,

@@ -1,6 +1,8 @@
 import nock from 'nock';
 import { getPdsOdsCode } from '../pds-retrieval-request';
 import { logError, logInfo } from '../../../middleware/logging';
+import {GetPdsCodeError} from "../../../errors/errors";
+import {AcknowledgementErrorCode} from "../../../constants/enums";
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -48,7 +50,8 @@ describe('getPdsOdsCode', () => {
   it('should log and throw error when pds retrieval returns 500', async () => {
     // given
     let error;
-    const expectedError = new Error('Request failed with status code 500');
+    const http500Error = new Error('Request failed with status code 500');
+    const expectedError = new GetPdsCodeError(http500Error, AcknowledgementErrorCode);
 
     // when
     nock(MOCK_GP2GP_MESSENGER_SERVICE_URL, HEADERS)
@@ -61,7 +64,7 @@ describe('getPdsOdsCode', () => {
     }
 
     // then
-    expect(error).not.toBeNull();
+    expect(error).toEqual(expectedError)
     expect(logError).toHaveBeenCalledWith('Unable to retrieve patient from PDS', expectedError);
   });
 });

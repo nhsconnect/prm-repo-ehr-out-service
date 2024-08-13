@@ -1,4 +1,5 @@
 import { logError } from '../middleware/logging';
+import {AcknowledgementErrorCode} from "../constants/enums";
 
 export const errorMessages = {
   DOWNLOAD_ERROR: 'Cannot retrieve message from presigned URL',
@@ -48,10 +49,9 @@ export class ParsingError extends Error {
   }
 }
 
-export class GetPdsCodeError extends Error {
-  constructor(error) {
-    super(errorMessages.GET_PDS_CODE_ERROR);
-    logError(errorMessages.GET_PDS_CODE_ERROR, error);
+export class GetPdsCodeError extends NegativeAcknowledgementError {
+  constructor(error, acknowledgementErrorCode) {
+    super(errorMessages.GET_PDS_CODE_ERROR, acknowledgementErrorCode, error);
   }
 }
 

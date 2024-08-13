@@ -9,7 +9,8 @@ import {
   DownloadError,
   MessageIdUpdateError,
   StatusUpdateError,
-  errorMessages, PatientRecordNotFoundError
+  PatientRecordNotFoundError,
+  GetPdsCodeError
 } from '../../../errors/errors';
 import {
   createAndStoreOutboundMessageIds,
@@ -116,6 +117,12 @@ describe('transferOutEhrCore', () => {
     });
 
     const testCasesForCoreTransferErrors = [
+      {
+        errorType: GetPdsCodeError,
+        acknowledgementErrorCode: AcknowledgementErrorCode.ERROR_CODE_20_A,
+        conversationStatus: conversationStatus.OUTBOUND_FAILED,
+        failureReason: FailureReason.CORE_SENDING_FAILED
+      },
       {
         errorType: PatientRecordNotFoundError,
         acknowledgementErrorCode: AcknowledgementErrorCode.ERROR_CODE_06_A
