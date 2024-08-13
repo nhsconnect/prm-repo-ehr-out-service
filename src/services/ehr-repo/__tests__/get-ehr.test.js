@@ -79,10 +79,10 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
     });
 
     it('should throw an error when attempting to retrieve a presigned url and patient does not exist in repo', async () => {
-      const expectedError = new Error('Request failed with status code 404');
+      const expectedError = new Error('Request failed with status code 503');
       const urlScope = nock(mockEhrRepoServiceUrl, headers)
         .get(`/patients/${nhsNumber}`)
-        .reply(404, expectedError);
+        .reply(503, expectedError);
 
       await expect(() =>
         getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId)
