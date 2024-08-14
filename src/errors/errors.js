@@ -1,5 +1,4 @@
 import { logError } from '../middleware/logging';
-import {AcknowledgementErrorCode} from "../constants/enums";
 
 export const errorMessages = {
   DOWNLOAD_ERROR: 'Cannot retrieve message from presigned URL',

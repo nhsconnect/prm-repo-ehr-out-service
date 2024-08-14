@@ -1,8 +1,8 @@
 import nock from 'nock';
 import { getPdsOdsCode } from '../pds-retrieval-request';
 import { logError, logInfo } from '../../../middleware/logging';
-import {GetPdsCodeError} from "../../../errors/errors";
-import {AcknowledgementErrorCode} from "../../../constants/enums";
+import { GetPdsCodeError } from '../../../errors/errors';
+import { AcknowledgementErrorCode } from '../../../constants/enums';
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -51,7 +51,7 @@ describe('getPdsOdsCode', () => {
     // given
     let error;
     const http500Error = new Error('Request failed with status code 500');
-    const expectedError = new GetPdsCodeError(http500Error, AcknowledgementErrorCode);
+    const expectedError = new GetPdsCodeError(http500Error, AcknowledgementErrorCode.ERROR_CODE_20_A);
 
     // when
     nock(MOCK_GP2GP_MESSENGER_SERVICE_URL, HEADERS)
@@ -65,6 +65,7 @@ describe('getPdsOdsCode', () => {
 
     // then
     expect(error).toEqual(expectedError)
-    expect(logError).toHaveBeenCalledWith('Unable to retrieve patient from PDS', expectedError);
+    expect(logError).toHaveBeenCalledWith(http500Error);
+    expect(logError).toHaveBeenCalledWith(expect.stringContaining('internalErrorCode is: ' + expectedError.acknowledgementErrorCode.internalErrorCode));
   });
 });
