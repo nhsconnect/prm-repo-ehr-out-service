@@ -72,6 +72,10 @@ const Gp2gpError = {
   CODE_10: {
     errorCode: '10',
     errorDisplayName: 'Failed to successfully generate EHR Extract.'
+  },
+  CODE_20: {
+    errorCode: '20',
+    errorDisplayName: 'Spine system responded with an error.'
   }
 };
 
@@ -109,6 +113,11 @@ export const AcknowledgementErrorCode = {
     gp2gpError: Gp2gpError.CODE_10,
     internalErrorCode: `${Gp2gpError.CODE_10.errorCode}-B`,
     internalErrorDescription: errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR
+  },
+  ERROR_CODE_20_A: {
+    gp2gpError: Gp2gpError.CODE_20,
+    internalErrorCode: `${Gp2gpError.CODE_20.errorCode}-A`,
+    internalErrorDescription: errorMessages.GET_PDS_CODE_ERROR
   }
 };
 

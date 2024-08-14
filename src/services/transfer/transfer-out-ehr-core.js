@@ -1,4 +1,9 @@
-import {PresignedUrlNotFoundError, DownloadError, PatientRecordNotFoundError} from '../../errors/errors';
+import {
+  PresignedUrlNotFoundError,
+  DownloadError,
+  PatientRecordNotFoundError,
+  GetPdsCodeError
+} from '../../errors/errors';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../ehr-repo/get-ehr';
 import { setCurrentSpanAttributes } from '../../config/tracing';
@@ -104,6 +109,20 @@ const handleCoreTransferError = async (
   incomingMessageId
 ) => {
   switch (true) {
+    case error instanceof GetPdsCodeError:
+      await sendAcknowledgement(
+        nhsNumber,
+        odsCode,
+        conversationId,
+        incomingMessageId,
+        error.acknowledgementErrorCode.gp2gpError
+      );
+      await updateConversationStatus(
+        conversationId,
+        ConversationStatus.OUTBOUND_FAILED,
+        FailureReason.CORE_SENDING_FAILED
+      );
+      break;
     case error instanceof PatientRecordNotFoundError:
       await sendAcknowledgement(
         nhsNumber,

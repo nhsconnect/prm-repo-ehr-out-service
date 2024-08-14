@@ -21,9 +21,8 @@ import path from 'path';
 import { logError, logInfo, logWarning } from '../../../middleware/logging';
 import { hasServiceStartedInTheLast5Minutes } from '../../../config';
 import {
-  DownloadError,
+  DownloadError, GetPdsCodeError,
   NhsNumberNotFoundError,
-  PatientRecordNotFoundError,
   PresignedUrlNotFoundError
 } from '../../../errors/errors';
 import {
@@ -236,6 +235,12 @@ describe('continueMessageHandler', () => {
   });
 
   const testCasesForFragmentTransferErrors = [
+    {
+      errorType: GetPdsCodeError,
+      acknowledgementErrorCode: AcknowledgementErrorCode.ERROR_CODE_20_A,
+      conversationStatus: conversationStatus.OUTBOUND_FRAGMENTS_SENDING_FAILED,
+      failureReason: FailureReason.SENDING_FAILED
+    },
     {
       errorType: DownloadError,
       acknowledgementErrorCode: AcknowledgementErrorCode.ERROR_CODE_10_A,
