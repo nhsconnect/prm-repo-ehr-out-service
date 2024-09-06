@@ -1,2 +1,2 @@
 environment           = "prod"
-service_desired_count = "0"
+service_desired_count = "1"
