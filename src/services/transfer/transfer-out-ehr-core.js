@@ -37,7 +37,7 @@ export async function transferOutEhrCore({
   try {
     if (await isEhrRequestDuplicate(outboundConversationId)) return;
     await createOutboundConversation(outboundConversationId, nhsNumber, odsCode);
-    await sleep(config.dynamodbGsiWait);
+    await sleep(config.dynamodbGsiTimeoutMilliseconds);
     if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
       // TODO PRMP-523 when implementing this NACK - I do not think we should update the conversation status here
       await updateConversationStatus(

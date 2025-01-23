@@ -211,6 +211,6 @@ data "aws_ssm_parameter" "dynamodb_prefix_list_id" {
   name = "/repo/${var.environment}/output/prm-deductions-infra/dynamodb_prefix_list_id"
 }
 
-data "aws_ssm_parameter" "dynamodb_gsi_wait" {
-  name = "/repo/${var.environment}/output/prm-repo-ehr-out-service/dynamodb_gsi_wait"
+data "aws_ssm_parameter" "dynamodb_gsi_timeout_milliseconds" {
+  name = "/repo/${var.environment}/output/prm-repo-ehr-out-service/dynamodb_gsi_timeout_milliseconds"
 }

@@ -10,8 +10,8 @@ export const config = () => ({
   repositoryAsid: process.env.REPOSITORY_ASID,
   fragmentTransferRateLimitTimeoutMilliseconds:
     process.env.FRAGMENT_TRANSFER_RATE_LIMIT_TIMEOUT_MILLISECONDS || 0,
-  consumerApiKeys: loadConsumerKeys(),
-  dynamodbGsiWait: process.env.DYNAMODB_GSI_WAIT || 0
+  dynamodbGsiTimeoutMilliseconds: process.env.DYNAMODB_GSI_TIMEOUT_MILLISECONDS || 0,
+  consumerApiKeys: loadConsumerKeys()
 });
 
 const loadConsumerKeys = () => {
