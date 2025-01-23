@@ -11,7 +11,7 @@ export const config = () => ({
   fragmentTransferRateLimitTimeoutMilliseconds:
     process.env.FRAGMENT_TRANSFER_RATE_LIMIT_TIMEOUT_MILLISECONDS || 0,
   consumerApiKeys: loadConsumerKeys(),
-  dynamodbGsiWait: process.env.DYNAMODB_GSI_WAIT || 60000
+  dynamodbGsiWait: process.env.DYNAMODB_GSI_WAIT || 0
 });
 
 const loadConsumerKeys = () => {
