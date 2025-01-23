@@ -24,7 +24,7 @@ locals {
     { name = "SQS_EHR_OUT_INCOMING_QUEUE_URL", value = aws_sqs_queue.service_incoming.id },
     { name = "FRAGMENT_TRANSFER_RATE_LIMIT_TIMEOUT_MILLISECONDS", value = "100" },
     { name = "DYNAMODB_NAME", value = data.aws_ssm_parameter.dynamodb_name.value },
-    { name = "DYNAMODB_GSI_WAIT", value = data.aws_ssm_parameter.dynamodb_gsi_wait.value }
+    { name = "DYNAMODB_GSI_TIMEOUT_MILLISECONDS", value = data.aws_ssm_parameter.dynamodb_gsi_timeout_milliseconds.value }
   ]
   secret_environment_variables = [
     { name      = "GP2GP_MESSENGER_AUTHORIZATION_KEYS",
