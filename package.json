@@ -29,7 +29,7 @@
     "axios": "^1.7.2",
     "dotenv": "^16.0.0",
     "expect": "^29.3.1",
-    "express": "^4.19.2",
+    "express": "^4.21.2",
     "express-validator": "^6.14.0",
     "fast-xml-parser": "^4.2.5",
     "lodash.chunk": "^4.2.0",
