@@ -53,7 +53,7 @@
     "@babel/node": "^7.22.19",
     "@babel/plugin-syntax-throw-expressions": "^7.22.5",
     "@babel/plugin-transform-runtime": "^7.23.0",
-    "@babel/preset-env": "^7.23.0",
+    "@babel/preset-env": "^7.26.9",
     "async-local-storage": "^2.3.1",
     "eslint": "^8.52.0",
     "eslint-config-prettier": "^8.5.0",
