@@ -48,7 +48,7 @@
     "xml2js": "^0.5.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.23.0",
+    "@babel/cli": "^7.26.4",
     "@babel/core": "^7.23.0",
     "@babel/node": "^7.22.19",
     "@babel/plugin-syntax-throw-expressions": "^7.22.5",
