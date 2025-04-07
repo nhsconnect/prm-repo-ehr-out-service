@@ -22,7 +22,7 @@
     "test:coverage-unit-test-only": "jest  \"src/(?!(.*\\integration.test\\.js))\" --maxWorkers=1 --coverage --detectOpenHandles --forceExit --setupFiles dotenv/config"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.529.1",
+    "@aws-sdk/client-dynamodb": "^3.782.0",
     "@aws-sdk/client-sqs": "^3.441.0",
     "@aws-sdk/lib-dynamodb": "^3.529.1",
     "@babel/runtime": "^7.17.8",
