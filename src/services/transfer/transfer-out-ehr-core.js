@@ -35,7 +35,6 @@ export async function transferOutEhrCore({
   setCurrentSpanAttributes({ conversationId: outboundConversationId });
   logInfo('EHR transfer out request received');
   try {
-
     if (await isEhrRequestDuplicate(outboundConversationId)) return;
     await createOutboundConversation(outboundConversationId, nhsNumber, odsCode);
     await sleep(dynamodbGsiTimeoutMilliseconds);
