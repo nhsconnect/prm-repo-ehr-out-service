@@ -32,10 +32,13 @@ class NegativeAcknowledgementError extends Error {
     this.acknowledgementErrorCode = acknowledgementErrorCode;
 
     // log the internal failure details
-    logError(`${errorMessage}. internalErrorCode is: ${acknowledgementErrorCode.internalErrorCode} and ` +
-      `internalErrorDescription is: ${acknowledgementErrorCode.internalErrorDescription}`);
+    logError(
+      `${errorMessage}. internalErrorCode is: ${acknowledgementErrorCode.internalErrorCode} and ` +
+        `internalErrorDescription is: ${acknowledgementErrorCode.internalErrorDescription}`
+    );
 
-    if (error) { // may not be populated. Not all errors producing negative acknowledgements will have an external cause
+    if (error) {
+      // may not be populated. Not all errors producing negative acknowledgements will have an external cause
       logError(error);
     }
   }

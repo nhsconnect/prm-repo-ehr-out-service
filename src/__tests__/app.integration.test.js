@@ -209,7 +209,12 @@ describe('Ensure health record outbound XML is unchanged', () => {
       fragmentMessageIds: []
     };
     const messageId = '4AA69FD3-6AAF-4F51-98EF-58A342C3265F';
-    await createInboundCompleteRecordForTest(inboundConversationId, nhsNumber, inboundCoreMessageId, []);
+    await createInboundCompleteRecordForTest(
+      inboundConversationId,
+      nhsNumber,
+      inboundCoreMessageId,
+      []
+    );
 
     // when
     getEhrCoreAndFragmentIdsFromRepo.mockReturnValueOnce(responseFromEhrRepo);

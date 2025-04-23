@@ -20,8 +20,8 @@ import {
   createOutboundConversation,
   getOutboundConversationById
 } from '../database/dynamodb/outbound-conversation-repository';
-import {AcknowledgementErrorCode, ConversationStatus, FailureReason} from '../../constants/enums';
-import {sendAcknowledgement} from "../gp2gp/send-acknowledgement";
+import { AcknowledgementErrorCode, ConversationStatus, FailureReason } from '../../constants/enums';
+import { sendAcknowledgement } from '../gp2gp/send-acknowledgement';
 
 export async function transferOutEhrCore({
   conversationId: outboundConversationId,
@@ -68,7 +68,13 @@ export async function transferOutEhrCore({
       newMessageId
     );
   } catch (error) {
-    await handleCoreTransferError(error, nhsNumber, odsCode, outboundConversationId, incomingMessageId);
+    await handleCoreTransferError(
+      error,
+      nhsNumber,
+      odsCode,
+      outboundConversationId,
+      incomingMessageId
+    );
   }
 }
 
