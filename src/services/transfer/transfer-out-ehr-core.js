@@ -7,6 +7,7 @@ import {
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../ehr-repo/get-ehr';
 import { setCurrentSpanAttributes } from '../../config/tracing';
+import { config } from '../../config';
 import { parseMessageId } from '../parser/parsing-utilities';
 import { sendCore } from '../gp2gp/send-core';
 import {
@@ -30,13 +31,14 @@ export async function transferOutEhrCore({
   ehrRequestId,
   incomingMessageId
 }) {
+  const { dynamodbGsiTimeoutMilliseconds } = config();
   setCurrentSpanAttributes({ conversationId: outboundConversationId });
   logInfo('EHR transfer out request received');
-
   try {
+
     if (await isEhrRequestDuplicate(outboundConversationId)) return;
     await createOutboundConversation(outboundConversationId, nhsNumber, odsCode);
-
+    await sleep(dynamodbGsiTimeoutMilliseconds);
     if (!(await patientAndPracticeOdsCodesMatch(nhsNumber, odsCode))) {
       // TODO PRMP-523 when implementing this NACK - I do not think we should update the conversation status here
       await updateConversationStatus(
@@ -179,3 +181,7 @@ const handleCoreTransferError = async (
       });
   }
 };
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
