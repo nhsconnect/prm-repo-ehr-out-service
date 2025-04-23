@@ -18,6 +18,13 @@ resource "aws_alb" "alb_internal" {
     CreatedBy   = var.repo_name
     Environment = var.environment
   }
+
+  access_logs {
+    bucket  = data.aws_ssm_parameter.alb_access_logs_bucket.value
+    enabled = true
+    prefix  = "alb_internal"
+  }
+
 }
 
 resource "aws_security_group" "service_from_alb" {
