@@ -51,10 +51,7 @@ describe('getPdsOdsCode', () => {
     // given
     let error;
     const http500Error = new Error('Request failed with status code 500');
-    const expectedError = new GetPdsCodeError(
-      http500Error,
-      AcknowledgementErrorCode.ERROR_CODE_20_A
-    );
+    const expectedError = new GetPdsCodeError(http500Error, AcknowledgementErrorCode.ERROR_CODE_20_A);
 
     // when
     nock(MOCK_GP2GP_MESSENGER_SERVICE_URL, HEADERS)
@@ -67,12 +64,8 @@ describe('getPdsOdsCode', () => {
     }
 
     // then
-    expect(error).toEqual(expectedError);
+    expect(error).toEqual(expectedError)
     expect(logError).toHaveBeenCalledWith(http500Error);
-    expect(logError).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'internalErrorCode is: ' + expectedError.acknowledgementErrorCode.internalErrorCode
-      )
-    );
+    expect(logError).toHaveBeenCalledWith(expect.stringContaining('internalErrorCode is: ' + expectedError.acknowledgementErrorCode.internalErrorCode));
   });
 });

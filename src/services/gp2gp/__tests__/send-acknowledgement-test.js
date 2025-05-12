@@ -1,9 +1,9 @@
-import { SendAcknowledgementError } from '../../../errors/errors';
+import {SendAcknowledgementError} from '../../../errors/errors';
 import { setupMockConfigForTest } from './test-utils';
 import expect from 'expect';
 import nock from 'nock';
-import { sendAcknowledgement } from '../send-acknowledgement';
-import { AcknowledgementErrorCode } from '../../../constants/enums';
+import {sendAcknowledgement} from "../send-acknowledgement";
+import {AcknowledgementErrorCode} from "../../../constants/enums";
 
 // Mocking
 jest.mock('../../../config');
@@ -38,8 +38,8 @@ describe('sendAcknowledgement', () => {
 
     // when
     const mockUrlRequest = nock(REQUEST_BASE_URL, HEADERS)
-      .post(REQUEST_ENDPOINT, requestBody)
-      .reply(204);
+        .post(REQUEST_ENDPOINT, requestBody)
+        .reply(204);
 
     await sendAcknowledgement(NHS_NUMBER, ODS_CODE, CONVERSATION_ID, MESSAGE_ID);
 
@@ -57,7 +57,9 @@ describe('sendAcknowledgement', () => {
     };
 
     // when
-    nock(REQUEST_BASE_URL, HEADERS).post(REQUEST_ENDPOINT, requestBody).reply(404);
+    nock(REQUEST_BASE_URL, HEADERS)
+      .post(REQUEST_ENDPOINT, requestBody)
+      .reply(404);
 
     // then
     await expect(() =>
@@ -81,13 +83,7 @@ describe('sendAcknowledgement', () => {
       .post(REQUEST_ENDPOINT, requestBody)
       .reply(204);
 
-    await sendAcknowledgement(
-      NHS_NUMBER,
-      ODS_CODE,
-      CONVERSATION_ID,
-      MESSAGE_ID,
-      AcknowledgementErrorCode.ERROR_CODE_06_A
-    );
+    await sendAcknowledgement(NHS_NUMBER, ODS_CODE, CONVERSATION_ID, MESSAGE_ID, AcknowledgementErrorCode.ERROR_CODE_06_A);
 
     // then
     expect(mockUrlRequest.isDone()).toBe(true);
@@ -105,17 +101,13 @@ describe('sendAcknowledgement', () => {
     };
 
     // when
-    nock(REQUEST_BASE_URL, HEADERS).post(REQUEST_ENDPOINT, requestBody).reply(404);
+    nock(REQUEST_BASE_URL, HEADERS)
+      .post(REQUEST_ENDPOINT, requestBody)
+      .reply(404);
 
     // then
     await expect(() =>
-      sendAcknowledgement(
-        NHS_NUMBER,
-        ODS_CODE,
-        CONVERSATION_ID,
-        MESSAGE_ID,
-        AcknowledgementErrorCode.ERROR_CODE_06_A
-      )
+      sendAcknowledgement(NHS_NUMBER, ODS_CODE, CONVERSATION_ID, MESSAGE_ID, AcknowledgementErrorCode.ERROR_CODE_06_A)
     ).rejects.toThrowError(SendAcknowledgementError);
   });
 });

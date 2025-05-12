@@ -1,13 +1,9 @@
 import { v4 as uuid } from 'uuid';
 
-import {
-  FragmentMessageIdReplacementRecordNotFoundError,
-  NhsNumberNotFoundError
-} from '../../../../errors/errors';
+import {FragmentMessageIdReplacementRecordNotFoundError, NhsNumberNotFoundError} from '../../../../errors/errors';
 import {
   cleanupRecordsForTest,
-  createInboundCompleteRecordForTest,
-  createInboundRecordWithConversationTransferStatusForTest
+  createInboundCompleteRecordForTest, createInboundRecordWithConversationTransferStatusForTest
 } from '../../../../utilities/integration-test-utilities';
 import {
   createOutboundConversation,
@@ -29,7 +25,7 @@ import { buildUpdateParamFromItem } from '../../../../utilities/dynamodb-helper'
 import { isConversation } from '../../../../models/conversation';
 import { isCore } from '../../../../models/core';
 import { isFragment } from '../../../../models/fragment';
-import { getAllMessageIdPairs } from '../ehr-fragment-repository';
+import {getAllMessageIdPairs} from "../ehr-fragment-repository";
 
 // Mocking
 jest.mock('../../../../middleware/logging');
@@ -96,14 +92,14 @@ describe('outbound-conversation-repository', () => {
     it('should throw when no conversation exists for NHS number', async () => {
       // given
       const conversationId = uuid().toUpperCase();
-      const nhsNumber = '9000000002';
+      const nhsNumber = '9000000002'
       let acknowledgementError;
 
       // when
       try {
         await createOutboundConversation(conversationId, nhsNumber, ODS_CODE);
       } catch (err) {
-        acknowledgementError = err.acknowledgementErrorCode;
+        acknowledgementError = err.acknowledgementErrorCode
       }
 
       // then
@@ -127,7 +123,7 @@ describe('outbound-conversation-repository', () => {
       try {
         await createOutboundConversation(conversationId, NHS_NUMBER, ODS_CODE);
       } catch (err) {
-        acknowledgementError = err.acknowledgementErrorCode;
+        acknowledgementError = err.acknowledgementErrorCode
       }
 
       // then

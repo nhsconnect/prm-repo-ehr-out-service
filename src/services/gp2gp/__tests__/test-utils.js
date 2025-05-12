@@ -7,7 +7,7 @@ import { config } from '../../../config';
 
 const GP2GP_MESSENGER_URL = 'http://localhost';
 const GP2GP_MESSENGER_AUTH_KEY = 'fake-keys';
-const REPOSITORY_ASID = 'fake-asid';
+const REPOSITORY_ASID = 'fake-asid'
 export const setupMockConfigForTest = () => {
   config.mockReturnValue({
     gp2gpMessengerAuthKeys: GP2GP_MESSENGER_AUTH_KEY,

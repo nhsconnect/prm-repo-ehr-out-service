@@ -2,6 +2,7 @@
 ##
 ## 1) Visit https://github.com/nhsconnect/<repo>/settings/environments and create environments:
 ## - dev
+## - dev-apply
 ## - test
 ## - test-apply
 ## - pre-prod
@@ -61,7 +62,7 @@ jobs:
       - name: Set up git repo
         uses: actions/checkout@v4
 
-      - name: Set up Terraform
+      - name: Set up Terrafor
         uses: hashicorp/setup-terraform@v3
 
       - name: Configure AWS Credentials

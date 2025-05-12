@@ -94,11 +94,7 @@ describe('storeOutboundMessageIds', () => {
     const oldMessageId = INBOUND_CORE_MESSAGE_ID;
     const newMessageId = uuid().toUpperCase();
     const outboundConversationId = uuid().toUpperCase();
-    await createInboundCompleteRecordForTest(
-      INBOUND_CONVERSATION_ID,
-      NHS_NUMBER,
-      INBOUND_CORE_MESSAGE_ID
-    );
+    await createInboundCompleteRecordForTest(INBOUND_CONVERSATION_ID, NHS_NUMBER, INBOUND_CORE_MESSAGE_ID);
     await createOutboundConversation(outboundConversationId, NHS_NUMBER, ODS_CODE);
 
     // when
@@ -114,11 +110,7 @@ describe('storeOutboundMessageIds', () => {
     const oldMessageId = 'INVALID-OLD-MESSAGE-ID';
     const newMessageId = uuid().toUpperCase();
     const outboundConversationId = uuid().toUpperCase();
-    await createInboundCompleteRecordForTest(
-      INBOUND_CONVERSATION_ID,
-      NHS_NUMBER,
-      INBOUND_CORE_MESSAGE_ID
-    );
+    await createInboundCompleteRecordForTest(INBOUND_CONVERSATION_ID, NHS_NUMBER, INBOUND_CORE_MESSAGE_ID);
     await createOutboundConversation(outboundConversationId, NHS_NUMBER, ODS_CODE);
 
     // when
@@ -139,11 +131,7 @@ describe('storeOutboundMessageIds', () => {
     const oldMessageId = INBOUND_CORE_MESSAGE_ID;
     const newMessageId = 'INVALID-NEW-MESSAGE-ID';
     const outboundConversationId = uuid().toUpperCase();
-    await createInboundCompleteRecordForTest(
-      INBOUND_CONVERSATION_ID,
-      NHS_NUMBER,
-      INBOUND_CORE_MESSAGE_ID
-    );
+    await createInboundCompleteRecordForTest(INBOUND_CONVERSATION_ID, NHS_NUMBER, INBOUND_CORE_MESSAGE_ID);
     await createOutboundConversation(outboundConversationId, NHS_NUMBER, ODS_CODE);
 
     // when

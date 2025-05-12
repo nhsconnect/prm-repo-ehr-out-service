@@ -1,4 +1,4 @@
-import { errorMessages } from '../errors/errors';
+import {errorMessages} from "../errors/errors";
 
 export const RecordType = {
   ALL: 'ALL', // Option for querying all layers in one call
