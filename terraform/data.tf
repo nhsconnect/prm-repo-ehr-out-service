@@ -59,3 +59,7 @@ data "aws_ssm_parameter" "gocd_sg_id" {
 data "aws_ssm_parameter" "ehr_in_unhandled_sns_topic_arn" {
   name = "/repo/${var.environment}/output/ehr-transfer-service/ehr-in-unhandled-sns-topic-arn"
 }
+
+data "aws_ssm_parameter" "alb_access_logs_bucket" {
+  name = "/repo/${var.environment}/output/prm-deductions-infra/alb-access-logs-s3-bucket-id"
+}

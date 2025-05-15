@@ -2,6 +2,7 @@
 ##
 ## 1) Visit https://github.com/nhsconnect/<repo>/settings/environments and create environments:
 ## - dev
+## - dev-apply
 ## - test
 ## - test-apply
 ## - pre-prod
