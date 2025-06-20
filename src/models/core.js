@@ -2,7 +2,7 @@ import { RecordType } from '../constants/enums';
 import { isFragment } from './fragment';
 import { getUKTimestamp } from '../services/time';
 import { addChangesToUpdateParams } from '../utilities/dynamodb-helper';
-import { idValidator, validateId, validateIds } from '../utilities/validation-utilities';
+import { idValidator } from '../utilities/validation-utilities';
 
 const fieldsAllowedToUpdate = ['TransferStatus', 'FailureReason'];
 

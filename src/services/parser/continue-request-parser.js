@@ -9,23 +9,15 @@ export const parseContinueRequestMessage = async message => {
     ebxml: await new XmlParser().parse(jsonParseMessage(message).ebXML)
   };
 
-  const odsCode = messageParts.payload
-    ?.['data']
-    ?.[INTERACTION_IDS.CONTINUE_REQUEST]
-    ?.['ControlActEvent']
-    ?.['subject']
-    ?.['PayloadInformation']
-    ?.['value']
-    ?.['Gp2gpfragment']
-    ?.['From'];
+  const odsCode =
+    messageParts.payload?.['data']?.[INTERACTION_IDS.CONTINUE_REQUEST]?.['ControlActEvent']?.[
+      'subject'
+    ]?.['PayloadInformation']?.['value']?.['Gp2gpfragment']?.['From'];
 
-  const messageId = messageParts.ebxml
-    ?.['data']
-    ?.['Envelope']
-    ?.['Header']
-    ?.['MessageHeader']
-    ?.['MessageData']
-    ?.['MessageId'];
+  const messageId =
+    messageParts.ebxml?.['data']?.['Envelope']?.['Header']?.['MessageHeader']?.['MessageData']?.[
+      'MessageId'
+    ];
 
   const parsedFields = { odsCode, messageId };
 

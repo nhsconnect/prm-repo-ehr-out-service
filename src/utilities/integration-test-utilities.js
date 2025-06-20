@@ -70,7 +70,7 @@ export const createInboundRecordWithConversationTransferStatusForTest = async (
   }));
 
   await db.writeItemsInTransaction([conversation, core, ...fragments]);
-}
+};
 
 export const cleanupRecordsForTest = async conversationId => {
   // This method is only meant for testing purpose

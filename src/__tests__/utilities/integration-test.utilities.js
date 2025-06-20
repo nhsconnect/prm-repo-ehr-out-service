@@ -43,7 +43,7 @@ const validateEbXmlEquality = (original, modified) => {
 
   // Check original vs modified ebXML
   for (const key in ebXMLs) {
-    if (ebXMLs.hasOwnProperty(key)) {
+    if (Object.hasOwn(ebXMLs, key)) {
       // Delete the Message ID attribute within MessageData -> MessageId
       delete ebXMLs[key]['Envelope']['Header']['MessageHeader']['MessageData']['MessageId'];
 
@@ -68,7 +68,7 @@ const validatePayloadEquality = (original, modified) => {
   };
 
   for (const key in payloads) {
-    if (payloads.hasOwnProperty(key)) {
+    if (Object.hasOwn(payloads, key)) {
       if (
         original.includes(INTERACTION_IDS.EHR_CORE) &&
         modified.includes(INTERACTION_IDS.EHR_CORE)
@@ -125,7 +125,7 @@ const validateExternalAttachmentEquality = (original, modified) => {
     }
 
     for (const key in externalAttachments) {
-      if (externalAttachments.hasOwnProperty(key)) {
+      if (Object.hasOwn(externalAttachments, key)) {
         for (const externalAttachment in externalAttachments[key]) {
           delete externalAttachments[key][externalAttachment]['message_id'];
         }

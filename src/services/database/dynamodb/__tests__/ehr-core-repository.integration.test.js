@@ -1,5 +1,4 @@
 import { v4 as uuid } from 'uuid';
-import { EhrTransferTracker } from '../dynamo-ehr-transfer-tracker';
 import {
   buildMessageIdReplacement,
   cleanupRecordsForTest,
@@ -20,7 +19,6 @@ const NHS_NUMBER = '9000000001';
 const INBOUND_CORE_MESSAGE_ID = uuid().toUpperCase();
 const INBOUND_FRAGMENT_IDS = [uuid().toUpperCase(), uuid().toUpperCase(), uuid().toUpperCase()];
 const ODS_CODE = 'B12345';
-const db = EhrTransferTracker.getInstance();
 
 describe('ehr-core-repository', () => {
   afterAll(async () => {
