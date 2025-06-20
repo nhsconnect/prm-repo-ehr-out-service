@@ -48,6 +48,9 @@ jobs:
       - name: eslint
         run: npm run lint
 
+      - name: run unit tests 
+        run: npm run test
+
   plan:
     strategy:
       matrix:
