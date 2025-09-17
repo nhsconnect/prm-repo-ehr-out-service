@@ -1,6 +1,7 @@
 import {
   patientAndPracticeOdsCodesMatch,
-  updateConversationStatus, updateCoreStatus
+  updateConversationStatus,
+  updateCoreStatus
 } from '../transfer/transfer-out-util';
 import {
   getNhsNumberByOutboundConversationId,
@@ -16,8 +17,8 @@ import { parseConversationId } from '../parser/parsing-utilities';
 import { logError, logInfo, logWarning } from '../../middleware/logging';
 import { ConversationStatus, CoreStatus, FailureReason } from '../../constants/enums';
 import { hasServiceStartedInTheLast5Minutes } from '../../config';
-import {DownloadError, GetPdsCodeError, PresignedUrlNotFoundError} from "../../errors/errors";
-import {sendAcknowledgement} from "../gp2gp/send-acknowledgement";
+import { DownloadError, GetPdsCodeError, PresignedUrlNotFoundError } from '../../errors/errors';
+import { sendAcknowledgement } from '../gp2gp/send-acknowledgement';
 
 export default async function continueMessageHandler(message) {
   const conversationId = await parseConversationId(message);
@@ -82,7 +83,10 @@ const handleNewContinueRequest = async (conversationId, continueRequestMessage) 
     return;
   }
 
-  await updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_CONTINUE_REQUEST_RECEIVED);
+  await updateConversationStatus(
+    conversationId,
+    ConversationStatus.OUTBOUND_CONTINUE_REQUEST_RECEIVED
+  );
   await updateCoreStatus(conversationId, CoreStatus.OUTBOUND_COMPLETE);
 
   await transferOutFragmentsForNewContinueRequest({
@@ -94,14 +98,9 @@ const handleNewContinueRequest = async (conversationId, continueRequestMessage) 
       logInfo('Finished transferOutFragment');
       updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_SENT_FRAGMENTS);
     })
-    .catch(async error =>
-      await handleFragmentTransferError(
-        error,
-        nhsNumber,
-        odsCode,
-        conversationId,
-        messageId
-      )
+    .catch(
+      async error =>
+        await handleFragmentTransferError(error, nhsNumber, odsCode, conversationId, messageId)
     );
 };
 
@@ -133,14 +132,9 @@ const handleRetriedContinueRequest = async (conversationId, continueRequestMessa
       logInfo('Finished transferOutFragment');
       updateConversationStatus(conversationId, ConversationStatus.OUTBOUND_SENT_FRAGMENTS);
     })
-    .catch(async error =>
-      await handleFragmentTransferError(
-        error,
-        nhsNumber,
-        odsCode,
-        conversationId,
-        messageId
-      )
+    .catch(
+      async error =>
+        await handleFragmentTransferError(error, nhsNumber, odsCode, conversationId, messageId)
     );
 };
 

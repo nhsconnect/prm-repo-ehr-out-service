@@ -18,9 +18,10 @@ export default async function sendMessageToCorrespondingHandler(message) {
     case INTERACTION_IDS.ACKNOWLEDGEMENT:
       await acknowledgementMessageHandler(message);
       break;
-    default:
+    default: {
       const error = new Error(`Invalid interaction ID: ${interactionId}`);
       logError(error.message);
       throw error;
+    }
   }
 }

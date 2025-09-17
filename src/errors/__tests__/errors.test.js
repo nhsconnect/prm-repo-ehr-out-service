@@ -1,7 +1,12 @@
-import {DownloadError, errorMessages, PatientRecordNotFoundError, PresignedUrlNotFoundError} from "../errors";
-import { AcknowledgementErrorCode } from "../../constants/enums";
-import expect from "expect";
-import { logError } from "../../middleware/logging";
+import {
+  DownloadError,
+  errorMessages,
+  PatientRecordNotFoundError,
+  PresignedUrlNotFoundError
+} from '../errors';
+import { AcknowledgementErrorCode } from '../../constants/enums';
+import expect from 'expect';
+import { logError } from '../../middleware/logging';
 
 // mocking
 jest.mock('../../middleware/logging');
@@ -32,17 +37,20 @@ describe('errors tests', () => {
 
   it.each(negativeAcknowledgementErrors)(
     'should logError and set acknowledgementErrorCode upon creation of a NegativeAcknowledgementError - $acknowledgementErrorCode.internalErrorCode $type.name',
-    ({ type, acknowledgementErrorCode, errorMessage}) => {
+    ({ type, acknowledgementErrorCode, errorMessage }) => {
       // when
       // not all errorTypes have an external cause so don't have an 'error' field. We want it to always be null for this test anyway
-      const error = type.length === 1
-        ? new type(acknowledgementErrorCode)
-        : new type(null, acknowledgementErrorCode);
+      const error =
+        type.length === 1
+          ? new type(acknowledgementErrorCode)
+          : new type(null, acknowledgementErrorCode);
 
       // then
-      expect(logError).toHaveBeenCalledWith(`${errorMessage}. ` +
-        `internalErrorCode is: ${acknowledgementErrorCode.internalErrorCode} and ` +
-        `internalErrorDescription is: ${acknowledgementErrorCode.internalErrorDescription}`);
+      expect(logError).toHaveBeenCalledWith(
+        `${errorMessage}. ` +
+          `internalErrorCode is: ${acknowledgementErrorCode.internalErrorCode} and ` +
+          `internalErrorDescription is: ${acknowledgementErrorCode.internalErrorDescription}`
+      );
 
       expect(error.acknowledgementErrorCode).toEqual(acknowledgementErrorCode);
     }

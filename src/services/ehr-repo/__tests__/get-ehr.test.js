@@ -2,8 +2,8 @@ import { PresignedUrlNotFoundError, DownloadError, errorMessages } from '../../.
 import { logError, logInfo } from '../../../middleware/logging';
 import { getEhrCoreAndFragmentIdsFromRepo } from '../get-ehr';
 import nock from 'nock';
-import expect from "expect";
-import {AcknowledgementErrorCode} from "../../../constants/enums";
+import expect from 'expect';
+import { AcknowledgementErrorCode } from '../../../constants/enums';
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -88,9 +88,11 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
         getEhrCoreAndFragmentIdsFromRepo(nhsNumber, conversationId)
       ).rejects.toThrow(PresignedUrlNotFoundError);
       expect(urlScope.isDone()).toBe(true);
-      expect(logError).toBeCalledWith(`${errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR}. ` +
-        `internalErrorCode is: ${AcknowledgementErrorCode.ERROR_CODE_10_B.internalErrorCode} and ` +
-        `internalErrorDescription is: ${AcknowledgementErrorCode.ERROR_CODE_10_B.internalErrorDescription}`);
+      expect(logError).toBeCalledWith(
+        `${errorMessages.PRESIGNED_URL_NOT_FOUND_ERROR}. ` +
+          `internalErrorCode is: ${AcknowledgementErrorCode.ERROR_CODE_10_B.internalErrorCode} and ` +
+          `internalErrorDescription is: ${AcknowledgementErrorCode.ERROR_CODE_10_B.internalErrorDescription}`
+      );
       expect(logError).toHaveBeenCalledWith(expectedError);
     });
 
@@ -123,9 +125,10 @@ describe('getEhrCoreAndFragmentIdsFromRepo', () => {
       ).rejects.toThrow(DownloadError);
 
       expect(ehrScope.isDone()).toBe(true);
-      expect(logError).toBeCalledWith(`${errorMessages.DOWNLOAD_ERROR}. ` +
-        `internalErrorCode is: ${AcknowledgementErrorCode.ERROR_CODE_10_A.internalErrorCode} and ` +
-        `internalErrorDescription is: ${AcknowledgementErrorCode.ERROR_CODE_10_A.internalErrorDescription}`,
+      expect(logError).toBeCalledWith(
+        `${errorMessages.DOWNLOAD_ERROR}. ` +
+          `internalErrorCode is: ${AcknowledgementErrorCode.ERROR_CODE_10_A.internalErrorCode} and ` +
+          `internalErrorDescription is: ${AcknowledgementErrorCode.ERROR_CODE_10_A.internalErrorDescription}`
       );
       expect(logError).toBeCalledWith(expectedError);
     });

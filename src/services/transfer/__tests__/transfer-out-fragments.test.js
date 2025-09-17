@@ -14,7 +14,7 @@ import {
   getAllFragmentIdsToBeSent,
   getAllMessageIdPairs
 } from '../../database/dynamodb/ehr-fragment-repository';
-import {AcknowledgementErrorCode, FailureReason, FragmentStatus} from '../../../constants/enums';
+import { AcknowledgementErrorCode, FailureReason, FragmentStatus } from '../../../constants/enums';
 import {
   DownloadError,
   FragmentSendingError,

@@ -19,10 +19,10 @@ import {
   replaceMessageIdsInObject,
   updateConversationStatus
 } from '../transfer-out-util';
-import {parseConversationId, parseMessageId} from '../../parser/parsing-utilities';
+import { parseMessageId } from '../../parser/parsing-utilities';
 import { cleanupRecordsForTest } from '../../../utilities/integration-test-utilities';
 import {
-  createOutboundConversation, getNhsNumberByOutboundConversationId,
+  createOutboundConversation,
   getOutboundConversationById
 } from '../../database/dynamodb/outbound-conversation-repository';
 import {
@@ -31,10 +31,7 @@ import {
   ConversationStatus,
   FailureReason
 } from '../../../constants/enums';
-import {sendAcknowledgement} from "../../gp2gp/send-acknowledgement";
-import {parseContinueRequestMessage} from "../../parser/continue-request-parser";
-import {transferOutFragmentsForNewContinueRequest} from "../transfer-out-fragments";
-import continueMessageHandler from "../../handler/continue-message-handler";
+import { sendAcknowledgement } from '../../gp2gp/send-acknowledgement';
 
 // Mocking
 jest.mock('../../gp2gp/send-core');
@@ -146,9 +143,10 @@ describe('transferOutEhrCore', () => {
       async ({ errorType, acknowledgementErrorCode, conversationStatus, failureReason }) => {
         // given
         // not all errorTypes have an external cause so don't have an 'error' field. We want it to always be null for this test anyway
-        const error = errorType.length === 1
-          ? new errorType(acknowledgementErrorCode)
-          : new errorType(null, acknowledgementErrorCode);
+        const error =
+          errorType.length === 1
+            ? new errorType(acknowledgementErrorCode)
+            : new errorType(null, acknowledgementErrorCode);
 
         // when
         getOutboundConversationById.mockResolvedValueOnce(null);
@@ -176,7 +174,8 @@ describe('transferOutEhrCore', () => {
           odsCode,
           conversationId,
           incomingMessageId,
-          acknowledgementErrorCode.gp2gpError);
+          acknowledgementErrorCode.gp2gpError
+        );
 
         if (conversationStatus) {
           expect(updateConversationStatus).toHaveBeenNthCalledWith(
@@ -186,7 +185,7 @@ describe('transferOutEhrCore', () => {
             failureReason
           );
         } else {
-          expect(updateConversationStatus).toHaveBeenCalledTimes(1)
+          expect(updateConversationStatus).toHaveBeenCalledTimes(1);
         }
         expect(sendCore).not.toHaveBeenCalled();
       }
@@ -328,7 +327,8 @@ describe('transferOutEhrCore', () => {
         odsCode,
         conversationId,
         incomingMessageId,
-        acknowledgementErrorCode.gp2gpError);
+        acknowledgementErrorCode.gp2gpError
+      );
       expect(sendCore).not.toHaveBeenCalled();
     });
 

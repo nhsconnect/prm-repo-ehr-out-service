@@ -1,6 +1,7 @@
 import {
   patientAndPracticeOdsCodesMatch,
-  updateConversationStatus, updateCoreStatus
+  updateConversationStatus,
+  updateCoreStatus
 } from '../../transfer/transfer-out-util';
 import { parseContinueRequestMessage } from '../../parser/continue-request-parser';
 import {
@@ -12,7 +13,8 @@ import continueMessageHandler from '../continue-message-handler';
 import {
   AcknowledgementErrorCode,
   ConversationStatus as conversationStatus,
-  ConversationStatus, CoreStatus,
+  ConversationStatus,
+  CoreStatus,
   FailureReason
 } from '../../../constants/enums';
 import { readFileSync } from 'fs';
@@ -21,7 +23,8 @@ import path from 'path';
 import { logError, logInfo, logWarning } from '../../../middleware/logging';
 import { hasServiceStartedInTheLast5Minutes } from '../../../config';
 import {
-  DownloadError, GetPdsCodeError,
+  DownloadError,
+  GetPdsCodeError,
   NhsNumberNotFoundError,
   PresignedUrlNotFoundError
 } from '../../../errors/errors';
@@ -29,7 +32,7 @@ import {
   getNhsNumberByOutboundConversationId,
   getOutboundConversationById
 } from '../../database/dynamodb/outbound-conversation-repository';
-import {sendAcknowledgement} from "../../gp2gp/send-acknowledgement";
+import { sendAcknowledgement } from '../../gp2gp/send-acknowledgement';
 
 // Mocking
 jest.mock('../../../middleware/logging');
@@ -264,7 +267,9 @@ describe('continueMessageHandler', () => {
       // when
       parseConversationId.mockResolvedValueOnce(CONVERSATION_ID);
       parseContinueRequestMessage.mockResolvedValueOnce(PARSED_CONTINUE_MESSAGE);
-      getOutboundConversationById.mockReturnValueOnce({ TransferStatus: ConversationStatus.OUTBOUND_SENT_CORE });
+      getOutboundConversationById.mockReturnValueOnce({
+        TransferStatus: ConversationStatus.OUTBOUND_SENT_CORE
+      });
       getNhsNumberByOutboundConversationId.mockResolvedValueOnce(NHS_NUMBER);
       patientAndPracticeOdsCodesMatch.mockResolvedValueOnce(true);
       transferOutFragmentsForNewContinueRequest.mockRejectedValueOnce(error);
@@ -277,10 +282,7 @@ describe('continueMessageHandler', () => {
         CONVERSATION_ID,
         ConversationStatus.OUTBOUND_CONTINUE_REQUEST_RECEIVED
       );
-      expect(updateCoreStatus).toHaveBeenCalledWith(
-        CONVERSATION_ID,
-        CoreStatus.OUTBOUND_COMPLETE
-      );
+      expect(updateCoreStatus).toHaveBeenCalledWith(CONVERSATION_ID, CoreStatus.OUTBOUND_COMPLETE);
       expect(sendAcknowledgement).toHaveBeenCalledWith(
         NHS_NUMBER,
         ODS_CODE,
@@ -294,5 +296,6 @@ describe('continueMessageHandler', () => {
         conversationStatus,
         failureReason
       );
-  });
+    }
+  );
 });
